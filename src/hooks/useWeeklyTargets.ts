@@ -8,7 +8,7 @@ export type WeeklyTargetDraft = {
 };
 
 type UseWeeklyTargetsParams = {
-    cycle: Cycle;
+    cycle: Cycle | null;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
 };
 
@@ -75,6 +75,7 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
     };
 
     const copyFromPreviousWeek = (selectedWeek: number) => {
+        if (!cycle) return;
         if (selectedWeek <= 1) return;
 
         const previousTargets = cycle.weeklyTargets[selectedWeek - 1] ?? [];

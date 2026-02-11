@@ -248,55 +248,17 @@ export default function App() {
     cycle,
     selectedWeek
   });
-
-  if (!cycle) {
-    return (
-      <div className="page">
-        <header className="hero">
-          <div>
-            <p className="eyebrow">12‑Week‑Year Planner</p>
-            <h1>{tr(language, "empty.heroTitle")}</h1>
-            <p>{tr(language, "empty.heroSubtitle")}</p>
-          </div>
-        </header>
-
-        <section className="card">
-          <h2>{tr(language, "empty.newCycleTitle")}</h2>
-          <div className="grid">
-            <label>
-              {tr(language, "empty.titleOptional")}
-              <input value={titleInput} onChange={(e) => setTitleInput(e.target.value)} placeholder="Q2 Fokus & Gesundheit" />
-            </label>
-            <label>
-              {tr(language, "empty.startDate")}
-              <input type="date" value={startDateInput} onChange={(e) => setStartDateInput(e.target.value)} />
-              <span className="hint">{tr(language, "empty.startDateHint")}</span>
-            </label>
-          </div>
-          <button className="primary" onClick={() => dispatch({ type: 'SET', payload: buildCycle(titleInput, startDateInput) })}>
-            {tr(language, "empty.createCycle")}
-          </button>
-        </section>
-
-        <section className="card">
-          <h2>{tr(language, "empty.demoTitle")}</h2>
-          <p>{tr(language, "empty.demoDescription")}</p>
-          <button onClick={handleLoadDemo}>{tr(language, "empty.loadDemo")}</button>
-        </section>
-      </div>
-    );
-  }
-
   const today = toIsoDate(new Date());
-  const currentWeek = cycle.weeks.find((w) => w.index === selectedWeek) ?? cycle.weeks[0];
-  const todayWeekIndex = getWeekIndexForDate(cycle, today);
-  const todayWeek = cycle.weeks.find((w) => w.index === todayWeekIndex) ?? cycle.weeks[0];
-  const selectedWeekTargets = cycle.weeklyTargets[selectedWeek] ?? [];
+  const fallbackWeek = { index: selectedWeek, startDate: today, endDate: today };
+  const currentWeek = cycle?.weeks.find((w) => w.index === selectedWeek) ?? fallbackWeek;
+  const todayWeekIndex = cycle ? getWeekIndexForDate(cycle, today) : selectedWeek;
+  const todayWeek = cycle?.weeks.find((w) => w.index === todayWeekIndex) ?? fallbackWeek;
+  const selectedWeekTargets = cycle?.weeklyTargets[selectedWeek] ?? [];
 
-  const reminderDate = addDays(todayWeek.startDate, cycle.reminder.dayOffset);
-  const showReminder = cycle.reminder.enabled && today === reminderDate;
+  const reminderDate = cycle ? addDays(todayWeek.startDate, cycle.reminder.dayOffset) : today;
+  const showReminder = cycle ? cycle.reminder.enabled && today === reminderDate : false;
 
-  const dayBlocks = cycle.dailyPlans[selectedDate] ?? [];
+  const dayBlocks = cycle?.dailyPlans[selectedDate] ?? [];
   const {
     addBlock,
     updateBlock: handleUpdateBlock,
@@ -420,6 +382,44 @@ export default function App() {
     state: persistedPlannerState,
     onApplyRemoteState: applyPersistedState
   });
+
+  if (!cycle) {
+    return (
+      <div className="page">
+        <header className="hero">
+          <div>
+            <p className="eyebrow">12‑Week‑Year Planner</p>
+            <h1>{tr(language, "empty.heroTitle")}</h1>
+            <p>{tr(language, "empty.heroSubtitle")}</p>
+          </div>
+        </header>
+
+        <section className="card">
+          <h2>{tr(language, "empty.newCycleTitle")}</h2>
+          <div className="grid">
+            <label>
+              {tr(language, "empty.titleOptional")}
+              <input value={titleInput} onChange={(e) => setTitleInput(e.target.value)} placeholder="Q2 Fokus & Gesundheit" />
+            </label>
+            <label>
+              {tr(language, "empty.startDate")}
+              <input type="date" value={startDateInput} onChange={(e) => setStartDateInput(e.target.value)} />
+              <span className="hint">{tr(language, "empty.startDateHint")}</span>
+            </label>
+          </div>
+          <button className="primary" onClick={() => dispatch({ type: 'SET', payload: buildCycle(titleInput, startDateInput) })}>
+            {tr(language, "empty.createCycle")}
+          </button>
+        </section>
+
+        <section className="card">
+          <h2>{tr(language, "empty.demoTitle")}</h2>
+          <p>{tr(language, "empty.demoDescription")}</p>
+          <button onClick={handleLoadDemo}>{tr(language, "empty.loadDemo")}</button>
+        </section>
+      </div>
+    );
+  }
 
   const handleAddGoal = () => {
     if (cycle.goals.length >= 3) return;
