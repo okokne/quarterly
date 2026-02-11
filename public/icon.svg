@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="12 Week Year Planner">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e07b4c"/>
+      <stop offset="100%" stop-color="#f2b07c"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#g)"/>
+  <rect x="40" y="56" width="176" height="152" rx="20" fill="#fff" opacity="0.92"/>
+  <path d="M74 98h108M74 130h108M74 162h64" stroke="#c8663a" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="172" cy="162" r="22" fill="#e07b4c"/>
+</svg>

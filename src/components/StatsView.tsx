@@ -1,5 +1,5 @@
 import { AppLanguage, Cycle, Habit } from "../types";
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { t as tr } from "../i18n";
 import { addDays, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
 import { ProgressBar } from "./ProgressBar";
@@ -60,7 +60,7 @@ export function StatsView({
     }, []);
 
     return (
-        <section className="card">
+        <section className="card stats-card">
             <h2>📊 {tr(language, "common.stats")}</h2>
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
@@ -82,7 +82,7 @@ export function StatsView({
                                 <div className="stats-bar">
                                     <div
                                         className="stats-bar-fill"
-                                        style={{ height: `${percent}%` }}
+                                        style={{ "--bar-progress": `${percent}%` } as CSSProperties}
                                     />
                                 </div>
                                 <div className="stats-bar-value">{percent}%</div>
@@ -285,12 +285,14 @@ export function StatsView({
                                                 <span className="habit-tracker-title">{habit.title}</span>
                                             </div>
                                             <div className="habit-tracker-meta">
-                                                {streak > 0 && (
-                                                    <span className="habit-streak-badge">{streak} {streak === 1 ? tr(language, "stats.daySingular") : tr(language, "stats.dayPlural")}</span>
-                                                )}
-                                                <span className={`habit-success-rate ${ratePercent >= 80 ? 'high' : ratePercent >= 50 ? 'mid' : 'low'}`}>
-                                                    {rateLabel}
-                                                </span>
+                                                <div className="habit-tracker-meta-grid">
+                                                    {streak > 0 && (
+                                                        <span className="habit-streak-badge">{streak} {streak === 1 ? tr(language, "stats.daySingular") : tr(language, "stats.dayPlural")}</span>
+                                                    )}
+                                                    <span className={`habit-success-rate ${ratePercent >= 80 ? 'high' : ratePercent >= 50 ? 'mid' : 'low'} ${streak > 0 ? '' : 'solo'}`}>
+                                                        {rateLabel}
+                                                    </span>
+                                                </div>
                                                 <span className={`habit-tracker-caret ${isOpen ? "open" : ""}`}>{isOpen ? "▾" : "▸"}</span>
                                             </div>
                                         </button>
@@ -379,8 +381,11 @@ export function StatsView({
                                     )}
                                     {isOpen && !habitEditMode && (
                                         <div className="habit-heatmap-panel">
-                                            <div className="habit-heatmap-panel-meta">{tr(language, "stats.last4Weeks")}</div>
                                             <div className="habit-heatmap-scroll">
+                                                <div className="habit-heatmap-panel-meta">
+                                                    <span className="habit-heatmap-panel-title">{habit.emoji} {habit.title}</span>
+                                                    <span className="habit-heatmap-panel-range">{tr(language, "stats.last4Weeks")}</span>
+                                                </div>
                                                 <div className="habit-heatmap-dayrow">
                                                     {[tr(language, "stats.day1"), tr(language, "stats.day2"), tr(language, "stats.day3"), tr(language, "stats.day4"), tr(language, "stats.day5"), tr(language, "stats.day6"), tr(language, "stats.day7")].map((d) => (
                                                         <span key={d}>{d}</span>

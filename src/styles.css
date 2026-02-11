@@ -120,7 +120,7 @@ body {
 
 /* ─── Page Layout ─── */
 .page {
-  max-width: 860px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 48px 32px 100px;
   display: flex;
@@ -448,9 +448,10 @@ p {
 
 .stats-bar-fill {
   width: 100%;
+  height: var(--bar-progress, 0%);
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-soft) 100%);
   border-radius: var(--radius-sm);
-  transition: height 0.5s ease;
+  transition: height 0.5s ease, width 0.5s ease;
   min-height: 2px;
 }
 
@@ -967,7 +968,13 @@ p {
 .habit-tracker-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.habit-tracker-meta-grid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .habit-tracker-side {
@@ -1052,14 +1059,37 @@ p {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+  --habit-heatmap-meta-h: 28px;
 }
 
 .habit-heatmap-panel-meta {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  min-height: var(--habit-heatmap-meta-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-secondary);
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-bottom: 1px solid var(--border-light);
+  background: color-mix(in srgb, var(--bg-card) 95%, transparent);
+}
+
+.habit-heatmap-panel-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.habit-heatmap-panel-range {
+  flex-shrink: 0;
 }
 
 .habit-heatmap-scroll {
@@ -1067,7 +1097,7 @@ p {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  padding: 6px 8px 8px;
+  padding: 0 8px 8px;
 }
 
 .habit-heatmap-wrap {
@@ -1223,7 +1253,7 @@ p {
   padding: 4px 3px;
   margin-bottom: 6px;
   position: sticky;
-  top: 0;
+  top: var(--habit-heatmap-meta-h);
   z-index: 2;
   background: color-mix(in srgb, var(--bg-card) 90%, transparent);
   border: 1px solid var(--border-light);
@@ -2233,7 +2263,166 @@ button.ghost-danger:hover {
 
   .header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .header-main {
+    width: 100%;
+  }
+
+  .header-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-actions {
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  .header-actions .sync-status {
+    display: none;
+  }
+
+  .header-actions .header-history-btn {
+    display: none;
+  }
+
+  .search-container {
+    order: 1;
+  }
+
+  .search-input {
+    width: 122px;
+  }
+
+  .search-input:focus,
+  .search-container:focus-within .search-input {
+    width: 164px;
+  }
+
+  .search-results {
+    left: auto;
+    right: 0;
+    width: min(290px, calc(100vw - 36px));
+  }
+
+  .stats-chart {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    gap: 10px;
+    padding: 8px 0 0;
+  }
+
+  .stats-bar-container {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stats-bar-label {
+    width: 34px;
+    flex: 0 0 34px;
+    text-align: left;
+  }
+
+  .stats-bar {
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    align-items: center;
+  }
+
+  .stats-bar-fill {
+    height: 100%;
+    width: var(--bar-progress, 0%);
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-soft) 100%);
+  }
+
+  .stats-bar-value {
+    width: 38px;
+    flex: 0 0 38px;
+    text-align: right;
+    font-size: 0.72rem;
+  }
+
+  .stats-card {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .stats-card .subcard {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stats-card h3 {
+    margin-bottom: 8px;
+  }
+
+  .stats-card .goal-tracking-list {
+    gap: 12px;
+  }
+
+  .stats-card .goal-tracking-item {
+    gap: 6px;
+  }
+
+  .stats-card .stats-goal-list {
+    gap: 8px;
+  }
+
+  .stats-card .stats-goal-card {
+    grid-template-columns: 30px 1fr;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .stats-card .stats-goal-index {
+    width: 30px;
+    height: 30px;
+    font-size: 0.76rem;
+  }
+
+  .stats-card .stats-big-number {
+    font-size: 2.35rem;
+    margin: 6px 0;
+  }
+
+  .stats-card .stats-comparison {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .stats-card .stats-week-value {
+    font-size: 2.1rem;
+  }
+
+  .stats-card .goal-week-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .stats-card .goal-week-chip {
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    font-size: 0.72rem;
+    border-radius: 7px;
+  }
+
+  .stats-card .goal-week-chip:hover {
+    transform: none;
+    box-shadow: none;
   }
 
   .list-item {
@@ -2315,13 +2504,19 @@ button.ghost-danger:hover {
   }
 
   .habit-tracker-topbar {
-    flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
   }
 
   .habit-tracker-topbar-right {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .habit-mini-label {
+    font-size: 0.68rem;
+    padding: 3px 8px;
   }
 
   .habit-tracker-main {
@@ -2329,34 +2524,98 @@ button.ghost-danger:hover {
     gap: 8px;
   }
 
+  .habit-tracker-item {
+    padding: 10px;
+    gap: 7px;
+  }
+
+  .habit-tracker-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .habit-tracker-meta {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .habit-tracker-meta-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .habit-streak-badge,
+  .habit-success-rate {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .habit-success-rate.solo {
+    grid-column: 1 / -1;
+  }
+
   .habit-tracker-side {
     width: 100%;
     justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
   .habit-mini-grid {
-    grid-template-columns: repeat(7, 11px);
+    grid-template-columns: repeat(7, 12px);
     gap: 2px;
-    padding: 5px;
+    padding: 6px;
   }
 
   .habit-mini-cell {
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
   }
 
   .habit-delete-controls {
     justify-content: flex-end;
+    width: 100%;
+  }
+
+  .habit-tracker-expand-btn {
+    width: 100%;
+    align-self: stretch;
+    text-align: center;
   }
 
   .habit-heatmap-scroll {
-    max-height: 180px;
+    max-height: 172px;
     padding: 5px 6px 6px;
+  }
+
+  .habit-heatmap-panel {
+    --habit-heatmap-meta-h: 24px;
+  }
+
+  .habit-heatmap-panel-meta {
+    padding: 3px 6px;
+    font-size: 0.64rem;
+  }
+
+  .habit-heatmap-panel-title {
+    font-size: 0.66rem;
+  }
+
+  .habit-heatmap-panel-range {
+    font-size: 0.6rem;
   }
 
   .habit-heatmap-dayrow {
     margin-bottom: 4px;
-    padding: 3px 2px;
+    padding: 2px 2px;
   }
 
   .habit-heatmap-dayrow span {

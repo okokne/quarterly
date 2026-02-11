@@ -110,7 +110,7 @@ export function AppHeader({
                         onClick={onUndo}
                         disabled={!canUndo}
                         title={tr(language, "app.undo")}
-                        className="icon-btn"
+                        className="icon-btn header-history-btn"
                     >
                         ↩️
                     </button>
@@ -118,7 +118,7 @@ export function AppHeader({
                         onClick={onRedo}
                         disabled={!canRedo}
                         title={tr(language, "app.redo")}
-                        className="icon-btn"
+                        className="icon-btn header-history-btn"
                     >
                         ↪️
                     </button>

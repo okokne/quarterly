@@ -512,7 +512,7 @@ END:VEVENT
     if (permission === 'granted') {
       new Notification('12-Week-Year Planner', {
         body: tr(language, "notify.enabledBody"),
-        icon: '/icon-192.png'
+        icon: '/icon.svg'
       });
     }
   };
