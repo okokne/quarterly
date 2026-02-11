@@ -17,7 +17,7 @@ import {
     WeeklyReview,
     WeeklyTarget
 } from "../types";
-import { formatRange } from "../utils";
+import { formatRange, getWritableReviewEntries, upsertCurrentWeeklyReviewEntry } from "../utils";
 import { ProgressBar } from "./ProgressBar";
 
 type GoalDraft = {
@@ -552,8 +552,21 @@ export function WeekTab({
                                         ...prev,
                                         weeklyReviews: {
                                             ...prev.weeklyReviews,
-                                            [selectedWeek]: { ...weeklyReview, good: e.target.value }
-                                        }
+                                            [selectedWeek]: {
+                                                ...(prev.weeklyReviews[selectedWeek] ?? { good: "", bad: "", change: "" }),
+                                                good: e.target.value
+                                            }
+                                        },
+                                        reviewEntries: upsertCurrentWeeklyReviewEntry({
+                                            entries: getWritableReviewEntries(prev),
+                                            weekIndex: selectedWeek,
+                                            date: prev.weeks.find((week) => week.index === selectedWeek)?.startDate ?? prev.startDate,
+                                            review: {
+                                                ...(prev.weeklyReviews[selectedWeek] ?? { good: "", bad: "", change: "" }),
+                                                good: e.target.value
+                                            },
+                                            source: "week_tab"
+                                        })
                                     }))
                                 }
                             />
@@ -567,8 +580,21 @@ export function WeekTab({
                                         ...prev,
                                         weeklyReviews: {
                                             ...prev.weeklyReviews,
-                                            [selectedWeek]: { ...weeklyReview, bad: e.target.value }
-                                        }
+                                            [selectedWeek]: {
+                                                ...(prev.weeklyReviews[selectedWeek] ?? { good: "", bad: "", change: "" }),
+                                                bad: e.target.value
+                                            }
+                                        },
+                                        reviewEntries: upsertCurrentWeeklyReviewEntry({
+                                            entries: getWritableReviewEntries(prev),
+                                            weekIndex: selectedWeek,
+                                            date: prev.weeks.find((week) => week.index === selectedWeek)?.startDate ?? prev.startDate,
+                                            review: {
+                                                ...(prev.weeklyReviews[selectedWeek] ?? { good: "", bad: "", change: "" }),
+                                                bad: e.target.value
+                                            },
+                                            source: "week_tab"
+                                        })
                                     }))
                                 }
                             />
@@ -582,8 +608,21 @@ export function WeekTab({
                                         ...prev,
                                         weeklyReviews: {
                                             ...prev.weeklyReviews,
-                                            [selectedWeek]: { ...weeklyReview, change: e.target.value }
-                                        }
+                                            [selectedWeek]: {
+                                                ...(prev.weeklyReviews[selectedWeek] ?? { good: "", bad: "", change: "" }),
+                                                change: e.target.value
+                                            }
+                                        },
+                                        reviewEntries: upsertCurrentWeeklyReviewEntry({
+                                            entries: getWritableReviewEntries(prev),
+                                            weekIndex: selectedWeek,
+                                            date: prev.weeks.find((week) => week.index === selectedWeek)?.startDate ?? prev.startDate,
+                                            review: {
+                                                ...(prev.weeklyReviews[selectedWeek] ?? { good: "", bad: "", change: "" }),
+                                                change: e.target.value
+                                            },
+                                            source: "week_tab"
+                                        })
                                     }))
                                 }
                             />

@@ -32,11 +32,31 @@ export type Cycle = {
     dailyPlans: Record<string, DailyBlock[]>; // date -> blocks
     dailyReviews: Record<string, DailyReview>; // date -> review
     weeklyReviews: Record<number, WeeklyReview>;
+    reviewEntries?: ReviewEntry[];
     finalReview?: FinalReview;
     journalEntries?: JournalEntry[];
     reminder: ReminderSettings;
     habits: Habit[];
     habitLog: Record<string, string[]>; // date -> completed habit IDs
+};
+
+export type ReviewEntryType = "daily" | "weekly" | "custom";
+export type ReviewSentiment = "positive" | "negative" | "mixed" | "neutral";
+export type ReviewEntrySource = "journal" | "today_tab" | "week_tab" | "migrated";
+
+export type ReviewEntry = {
+    id: Id;
+    type: ReviewEntryType;
+    date: string; // ISO date
+    weekIndex?: number;
+    createdAt: string; // ISO datetime
+    updatedAt: string; // ISO datetime
+    title?: string;
+    content?: string;
+    good?: string;
+    bad?: string;
+    change?: string;
+    source: ReviewEntrySource;
 };
 
 export type JournalEntry = {

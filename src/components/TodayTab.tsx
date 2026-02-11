@@ -20,7 +20,15 @@ import {
     TimeFormat,
     WeeklyTarget
 } from "../types";
-import { formatDate, formatRange, formatTime, getDatesInWeek, weekdayLabel } from "../utils";
+import {
+    formatDate,
+    formatRange,
+    formatTime,
+    getDatesInWeek,
+    getWritableReviewEntries,
+    upsertCurrentDailyReviewEntry,
+    weekdayLabel
+} from "../utils";
 import { ProgressBar } from "./ProgressBar";
 import { ToggleSwitch } from "./ToggleSwitch";
 import { getBlockCompletionState } from "../regressionLogic";
@@ -560,8 +568,20 @@ export function TodayTab({
                                         ...prev,
                                         dailyReviews: {
                                             ...prev.dailyReviews,
-                                            [selectedDate]: { ...dailyReview, good: e.target.value }
-                                        }
+                                            [selectedDate]: {
+                                                ...(prev.dailyReviews[selectedDate] ?? { good: "", bad: "" }),
+                                                good: e.target.value
+                                            }
+                                        },
+                                        reviewEntries: upsertCurrentDailyReviewEntry({
+                                            entries: getWritableReviewEntries(prev),
+                                            date: selectedDate,
+                                            review: {
+                                                ...(prev.dailyReviews[selectedDate] ?? { good: "", bad: "" }),
+                                                good: e.target.value
+                                            },
+                                            source: "today_tab"
+                                        })
                                     }))
                                 }
                             />
@@ -575,8 +595,20 @@ export function TodayTab({
                                         ...prev,
                                         dailyReviews: {
                                             ...prev.dailyReviews,
-                                            [selectedDate]: { ...dailyReview, bad: e.target.value }
-                                        }
+                                            [selectedDate]: {
+                                                ...(prev.dailyReviews[selectedDate] ?? { good: "", bad: "" }),
+                                                bad: e.target.value
+                                            }
+                                        },
+                                        reviewEntries: upsertCurrentDailyReviewEntry({
+                                            entries: getWritableReviewEntries(prev),
+                                            date: selectedDate,
+                                            review: {
+                                                ...(prev.dailyReviews[selectedDate] ?? { good: "", bad: "" }),
+                                                bad: e.target.value
+                                            },
+                                            source: "today_tab"
+                                        })
                                     }))
                                 }
                             />

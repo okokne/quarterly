@@ -2118,12 +2118,112 @@ button.ghost-danger:hover {
   gap: 12px;
 }
 
+.journal-composer-type-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.journal-feed-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.journal-filter-row {
+  display: grid;
+  gap: 6px;
+}
+
+.journal-filter-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.journal-filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.journal-filter-chip {
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.journal-filter-chip:hover {
+  background: var(--bg-hover);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.journal-filter-chip.active {
+  background: color-mix(in srgb, var(--accent) 92%, white);
+  border-color: color-mix(in srgb, var(--accent) 80%, var(--border));
+  color: white;
+}
+
+.journal-feed-root {
+  display: grid;
+  gap: 12px;
+}
+
+.journal-month-group {
+  display: grid;
+  gap: 10px;
+}
+
+.journal-month-toggle {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.journal-month-toggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+.journal-month-meta {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
 .journal-card-list {
   display: grid;
   gap: 10px;
 }
 
-.journal-card {
+.journal-card,
+.journal-entry-card {
   position: relative;
   padding: 14px 16px 14px;
   border: 1px solid var(--border-light);
@@ -2135,11 +2235,13 @@ button.ghost-danger:hover {
   min-height: 92px;
 }
 
-.journal-card.clickable {
+.journal-card.clickable,
+.journal-entry-card.clickable {
   cursor: pointer;
 }
 
-.journal-card.clickable:hover {
+.journal-card.clickable:hover,
+.journal-entry-card.clickable:hover {
   border-color: var(--border);
   box-shadow: var(--shadow-sm);
 }
@@ -2158,16 +2260,107 @@ button.ghost-danger:hover {
   font-weight: 600;
 }
 
-.journal-card h4 {
+.journal-card h4,
+.journal-entry-card h4 {
   font-size: 0.94rem;
   font-weight: 700;
   line-height: 1.35;
 }
 
-.journal-card p {
+.journal-card p,
+.journal-entry-card p {
   margin: 0;
   font-size: 0.84rem;
   line-height: 1.45;
+}
+
+.journal-entry-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-right: 28px;
+}
+
+.journal-entry-type,
+.journal-sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.journal-entry-type.daily {
+  background: color-mix(in srgb, var(--accent-bg) 72%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  color: var(--accent-hover);
+}
+
+.journal-entry-type.weekly {
+  background: color-mix(in srgb, var(--warm-blue-bg) 78%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--warm-blue) 32%, var(--border));
+  color: color-mix(in srgb, var(--warm-blue) 76%, var(--text-primary));
+}
+
+.journal-entry-type.custom {
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+}
+
+.journal-sentiment-positive {
+  background: color-mix(in srgb, var(--success-bg) 84%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--success) 34%, var(--border));
+  color: var(--success);
+}
+
+.journal-sentiment-negative {
+  background: color-mix(in srgb, var(--danger-bg) 84%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--danger) 34%, var(--border));
+  color: var(--danger);
+}
+
+.journal-sentiment-mixed {
+  background: color-mix(in srgb, var(--warning-bg) 86%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--warning) 35%, var(--border));
+  color: color-mix(in srgb, var(--warning) 70%, #6a4f00);
+}
+
+.journal-sentiment-neutral {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.journal-entry-lines {
+  display: grid;
+  gap: 5px;
+}
+
+.journal-entry-line {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.journal-entry-line.positive {
+  color: var(--success);
+}
+
+.journal-entry-line.negative {
+  color: var(--danger);
+}
+
+.journal-entry-line.neutral {
+  color: var(--text-secondary);
+}
+
+.journal-entry-preview {
+  color: var(--text-secondary);
 }
 
 .journal-delete-x {
@@ -2858,9 +3051,28 @@ button.ghost-danger:hover {
     width: 100%;
   }
 
+  .journal-filter-chip-row {
+    gap: 6px;
+  }
+
+  .journal-filter-chip {
+    min-height: 32px;
+    padding: 5px 10px;
+  }
+
+  .journal-month-toggle {
+    min-height: 40px;
+    padding: 8px 10px;
+  }
+
+  .journal-entry-card,
   .journal-card {
     padding: 12px 12px 12px;
     min-height: 86px;
+  }
+
+  .journal-entry-meta-row {
+    padding-right: 34px;
   }
 
   .journal-delete-x {

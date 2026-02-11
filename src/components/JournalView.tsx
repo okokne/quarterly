@@ -1,9 +1,23 @@
-import { useMemo, useState } from "react";
-import { AppLanguage, Cycle, DateFormat } from "../types";
+import { useEffect, useMemo, useState } from "react";
+import { AppLanguage, Cycle, DateFormat, ReviewEntry, ReviewSentiment, ReviewEntryType } from "../types";
 import { t as tr } from "../i18n";
-import { formatDate, toIsoDate, uid } from "../utils";
+import {
+    createJournalCustomReviewEntry,
+    createJournalDailyReviewEntry,
+    createJournalWeeklyReviewEntry,
+    formatDate,
+    getReviewEntrySearchText,
+    getReviewEntrySentiment,
+    getWeekIndexForDate,
+    getWritableReviewEntries,
+    toIsoDate
+} from "../utils";
 
 type Tab = "today" | "week" | "stats" | "journal";
+type FeedTypeFilter = "all" | ReviewEntryType;
+type FeedSentimentFilter = "all" | ReviewSentiment;
+type FeedRangeFilter = "all" | "current_week" | "current_month" | "quarter";
+type ComposerType = "daily" | "weekly" | "custom";
 
 interface JournalViewProps {
     cycle: Cycle;
@@ -16,78 +30,297 @@ interface JournalViewProps {
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
 }
 
+function monthLabel(monthKey: string, language: AppLanguage): string {
+    const [yearRaw, monthRaw] = monthKey.split("-");
+    const year = Number.parseInt(yearRaw ?? "", 10);
+    const month = Number.parseInt(monthRaw ?? "", 10);
+    if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
+        return monthKey;
+    }
+
+    const locale = language === "de" ? "de-DE" : "en-US";
+    return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
+}
+
+function previewText(entry: ReviewEntry): string {
+    if (entry.type === "custom") {
+        const title = entry.title?.trim() ?? "";
+        const body = entry.content?.trim() ?? "";
+        return [title, body].filter(Boolean).join(" · ");
+    }
+
+    const parts = [entry.good?.trim(), entry.bad?.trim(), entry.change?.trim()].filter(Boolean);
+    return parts.join(" · ");
+}
+
 export function JournalView({ cycle, language, dateFormat, readOnly, setSelectedWeek, setSelectedDate, setActiveTab, updateCycle }: JournalViewProps) {
-    const [showNewEntryForm, setShowNewEntryForm] = useState(false);
-    const [entryTitle, setEntryTitle] = useState("");
-    const [entryDate, setEntryDate] = useState(() => toIsoDate(new Date()));
-    const [entryContent, setEntryContent] = useState("");
+    const today = toIsoDate(new Date());
+    const currentMonthKey = today.slice(0, 7);
+    const currentWeek = useMemo(() => {
+        return cycle.weeks.find((week) => today >= week.startDate && today <= week.endDate) ?? cycle.weeks[0];
+    }, [cycle.weeks, today]);
+    const quarterStart = cycle.startDate;
+    const quarterEnd = cycle.weeks[cycle.weeks.length - 1]?.endDate ?? cycle.startDate;
 
-    const weeklyEntries = Object.entries(cycle.weeklyReviews)
-        .filter(([, review]) => review.good || review.bad || review.change)
-        .sort(([a], [b]) => Number(b) - Number(a));
+    const [showComposer, setShowComposer] = useState(false);
+    const [composerType, setComposerType] = useState<ComposerType>("custom");
 
-    const dailyEntries = Object.entries(cycle.dailyReviews)
-        .filter(([, review]) => review.good || review.bad)
-        .sort(([a], [b]) => b.localeCompare(a));
+    const [customDate, setCustomDate] = useState(() => toIsoDate(new Date()));
+    const [customTitle, setCustomTitle] = useState("");
+    const [customContent, setCustomContent] = useState("");
 
-    const customEntries = useMemo(
-        () => [...(cycle.journalEntries ?? [])].sort((a, b) => b.date.localeCompare(a.date)),
-        [cycle.journalEntries]
-    );
+    const [dailyDate, setDailyDate] = useState(() => toIsoDate(new Date()));
+    const [dailyGood, setDailyGood] = useState("");
+    const [dailyBad, setDailyBad] = useState("");
 
-    const handleDeleteWeekly = (weekNum: string) => {
-        if (readOnly) return;
-        if (!window.confirm(tr(language, "journal.deleteWeeklyConfirm", { week: weekNum }))) return;
-        updateCycle(prev => {
-            const newReviews = { ...prev.weeklyReviews };
-            delete newReviews[Number(weekNum)];
-            return { ...prev, weeklyReviews: newReviews };
+    const [weeklyWeek, setWeeklyWeek] = useState(() => String(Math.max(1, getWeekIndexForDate(cycle, today))));
+    const [weeklyGood, setWeeklyGood] = useState("");
+    const [weeklyBad, setWeeklyBad] = useState("");
+    const [weeklyChange, setWeeklyChange] = useState("");
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [typeFilter, setTypeFilter] = useState<FeedTypeFilter>("all");
+    const [sentimentFilter, setSentimentFilter] = useState<FeedSentimentFilter>("all");
+    const [rangeFilter, setRangeFilter] = useState<FeedRangeFilter>("all");
+    const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({});
+
+    const allEntries = useMemo(() => getWritableReviewEntries(cycle), [
+        cycle,
+        cycle.reviewEntries,
+        cycle.dailyReviews,
+        cycle.weeklyReviews,
+        cycle.journalEntries
+    ]);
+
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+
+    const filteredEntries = useMemo(() => {
+        return allEntries.filter((entry) => {
+            if (typeFilter !== "all" && entry.type !== typeFilter) return false;
+
+            const sentiment = getReviewEntrySentiment(entry);
+            if (sentimentFilter !== "all" && sentiment !== sentimentFilter) return false;
+
+            if (rangeFilter === "current_week") {
+                if (!currentWeek || entry.date < currentWeek.startDate || entry.date > currentWeek.endDate) return false;
+            } else if (rangeFilter === "current_month") {
+                if (!entry.date.startsWith(currentMonthKey)) return false;
+            } else if (rangeFilter === "quarter") {
+                if (entry.date < quarterStart || entry.date > quarterEnd) return false;
+            }
+
+            if (!normalizedSearch) return true;
+            const searchable = getReviewEntrySearchText(entry);
+            return searchable.includes(normalizedSearch);
         });
-    };
+    }, [
+        allEntries,
+        currentMonthKey,
+        currentWeek,
+        normalizedSearch,
+        quarterEnd,
+        quarterStart,
+        rangeFilter,
+        sentimentFilter,
+        typeFilter
+    ]);
 
-    const handleDeleteDaily = (date: string) => {
-        if (readOnly) return;
-        if (!window.confirm(tr(language, "journal.deleteDailyConfirm", { date: formatDate(date, dateFormat, language) }))) return;
-        updateCycle(prev => {
-            const newReviews = { ...prev.dailyReviews };
-            delete newReviews[date];
-            return { ...prev, dailyReviews: newReviews };
+    const groupedEntries = useMemo(() => {
+        const groups = new Map<string, ReviewEntry[]>();
+        filteredEntries.forEach((entry) => {
+            const key = entry.date.slice(0, 7);
+            const bucket = groups.get(key) ?? [];
+            bucket.push(entry);
+            groups.set(key, bucket);
         });
-    };
 
-    const handleCreateEntry = () => {
-        if (readOnly) return;
-        const title = entryTitle.trim();
-        if (!title) return;
+        return Array.from(groups.entries()).sort(([a], [b]) => b.localeCompare(a));
+    }, [filteredEntries]);
 
-        updateCycle((prev) => ({
-            ...prev,
-            journalEntries: [
-                {
-                    id: uid(),
-                    title,
-                    content: entryContent.trim(),
-                    date: entryDate,
-                    createdAt: new Date().toISOString()
-                },
-                ...(prev.journalEntries ?? [])
-            ]
-        }));
+    useEffect(() => {
+        const monthKeys = groupedEntries.map(([key]) => key);
+        setOpenMonths((prev) => {
+            const next: Record<string, boolean> = {};
+            monthKeys.forEach((key) => {
+                next[key] = prev[key] ?? key === currentMonthKey;
+            });
+            return next;
+        });
+    }, [groupedEntries, currentMonthKey]);
 
-        setEntryTitle("");
-        setEntryContent("");
-        setEntryDate(toIsoDate(new Date()));
-        setShowNewEntryForm(false);
+    const handleNavigateEntry = (entry: ReviewEntry) => {
+        if (entry.type === "daily") {
+            setSelectedDate(entry.date);
+            setActiveTab("today");
+            return;
+        }
+        if (entry.type === "weekly") {
+            const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
+            setSelectedWeek(weekIndex);
+            setActiveTab("week");
+        }
     };
 
     const handleDeleteEntry = (entryId: string) => {
         if (readOnly) return;
         if (!window.confirm(tr(language, "journal.deleteEntryConfirm"))) return;
-        updateCycle((prev) => ({
-            ...prev,
-            journalEntries: (prev.journalEntries ?? []).filter((entry) => entry.id !== entryId)
-        }));
+
+        updateCycle((prev) => {
+            const currentEntries = getWritableReviewEntries(prev);
+            const target = currentEntries.find((entry) => entry.id === entryId);
+            if (!target) return prev;
+
+            const nextEntries = currentEntries.filter((entry) => entry.id !== entryId);
+            const nextCycle: Cycle = {
+                ...prev,
+                reviewEntries: nextEntries
+            };
+
+            if (target.type === "custom") {
+                nextCycle.journalEntries = (prev.journalEntries ?? []).filter((entry) => entry.id !== target.id);
+            }
+
+            if (target.type === "daily" && target.source === "today_tab") {
+                const nextDailyReviews = { ...prev.dailyReviews };
+                delete nextDailyReviews[target.date];
+                nextCycle.dailyReviews = nextDailyReviews;
+            }
+
+            if (target.type === "weekly" && target.source === "week_tab" && target.weekIndex) {
+                const nextWeeklyReviews = { ...prev.weeklyReviews };
+                delete nextWeeklyReviews[target.weekIndex];
+                nextCycle.weeklyReviews = nextWeeklyReviews;
+            }
+
+            return nextCycle;
+        });
     };
+
+    const resetComposerFields = () => {
+        setCustomDate(toIsoDate(new Date()));
+        setCustomTitle("");
+        setCustomContent("");
+        setDailyDate(toIsoDate(new Date()));
+        setDailyGood("");
+        setDailyBad("");
+        setWeeklyGood("");
+        setWeeklyBad("");
+        setWeeklyChange("");
+    };
+
+    const handleCreateEntry = () => {
+        if (readOnly) return;
+
+        updateCycle((prev) => {
+            const currentEntries = getWritableReviewEntries(prev);
+
+            if (composerType === "custom") {
+                const created = createJournalCustomReviewEntry({
+                    title: customTitle,
+                    content: customContent,
+                    date: customDate
+                });
+                if (!created) return prev;
+
+                return {
+                    ...prev,
+                    reviewEntries: [created, ...currentEntries],
+                    journalEntries: [
+                        {
+                            id: created.id,
+                            title: created.title ?? "",
+                            content: created.content ?? "",
+                            date: created.date,
+                            createdAt: created.createdAt
+                        },
+                        ...(prev.journalEntries ?? [])
+                    ]
+                };
+            }
+
+            if (composerType === "daily") {
+                const created = createJournalDailyReviewEntry({
+                    date: dailyDate,
+                    good: dailyGood,
+                    bad: dailyBad
+                });
+                if (!created) return prev;
+
+                return {
+                    ...prev,
+                    reviewEntries: [created, ...currentEntries],
+                    dailyReviews: {
+                        ...prev.dailyReviews,
+                        [dailyDate]: {
+                            good: dailyGood.trim(),
+                            bad: dailyBad.trim()
+                        }
+                    }
+                };
+            }
+
+            const weekIndex = Number.parseInt(weeklyWeek, 10);
+            const selectedWeek = prev.weeks.find((week) => week.index === weekIndex);
+            if (!selectedWeek) return prev;
+
+            const created = createJournalWeeklyReviewEntry({
+                weekIndex,
+                date: selectedWeek.startDate,
+                good: weeklyGood,
+                bad: weeklyBad,
+                change: weeklyChange
+            });
+            if (!created) return prev;
+
+            return {
+                ...prev,
+                reviewEntries: [created, ...currentEntries],
+                weeklyReviews: {
+                    ...prev.weeklyReviews,
+                    [weekIndex]: {
+                        good: weeklyGood.trim(),
+                        bad: weeklyBad.trim(),
+                        change: weeklyChange.trim()
+                    }
+                }
+            };
+        });
+
+        resetComposerFields();
+        setShowComposer(false);
+    };
+
+    const composerSubmitDisabled = useMemo(() => {
+        if (composerType === "custom") {
+            return !customTitle.trim() && !customContent.trim();
+        }
+        if (composerType === "daily") {
+            return !dailyGood.trim() && !dailyBad.trim();
+        }
+        return !weeklyGood.trim() && !weeklyBad.trim() && !weeklyChange.trim();
+    }, [composerType, customContent, customTitle, dailyBad, dailyGood, weeklyBad, weeklyChange, weeklyGood]);
+
+    const typeOptions: Array<{ id: FeedTypeFilter; labelKey: string }> = [
+        { id: "all", labelKey: "journal.filterTypeAll" },
+        { id: "daily", labelKey: "journal.filterTypeDaily" },
+        { id: "weekly", labelKey: "journal.filterTypeWeekly" },
+        { id: "custom", labelKey: "journal.filterTypeCustom" }
+    ];
+
+    const sentimentOptions: Array<{ id: FeedSentimentFilter; labelKey: string }> = [
+        { id: "all", labelKey: "journal.filterSentimentAll" },
+        { id: "positive", labelKey: "journal.sentimentPositive" },
+        { id: "negative", labelKey: "journal.sentimentNegative" },
+        { id: "mixed", labelKey: "journal.sentimentMixed" },
+        { id: "neutral", labelKey: "journal.sentimentNeutral" }
+    ];
+
+    const rangeOptions: Array<{ id: FeedRangeFilter; labelKey: string }> = [
+        { id: "all", labelKey: "journal.rangeAll" },
+        { id: "current_week", labelKey: "journal.rangeCurrentWeek" },
+        { id: "current_month", labelKey: "journal.rangeCurrentMonth" },
+        { id: "quarter", labelKey: "journal.rangeQuarter" }
+    ];
 
     return (
         <section className="card journal-view">
@@ -99,7 +332,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 <button
                     className="primary journal-add-btn"
                     disabled={readOnly}
-                    onClick={() => setShowNewEntryForm((prev) => !prev)}
+                    onClick={() => setShowComposer((prev) => !prev)}
                     title={tr(language, "journal.addEntry")}
                 >
                     + {tr(language, "journal.addEntry")}
@@ -108,126 +341,261 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
 
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
-            {showNewEntryForm && (
+            {showComposer && (
                 <div className="subcard journal-entry-form">
                     <h3>{tr(language, "journal.newEntry")}</h3>
-                    <div className="grid">
-                        <label>
-                            {tr(language, "common.title")}
-                            <input
-                                value={entryTitle}
-                                onChange={(e) => setEntryTitle(e.target.value)}
-                                placeholder={tr(language, "journal.entryTitlePlaceholder")}
-                            />
-                        </label>
-                        <label>
-                            {tr(language, "journal.entryDate")}
-                            <input
-                                type="date"
-                                value={entryDate}
-                                onChange={(e) => setEntryDate(e.target.value)}
-                            />
-                        </label>
+                    <div className="journal-composer-type-row">
+                        <button className={`journal-filter-chip ${composerType === "custom" ? "active" : ""}`} onClick={() => setComposerType("custom")}>{tr(language, "journal.filterTypeCustom")}</button>
+                        <button className={`journal-filter-chip ${composerType === "daily" ? "active" : ""}`} onClick={() => setComposerType("daily")}>{tr(language, "journal.filterTypeDaily")}</button>
+                        <button className={`journal-filter-chip ${composerType === "weekly" ? "active" : ""}`} onClick={() => setComposerType("weekly")}>{tr(language, "journal.filterTypeWeekly")}</button>
                     </div>
-                    <label>
-                        {tr(language, "journal.entryBodyOptional")}
-                        <textarea
-                            value={entryContent}
-                            onChange={(e) => setEntryContent(e.target.value)}
-                            placeholder={tr(language, "journal.entryBodyPlaceholder")}
-                        />
-                    </label>
+
+                    {composerType === "custom" && (
+                        <>
+                            <div className="grid">
+                                <label>
+                                    {tr(language, "common.title")}
+                                    <input
+                                        value={customTitle}
+                                        onChange={(e) => setCustomTitle(e.target.value)}
+                                        placeholder={tr(language, "journal.entryTitlePlaceholder")}
+                                    />
+                                </label>
+                                <label>
+                                    {tr(language, "journal.entryDate")}
+                                    <input
+                                        type="date"
+                                        value={customDate}
+                                        onChange={(e) => setCustomDate(e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <label>
+                                {tr(language, "journal.entryBodyOptional")}
+                                <textarea
+                                    value={customContent}
+                                    onChange={(e) => setCustomContent(e.target.value)}
+                                    placeholder={tr(language, "journal.entryBodyPlaceholder")}
+                                />
+                            </label>
+                        </>
+                    )}
+
+                    {composerType === "daily" && (
+                        <>
+                            <div className="grid">
+                                <label>
+                                    {tr(language, "journal.entryDate")}
+                                    <input
+                                        type="date"
+                                        value={dailyDate}
+                                        onChange={(e) => setDailyDate(e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                            <div className="grid">
+                                <label>
+                                    {tr(language, "review.good")}
+                                    <textarea
+                                        value={dailyGood}
+                                        onChange={(e) => setDailyGood(e.target.value)}
+                                    />
+                                </label>
+                                <label>
+                                    {tr(language, "review.bad")}
+                                    <textarea
+                                        value={dailyBad}
+                                        onChange={(e) => setDailyBad(e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                        </>
+                    )}
+
+                    {composerType === "weekly" && (
+                        <>
+                            <label>
+                                {tr(language, "week.select")}
+                                <select value={weeklyWeek} onChange={(e) => setWeeklyWeek(e.target.value)}>
+                                    {cycle.weeks.map((week) => (
+                                        <option key={week.index} value={week.index}>
+                                            {tr(language, "app.headerWeekShort", { week: week.index })}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                            <div className="grid">
+                                <label>
+                                    {tr(language, "review.good")}
+                                    <textarea
+                                        value={weeklyGood}
+                                        onChange={(e) => setWeeklyGood(e.target.value)}
+                                    />
+                                </label>
+                                <label>
+                                    {tr(language, "review.bad")}
+                                    <textarea
+                                        value={weeklyBad}
+                                        onChange={(e) => setWeeklyBad(e.target.value)}
+                                    />
+                                </label>
+                                <label>
+                                    {tr(language, "review.changeNextWeek")}
+                                    <textarea
+                                        value={weeklyChange}
+                                        onChange={(e) => setWeeklyChange(e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                        </>
+                    )}
+
                     <div className="button-row">
-                        <button className="primary" onClick={handleCreateEntry} disabled={!entryTitle.trim()}>{tr(language, "common.save")}</button>
-                        <button onClick={() => setShowNewEntryForm(false)}>{tr(language, "common.cancel")}</button>
+                        <button className="primary" onClick={handleCreateEntry} disabled={composerSubmitDisabled}>{tr(language, "common.save")}</button>
+                        <button onClick={() => setShowComposer(false)}>{tr(language, "common.cancel")}</button>
                     </div>
                 </div>
             )}
 
-            <div className="subcard">
-                <h3>{tr(language, "journal.customEntries")}</h3>
-                {customEntries.length === 0 ? (
-                    <p className="empty">{tr(language, "journal.noCustomEntries")}</p>
-                ) : (
-                    <div className="journal-card-list">
-                        {customEntries.map((entry) => (
-                            <article key={entry.id} className="journal-card">
-                                <button
-                                    className="journal-delete-x"
-                                    disabled={readOnly}
-                                    title={tr(language, "journal.deleteEntry")}
-                                    aria-label={tr(language, "journal.deleteEntry")}
-                                    onClick={() => handleDeleteEntry(entry.id)}
-                                >
-                                    ✕
-                                </button>
-                                <div className="journal-card-date">{formatDate(entry.date, dateFormat, language)}</div>
-                                <h4>{entry.title}</h4>
-                                {entry.content && <p>{entry.content}</p>}
-                            </article>
+            <div className="subcard journal-feed-toolbar">
+                <label>
+                    {tr(language, "journal.search")}
+                    <input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={tr(language, "journal.searchPlaceholder")}
+                    />
+                </label>
+
+                <div className="journal-filter-row">
+                    <span className="journal-filter-label">{tr(language, "journal.filterType")}</span>
+                    <div className="journal-filter-chip-row">
+                        {typeOptions.map((option) => (
+                            <button
+                                key={option.id}
+                                className={`journal-filter-chip ${typeFilter === option.id ? "active" : ""}`}
+                                onClick={() => setTypeFilter(option.id)}
+                            >
+                                {tr(language, option.labelKey)}
+                            </button>
                         ))}
                     </div>
-                )}
+                </div>
+
+                <div className="journal-filter-row">
+                    <span className="journal-filter-label">{tr(language, "journal.filterSentiment")}</span>
+                    <div className="journal-filter-chip-row">
+                        {sentimentOptions.map((option) => (
+                            <button
+                                key={option.id}
+                                className={`journal-filter-chip ${sentimentFilter === option.id ? "active" : ""}`}
+                                onClick={() => setSentimentFilter(option.id)}
+                            >
+                                {tr(language, option.labelKey)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="journal-filter-row">
+                    <span className="journal-filter-label">{tr(language, "journal.filterRange")}</span>
+                    <div className="journal-filter-chip-row">
+                        {rangeOptions.map((option) => (
+                            <button
+                                key={option.id}
+                                className={`journal-filter-chip ${rangeFilter === option.id ? "active" : ""}`}
+                                onClick={() => setRangeFilter(option.id)}
+                            >
+                                {tr(language, option.labelKey)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            <div className="subcard">
-                <h3>{tr(language, "journal.weeklyReviews")}</h3>
-                {weeklyEntries.length === 0 ? (
-                    <p className="empty">{tr(language, "journal.noWeeklyReviews")}</p>
-                ) : (
-                    <div className="journal-card-list">
-                        {weeklyEntries.map(([weekNum, review]) => (
-                            <article key={weekNum} className="journal-card clickable" onClick={() => { setSelectedWeek(Number(weekNum)); setActiveTab("week"); }}>
-                                <button
-                                    className="journal-delete-x"
-                                    disabled={readOnly}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteWeekly(weekNum);
-                                    }}
-                                    title={tr(language, "journal.deleteEntry")}
-                                    aria-label={tr(language, "journal.deleteEntry")}
-                                >
-                                    ✕
-                                </button>
-                                <div className="journal-card-date">{tr(language, "app.headerWeekShort", { week: weekNum })}</div>
-                                <h4>{tr(language, "journal.weeklySummary")}</h4>
-                                <p>
-                                    {review.good || review.bad || review.change}
-                                </p>
-                            </article>
-                        ))}
-                    </div>
+            <div className="subcard journal-feed-root">
+                {allEntries.length === 0 && <p className="empty">{tr(language, "journal.noEntries")}</p>}
+                {allEntries.length > 0 && filteredEntries.length === 0 && (
+                    <p className="empty">{tr(language, "journal.noResults")}</p>
                 )}
-            </div>
 
-            <div className="subcard">
-                <h3>{tr(language, "journal.dailyReviews")}</h3>
-                {dailyEntries.length === 0 ? (
-                    <p className="empty">{tr(language, "journal.noDailyReviews")}</p>
-                ) : (
-                    <div className="journal-card-list">
-                        {dailyEntries.map(([date, review]) => (
-                            <article key={date} className="journal-card clickable" onClick={() => { setSelectedDate(date); setActiveTab("today"); }}>
-                                <button
-                                    className="journal-delete-x"
-                                    disabled={readOnly}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteDaily(date);
-                                    }}
-                                    title={tr(language, "journal.deleteEntry")}
-                                    aria-label={tr(language, "journal.deleteEntry")}
-                                >
-                                    ✕
-                                </button>
-                                <div className="journal-card-date">{formatDate(date, dateFormat, language)}</div>
-                                <h4>{tr(language, "journal.dailySummary")}</h4>
-                                <p>{review.good || review.bad}</p>
-                            </article>
-                        ))}
-                    </div>
-                )}
+                {groupedEntries.map(([monthKey, entries]) => {
+                    const isOpen = openMonths[monthKey] ?? monthKey === currentMonthKey;
+                    return (
+                        <section key={monthKey} className="journal-month-group">
+                            <button
+                                type="button"
+                                className="journal-month-toggle"
+                                onClick={() => setOpenMonths((prev) => ({ ...prev, [monthKey]: !isOpen }))}
+                            >
+                                <span>{monthLabel(monthKey, language)}</span>
+                                <span className="journal-month-meta">{entries.length}</span>
+                            </button>
+
+                            {isOpen && (
+                                <div className="journal-card-list">
+                                    {entries.map((entry) => {
+                                        const sentiment = getReviewEntrySentiment(entry);
+                                        const isClickable = entry.type === "daily" || entry.type === "weekly";
+                                        const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
+                                        return (
+                                            <article
+                                                key={entry.id}
+                                                className={`journal-entry-card ${isClickable ? "clickable" : ""}`}
+                                                onClick={() => {
+                                                    if (!isClickable) return;
+                                                    handleNavigateEntry(entry);
+                                                }}
+                                            >
+                                                <button
+                                                    className="journal-delete-x"
+                                                    disabled={readOnly}
+                                                    title={tr(language, "journal.deleteEntry")}
+                                                    aria-label={tr(language, "journal.deleteEntry")}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteEntry(entry.id);
+                                                    }}
+                                                >
+                                                    ✕
+                                                </button>
+
+                                                <div className="journal-entry-meta-row">
+                                                    <span className={`journal-entry-type ${entry.type}`}>{tr(language, `journal.filterType${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}`)}</span>
+                                                    <span className={`journal-sentiment-badge journal-sentiment-${sentiment}`}>{tr(language, `journal.sentiment${sentiment.charAt(0).toUpperCase()}${sentiment.slice(1)}`)}</span>
+                                                    <span className="journal-card-date">
+                                                        {entry.type === "weekly"
+                                                            ? `${tr(language, "app.headerWeekShort", { week: weekIndex })} · ${formatDate(entry.date, dateFormat, language)}`
+                                                            : formatDate(entry.date, dateFormat, language)}
+                                                    </span>
+                                                </div>
+
+                                                {entry.type === "custom" && entry.title && <h4>{entry.title}</h4>}
+                                                {entry.type !== "custom" && (
+                                                    <h4>
+                                                        {entry.type === "daily"
+                                                            ? tr(language, "journal.dailySummary")
+                                                            : tr(language, "journal.weeklySummary")}
+                                                    </h4>
+                                                )}
+
+                                                {entry.type === "daily" || entry.type === "weekly" ? (
+                                                    <div className="journal-entry-lines">
+                                                        {entry.good && <p className="journal-entry-line positive">+ {entry.good}</p>}
+                                                        {entry.bad && <p className="journal-entry-line negative">- {entry.bad}</p>}
+                                                        {entry.change && <p className="journal-entry-line neutral">→ {entry.change}</p>}
+                                                    </div>
+                                                ) : (
+                                                    <p className="journal-entry-preview">{previewText(entry)}</p>
+                                                )}
+                                            </article>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </section>
+                    );
+                })}
             </div>
         </section>
     );
