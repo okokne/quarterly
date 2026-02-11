@@ -143,27 +143,27 @@ export function buildDemoCycle(): Cycle {
 
     const g1: Goal = { id: uid(), title: "Am Ende der 12 Wochen wiege ich 84 kg (aktuell 89 kg).", metric: "84 kg" };
     const g2: Goal = { id: uid(), title: "50.000 € Umsatz generieren durch Neukunden.", metric: "50.000 €" };
-    const g3: Goal = { id: uid(), title: "Beziehung stärken (wöchentliche Date Night).", metric: "1x/Woche" };
+    const g3: Goal = { id: uid(), title: "Fokussierte Deep-Work-Routine etablieren.", metric: "5 Sessions/Woche" };
     cycle.goals = [g1, g2, g3];
 
     // Week 1 targets
     const t1_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", done: 45 };
     const t1_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 5 };
     const t1_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", done: 6 };
-    const t1_date = { id: uid(), title: "Date Night", target: 1, unit: "Abend", done: 1 };
+    const t1_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", done: 4 };
 
     // Week 2 targets  
     const t2_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", done: 38 };
     const t2_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 4 };
     const t2_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", done: 7 };
-    const t2_date = { id: uid(), title: "Date Night", target: 1, unit: "Abend", done: 1 };
+    const t2_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", done: 3 };
     const t2_book = { id: uid(), title: "Buch lesen", target: 50, unit: "Seiten", done: 30 };
 
     // Week 3 targets
     const t3_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 60, unit: "Calls", done: 25 };
     const t3_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 2 };
     const t3_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", done: 3 };
-    const t3_date = { id: uid(), title: "Date Night", target: 1, unit: "Abend", done: 0 };
+    const t3_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", done: 2 };
 
     // Week 4 targets (current week - in progress)
     const t4_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", done: 12 };
@@ -171,9 +171,9 @@ export function buildDemoCycle(): Cycle {
     const t4_content = { id: uid(), title: "Content erstellen", target: 3, unit: "Posts", done: 1 };
 
     cycle.weeklyTargets = {
-        1: [t1_calls, t1_sport, t1_med, t1_date],
-        2: [t2_calls, t2_sport, t2_med, t2_date, t2_book],
-        3: [t3_calls, t3_sport, t3_med, t3_date],
+        1: [t1_calls, t1_sport, t1_med, t1_focus],
+        2: [t2_calls, t2_sport, t2_med, t2_focus, t2_book],
+        3: [t3_calls, t3_sport, t3_med, t3_focus],
         4: [t4_calls, t4_sport, t4_content]
     };
 
@@ -189,7 +189,7 @@ export function buildDemoCycle(): Cycle {
         { id: uid(), startTime: "17:00", endTime: "18:00", title: "Gym", linkedTargetId: t1_sport.id, done: true }
     ];
     cycle.dailyPlans[addDays(w1.startDate, 5)] = [
-        { id: uid(), startTime: "19:00", endTime: "22:00", title: "Date Night Dinner", linkedTargetId: t1_date.id, done: true }
+        { id: uid(), startTime: "18:30", endTime: "20:00", title: "Deep-Work Wochenplanung", linkedTargetId: t1_focus.id, done: true }
     ];
 
     // Week 2 daily blocks
@@ -278,13 +278,13 @@ export function buildDemoCycle(): Cycle {
 
 // ─── Verification & Helpers ───
 export function isHabitPlannedOnDate(cycle: Cycle, habit: Habit, date: string): boolean {
-    const today = toIsoDate(new Date());
-    // Future dates check is optional depending on use case, but for stats we usually check valid range
-    // For backfilling, we definitely want to know if it WAS planned.
-
     if (habit.startedAt && date < habit.startedAt) return false;
-    // createdAt check might be too strict for backfilling if user explicitly sets past start date. 
-    // If they say "I started 1 week ago", we ignore createdAt.
+    if (!Array.isArray(cycle.weeks) || cycle.weeks.length === 0) return false;
+
+    const cycleStart = cycle.weeks[0]?.startDate;
+    const cycleEnd = cycle.weeks[cycle.weeks.length - 1]?.endDate;
+    if (!cycleStart || !cycleEnd) return false;
+    if (date < cycleStart || date > cycleEnd) return false;
 
     const weekIdx = getWeekIndexForDate(cycle, date);
     if (weekIdx < habit.activeFrom || weekIdx > habit.activeTo) return false;

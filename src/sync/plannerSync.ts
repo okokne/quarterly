@@ -11,6 +11,7 @@ export type PlannerStateRecord = {
 };
 
 export type InitialSyncAction = "push_local" | "pull_cloud" | "no_op" | "conflict";
+export const CLOUD_VERSION_CONFLICT_ERROR = "Cloud version conflict. Data changed on another device.";
 
 function stableStringify(value: unknown): string {
     if (value === null || value === undefined) return String(value);
@@ -123,34 +124,75 @@ export async function pushPlannerStateToCloud(input: {
     state: PersistedPlannerState;
     previousVersion?: number;
 }): Promise<{ record: PlannerStateRecord | null; error: string | null }> {
-    const nextVersion = Math.max(1, Math.floor((input.previousVersion ?? 0) + 1));
-    const payload: PlannerStateRow = {
-        user_id: input.session.user.id,
+    const hasPreviousVersion = Number.isFinite(input.previousVersion);
+    const previousVersion = hasPreviousVersion ? Math.max(1, Math.floor(input.previousVersion as number)) : undefined;
+    const nextVersion = Math.max(1, Math.floor((previousVersion ?? 0) + 1));
+    const timestamp = new Date().toISOString();
+
+    const updatePayload = {
         state_json: input.state,
         version: nextVersion,
-        updated_at: new Date().toISOString(),
+        updated_at: timestamp,
         schema_version: STATE_SCHEMA_VERSION
     };
 
-    const result = await supabaseRestRequest<PlannerStateRow[]>(
+    // Optimistic concurrency: only update if the expected previous version still matches.
+    if (previousVersion !== undefined) {
+        const userId = encodeURIComponent(input.session.user.id);
+        const updateResult = await supabaseRestRequest<PlannerStateRow[]>(
+            `/rest/v1/planner_state?user_id=eq.${userId}&version=eq.${previousVersion}`,
+            {
+                method: "PATCH",
+                headers: {
+                    Prefer: "return=representation"
+                },
+                body: JSON.stringify(updatePayload)
+            },
+            input.session
+        );
+        if (updateResult.error) {
+            return { record: null, error: updateResult.error };
+        }
+        const updated = updateResult.data?.[0];
+        if (updated) {
+            return { record: normalizeRow(updated), error: null };
+        }
+
+        const latest = await fetchCloudPlannerState(input.session);
+        if (latest.error) {
+            return { record: null, error: latest.error };
+        }
+        if (latest.record) {
+            return { record: null, error: CLOUD_VERSION_CONFLICT_ERROR };
+        }
+    }
+
+    const insertPayload: PlannerStateRow = {
+        user_id: input.session.user.id,
+        state_json: input.state,
+        version: nextVersion,
+        updated_at: timestamp,
+        schema_version: STATE_SCHEMA_VERSION
+    };
+    const insertResult = await supabaseRestRequest<PlannerStateRow[]>(
         "/rest/v1/planner_state?on_conflict=user_id",
         {
             method: "POST",
             headers: {
                 Prefer: "resolution=merge-duplicates,return=representation"
             },
-            body: JSON.stringify([payload])
+            body: JSON.stringify([insertPayload])
         },
         input.session
     );
-    if (result.error) {
-        return { record: null, error: result.error };
+    if (insertResult.error) {
+        return { record: null, error: insertResult.error };
     }
-    const row = result.data?.[0];
-    if (!row) {
+    const inserted = insertResult.data?.[0];
+    if (!inserted) {
         return { record: null, error: "Cloud save returned no data." };
     }
-    return { record: normalizeRow(row), error: null };
+    return { record: normalizeRow(inserted), error: null };
 }
 
 export type SyncPlannerResult = {
@@ -188,6 +230,25 @@ export async function syncPlannerState(input: {
             state: input.state,
             previousVersion: cloud.record?.version
         });
+        if (pushed.error === CLOUD_VERSION_CONFLICT_ERROR) {
+            const latest = await fetchCloudPlannerState(input.session);
+            if (latest.error) {
+                return {
+                    ok: false,
+                    action: "noop",
+                    record: null,
+                    pulledState: null,
+                    error: latest.error
+                };
+            }
+            return {
+                ok: true,
+                action: "conflict",
+                record: latest.record,
+                pulledState: null,
+                error: null
+            };
+        }
         return {
             ok: !pushed.error,
             action: "pushed",

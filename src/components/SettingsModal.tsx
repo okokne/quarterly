@@ -14,7 +14,7 @@ import {
     TimeFormat
 } from "../types";
 import { t as tr } from "../i18n";
-import { uid, toIsoDate, formatDate, isHabitPlannedOnDate, addDays } from "../utils";
+import { uid, toIsoDate, formatDate } from "../utils";
 import { createBackupSnapshot, parseBackupPayload } from "../backup";
 import { ToggleSwitch } from "./ToggleSwitch";
 import { ImportMode, mergeImportedPlannerState, summarizeImportSections } from "../persistence/stateSerializer";
@@ -173,10 +173,15 @@ export function SettingsModal({
     const handleAddHabit = () => {
         if (readOnly) return;
         if (!habitTitle.trim()) return;
+        if (habitFreq === "custom" && habitCustomDays.length === 0) return;
         const today = toIsoDate(new Date());
+        const parsedGoalTarget = Number.parseInt(habitGoalTarget, 10);
+        const normalizedGoalTarget = Number.isFinite(parsedGoalTarget)
+            ? Math.max(1, parsedGoalTarget)
+            : 1;
 
         const goal: Habit['goal'] = habitGoalType === 'target'
-            ? { type: 'target', target: parseInt(habitGoalTarget) || 1, unit: habitGoalUnit.trim() }
+            ? { type: 'target', target: normalizedGoalTarget, unit: habitGoalUnit.trim() }
             : { type: 'open' };
 
         const newHabit: Habit = {
@@ -192,34 +197,6 @@ export function SettingsModal({
         };
 
         setHabits([...habits, newHabit]);
-
-        // Retroactive completion logic:
-        if (newHabit.startedAt && newHabit.startedAt < today) {
-            // We need a way to check planning without 'prev' cycle state here... 
-            // We can use 'activeCycle' if available, or just use the utility with the current activeCycle.
-            // If activeCycle is null, we can't really check "planned" status against the cycle.
-            // But habits are now partially independent.
-            // If we assume independence, we can just check frequency directly.
-            if (activeCycle) {
-                const newLogEntries: Record<string, string[]> = {};
-                let d = newHabit.startedAt;
-                while (d < today) {
-                    // We use the helper with activeCycle. If it's outside cycle, it might return false.
-                    // But if habit started earlier, we want to log it?
-                    // For now, let's keep it simple: Use isHabitPlannedOnDate with activeCycle.
-                    if (isHabitPlannedOnDate(activeCycle, newHabit, d)) {
-                        const existing = habitLog[d] ?? [];
-                        if (!existing.includes(newHabit.id)) {
-                            newLogEntries[d] = [...existing, newHabit.id];
-                        }
-                    }
-                    d = addDays(d, 1);
-                }
-                if (Object.keys(newLogEntries).length > 0) {
-                    setHabitLog({ ...habitLog, ...newLogEntries });
-                }
-            }
-        }
 
         setHabitTitle("");
         setHabitEmoji(EMOJI_OPTIONS[0]);
@@ -771,7 +748,13 @@ export function SettingsModal({
 
                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
                                     <button className="button" onClick={() => setShowHabitForm(false)}>{tr(language, "common.cancel")}</button>
-                                    <button className="button accent" onClick={handleAddHabit} disabled={readOnly || !habitTitle.trim()}>{tr(language, "common.save")}</button>
+                                    <button
+                                        className="button accent"
+                                        onClick={handleAddHabit}
+                                        disabled={readOnly || !habitTitle.trim() || (habitFreq === "custom" && habitCustomDays.length === 0)}
+                                    >
+                                        {tr(language, "common.save")}
+                                    </button>
                                 </div>
                             </div>
                         ) : (

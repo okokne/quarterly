@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PersistedPlannerState, SyncConflictResolution, SyncStatus } from "../types";
 import {
+    CLOUD_VERSION_CONFLICT_ERROR,
+    fetchCloudPlannerState,
     pushPlannerStateToCloud,
     resolveConflictState,
     syncPlannerState
@@ -105,11 +107,11 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         };
     }, []);
 
-    const runInitialSync = useCallback(async (activeSession: SupabaseAuthSession): Promise<void> => {
-        if (!syncEnabled) return;
+    const runInitialSync = useCallback(async (activeSession: SupabaseAuthSession): Promise<boolean> => {
+        if (!syncEnabled) return false;
         if (!navigator.onLine) {
             setSyncStatus("offline");
-            return;
+            return false;
         }
         setSyncStatus("syncing");
         setSyncError(null);
@@ -122,7 +124,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         if (!result.ok) {
             setSyncStatus("error");
             setSyncError(result.error ?? "Initial sync failed.");
-            return;
+            return false;
         }
         if (result.action === "pulled" && result.pulledState) {
             if (result.record?.version) {
@@ -135,7 +137,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
                 lastSyncedSerializedRef.current = serialized.json;
             }
             setSyncStatus("synced");
-            return;
+            return true;
         }
         if (result.action === "conflict" && result.record) {
             if (result.record.version) {
@@ -144,7 +146,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             setPendingConflict(true);
             setConflictCloudState(result.record.state);
             setSyncStatus("idle");
-            return;
+            return true;
         }
         if (result.record?.version) {
             cloudVersionRef.current = result.record.version;
@@ -154,13 +156,22 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             lastSyncedSerializedRef.current = serialized.json;
         }
         setSyncStatus("synced");
+        return true;
     }, [onApplyRemoteState, state, syncEnabled]);
 
     useEffect(() => {
         if (!syncEnabled || !session) return;
         if (initialSyncDoneForUserRef.current === session.user.id) return;
-        initialSyncDoneForUserRef.current = session.user.id;
-        void runInitialSync(session);
+        let cancelled = false;
+        void (async () => {
+            const ok = await runInitialSync(session);
+            if (!cancelled && ok) {
+                initialSyncDoneForUserRef.current = session.user.id;
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
     }, [runInitialSync, session, syncEnabled]);
 
     const requestSyncNow = useCallback(async () => {
@@ -180,6 +191,15 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             previousVersion: cloudVersionRef.current > 0 ? cloudVersionRef.current : undefined
         });
         if (pushed.error || !pushed.record) {
+            if (pushed.error === CLOUD_VERSION_CONFLICT_ERROR) {
+                const latest = await fetchCloudPlannerState(session);
+                if (!latest.error && latest.record) {
+                    setPendingConflict(true);
+                    setConflictCloudState(latest.record.state);
+                    setSyncStatus("idle");
+                    return false;
+                }
+            }
             setSyncStatus("error");
             setSyncError(pushed.error ?? "Sync failed.");
             return false;
