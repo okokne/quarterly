@@ -102,6 +102,73 @@ function normalizeHabitLog(raw: unknown): Record<string, string[]> {
     return result;
 }
 
+function normalizePreferences(
+    raw: unknown,
+    fallback?: PersistedPlannerPreferences
+): PersistedPlannerPreferences {
+    const base = readPreferencesFromStorage(fallback);
+    if (!raw || typeof raw !== "object") return base;
+    const candidate = raw as Partial<PersistedPlannerPreferences>;
+
+    const language = candidate.language === "de" || candidate.language === "en"
+        ? candidate.language
+        : base.language;
+    const dateFormat = candidate.dateFormat === "eu_short" || candidate.dateFormat === "eu_long" || candidate.dateFormat === "iso"
+        ? candidate.dateFormat
+        : base.dateFormat;
+    const timeFormat = candidate.timeFormat === "24h" || candidate.timeFormat === "12h"
+        ? candidate.timeFormat
+        : base.timeFormat;
+    const selectedCalendarId = typeof candidate.selectedCalendarId === "string" && candidate.selectedCalendarId.trim()
+        ? candidate.selectedCalendarId
+        : base.selectedCalendarId;
+
+    return {
+        darkMode: typeof candidate.darkMode === "boolean" ? candidate.darkMode : base.darkMode,
+        language,
+        dateFormat,
+        timeFormat,
+        selectedCalendarId
+    };
+}
+
+export function sanitizePersistedPlannerState(
+    raw: unknown,
+    fallbackPreferences?: PersistedPlannerPreferences
+): PersistedPlannerState {
+    const defaults = {
+        cycle: null,
+        templates: [],
+        history: [],
+        habits: [],
+        habitLog: {},
+        preferences: normalizePreferences(undefined, fallbackPreferences)
+    } satisfies PersistedPlannerState;
+
+    if (!raw || typeof raw !== "object") {
+        return defaults;
+    }
+
+    const input = raw as Partial<PersistedPlannerState>;
+    const cycle = migrateCycle(input.cycle);
+    const templates = Array.isArray(input.templates) ? input.templates : [];
+    const history = Array.isArray(input.history)
+        ? input.history.map((entry) => migrateCycle(entry)).filter((entry): entry is Cycle => entry !== null)
+        : [];
+    const habits = Array.isArray(input.habits) ? input.habits : [];
+    const habitLog = normalizeHabitLog(input.habitLog);
+    const preferences = normalizePreferences(input.preferences, fallbackPreferences);
+
+    return {
+        cycle,
+        templates,
+        history,
+        habits,
+        habitLog,
+        preferences
+    };
+}
+
 function isSectionMissing<T>(value: T, empty: T): boolean {
     if (Array.isArray(value) && Array.isArray(empty)) return value.length === 0;
     if (value && typeof value === "object" && empty && typeof empty === "object") {
@@ -151,14 +218,17 @@ export function readPersistedPlannerStateFromLocalStorage(
     const habits = safeJsonParse<Habit[]>(localStorage.getItem(HABITS_STORAGE_KEY), []);
     const habitLog = normalizeHabitLog(safeJsonParse<unknown>(localStorage.getItem(HABIT_LOG_STORAGE_KEY), {}));
 
-    return {
-        cycle,
-        templates: Array.isArray(templates) ? templates : [],
-        history,
-        habits: Array.isArray(habits) ? habits : [],
-        habitLog,
-        preferences: readPreferencesFromStorage(fallbackPreferences)
-    };
+    return sanitizePersistedPlannerState(
+        {
+            cycle,
+            templates: Array.isArray(templates) ? templates : [],
+            history,
+            habits: Array.isArray(habits) ? habits : [],
+            habitLog,
+            preferences: readPreferencesFromStorage(fallbackPreferences)
+        },
+        fallbackPreferences
+    );
 }
 
 export function writePersistedPlannerStateToLocalStorage(state: PersistedPlannerState): Error | null {

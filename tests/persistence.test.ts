@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildCycle } from "../src/utils";
 import { buildSnapshotRecord, rotateSnapshots } from "../src/persistence/localSnapshots";
-import { mergeImportedPlannerState, safeSerialize } from "../src/persistence/stateSerializer";
+import { mergeImportedPlannerState, safeSerialize, sanitizePersistedPlannerState } from "../src/persistence/stateSerializer";
 import { PersistedPlannerState } from "../src/types";
 
 function makeState(): PersistedPlannerState {
@@ -78,4 +78,30 @@ test("mergeImportedPlannerState only fills missing sections in merge_missing mod
 
     assert.equal(merged.cycle?.id, current.cycle?.id);
     assert.equal(merged.templates.length, 1);
+});
+
+test("sanitizePersistedPlannerState returns safe defaults for malformed input", () => {
+    const sanitized = sanitizePersistedPlannerState({
+        cycle: { foo: "bar" },
+        templates: "invalid",
+        history: [{ nope: true }],
+        habits: null,
+        habitLog: "bad",
+        preferences: {
+            language: "fr",
+            dateFormat: "unknown",
+            timeFormat: "25h",
+            darkMode: "yes",
+            selectedCalendarId: ""
+        }
+    });
+
+    assert.equal(sanitized.cycle, null);
+    assert.deepEqual(sanitized.templates, []);
+    assert.deepEqual(sanitized.history, []);
+    assert.deepEqual(sanitized.habits, []);
+    assert.deepEqual(sanitized.habitLog, {});
+    assert.equal(sanitized.preferences.language === "de" || sanitized.preferences.language === "en", true);
+    assert.equal(["eu_short", "eu_long", "iso"].includes(sanitized.preferences.dateFormat), true);
+    assert.equal(["24h", "12h"].includes(sanitized.preferences.timeFormat), true);
 });

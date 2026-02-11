@@ -1,6 +1,6 @@
 import { PersistedPlannerState, SyncConflictResolution } from "../types";
 import { supabaseRestRequest, SupabaseAuthSession } from "./supabaseClient";
-import { safeSerialize } from "../persistence/stateSerializer";
+import { safeSerialize, sanitizePersistedPlannerState } from "../persistence/stateSerializer";
 
 export type PlannerStateRecord = {
     userId?: string;
@@ -93,7 +93,7 @@ const STATE_SCHEMA_VERSION = 1;
 function normalizeRow(row: PlannerStateRow): PlannerStateRecord {
     return {
         userId: row.user_id,
-        state: row.state_json,
+        state: sanitizePersistedPlannerState(row.state_json),
         version: row.version,
         updatedAt: row.updated_at,
         schemaVersion: row.schema_version
