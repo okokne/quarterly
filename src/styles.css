@@ -710,7 +710,7 @@ p {
 /* ─── Drag Handle ─── */
 .drag-handle {
   cursor: grab;
-  color: var(--text-light);
+  color: var(--text-secondary);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -721,16 +721,19 @@ p {
   line-height: 1;
   align-self: center;
   margin-right: 8px;
-  opacity: 0.3;
-  transition: opacity 0.2s;
+  opacity: 0.72;
+  transition: opacity 0.2s, background-color 0.2s, color 0.2s;
   padding: 4px;
   border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-subtle) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .drag-handle:hover {
   opacity: 1;
-  background-color: var(--bg-secondary);
-  color: var(--text-secondary);
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border);
 }
 
 .drag-handle:active {
@@ -2062,17 +2065,25 @@ button.ghost-danger:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px;
-  border-radius: 999px;
-  border: 1px solid var(--border-light);
-  background: var(--bg-subtle);
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .week-target-stepper button {
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
   padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-weight: 700;
+}
+
+.week-target-stepper button:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-light);
 }
 
 .week-target-actions {
@@ -2081,6 +2092,114 @@ button.ghost-danger:hover {
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.journal-view {
+  gap: 16px;
+}
+
+.journal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.journal-subtitle {
+  margin-top: 4px;
+}
+
+.journal-add-btn {
+  min-height: 36px;
+}
+
+.journal-entry-form {
+  gap: 12px;
+}
+
+.journal-card-list {
+  display: grid;
+  gap: 10px;
+}
+
+.journal-card {
+  position: relative;
+  padding: 14px 16px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 92px;
+}
+
+.journal-card.clickable {
+  cursor: pointer;
+}
+
+.journal-card.clickable:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.journal-card-date {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.journal-card h4 {
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.journal-card p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.journal-delete-x {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.journal-delete-x:hover {
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+  background: color-mix(in srgb, var(--danger-bg) 72%, transparent);
+  color: var(--danger);
+}
+
+.warning-text {
+  color: color-mix(in srgb, var(--warning) 72%, var(--text-primary));
+  font-size: 0.84rem;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 0.84rem;
 }
 
 .empty {
@@ -2728,6 +2847,28 @@ button.ghost-danger:hover {
 
   .week-target-actions .ghost-danger {
     margin-left: auto;
+  }
+
+  .journal-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .journal-add-btn {
+    width: 100%;
+  }
+
+  .journal-card {
+    padding: 12px 12px 12px;
+    min-height: 86px;
+  }
+
+  .journal-delete-x {
+    right: 6px;
+    top: 6px;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
   }
 
   .week-grid {

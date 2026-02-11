@@ -33,9 +33,18 @@ export type Cycle = {
     dailyReviews: Record<string, DailyReview>; // date -> review
     weeklyReviews: Record<number, WeeklyReview>;
     finalReview?: FinalReview;
+    journalEntries?: JournalEntry[];
     reminder: ReminderSettings;
     habits: Habit[];
     habitLog: Record<string, string[]>; // date -> completed habit IDs
+};
+
+export type JournalEntry = {
+    id: Id;
+    title: string;
+    content: string;
+    date: string; // ISO date
+    createdAt: string; // ISO datetime
 };
 
 export type Habit = {

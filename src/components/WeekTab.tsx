@@ -1,4 +1,12 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type PointerEvent as ReactPointerEvent
+} from "react";
 import { t as tr } from "../i18n";
 import {
     AppLanguage,
@@ -76,6 +84,19 @@ export function WeekTab({
     weeklyReview,
     finalReview
 }: WeekTabProps) {
+    const TOUCH_REORDER_LONG_PRESS_MS = 180;
+    const [touchDraggingTargetId, setTouchDraggingTargetId] = useState<Id | null>(null);
+    const [touchDragOverTargetId, setTouchDragOverTargetId] = useState<Id | null>(null);
+    const touchDragRef = useRef<{ active: boolean; pointerId: number | null; currentIndex: number }>({
+        active: false,
+        pointerId: null,
+        currentIndex: -1
+    });
+    const touchStartRef = useRef<{ timerId: number | null; pointerId: number | null }>({
+        timerId: null,
+        pointerId: null
+    });
+
     const [editingGoalId, setEditingGoalId] = useState<Id | null>(null);
     const [goalEditDraft, setGoalEditDraft] = useState<GoalDraft>({ title: "", metric: "" });
     const [editingTargetId, setEditingTargetId] = useState<Id | null>(null);
@@ -92,6 +113,108 @@ export function WeekTab({
             setEditingTargetId(null);
         }
     }, [editingTargetId, totalWeeklyTargets]);
+
+    useEffect(() => {
+        return () => {
+            const pending = touchStartRef.current;
+            if (pending.timerId !== null) {
+                window.clearTimeout(pending.timerId);
+            }
+        };
+    }, []);
+
+    const endTouchReorder = useCallback((pointerId?: number) => {
+        const state = touchDragRef.current;
+        if (!state.active) return;
+        if (pointerId !== undefined && state.pointerId !== null && pointerId !== state.pointerId) return;
+
+        touchDragRef.current = {
+            active: false,
+            pointerId: null,
+            currentIndex: -1
+        };
+        setTouchDraggingTargetId(null);
+        setTouchDragOverTargetId(null);
+    }, []);
+
+    const clearPendingTouchStart = useCallback((pointerId?: number) => {
+        const pending = touchStartRef.current;
+        if (pointerId !== undefined && pending.pointerId !== null && pointerId !== pending.pointerId) return;
+        if (pending.timerId !== null) {
+            window.clearTimeout(pending.timerId);
+        }
+        touchStartRef.current = {
+            timerId: null,
+            pointerId: null
+        };
+    }, []);
+
+    const handleTouchReorderMove = useCallback((event: PointerEvent) => {
+        const state = touchDragRef.current;
+        if (!state.active) return;
+        if (state.pointerId !== null && event.pointerId !== state.pointerId) return;
+
+        event.preventDefault();
+        const hit = document.elementFromPoint(event.clientX, event.clientY);
+        if (!(hit instanceof Element)) return;
+        const row = hit.closest("[data-target-index]") as HTMLElement | null;
+        if (!row) return;
+
+        const targetIndex = Number(row.dataset.targetIndex);
+        if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= totalWeeklyTargets.length) return;
+
+        const hoveredTarget = totalWeeklyTargets[targetIndex];
+        setTouchDragOverTargetId(hoveredTarget?.id ?? null);
+        if (targetIndex === state.currentIndex) return;
+
+        onReorderTargets(selectedWeek, state.currentIndex, targetIndex);
+        state.currentIndex = targetIndex;
+    }, [onReorderTargets, selectedWeek, totalWeeklyTargets]);
+
+    useEffect(() => {
+        if (!touchDraggingTargetId) return;
+
+        const handlePointerUp = (event: PointerEvent) => endTouchReorder(event.pointerId);
+        const handlePointerCancel = (event: PointerEvent) => endTouchReorder(event.pointerId);
+
+        window.addEventListener("pointermove", handleTouchReorderMove, { passive: false });
+        window.addEventListener("pointerup", handlePointerUp);
+        window.addEventListener("pointercancel", handlePointerCancel);
+        return () => {
+            window.removeEventListener("pointermove", handleTouchReorderMove);
+            window.removeEventListener("pointerup", handlePointerUp);
+            window.removeEventListener("pointercancel", handlePointerCancel);
+        };
+    }, [touchDraggingTargetId, handleTouchReorderMove, endTouchReorder]);
+
+    const startTouchReorder = useCallback((event: ReactPointerEvent<HTMLDivElement>, targetId: Id, index: number) => {
+        if (isArchiveView) return;
+        if (event.pointerType === "mouse") return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        clearPendingTouchStart();
+
+        const pointerId = event.pointerId;
+        const handleElement = event.currentTarget;
+        touchStartRef.current.pointerId = pointerId;
+        touchStartRef.current.timerId = window.setTimeout(() => {
+            touchDragRef.current = {
+                active: true,
+                pointerId,
+                currentIndex: index
+            };
+            setTouchDraggingTargetId(targetId);
+            setTouchDragOverTargetId(targetId);
+            if (handleElement.setPointerCapture) {
+                handleElement.setPointerCapture(pointerId);
+            }
+            touchStartRef.current = {
+                timerId: null,
+                pointerId: null
+            };
+        }, TOUCH_REORDER_LONG_PRESS_MS);
+    }, [clearPendingTouchStart, isArchiveView]);
 
     const startGoalEdit = (goal: Cycle["goals"][number]) => {
         setEditingTargetId(null);
@@ -274,16 +397,26 @@ export function WeekTab({
                     {totalWeeklyTargets.length === 0 && <p className="empty">{tr(language, "week.noWeeklyTargets")}</p>}
                     {totalWeeklyTargets.map((target, index) => {
                         const isEditingTarget = editingTargetId === target.id;
+                        const isTouchDragActive = touchDraggingTargetId === target.id;
+                        const isTouchDragOver = touchDragOverTargetId === target.id && !isTouchDragActive;
 
                         return (
                             <div
                                 key={target.id}
-                                className={`list-item column week-target-item ${draggingTargetId === target.id ? "dragging" : ""} ${isEditingTarget ? "editing" : ""}`}
-                                onDragOver={(e) => { e.preventDefault(); }}
+                                className={`list-item column week-target-item ${draggingTargetId === target.id ? "dragging" : ""} ${isEditingTarget ? "editing" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
+                                data-target-index={index}
+                                onDragOver={(e) => {
+                                    if (isArchiveView) return;
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = "move";
+                                }}
                                 onDrop={() => {
+                                    if (isArchiveView) return;
                                     if (draggingTargetId && draggingTargetId !== target.id) {
                                         const fromIdx = totalWeeklyTargets.findIndex((item) => item.id === draggingTargetId);
-                                        onReorderTargets(selectedWeek, fromIdx, index);
+                                        if (fromIdx >= 0) {
+                                            onReorderTargets(selectedWeek, fromIdx, index);
+                                        }
                                     }
                                     setDraggingTargetId(null);
                                 }}
@@ -294,8 +427,21 @@ export function WeekTab({
                                             <div
                                                 className="drag-handle"
                                                 style={{ marginRight: "8px" }}
-                                                draggable
+                                                draggable={!isArchiveView}
+                                                onPointerDown={(e) => startTouchReorder(e, target.id, index)}
+                                                onPointerUp={(e) => {
+                                                    clearPendingTouchStart(e.pointerId);
+                                                    endTouchReorder(e.pointerId);
+                                                }}
+                                                onPointerCancel={(e) => {
+                                                    clearPendingTouchStart(e.pointerId);
+                                                    endTouchReorder(e.pointerId);
+                                                }}
                                                 onDragStart={(e) => {
+                                                    if (isArchiveView) {
+                                                        e.preventDefault();
+                                                        return;
+                                                    }
                                                     setDraggingTargetId(target.id);
                                                     e.dataTransfer.effectAllowed = "move";
                                                     const row = e.currentTarget.parentElement?.parentElement;

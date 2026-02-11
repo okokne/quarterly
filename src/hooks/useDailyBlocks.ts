@@ -46,7 +46,7 @@ export function useDailyBlocks({
                     date,
                     newBlock.startTime,
                     newBlock.endTime,
-                    "12-Week-Year Block",
+                    "Quarterly Plan Block",
                     selectedCalendarId
                 );
                 if (eventId) {
@@ -77,7 +77,7 @@ export function useDailyBlocks({
                     date,
                     changes.startTime ?? block.startTime,
                     changes.endTime ?? block.endTime,
-                    "12-Week-Year Block",
+                    "Quarterly Plan Block",
                     selectedCalendarId
                 );
             } catch (err) {

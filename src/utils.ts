@@ -129,6 +129,7 @@ export function buildCycle(title: string, startDateInput: string): Cycle {
         dailyReviews: {},
         weeklyReviews: {},
         finalReview: undefined,
+        journalEntries: [],
         reminder: { enabled: true, dayOffset: 6, time: "08:00" },
         habits: [],
         habitLog: {}
@@ -137,7 +138,7 @@ export function buildCycle(title: string, startDateInput: string): Cycle {
 
 export function buildDemoCycle(): Cycle {
     const today = toIsoDate(new Date());
-    const cycle = buildCycle("Demo‑Plan: 12‑Week‑Year", today);
+    const cycle = buildCycle("Demo‑Plan: Quarterly", today);
     cycle.vision = "In drei Jahren lebe ich gesund, ausgeglichen und habe ein profitables, stabiles Business.";
 
     const g1: Goal = { id: uid(), title: "Am Ende der 12 Wochen wiege ich 84 kg (aktuell 89 kg).", metric: "84 kg" };
@@ -230,6 +231,15 @@ export function buildDemoCycle(): Cycle {
     cycle.dailyReviews[w1.startDate] = { good: "Produktiver Start in die Woche!", bad: "Spätes Aufstehen." };
     cycle.dailyReviews[addDays(w1.startDate, 1)] = { good: "15 Calls geschafft!", bad: "Kein Zeit für Meditation." };
     cycle.dailyReviews[w2.startDate] = { good: "Früh aufgestanden, Meditation gemacht.", bad: "Nachmittags müde." };
+    cycle.journalEntries = [
+        {
+            id: uid(),
+            title: "Quarterly Fokus notiert",
+            content: "Diese 12 Wochen steht konsequente Umsetzung vor Perfektion.",
+            date: w1.startDate,
+            createdAt: new Date().toISOString()
+        }
+    ];
 
     // ─── Demo Habits ───
     const h1: Habit = { id: uid(), title: "Morgenroutine", emoji: "🌅", frequency: "daily", activeFrom: 1, activeTo: 12, startedAt: today, createdAt: today };
@@ -312,6 +322,7 @@ export function migrateCycle(raw: any): Cycle | null {
         if (!cycle.habits) cycle.habits = [];
         if (!cycle.habitLog) cycle.habitLog = {};
         if (!cycle.dailyPlans) cycle.dailyPlans = {};
+        if (!Array.isArray(cycle.journalEntries)) cycle.journalEntries = [];
 
         cycle.habits = cycle.habits.map((h) => ({
             ...h,
@@ -350,6 +361,23 @@ export function migrateCycle(raw: any): Cycle | null {
             }
         });
         cycle.dailyPlans = normalizedPlans;
+
+        cycle.journalEntries = cycle.journalEntries
+            .filter((entry) => entry && typeof entry === "object")
+            .map((entry: any, index: number) => {
+                const date = typeof entry.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.date)
+                    ? entry.date
+                    : cycle.startDate;
+                return {
+                    id: typeof entry.id === "string" && entry.id.trim() ? entry.id : uid(),
+                    title: typeof entry.title === "string" && entry.title.trim() ? entry.title.trim() : `Journal ${index + 1}`,
+                    content: typeof entry.content === "string" ? entry.content : "",
+                    date,
+                    createdAt: typeof entry.createdAt === "string" && entry.createdAt.trim()
+                        ? entry.createdAt
+                        : `${date}T00:00:00.000Z`
+                };
+            });
 
         // CLEANUP: Remove future habit logs
         const today = toIsoDate(new Date());

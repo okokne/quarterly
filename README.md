@@ -1,6 +1,7 @@
-# 12‑Week‑Year Planner (Simple Like Paper)
+# Quarterly (12‑Wochen‑Planer)
 
-Minimalistische Single‑User Web‑App nach dem 12‑Week‑Year‑Prinzip. Fokus: Ziele → Wochenziele → Tagesplan → tägliche Ausführung. Alles lokal gespeichert.
+Quarterly ist ein 12‑Wochen‑Planer fuer fokussierte Quartalsziele.  
+Fokus: Quarterly Planning -> Weekly Targets -> Daily Tracking -> Journal.
 
 ## Starten
 

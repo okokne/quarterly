@@ -143,7 +143,7 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `12-week-year-autosnapshot-${record.createdAt.slice(0, 10)}.json`;
+        a.download = `quarterly-autosnapshot-${record.createdAt.slice(0, 10)}.json`;
         a.click();
         URL.revokeObjectURL(url);
         return true;

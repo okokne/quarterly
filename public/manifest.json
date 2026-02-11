@@ -1,7 +1,7 @@
 {
-    "name": "12-Week-Year Planner",
-    "short_name": "12WY Planner",
-    "description": "Ein moderner Planer basierend auf der 12-Week-Year Methode",
+    "name": "Quarterly",
+    "short_name": "Quarterly",
+    "description": "Quarterly - dein 12-Wochen-Planer fuer Quartalsziele, Weekly Targets und Daily Tracking.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#faf8f5",

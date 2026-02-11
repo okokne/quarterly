@@ -55,8 +55,9 @@ export function AppHeader({
         <header className="header">
             <div className="header-main">
                 <div>
-                    <p className="eyebrow">12‑Week‑Year Planner</p>
-                    <h1>{title ?? "12‑Week‑Year"}</h1>
+                    <p className="eyebrow">Quarterly</p>
+                    <h1>{title ?? "Quarterly"}</h1>
+                    <p className="muted">{tr(language, "app.brandTagline")}</p>
                     <p className="muted">{tr(language, "app.headerStartWeek", {
                         date: formatDate(startDate, dateFormat, language),
                         week: selectedWeek,
