@@ -2282,8 +2282,7 @@ button.ghost-danger:hover {
   padding-right: 28px;
 }
 
-.journal-entry-type,
-.journal-sentiment-badge {
+.journal-entry-type {
   display: inline-flex;
   align-items: center;
   min-height: 22px;
@@ -2312,25 +2311,45 @@ button.ghost-danger:hover {
   color: var(--text-secondary);
 }
 
-.journal-sentiment-positive {
+.journal-entry-signal-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.journal-entry-signal {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.journal-entry-signal.win {
   background: color-mix(in srgb, var(--success-bg) 84%, var(--bg-card));
   border-color: color-mix(in srgb, var(--success) 34%, var(--border));
   color: var(--success);
 }
 
-.journal-sentiment-negative {
+.journal-entry-signal.challenge {
   background: color-mix(in srgb, var(--danger-bg) 84%, var(--bg-card));
   border-color: color-mix(in srgb, var(--danger) 34%, var(--border));
   color: var(--danger);
 }
 
-.journal-sentiment-mixed {
+.journal-entry-signal.next_step {
   background: color-mix(in srgb, var(--warning-bg) 86%, var(--bg-card));
   border-color: color-mix(in srgb, var(--warning) 35%, var(--border));
   color: color-mix(in srgb, var(--warning) 70%, #6a4f00);
 }
 
-.journal-sentiment-neutral {
+.journal-entry-signal.note {
   background: var(--bg-subtle);
   border-color: var(--border);
   color: var(--text-secondary);

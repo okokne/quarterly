@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
     buildCycle,
+    getReviewEntrySignals,
     getReviewEntrySentiment,
+    matchesSignalFilter,
     migrateCycle,
     upsertCurrentDailyReviewEntry,
     upsertCurrentWeeklyReviewEntry
@@ -37,6 +39,8 @@ test("migrateCycle builds reviewEntries from legacy review maps without duplicat
     const migratedOnce = migrateCycle(JSON.parse(JSON.stringify(cycle)));
     assert.ok(migratedOnce, "first migration should return a cycle");
     assert.equal(migratedOnce?.reviewEntries?.length, 3);
+    const migratedCustom = migratedOnce?.reviewEntries?.find((entry) => entry.type === "custom");
+    assert.deepEqual(migratedCustom?.signals, ["note"], "legacy custom entries should default to note signal");
 
     const migratedTwice = migrateCycle(JSON.parse(JSON.stringify(migratedOnce)));
     assert.ok(migratedTwice, "second migration should return a cycle");
@@ -91,6 +95,72 @@ test("getReviewEntrySentiment maps daily/weekly/custom entries correctly", () =>
     assert.equal(getReviewEntrySentiment(weeklyNegative), "negative");
     assert.equal(getReviewEntrySentiment(mixedEntry), "mixed");
     assert.equal(getReviewEntrySentiment(customEntry), "neutral");
+});
+
+test("getReviewEntrySignals maps entries to practical feed signals", () => {
+    const dailyMixed: ReviewEntry = {
+        id: "s1",
+        type: "daily",
+        date: "2026-02-11",
+        createdAt: "2026-02-11T09:00:00.000Z",
+        updatedAt: "2026-02-11T09:00:00.000Z",
+        good: "Deep work block done",
+        bad: "Too many interruptions",
+        source: "today_tab"
+    };
+    const weeklyWithNextStep: ReviewEntry = {
+        id: "s2",
+        type: "weekly",
+        date: "2026-02-09",
+        weekIndex: 1,
+        createdAt: "2026-02-11T09:00:00.000Z",
+        updatedAt: "2026-02-11T09:00:00.000Z",
+        change: "Protect mornings",
+        source: "week_tab"
+    };
+    const customDefault: ReviewEntry = {
+        id: "s3",
+        type: "custom",
+        date: "2026-02-11",
+        createdAt: "2026-02-11T09:00:00.000Z",
+        updatedAt: "2026-02-11T09:00:00.000Z",
+        content: "Random thought",
+        source: "journal"
+    };
+    const customTagged: ReviewEntry = {
+        id: "s4",
+        type: "custom",
+        date: "2026-02-11",
+        createdAt: "2026-02-11T09:00:00.000Z",
+        updatedAt: "2026-02-11T09:00:00.000Z",
+        content: "Small win",
+        signals: ["win", "challenge"],
+        source: "journal"
+    };
+
+    assert.deepEqual(getReviewEntrySignals(dailyMixed), ["win", "challenge"]);
+    assert.deepEqual(getReviewEntrySignals(weeklyWithNextStep), ["next_step"]);
+    assert.deepEqual(getReviewEntrySignals(customDefault), ["note"]);
+    assert.deepEqual(getReviewEntrySignals(customTagged), ["win", "challenge"]);
+});
+
+test("matchesSignalFilter uses OR logic for multi-select", () => {
+    const entry: ReviewEntry = {
+        id: "f1",
+        type: "daily",
+        date: "2026-02-11",
+        createdAt: "2026-02-11T09:00:00.000Z",
+        updatedAt: "2026-02-11T09:00:00.000Z",
+        good: "Strong output",
+        bad: "Late start",
+        source: "today_tab"
+    };
+
+    assert.equal(matchesSignalFilter(entry, []), true, "empty signal filter should pass all entries");
+    assert.equal(matchesSignalFilter(entry, ["win"]), true);
+    assert.equal(matchesSignalFilter(entry, ["challenge"]), true);
+    assert.equal(matchesSignalFilter(entry, ["next_step", "win"]), true, "OR logic should match when at least one selected signal exists");
+    assert.equal(matchesSignalFilter(entry, ["note"]), false);
 });
 
 test("upsertCurrentDailyReviewEntry updates one current entry and removes it when empty", () => {

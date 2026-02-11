@@ -42,6 +42,7 @@ export type Cycle = {
 
 export type ReviewEntryType = "daily" | "weekly" | "custom";
 export type ReviewSentiment = "positive" | "negative" | "mixed" | "neutral";
+export type ReviewSignal = "win" | "challenge" | "next_step" | "note";
 export type ReviewEntrySource = "journal" | "today_tab" | "week_tab" | "migrated";
 
 export type ReviewEntry = {
@@ -56,6 +57,7 @@ export type ReviewEntry = {
     good?: string;
     bad?: string;
     change?: string;
+    signals?: ReviewSignal[];
     source: ReviewEntrySource;
 };
 

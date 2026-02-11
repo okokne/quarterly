@@ -10,6 +10,7 @@ import {
     WeeklyReview,
     ReviewEntry,
     ReviewEntrySource,
+    ReviewSignal,
     ReviewSentiment,
     Habit,
     STORAGE_KEY,
@@ -164,6 +165,20 @@ function isValidReviewSource(value: unknown): value is ReviewEntrySource {
     return value === "journal" || value === "today_tab" || value === "week_tab" || value === "migrated";
 }
 
+function isValidReviewSignal(value: unknown): value is ReviewSignal {
+    return value === "win" || value === "challenge" || value === "next_step" || value === "note";
+}
+
+function normalizeReviewSignals(value: unknown): ReviewSignal[] | undefined {
+    if (!Array.isArray(value)) return undefined;
+    const unique = new Set<ReviewSignal>();
+    value.forEach((item) => {
+        if (isValidReviewSignal(item)) unique.add(item);
+    });
+    if (unique.size === 0) return undefined;
+    return Array.from(unique);
+}
+
 function trimToUndefined(value: unknown): string | undefined {
     if (typeof value !== "string") return undefined;
     const trimmed = value.trim();
@@ -219,6 +234,7 @@ function normalizeReviewEntries(entries: unknown[], cycle: Cycle): ReviewEntry[]
                 good: trimToUndefined(raw.good),
                 bad: trimToUndefined(raw.bad),
                 change: trimToUndefined(raw.change),
+                signals: normalizeReviewSignals(raw.signals),
                 source: isValidReviewSource(raw.source) ? raw.source : "migrated"
             };
         })
@@ -299,6 +315,7 @@ export function buildReviewEntriesFromLegacy(cycle: Cycle): ReviewEntry[] {
             updatedAt: createdAt,
             title: title || undefined,
             content: content || undefined,
+            signals: ["note"],
             source: "migrated"
         });
     });
@@ -334,6 +351,26 @@ export function getReviewEntrySearchText(entry: ReviewEntry): string {
         .filter((part): part is string => typeof part === "string" && part.trim().length > 0)
         .join(" ")
         .toLowerCase();
+}
+
+export function getReviewEntrySignals(entry: ReviewEntry): ReviewSignal[] {
+    if (entry.type === "custom") {
+        const normalized = normalizeReviewSignals(entry.signals);
+        return normalized && normalized.length > 0 ? normalized : ["note"];
+    }
+
+    const signals: ReviewSignal[] = [];
+    if (entry.good?.trim()) signals.push("win");
+    if (entry.bad?.trim()) signals.push("challenge");
+    if (entry.type === "weekly" && entry.change?.trim()) signals.push("next_step");
+    if (signals.length === 0) signals.push("note");
+    return signals;
+}
+
+export function matchesSignalFilter(entry: ReviewEntry, selectedSignals: ReviewSignal[]): boolean {
+    if (!selectedSignals.length) return true;
+    const entrySignals = getReviewEntrySignals(entry);
+    return selectedSignals.some((signal) => entrySignals.includes(signal));
 }
 
 export function upsertCurrentDailyReviewEntry(input: {
@@ -441,11 +478,13 @@ export function createJournalCustomReviewEntry(input: {
     title: string;
     content: string;
     date: string;
+    signals?: ReviewSignal[];
 }): ReviewEntry | null {
     const title = input.title.trim();
     const content = input.content.trim();
     if (!title && !content) return null;
     const now = new Date().toISOString();
+    const normalizedSignals = normalizeReviewSignals(input.signals) ?? ["note"];
     return {
         id: uid(),
         type: "custom",
@@ -454,6 +493,7 @@ export function createJournalCustomReviewEntry(input: {
         updatedAt: now,
         title: title || undefined,
         content: content || undefined,
+        signals: normalizedSignals,
         source: "journal"
     };
 }

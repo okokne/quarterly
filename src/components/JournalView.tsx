@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { AppLanguage, Cycle, DateFormat, ReviewEntry, ReviewSentiment, ReviewEntryType } from "../types";
+import { AppLanguage, Cycle, DateFormat, ReviewEntry, ReviewEntryType, ReviewSignal } from "../types";
 import { t as tr } from "../i18n";
 import {
     createJournalCustomReviewEntry,
     createJournalDailyReviewEntry,
     createJournalWeeklyReviewEntry,
     formatDate,
+    getReviewEntrySignals,
     getReviewEntrySearchText,
-    getReviewEntrySentiment,
     getWeekIndexForDate,
+    matchesSignalFilter,
     getWritableReviewEntries,
     toIsoDate
 } from "../utils";
 
 type Tab = "today" | "week" | "stats" | "journal";
 type FeedTypeFilter = "all" | ReviewEntryType;
-type FeedSentimentFilter = "all" | ReviewSentiment;
 type FeedRangeFilter = "all" | "current_week" | "current_month" | "quarter";
 type ComposerType = "daily" | "weekly" | "custom";
 
@@ -68,6 +68,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
     const [customDate, setCustomDate] = useState(() => toIsoDate(new Date()));
     const [customTitle, setCustomTitle] = useState("");
     const [customContent, setCustomContent] = useState("");
+    const [customSignals, setCustomSignals] = useState<ReviewSignal[]>([]);
 
     const [dailyDate, setDailyDate] = useState(() => toIsoDate(new Date()));
     const [dailyGood, setDailyGood] = useState("");
@@ -80,7 +81,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
 
     const [searchQuery, setSearchQuery] = useState("");
     const [typeFilter, setTypeFilter] = useState<FeedTypeFilter>("all");
-    const [sentimentFilter, setSentimentFilter] = useState<FeedSentimentFilter>("all");
+    const [signalFilter, setSignalFilter] = useState<ReviewSignal[]>([]);
     const [rangeFilter, setRangeFilter] = useState<FeedRangeFilter>("all");
     const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({});
 
@@ -97,9 +98,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
     const filteredEntries = useMemo(() => {
         return allEntries.filter((entry) => {
             if (typeFilter !== "all" && entry.type !== typeFilter) return false;
-
-            const sentiment = getReviewEntrySentiment(entry);
-            if (sentimentFilter !== "all" && sentiment !== sentimentFilter) return false;
+            if (!matchesSignalFilter(entry, signalFilter)) return false;
 
             if (rangeFilter === "current_week") {
                 if (!currentWeek || entry.date < currentWeek.startDate || entry.date > currentWeek.endDate) return false;
@@ -121,7 +120,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         quarterEnd,
         quarterStart,
         rangeFilter,
-        sentimentFilter,
+        signalFilter,
         typeFilter
     ]);
 
@@ -200,6 +199,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         setCustomDate(toIsoDate(new Date()));
         setCustomTitle("");
         setCustomContent("");
+        setCustomSignals([]);
         setDailyDate(toIsoDate(new Date()));
         setDailyGood("");
         setDailyBad("");
@@ -218,7 +218,8 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 const created = createJournalCustomReviewEntry({
                     title: customTitle,
                     content: customContent,
-                    date: customDate
+                    date: customDate,
+                    signals: customSignals
                 });
                 if (!created) return prev;
 
@@ -290,6 +291,22 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         setShowComposer(false);
     };
 
+    const toggleSignalSelection = (signal: ReviewSignal) => {
+        setSignalFilter((prev) => (
+            prev.includes(signal)
+                ? prev.filter((item) => item !== signal)
+                : [...prev, signal]
+        ));
+    };
+
+    const toggleCustomSignal = (signal: ReviewSignal) => {
+        setCustomSignals((prev) => (
+            prev.includes(signal)
+                ? prev.filter((item) => item !== signal)
+                : [...prev, signal]
+        ));
+    };
+
     const composerSubmitDisabled = useMemo(() => {
         if (composerType === "custom") {
             return !customTitle.trim() && !customContent.trim();
@@ -307,12 +324,11 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         { id: "custom", labelKey: "journal.filterTypeCustom" }
     ];
 
-    const sentimentOptions: Array<{ id: FeedSentimentFilter; labelKey: string }> = [
-        { id: "all", labelKey: "journal.filterSentimentAll" },
-        { id: "positive", labelKey: "journal.sentimentPositive" },
-        { id: "negative", labelKey: "journal.sentimentNegative" },
-        { id: "mixed", labelKey: "journal.sentimentMixed" },
-        { id: "neutral", labelKey: "journal.sentimentNeutral" }
+    const signalOptions: Array<{ id: ReviewSignal; labelKey: string }> = [
+        { id: "win", labelKey: "journal.signalWin" },
+        { id: "challenge", labelKey: "journal.signalChallenge" },
+        { id: "next_step", labelKey: "journal.signalNextStep" },
+        { id: "note", labelKey: "journal.signalNote" }
     ];
 
     const rangeOptions: Array<{ id: FeedRangeFilter; labelKey: string }> = [
@@ -369,6 +385,20 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                                         onChange={(e) => setCustomDate(e.target.value)}
                                     />
                                 </label>
+                            </div>
+                            <div className="journal-filter-row">
+                                <span className="journal-filter-label">{tr(language, "journal.filterSignals")}</span>
+                                <div className="journal-filter-chip-row">
+                                    {signalOptions.map((option) => (
+                                        <button
+                                            key={option.id}
+                                            className={`journal-filter-chip ${customSignals.includes(option.id) ? "active" : ""}`}
+                                            onClick={() => toggleCustomSignal(option.id)}
+                                        >
+                                            {tr(language, option.labelKey)}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                             <label>
                                 {tr(language, "journal.entryBodyOptional")}
@@ -483,13 +513,19 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 </div>
 
                 <div className="journal-filter-row">
-                    <span className="journal-filter-label">{tr(language, "journal.filterSentiment")}</span>
+                    <span className="journal-filter-label">{tr(language, "journal.filterSignals")}</span>
                     <div className="journal-filter-chip-row">
-                        {sentimentOptions.map((option) => (
+                        <button
+                            className={`journal-filter-chip ${signalFilter.length === 0 ? "active" : ""}`}
+                            onClick={() => setSignalFilter([])}
+                        >
+                            {tr(language, "journal.signalAll")}
+                        </button>
+                        {signalOptions.map((option) => (
                             <button
                                 key={option.id}
-                                className={`journal-filter-chip ${sentimentFilter === option.id ? "active" : ""}`}
-                                onClick={() => setSentimentFilter(option.id)}
+                                className={`journal-filter-chip ${signalFilter.includes(option.id) ? "active" : ""}`}
+                                onClick={() => toggleSignalSelection(option.id)}
                             >
                                 {tr(language, option.labelKey)}
                             </button>
@@ -535,7 +571,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                             {isOpen && (
                                 <div className="journal-card-list">
                                     {entries.map((entry) => {
-                                        const sentiment = getReviewEntrySentiment(entry);
+                                        const signals = getReviewEntrySignals(entry);
                                         const isClickable = entry.type === "daily" || entry.type === "weekly";
                                         const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
                                         return (
@@ -562,7 +598,13 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
 
                                                 <div className="journal-entry-meta-row">
                                                     <span className={`journal-entry-type ${entry.type}`}>{tr(language, `journal.filterType${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}`)}</span>
-                                                    <span className={`journal-sentiment-badge journal-sentiment-${sentiment}`}>{tr(language, `journal.sentiment${sentiment.charAt(0).toUpperCase()}${sentiment.slice(1)}`)}</span>
+                                                    <div className="journal-entry-signal-row">
+                                                        {signals.map((signal) => (
+                                                            <span key={`${entry.id}-${signal}`} className={`journal-entry-signal ${signal}`}>
+                                                                {tr(language, `journal.signal${signal === "next_step" ? "NextStep" : signal.charAt(0).toUpperCase() + signal.slice(1)}`)}
+                                                            </span>
+                                                        ))}
+                                                    </div>
                                                     <span className="journal-card-date">
                                                         {entry.type === "weekly"
                                                             ? `${tr(language, "app.headerWeekShort", { week: weekIndex })} · ${formatDate(entry.date, dateFormat, language)}`
