@@ -1,6 +1,7 @@
 import { createCalendarEvent, deleteCalendarEvent, updateCalendarEvent } from "../googleCalendar";
 import { Cycle, DailyBlock, Id } from "../types";
 import { clamp, uid } from "../utils";
+import { canReorderIndices } from "../regressionLogic";
 
 export type DailyBlockDraft = {
     startTime: string;
@@ -121,10 +122,13 @@ export function useDailyBlocks({
     };
 
     const reorderBlocks = (date: string, fromIndex: number, toIndex: number) => {
-        if (fromIndex === toIndex) return;
         updateCycle((prev) => {
             const blocks = [...(prev.dailyPlans[date] ?? [])];
+            if (!canReorderIndices({ fromIndex, toIndex, length: blocks.length })) {
+                return prev;
+            }
             const [moved] = blocks.splice(fromIndex, 1);
+            if (!moved) return prev;
             blocks.splice(toIndex, 0, moved);
             return {
                 ...prev,

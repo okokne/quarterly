@@ -104,6 +104,20 @@ export function getGoalWeekChipClass(weekData?: { done: number; target: number }
     return "zero";
 }
 
+export function canReorderIndices(input: {
+    fromIndex: number;
+    toIndex: number;
+    length: number;
+}): boolean {
+    const { fromIndex, toIndex, length } = input;
+    if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) || !Number.isInteger(length)) return false;
+    if (length <= 0) return false;
+    if (fromIndex < 0 || toIndex < 0) return false;
+    if (fromIndex >= length || toIndex >= length) return false;
+    if (fromIndex === toIndex) return false;
+    return true;
+}
+
 export type ExpandedHabitDateWindow = {
     startDate: string;
     endDate: string;

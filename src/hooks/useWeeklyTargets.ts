@@ -1,5 +1,6 @@
 import { Cycle, Id, WeeklyTarget } from "../types";
 import { clamp, uid } from "../utils";
+import { canReorderIndices } from "../regressionLogic";
 
 export type WeeklyTargetDraft = {
     title: string;
@@ -61,11 +62,13 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
     };
 
     const reorderTargets = (weekIndex: number, fromIndex: number, toIndex: number) => {
-        if (fromIndex === toIndex) return;
-
         updateCycle((prev) => {
             const targets = [...(prev.weeklyTargets[weekIndex] ?? [])];
+            if (!canReorderIndices({ fromIndex, toIndex, length: targets.length })) {
+                return prev;
+            }
             const [moved] = targets.splice(fromIndex, 1);
+            if (!moved) return prev;
             targets.splice(toIndex, 0, moved);
             return {
                 ...prev,

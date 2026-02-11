@@ -711,10 +711,9 @@ p {
 .drag-handle {
   cursor: grab;
   color: var(--text-light);
-  /* Lighter for subtlety */
-  padding: 0 8px 0 0;
-  /* Spacing from content */
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -731,11 +730,6 @@ p {
 .drag-handle:hover {
   opacity: 1;
   background-color: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.drag-handle:hover {
-  opacity: 1;
   color: var(--text-secondary);
 }
 
@@ -1787,41 +1781,52 @@ button.ghost-danger:hover {
 }
 
 .block-counter {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "range value input";
   align-items: center;
   gap: 10px;
 }
 
 .block-counter-shell {
-  width: min(320px, 100%);
+  width: min(380px, 100%);
   margin-left: auto;
-  justify-content: flex-start;
+}
+
+.block-progress-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .block-counter-value {
-  min-width: 72px;
+  grid-area: value;
+  min-width: 76px;
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-secondary);
-  text-align: right;
+  text-align: center;
   padding: 4px 8px;
   border-radius: 999px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
+  justify-self: end;
 }
 
 .block-counter input[type="range"] {
-  width: 140px;
-  min-width: 120px;
-  flex: 1;
+  width: 100%;
+  min-width: 0;
+  flex: initial;
 }
 
 .block-counter-range {
+  grid-area: range;
   appearance: none;
   height: 6px;
   border-radius: 999px;
   background: var(--border);
   outline: none;
+  width: 100%;
 }
 
 .block-counter-range::-webkit-slider-runnable-track {
@@ -1864,8 +1869,10 @@ button.ghost-danger:hover {
 }
 
 .block-counter-input {
-  width: 68px;
+  grid-area: input;
+  width: 72px;
   text-align: center;
+  justify-self: end;
 }
 
 .block-counter-placeholder {
@@ -1878,18 +1885,19 @@ button.ghost-danger:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .block-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .block-title {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .block-meta-row {
@@ -1910,6 +1918,169 @@ button.ghost-danger:hover {
 
 .block-link-empty {
   min-height: 20px;
+}
+
+.block-delete-x {
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.block-delete-x:hover {
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+  background: color-mix(in srgb, var(--danger-bg) 72%, transparent);
+  color: var(--danger);
+}
+
+.list-item.touch-drag-active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 48%, var(--bg-card));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.list-item.touch-drag-over {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  background: color-mix(in srgb, var(--bg-hover) 70%, var(--bg-card));
+}
+
+.week-goal-row,
+.week-target-row {
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.week-goal-main,
+.week-target-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-goal-display,
+.week-target-body {
+  min-width: 0;
+}
+
+.week-goal-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.week-goal-title,
+.week-goal-metric,
+.week-target-title,
+.week-target-summary {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.week-goal-row.editing,
+.week-target-item.editing {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 38%, var(--bg-card));
+}
+
+.week-row-actions,
+.week-target-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.week-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.week-edit-btn {
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+}
+
+.week-edit-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.week-inline-edit {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 220px);
+  gap: 8px;
+}
+
+.week-target-head {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+}
+
+.week-target-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.week-target-edit-fields {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 120px;
+  gap: 8px;
+}
+
+.week-target-done {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.week-target-controls {
+  justify-content: space-between;
+  width: min(360px, 100%);
+}
+
+.week-target-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+}
+
+.week-target-stepper button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.week-target-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .empty {
@@ -2432,15 +2603,18 @@ button.ghost-danger:hover {
 
   .block-title-row {
     width: 100%;
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: flex-start;
   }
 
   .block-meta-row {
     width: 100%;
-    flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .block-progress-row {
+    width: 100%;
   }
 
   .toggle-row {
@@ -2464,29 +2638,34 @@ button.ghost-danger:hover {
   .block-counter-shell,
   .block-counter-placeholder {
     width: 100%;
+    margin-left: 0;
   }
 
   .block-counter {
     width: 100%;
-    align-items: center;
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "range range"
+      "value input";
     gap: 8px;
   }
 
   .block-counter input[type="range"] {
-    width: auto;
-    flex: 1;
+    width: 100%;
+    min-width: 0;
   }
 
   .block-counter-value {
-    min-width: 64px;
-    text-align: center;
+    min-width: 0;
+    text-align: left;
     padding: 3px 6px;
+    justify-self: start;
   }
 
   .block-counter input[type="number"],
   .block-counter-input {
-    width: 62px;
+    width: 72px;
+    justify-self: end;
   }
 
   .list-row {
@@ -2497,6 +2676,58 @@ button.ghost-danger:hover {
 
   .inline-fields {
     width: 100%;
+  }
+
+  .week-goal-row,
+  .week-target-row {
+    width: 100%;
+  }
+
+  .week-row-actions,
+  .week-target-controls {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .week-inline-edit {
+    grid-template-columns: 1fr;
+  }
+
+  .week-target-edit-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .week-target-edit-fields input:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .week-edit-actions {
+    width: 100%;
+  }
+
+  .week-edit-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .week-target-stepper {
+    padding: 4px;
+  }
+
+  .week-target-stepper button {
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+  }
+
+  .week-target-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .week-target-actions .ghost-danger {
+    margin-left: auto;
   }
 
   .week-grid {
@@ -3067,4 +3298,112 @@ body.dark-mode .archive-banner {
   color: var(--text-primary) !important;
   background: var(--bg-hover) !important;
   text-decoration: underline;
+}
+
+/* ─── Extra Small Mobile Finetune (iPhone SE class) ─── */
+@media (max-width: 390px) {
+  .week-goal-row,
+  .week-target-item {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .week-row-actions,
+  .week-target-controls {
+    gap: 8px;
+  }
+
+  .week-row-actions .ghost-danger {
+    margin-left: auto;
+  }
+
+  .week-target-controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .week-target-stepper {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .week-target-stepper button {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+  }
+
+  .week-target-done {
+    min-width: 24px;
+    font-size: 0.82rem;
+  }
+
+  .week-edit-actions,
+  .week-target-actions {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .week-edit-actions button,
+  .week-target-actions button {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  .week-target-actions {
+    justify-content: flex-start;
+  }
+
+  .week-target-actions .ghost-danger {
+    margin-left: auto;
+  }
+
+  .week-inline-edit input,
+  .week-target-edit-fields input {
+    font-size: 0.85rem;
+  }
+
+  .week-target-edit-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .week-target-edit-fields input:first-child {
+    grid-column: auto;
+  }
+}
+
+/* ─── Touch Target Pass (Today + Week) ─── */
+@media (max-width: 680px) and (pointer: coarse) {
+  .drag-handle {
+    min-width: 44px;
+    min-height: 44px;
+    margin-right: 4px;
+  }
+
+  .block-delete-x {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+
+  .week-edit-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  .week-row-actions button,
+  .week-target-actions button,
+  .week-edit-actions button {
+    min-height: 44px;
+  }
+
+  .week-target-stepper button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+  }
 }

@@ -1,4 +1,12 @@
-import { Dispatch, SetStateAction } from "react";
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type PointerEvent as ReactPointerEvent
+} from "react";
 import { DailyBlockDraft } from "../hooks/useDailyBlocks";
 import { t as tr } from "../i18n";
 import {
@@ -88,6 +96,90 @@ export function TodayTab({
     dailyReview,
     updateCycle
 }: TodayTabProps) {
+    const [touchDraggingBlockId, setTouchDraggingBlockId] = useState<Id | null>(null);
+    const [touchDragOverBlockId, setTouchDragOverBlockId] = useState<Id | null>(null);
+    const touchDragRef = useRef<{ active: boolean; pointerId: number | null; currentIndex: number }>({
+        active: false,
+        pointerId: null,
+        currentIndex: -1
+    });
+
+    const endTouchReorder = useCallback((pointerId?: number) => {
+        const state = touchDragRef.current;
+        if (!state.active) return;
+        if (pointerId !== undefined && state.pointerId !== null && pointerId !== state.pointerId) return;
+
+        touchDragRef.current = {
+            active: false,
+            pointerId: null,
+            currentIndex: -1
+        };
+        setTouchDraggingBlockId(null);
+        setTouchDragOverBlockId(null);
+    }, []);
+
+    const handleTouchReorderMove = useCallback((event: PointerEvent) => {
+        const state = touchDragRef.current;
+        if (!state.active) return;
+        if (state.pointerId !== null && event.pointerId !== state.pointerId) return;
+
+        event.preventDefault();
+        const hit = document.elementFromPoint(event.clientX, event.clientY);
+        if (!(hit instanceof Element)) return;
+        const row = hit.closest("[data-block-index]") as HTMLElement | null;
+        if (!row) return;
+
+        const targetIndex = Number(row.dataset.blockIndex);
+        if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= dayBlocks.length) return;
+
+        const hoveredBlock = dayBlocks[targetIndex];
+        setTouchDragOverBlockId(hoveredBlock?.id ?? null);
+
+        if (targetIndex === state.currentIndex) return;
+        onReorderBlocks(selectedDate, state.currentIndex, targetIndex);
+        state.currentIndex = targetIndex;
+    }, [dayBlocks, onReorderBlocks, selectedDate]);
+
+    useEffect(() => {
+        if (!touchDraggingBlockId) return;
+
+        const handlePointerUp = (event: PointerEvent) => {
+            endTouchReorder(event.pointerId);
+        };
+        const handlePointerCancel = (event: PointerEvent) => {
+            endTouchReorder(event.pointerId);
+        };
+
+        window.addEventListener("pointermove", handleTouchReorderMove, { passive: false });
+        window.addEventListener("pointerup", handlePointerUp);
+        window.addEventListener("pointercancel", handlePointerCancel);
+
+        return () => {
+            window.removeEventListener("pointermove", handleTouchReorderMove);
+            window.removeEventListener("pointerup", handlePointerUp);
+            window.removeEventListener("pointercancel", handlePointerCancel);
+        };
+    }, [touchDraggingBlockId, handleTouchReorderMove, endTouchReorder]);
+
+    const startTouchReorder = useCallback((event: ReactPointerEvent<HTMLDivElement>, blockId: Id, index: number) => {
+        if (isArchiveView) return;
+        if (event.pointerType === "mouse") return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        touchDragRef.current = {
+            active: true,
+            pointerId: event.pointerId,
+            currentIndex: index
+        };
+        setTouchDraggingBlockId(blockId);
+        setTouchDragOverBlockId(blockId);
+
+        if (event.currentTarget.setPointerCapture) {
+            event.currentTarget.setPointerCapture(event.pointerId);
+        }
+    }, [isArchiveView]);
+
     return (
         <section className="card">
             <div className="section-title">
@@ -210,23 +302,41 @@ export function TodayTab({
                                     done: block.done
                                 });
                                 const sliderPercent = plannedAmount > 0 ? (sliderValue / plannedAmount) * 100 : 0;
+                                const isTouchDragActive = touchDraggingBlockId === block.id;
+                                const isTouchDragOver = touchDragOverBlockId === block.id && !isTouchDragActive;
+
                                 return (
                                     <div
                                         key={block.id}
-                                        className={`list-item ${isDone ? "done" : ""} ${draggingBlockId === block.id ? "dragging" : ""}`}
-                                        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                                        className={`list-item ${isDone ? "done" : ""} ${draggingBlockId === block.id ? "dragging" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
+                                        data-block-id={String(block.id)}
+                                        data-block-index={index}
+                                        onDragOver={(e) => {
+                                            if (isArchiveView) return;
+                                            e.preventDefault();
+                                            e.dataTransfer.dropEffect = "move";
+                                        }}
                                         onDrop={() => {
+                                            if (isArchiveView) return;
                                             if (draggingBlockId && draggingBlockId !== block.id) {
                                                 const fromIdx = dayBlocks.findIndex((item) => item.id === draggingBlockId);
-                                                onReorderBlocks(selectedDate, fromIdx, index);
+                                                if (fromIdx >= 0) {
+                                                    onReorderBlocks(selectedDate, fromIdx, index);
+                                                }
                                             }
                                             setDraggingBlockId(null);
                                         }}
                                     >
                                         <div
                                             className="drag-handle"
-                                            draggable
+                                            draggable={!isArchiveView}
+                                            onPointerDown={(e) => startTouchReorder(e, block.id, index)}
                                             onDragStart={(e) => {
+                                                if (isArchiveView) {
+                                                    e.preventDefault();
+                                                    return;
+                                                }
+
                                                 setDraggingBlockId(block.id);
                                                 e.dataTransfer.effectAllowed = "move";
                                                 const row = e.currentTarget.parentElement;
@@ -241,46 +351,59 @@ export function TodayTab({
                                         <div className="block-content">
                                             <div className="block-title-row">
                                                 <strong className="block-title">{formatTime(block.startTime, timeFormat)}–{formatTime(block.endTime, timeFormat)} · {block.title}</strong>
-                                                <div
-                                                    className="toggle-row"
+                                                <button
                                                     data-no-drag="true"
+                                                    className="block-delete-x"
+                                                    title={tr(language, "common.delete")}
+                                                    aria-label={tr(language, "common.delete")}
                                                     onPointerDown={(e) => e.stopPropagation()}
                                                     onMouseDown={(e) => e.stopPropagation()}
-                                                    onTouchStart={(e) => e.stopPropagation()}
+                                                    onClick={() => onDeleteBlock(selectedDate, block.id)}
                                                 >
-                                                    <span className="toggle-label">{tr(language, "today.markLabel")}</span>
-                                                    <span className={`toggle-status ${isDone ? "done" : "pending"}`}>
-                                                        {isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus")}
-                                                    </span>
-                                                    <ToggleSwitch
-                                                        checked={isDone}
-                                                        ariaLabel={tr(language, "today.markLabel")}
-                                                        onChange={(checked) => {
-                                                            const nextActual = usesCounter
-                                                                ? checked
-                                                                    ? plannedAmount
-                                                                    : 0
-                                                                : checked
-                                                                    ? 1
-                                                                    : 0;
-                                                            onUpdateBlock(selectedDate, block.id, {
-                                                                done: checked,
-                                                                actual: nextActual
-                                                            });
-                                                        }}
-                                                    />
-                                                </div>
+                                                    ✕
+                                                </button>
                                             </div>
 
-                                            <div className="block-meta-row">
-                                                {block.linkedTargetId && (
+                                            <div
+                                                className="toggle-row"
+                                                data-no-drag="true"
+                                                onPointerDown={(e) => e.stopPropagation()}
+                                                onMouseDown={(e) => e.stopPropagation()}
+                                                onTouchStart={(e) => e.stopPropagation()}
+                                            >
+                                                <span className="toggle-label">{tr(language, "today.markLabel")}</span>
+                                                <span className={`toggle-status ${isDone ? "done" : "pending"}`}>
+                                                    {isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus")}
+                                                </span>
+                                                <ToggleSwitch
+                                                    checked={isDone}
+                                                    ariaLabel={tr(language, "today.markLabel")}
+                                                    onChange={(checked) => {
+                                                        const nextActual = usesCounter
+                                                            ? checked
+                                                                ? plannedAmount
+                                                                : 0
+                                                            : checked
+                                                                ? 1
+                                                                : 0;
+                                                        onUpdateBlock(selectedDate, block.id, {
+                                                            done: checked,
+                                                            actual: nextActual
+                                                        });
+                                                    }}
+                                                />
+                                            </div>
+
+                                            {block.linkedTargetId && (
+                                                <div className="block-meta-row">
                                                     <div className="muted block-link">
                                                         {tr(language, "today.linked", { target: selectedWeekTargets.find((target) => target.id === block.linkedTargetId)?.title ?? tr(language, "week.weeklyTarget") })}
                                                     </div>
-                                                )}
-                                                {!block.linkedTargetId && <div className="block-link block-link-empty"></div>}
+                                                </div>
+                                            )}
 
-                                                {usesCounter ? (
+                                            {usesCounter && (
+                                                <div className="block-progress-row">
                                                     <div
                                                         className="block-counter block-counter-shell"
                                                         data-no-drag="true"
@@ -345,21 +468,8 @@ export function TodayTab({
                                                             }
                                                         />
                                                     </div>
-                                                ) : (
-                                                    <div className="block-counter-placeholder"></div>
-                                                )}
-
-                                                <button
-                                                    data-no-drag="true"
-                                                    className="icon-btn ghost-danger"
-                                                    title={tr(language, "common.delete")}
-                                                    onPointerDown={(e) => e.stopPropagation()}
-                                                    onMouseDown={(e) => e.stopPropagation()}
-                                                    onClick={() => onDeleteBlock(selectedDate, block.id)}
-                                                >
-                                                    🗑
-                                                </button>
-                                            </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );

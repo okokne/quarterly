@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+    canReorderIndices,
     canToggleHabitCell,
     getExpandedHabitDateWindow,
     getBlockCompletionState,
@@ -113,4 +114,12 @@ test("expanded habit window starts at habit start when habit is younger than 28 
     assert.equal(windowData.dates.length, 7);
     assert.equal(windowData.dates[0], "2026-02-05");
     assert.equal(windowData.dates[windowData.dates.length - 1], today);
+});
+
+test("reorder guards reject invalid index ranges", () => {
+    assert.equal(canReorderIndices({ fromIndex: 0, toIndex: 1, length: 3 }), true);
+    assert.equal(canReorderIndices({ fromIndex: 1, toIndex: 1, length: 3 }), false);
+    assert.equal(canReorderIndices({ fromIndex: -1, toIndex: 1, length: 3 }), false);
+    assert.equal(canReorderIndices({ fromIndex: 0, toIndex: 3, length: 3 }), false);
+    assert.equal(canReorderIndices({ fromIndex: 0, toIndex: 0, length: 0 }), false);
 });
