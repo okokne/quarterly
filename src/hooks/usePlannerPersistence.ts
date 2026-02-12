@@ -40,6 +40,7 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
 
     const lastSerializedRef = useRef<string | null>(null);
     const localWriteTsRef = useRef<number>(readStateWriteTs());
+    const didRunInitialPersistRef = useRef(false);
 
     const refreshMetas = useCallback(() => {
         setSnapshotMetas(listSnapshotMetas());
@@ -67,6 +68,15 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
             setPersistenceWarning(formatStorageError(serialized.error));
             return;
         }
+
+        // Bootstrapped state should not be treated as a fresh local edit.
+        // Otherwise each app start "wins" against newer cloud data by timestamp.
+        if (!didRunInitialPersistRef.current) {
+            didRunInitialPersistRef.current = true;
+            lastSerializedRef.current = serialized.json;
+            return;
+        }
+
         if (lastSerializedRef.current === serialized.json) {
             return;
         }

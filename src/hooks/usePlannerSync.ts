@@ -228,30 +228,49 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
         setSyncStatus("syncing");
         setSyncError(null);
-        const pushed = await pushPlannerStateToCloud({
+        const localWriteTs = readStateWriteTs();
+        const result = await syncPlannerState({
             session,
             state,
-            previousVersion: cloudVersionRef.current > 0 ? cloudVersionRef.current : undefined
+            localUpdatedAt: localWriteTs > 0 ? new Date(localWriteTs).toISOString() : null
         });
-        if (pushed.error || !pushed.record) {
-            if (pushed.error === CLOUD_VERSION_CONFLICT_ERROR) {
-                const latest = await fetchCloudPlannerState(session);
-                if (!latest.error && latest.record) {
-                    setPendingConflict(true);
-                    setConflictCloudState(latest.record.state);
-                    setSyncStatus("idle");
-                    return false;
-                }
-            }
+
+        if (!result.ok) {
             setSyncStatus("error");
-            setSyncError(pushed.error ?? "Sync failed.");
+            setSyncError(result.error ?? "Sync failed.");
             return false;
         }
-        cloudVersionRef.current = pushed.record.version;
+
+        if (result.record?.version) {
+            cloudVersionRef.current = result.record.version;
+        }
+
+        if (result.action === "pulled" && result.pulledState) {
+            skipNextPushRef.current = true;
+            onApplyRemoteState(result.pulledState);
+            const pulledSerialized = safeSerialize(result.pulledState);
+            if (pulledSerialized.ok) {
+                lastSyncedSerializedRef.current = pulledSerialized.json;
+            }
+            setPendingConflict(false);
+            setConflictCloudState(null);
+            setSyncStatus("synced");
+            return true;
+        }
+
+        if (result.action === "conflict" && result.record) {
+            setPendingConflict(true);
+            setConflictCloudState(result.record.state);
+            setSyncStatus("idle");
+            return false;
+        }
+
         const serialized = safeSerialize(state);
         if (serialized.ok) {
             lastSyncedSerializedRef.current = serialized.json;
         }
+        setPendingConflict(false);
+        setConflictCloudState(null);
         setSyncStatus("synced");
         return true;
     }, [pendingConflict, session, state, syncEnabled]);
@@ -290,6 +309,10 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     }, [pendingConflict, requestSyncNow, session, state, syncEnabled]);
 
     const signUp = useCallback(async (email: string, password: string): Promise<boolean> => {
+        if (!syncEnabled) {
+            setAuthError("Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.");
+            return false;
+        }
         clearAuthFeedback();
         setAuthLoading(true);
         const result = await signUpWithEmailPassword({ email, password });
@@ -301,9 +324,13 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setSession(result.session);
         setAuthMessage("Account created and signed in.");
         return true;
-    }, [clearAuthFeedback]);
+    }, [clearAuthFeedback, syncEnabled]);
 
     const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
+        if (!syncEnabled) {
+            setAuthError("Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.");
+            return false;
+        }
         clearAuthFeedback();
         setAuthLoading(true);
         const result = await signInWithEmailPassword({ email, password });
@@ -315,9 +342,13 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setSession(result.session);
         setAuthMessage("Signed in.");
         return true;
-    }, [clearAuthFeedback]);
+    }, [clearAuthFeedback, syncEnabled]);
 
     const requestMagicLink = useCallback(async (email: string): Promise<boolean> => {
+        if (!syncEnabled) {
+            setAuthError("Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.");
+            return false;
+        }
         clearAuthFeedback();
         setAuthLoading(true);
         const result = await signInWithMagicLink({
@@ -331,7 +362,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
         setAuthMessage("Magic-Link wurde gesendet. Bitte E-Mail pruefen.");
         return true;
-    }, [clearAuthFeedback, magicLinkRedirect.url]);
+    }, [clearAuthFeedback, magicLinkRedirect.url, syncEnabled]);
 
     const signOut = useCallback(async () => {
         clearAuthFeedback();
