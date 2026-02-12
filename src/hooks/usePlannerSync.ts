@@ -255,6 +255,16 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         return true;
     }, [applyCloudRecord, attemptAutoConflictResolution, state, syncEnabled]);
 
+    const ensureInitialSyncReady = useCallback(async (): Promise<boolean> => {
+        if (!syncEnabled || !session) return false;
+        if (initialSyncDoneForUserRef.current === session.user.id) return true;
+        const ok = await runInitialSync(session);
+        if (ok) {
+            initialSyncDoneForUserRef.current = session.user.id;
+        }
+        return ok;
+    }, [runInitialSync, session, syncEnabled]);
+
     useEffect(() => {
         if (!syncEnabled || !session) return;
         if (initialSyncDoneForUserRef.current === session.user.id) return;
@@ -273,6 +283,10 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     const requestSyncNow = useCallback(async () => {
         if (!syncEnabled || !session || !navigator.onLine) {
             setSyncStatus(navigator.onLine ? "idle" : "offline");
+            return false;
+        }
+        const initialReady = await ensureInitialSyncReady();
+        if (!initialReady) {
             return false;
         }
         setSyncStatus("syncing");
@@ -318,7 +332,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setHasPendingLocalChanges(false);
         setSyncStatus("synced");
         return true;
-    }, [applyCloudRecord, attemptAutoConflictResolution, session, state, syncEnabled]);
+    }, [applyCloudRecord, attemptAutoConflictResolution, ensureInitialSyncReady, session, state, syncEnabled]);
 
     useEffect(() => {
         if (!syncEnabled) return;
@@ -334,6 +348,9 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
         setHasPendingLocalChanges(true);
         if (!session) {
+            return;
+        }
+        if (initialSyncDoneForUserRef.current !== session.user.id) {
             return;
         }
         if (!navigator.onLine) {
@@ -361,6 +378,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     useEffect(() => {
         if (!syncEnabled || !session || !hasPendingLocalChanges) return;
         if (!navigator.onLine) return;
+        if (initialSyncDoneForUserRef.current !== session.user.id) return;
         void requestSyncNow();
     }, [hasPendingLocalChanges, onlineTick, requestSyncNow, session, syncEnabled]);
 

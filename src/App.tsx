@@ -389,6 +389,8 @@ export default function App() {
     onApplyRemoteState: applyPersistedState
   });
 
+  const awaitingCloudDashboard = !cycle && syncEnabled && isAuthenticated && syncStatus === "syncing";
+
   if (!cycle) {
     const tourSlides = [
       {
@@ -415,7 +417,14 @@ export default function App() {
           </div>
         </header>
 
-        {entryScreen === "welcome" && (
+        {awaitingCloudDashboard && (
+          <section className="card">
+            <h2>Cloud-Daten werden geladen</h2>
+            <p className="muted">Du bist eingeloggt. Wir stellen dein Dashboard aus der Cloud wieder her.</p>
+          </section>
+        )}
+
+        {!awaitingCloudDashboard && entryScreen === "welcome" && (
           <section className="card">
             <h2>{tr(language, "welcome.title")}</h2>
             <p className="muted">{tr(language, "welcome.subtitle")}</p>
@@ -427,7 +436,7 @@ export default function App() {
           </section>
         )}
 
-        {entryScreen === "auth" && (
+        {!awaitingCloudDashboard && entryScreen === "auth" && (
           <section className="card">
             <h2>{tr(language, "welcome.authTitle")}</h2>
             {!syncEnabled && (
@@ -482,7 +491,7 @@ export default function App() {
           </section>
         )}
 
-        {entryScreen === "tour" && (
+        {!awaitingCloudDashboard && entryScreen === "tour" && (
           <section className="card">
             <h2>{tourSlides[entryTourStep]?.title}</h2>
             <p>{tourSlides[entryTourStep]?.body}</p>
@@ -503,7 +512,7 @@ export default function App() {
           </section>
         )}
 
-        {entryScreen === "new" && (
+        {!awaitingCloudDashboard && entryScreen === "new" && (
           <>
             <section className="card">
               <h2>{tr(language, "empty.newCycleTitle")}</h2>
