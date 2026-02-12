@@ -24,9 +24,34 @@ import {
 import { safeSerialize } from "../persistence/stateSerializer";
 import { readStateWriteTs } from "../persistence/localSnapshots";
 
-const SYNC_ENABLED = (() => {
+function readSyncEnabledRawValue(): string | undefined {
     const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-    return env?.VITE_SYNC_ENABLED === "true";
+    if (typeof env?.VITE_SYNC_ENABLED === "string") return env.VITE_SYNC_ENABLED;
+
+    const runtimeEnv = (globalThis as unknown as {
+        __TWY_ENV__?: Record<string, string | undefined>;
+        __VITE_SYNC_ENABLED__?: string;
+        process?: { env?: Record<string, string | undefined> };
+    }).__TWY_ENV__;
+    if (typeof runtimeEnv?.VITE_SYNC_ENABLED === "string") return runtimeEnv.VITE_SYNC_ENABLED;
+
+    const constantEnv = (globalThis as unknown as { __VITE_SYNC_ENABLED__?: string }).__VITE_SYNC_ENABLED__;
+    if (typeof constantEnv === "string") return constantEnv;
+
+    const processEnv = (globalThis as unknown as {
+        process?: { env?: Record<string, string | undefined> };
+    }).process?.env;
+    return processEnv?.VITE_SYNC_ENABLED;
+}
+
+function parseBooleanLike(value: string | undefined): boolean {
+    if (!value) return false;
+    const normalized = value.trim().toLowerCase();
+    return normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on";
+}
+
+const SYNC_ENABLED = (() => {
+    return parseBooleanLike(readSyncEnabledRawValue());
 })();
 
 type UsePlannerSyncParams = {
