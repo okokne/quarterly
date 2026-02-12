@@ -62,6 +62,8 @@ type SettingsModalBindingInput = {
         "authLoading" |
         "authError" |
         "authMessage" |
+        "magicLinkRedirectUrl" |
+        "magicLinkRedirectError" |
         "cloudEmail" |
         "syncError" |
         "pendingConflict" |

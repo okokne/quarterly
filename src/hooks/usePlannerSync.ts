@@ -10,6 +10,7 @@ import {
 import {
     consumeSupabaseSessionFromUrl,
     clearStoredSupabaseSession,
+    getMagicLinkRedirectTarget,
     hasSupabaseConfig,
     isSupabaseSessionExpired,
     readStoredSupabaseSession,
@@ -54,6 +55,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     });
 
     const syncEnabled = SYNC_ENABLED && hasSupabaseConfig();
+    const magicLinkRedirect = getMagicLinkRedirectTarget();
 
     const clearAuthFeedback = useCallback(() => {
         setAuthError(null);
@@ -91,9 +93,15 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setSession(refreshed.session);
     }, [syncEnabled]);
 
-    useEffect(() => {
+  useEffect(() => {
         void loadSession();
     }, [loadSession]);
+
+    useEffect(() => {
+        if (magicLinkRedirect.error) {
+            setAuthError(magicLinkRedirect.error);
+        }
+    }, [magicLinkRedirect.error]);
 
     useEffect(() => {
         if (!SYNC_ENABLED) return;
@@ -277,7 +285,10 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     const requestMagicLink = useCallback(async (email: string): Promise<boolean> => {
         clearAuthFeedback();
         setAuthLoading(true);
-        const result = await signInWithMagicLink({ email });
+        const result = await signInWithMagicLink({
+            email,
+            redirectTo: magicLinkRedirect.url ?? undefined
+        });
         setAuthLoading(false);
         if (result.error) {
             setAuthError(result.error);
@@ -285,7 +296,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
         setAuthMessage("Magic-Link wurde gesendet. Bitte E-Mail pruefen.");
         return true;
-    }, [clearAuthFeedback]);
+    }, [clearAuthFeedback, magicLinkRedirect.url]);
 
     const signOut = useCallback(async () => {
         clearAuthFeedback();
@@ -373,6 +384,8 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         authLoading,
         authError,
         authMessage,
+        magicLinkRedirectUrl: magicLinkRedirect.url,
+        magicLinkRedirectError: magicLinkRedirect.error,
         cloudEmail,
         syncError,
         pendingConflict,

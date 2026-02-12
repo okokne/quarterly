@@ -373,6 +373,8 @@ export default function App() {
     authLoading,
     authError,
     authMessage,
+    magicLinkRedirectUrl,
+    magicLinkRedirectError,
     cloudEmail,
     syncError,
     pendingConflict,
@@ -456,13 +458,13 @@ export default function App() {
             {authMessage && <p className="hint">{authMessage}</p>}
             {isAuthenticated && cloudEmail && <p className="hint">{tr(language, "settings.accountSignedInAs", { email: cloudEmail })}</p>}
             <div className="button-row">
-              <button className="primary" disabled={authLoading || !entryEmail || !entryPassword} onClick={async () => {
+              <button className="primary" disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
                 const ok = await signIn(entryEmail, entryPassword);
                 if (ok) setEntryScreen("new");
               }}>
                 {tr(language, "settings.accountSignIn")}
               </button>
-              <button disabled={authLoading || !entryEmail || !entryPassword} onClick={async () => {
+              <button disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
                 const ok = await signUp(entryEmail, entryPassword);
                 if (ok) setEntryScreen("new");
               }}>
@@ -473,6 +475,10 @@ export default function App() {
               </button>
               <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
             </div>
+            {magicLinkRedirectUrl && (
+              <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
+            )}
+            {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
           </section>
         )}
 
@@ -682,6 +688,8 @@ END:VEVENT
       authLoading,
       authError,
       authMessage,
+      magicLinkRedirectUrl,
+      magicLinkRedirectError,
       cloudEmail,
       syncError,
       pendingConflict,

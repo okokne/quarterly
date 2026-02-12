@@ -23,18 +23,23 @@ function readViteEnv(name: string): string | undefined {
         process?: { env?: Record<string, string | undefined> };
         __VITE_SUPABASE_URL__?: string;
         __VITE_SUPABASE_ANON_KEY__?: string;
+        __VITE_AUTH_REDIRECT_URL__?: string;
     }).__TWY_ENV__;
     if (runtimeEnv?.[name]) return runtimeEnv[name];
 
     const constants = globalThis as unknown as {
         __VITE_SUPABASE_URL__?: string;
         __VITE_SUPABASE_ANON_KEY__?: string;
+        __VITE_AUTH_REDIRECT_URL__?: string;
     };
     if (name === "VITE_SUPABASE_URL" && constants.__VITE_SUPABASE_URL__) {
         return constants.__VITE_SUPABASE_URL__;
     }
     if (name === "VITE_SUPABASE_ANON_KEY" && constants.__VITE_SUPABASE_ANON_KEY__) {
         return constants.__VITE_SUPABASE_ANON_KEY__;
+    }
+    if (name === "VITE_AUTH_REDIRECT_URL" && constants.__VITE_AUTH_REDIRECT_URL__) {
+        return constants.__VITE_AUTH_REDIRECT_URL__;
     }
 
     const processEnv = (globalThis as unknown as {
@@ -58,6 +63,50 @@ type JwtPayload = {
 
 function normalizeBaseUrl(url: string): string {
     return url.replace(/\/+$/, "");
+}
+
+function normalizeRedirectUrl(url: string): string | null {
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+    try {
+        const parsed = new URL(trimmed);
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+        parsed.hash = "";
+        return `${parsed.origin}${parsed.pathname}${parsed.search}`;
+    } catch {
+        if (typeof window === "undefined") return null;
+        if (!trimmed.startsWith("/")) return null;
+        const parsed = new URL(trimmed, window.location.origin);
+        parsed.hash = "";
+        return `${parsed.origin}${parsed.pathname}${parsed.search}`;
+    }
+}
+
+export function getMagicLinkRedirectTarget(override?: string): {
+    url: string | null;
+    error: string | null;
+} {
+    const manual = override?.trim();
+    if (manual) {
+        const normalizedManual = normalizeRedirectUrl(manual);
+        if (!normalizedManual) {
+            return { url: null, error: "Ungueltige Magic-Link Redirect-URL (override)." };
+        }
+        return { url: normalizedManual, error: null };
+    }
+
+    const configured = readViteEnv("VITE_AUTH_REDIRECT_URL")?.trim();
+    if (configured) {
+        const normalizedConfigured = normalizeRedirectUrl(configured);
+        if (!normalizedConfigured) {
+            return { url: null, error: "Ungueltige VITE_AUTH_REDIRECT_URL." };
+        }
+        return { url: normalizedConfigured, error: null };
+    }
+
+    if (typeof window === "undefined") return { url: null, error: null };
+    const current = normalizeRedirectUrl(`${window.location.origin}${window.location.pathname}${window.location.search}`);
+    return { url: current, error: null };
 }
 
 export function getSupabaseConfigFromEnv(): SupabaseConfig | null {
@@ -303,10 +352,12 @@ export async function signInWithMagicLink(input: {
     email: string;
     redirectTo?: string;
 }): Promise<{ ok: boolean; error: string | null }> {
-    const fallbackRedirect = typeof window !== "undefined"
-        ? `${window.location.origin}${window.location.pathname}${window.location.search}`
-        : undefined;
-    const redirectTo = input.redirectTo?.trim() || fallbackRedirect;
+    const redirectTarget = getMagicLinkRedirectTarget(input.redirectTo);
+    if (redirectTarget.error) {
+        return { ok: false, error: redirectTarget.error };
+    }
+
+    const redirectTo = redirectTarget.url;
     const payload: Record<string, unknown> = {
         email: input.email.trim(),
         create_user: true

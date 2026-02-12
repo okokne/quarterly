@@ -41,6 +41,7 @@ Um Login + Cloud-Sync zu aktivieren, setze folgende Vite-Umgebungsvariablen:
 VITE_SYNC_ENABLED=true
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
+VITE_AUTH_REDIRECT_URL=https://deine-domain.tld
 ```
 
 SQL-Schema fuer `planner_state` liegt in `supabase/planner_state.sql`.
@@ -49,8 +50,24 @@ Danach sind zwei Login-Wege verfuegbar:
 - E-Mail + Passwort
 - Magic-Link per E-Mail (passwortlos)
 
-Fuer Magic-Link muss in Supabase unter `Authentication -> URL Configuration`
-deine App-URL als Redirect erlaubt sein (z. B. `http://localhost:5173`).
+Fuer Magic-Link und Domain-Setup:
+
+1. Domain in Vercel verbinden (`Project -> Settings -> Domains`).
+2. In Vercel die Environment-Variablen setzen:
+   - `VITE_SYNC_ENABLED=true`
+   - `VITE_SUPABASE_URL=...`
+   - `VITE_SUPABASE_ANON_KEY=...`
+   - `VITE_AUTH_REDIRECT_URL=https://deine-domain.tld`
+3. In Supabase unter `Authentication -> URL Configuration` setzen:
+   - `Site URL`: `https://deine-domain.tld`
+   - `Redirect URLs`:
+     - `https://deine-domain.tld`
+     - `https://www.deine-domain.tld` (falls genutzt)
+     - `http://localhost:5173` (lokal)
+     - `https://*.vercel.app` (optional fuer Preview-Deploys)
+4. Nach Env-Aenderungen in Vercel neu deployen.
+
+Die App zeigt im Login/Settings den aktuell verwendeten Magic-Link-Redirect an.
 
 ## Migration
 

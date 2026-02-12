@@ -72,6 +72,8 @@ export interface SettingsModalProps {
     authLoading: boolean;
     authError: string | null;
     authMessage: string | null;
+    magicLinkRedirectUrl: string | null;
+    magicLinkRedirectError: string | null;
     cloudEmail: string | null;
     syncError: string | null;
     pendingConflict: boolean;
@@ -125,6 +127,8 @@ export function SettingsModal({
     authLoading,
     authError,
     authMessage,
+    magicLinkRedirectUrl,
+    magicLinkRedirectError,
     cloudEmail,
     syncError,
     pendingConflict,
@@ -545,6 +549,10 @@ export function SettingsModal({
                                     >
                                         {tr(language, "settings.accountMagicLink")}
                                     </button>
+                                    {magicLinkRedirectUrl && (
+                                        <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
+                                    )}
+                                    {magicLinkRedirectError && <p className="muted sync-error">{magicLinkRedirectError}</p>}
                                 </div>
                             ) : (
                                 <div className="settings-auth-box">
