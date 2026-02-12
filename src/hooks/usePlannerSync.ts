@@ -71,6 +71,7 @@ type UsePlannerSyncParams = {
 
 export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncParams) {
     const [session, setSession] = useState<SupabaseAuthSession | null>(null);
+    const [initialSyncReady, setInitialSyncReady] = useState(false);
     const [authLoading, setAuthLoading] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
     const [authMessage, setAuthMessage] = useState<string | null>(null);
@@ -153,6 +154,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         if (!syncEnabled) {
             setSession(null);
             setHasPendingLocalChanges(false);
+            setInitialSyncReady(false);
             return;
         }
         const consumed = await consumeSupabaseSessionFromUrl();
@@ -167,6 +169,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         const stored = readStoredSupabaseSession();
         if (!stored) {
             setSession(null);
+            setInitialSyncReady(false);
             return;
         }
         if (!isSupabaseSessionExpired(stored)) {
@@ -176,6 +179,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         const refreshed = await refreshSupabaseSession(stored);
         if (!refreshed.session || refreshed.error) {
             setSession(null);
+            setInitialSyncReady(false);
             return;
         }
         setSession(refreshed.session);
@@ -257,10 +261,14 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
 
     const ensureInitialSyncReady = useCallback(async (): Promise<boolean> => {
         if (!syncEnabled || !session) return false;
-        if (initialSyncDoneForUserRef.current === session.user.id) return true;
+        if (initialSyncDoneForUserRef.current === session.user.id) {
+            setInitialSyncReady(true);
+            return true;
+        }
         const ok = await runInitialSync(session);
         if (ok) {
             initialSyncDoneForUserRef.current = session.user.id;
+            setInitialSyncReady(true);
         }
         return ok;
     }, [runInitialSync, session, syncEnabled]);
@@ -268,11 +276,13 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     useEffect(() => {
         if (!syncEnabled || !session) return;
         if (initialSyncDoneForUserRef.current === session.user.id) return;
+        setInitialSyncReady(false);
         let cancelled = false;
         void (async () => {
             const ok = await runInitialSync(session);
             if (!cancelled && ok) {
                 initialSyncDoneForUserRef.current = session.user.id;
+                setInitialSyncReady(true);
             }
         })();
         return () => {
@@ -396,6 +406,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             return false;
         }
         setSession(result.session);
+        setInitialSyncReady(false);
         setAuthMessage("Account created and signed in.");
         return true;
     }, [clearAuthFeedback, syncEnabled]);
@@ -414,6 +425,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             return false;
         }
         setSession(result.session);
+        setInitialSyncReady(false);
         setAuthMessage("Signed in.");
         return true;
     }, [clearAuthFeedback, syncEnabled]);
@@ -450,6 +462,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setSyncStatus("idle");
         setSyncError(null);
         setHasPendingLocalChanges(false);
+        setInitialSyncReady(false);
         initialSyncDoneForUserRef.current = null;
         cloudVersionRef.current = 0;
     }, [clearAuthFeedback, session]);
@@ -522,6 +535,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         syncEnabled,
         syncStatus,
         requestSyncNow,
+        initialSyncReady,
         isAuthenticated: !!session,
         authLoading,
         authError,

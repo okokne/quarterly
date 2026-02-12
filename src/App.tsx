@@ -369,6 +369,7 @@ export default function App() {
   const {
     syncEnabled,
     syncStatus,
+    initialSyncReady,
     isAuthenticated,
     authLoading,
     authError,
@@ -389,7 +390,7 @@ export default function App() {
     onApplyRemoteState: applyPersistedState
   });
 
-  const awaitingCloudDashboard = !cycle && syncEnabled && isAuthenticated && syncStatus === "syncing";
+  const awaitingCloudDashboard = !cycle && syncEnabled && isAuthenticated && !initialSyncReady;
 
   if (!cycle) {
     const tourSlides = [
@@ -430,7 +431,18 @@ export default function App() {
             <p className="muted">{tr(language, "welcome.subtitle")}</p>
             <div className="button-row">
               <button className="primary" onClick={() => setEntryScreen("new")}>{tr(language, "welcome.newStart")}</button>
-              <button onClick={() => setEntryScreen("auth")}>{tr(language, "welcome.login")}</button>
+              <button
+                onClick={async () => {
+                  if (isAuthenticated) {
+                    await requestSyncNow();
+                    setEntryScreen("new");
+                    return;
+                  }
+                  setEntryScreen("auth");
+                }}
+              >
+                {tr(language, "welcome.login")}
+              </button>
               <button onClick={() => setEntryScreen("tour")}>{tr(language, "welcome.tour")}</button>
             </div>
           </section>
@@ -443,47 +455,68 @@ export default function App() {
               <p className="warning-text">{tr(language, "settings.syncDisabledHint")}</p>
             )}
             <p className="muted">{tr(language, "welcome.authSubtitle")}</p>
-            <div className="grid">
-              <label>
-                {tr(language, "settings.accountEmail")}
-                <input
-                  type="email"
-                  value={entryEmail}
-                  onChange={(e) => setEntryEmail(e.target.value)}
-                  placeholder="name@example.com"
-                />
-              </label>
-              <label>
-                {tr(language, "settings.accountPassword")}
-                <input
-                  type="password"
-                  value={entryPassword}
-                  onChange={(e) => setEntryPassword(e.target.value)}
-                />
-              </label>
-            </div>
             {authError && <p className="error-text">{authError}</p>}
             {syncError && <p className="error-text">{syncError}</p>}
             {authMessage && <p className="hint">{authMessage}</p>}
             {isAuthenticated && cloudEmail && <p className="hint">{tr(language, "settings.accountSignedInAs", { email: cloudEmail })}</p>}
-            <div className="button-row">
-              <button className="primary" disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
-                const ok = await signIn(entryEmail, entryPassword);
-                if (ok) setEntryScreen("new");
-              }}>
-                {tr(language, "settings.accountSignIn")}
-              </button>
-              <button disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
-                const ok = await signUp(entryEmail, entryPassword);
-                if (ok) setEntryScreen("new");
-              }}>
-                {tr(language, "settings.accountCreate")}
-              </button>
-              <button disabled={authLoading || !entryEmail} onClick={() => requestMagicLink(entryEmail)}>
-                {tr(language, "settings.accountMagicLink")}
-              </button>
-              <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
-            </div>
+            {isAuthenticated ? (
+              <div className="button-row">
+                <button className="primary" disabled={authLoading} onClick={async () => {
+                  await requestSyncNow();
+                  setEntryScreen("new");
+                }}>
+                  {tr(language, "welcome.login")}
+                </button>
+                <button disabled={authLoading} onClick={() => {
+                  void signOut();
+                }}>
+                  {tr(language, "settings.accountSignOut")}
+                </button>
+                <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
+              </div>
+            ) : (
+              <>
+                <div className="grid">
+                  <label>
+                    {tr(language, "settings.accountEmail")}
+                    <input
+                      type="email"
+                      value={entryEmail}
+                      onChange={(e) => setEntryEmail(e.target.value)}
+                      placeholder="name@example.com"
+                    />
+                  </label>
+                  <label>
+                    {tr(language, "settings.accountPassword")}
+                    <input
+                      type="password"
+                      value={entryPassword}
+                      onChange={(e) => setEntryPassword(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="button-row">
+                  <button className="primary" disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
+                    const ok = await signIn(entryEmail, entryPassword);
+                    if (ok) setEntryScreen("new");
+                  }}>
+                    {tr(language, "settings.accountSignIn")}
+                  </button>
+                  <button disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
+                    const ok = await signUp(entryEmail, entryPassword);
+                    if (ok) setEntryScreen("new");
+                  }}>
+                    {tr(language, "settings.accountCreate")}
+                  </button>
+                  <button disabled={authLoading || !entryEmail} onClick={() => {
+                    void requestMagicLink(entryEmail);
+                  }}>
+                    {tr(language, "settings.accountMagicLink")}
+                  </button>
+                  <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
+                </div>
+              </>
+            )}
             {magicLinkRedirectUrl && (
               <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
             )}
