@@ -24,39 +24,44 @@ import {
 import { safeSerialize } from "../persistence/stateSerializer";
 import { readStateWriteTs } from "../persistence/localSnapshots";
 
+declare const __VITE_SYNC_ENABLED__: string | undefined;
+
 function readSyncEnabledRawValue(): string | undefined {
-    const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
-    if (typeof env?.VITE_SYNC_ENABLED === "string") return env.VITE_SYNC_ENABLED;
+    if (typeof __VITE_SYNC_ENABLED__ === "string" && __VITE_SYNC_ENABLED__.trim()) {
+        return __VITE_SYNC_ENABLED__;
+    }
 
     const runtimeEnv = (globalThis as unknown as {
         __TWY_ENV__?: Record<string, string | undefined>;
         __VITE_SYNC_ENABLED__?: string;
+        __SYNC_ENABLED__?: string;
         process?: { env?: Record<string, string | undefined> };
-    }).__TWY_ENV__;
-    if (typeof runtimeEnv?.VITE_SYNC_ENABLED === "string") return runtimeEnv.VITE_SYNC_ENABLED;
+    });
+    if (typeof runtimeEnv.__TWY_ENV__?.VITE_SYNC_ENABLED === "string") return runtimeEnv.__TWY_ENV__.VITE_SYNC_ENABLED;
+    if (typeof runtimeEnv.__TWY_ENV__?.SYNC_ENABLED === "string") return runtimeEnv.__TWY_ENV__.SYNC_ENABLED;
+    if (typeof runtimeEnv.__VITE_SYNC_ENABLED__ === "string") return runtimeEnv.__VITE_SYNC_ENABLED__;
+    if (typeof runtimeEnv.__SYNC_ENABLED__ === "string") return runtimeEnv.__SYNC_ENABLED__;
 
-    const constantEnv = (globalThis as unknown as { __VITE_SYNC_ENABLED__?: string }).__VITE_SYNC_ENABLED__;
-    if (typeof constantEnv === "string") return constantEnv;
-
-    const processEnv = (globalThis as unknown as {
+    const processEnv = runtimeEnv.process?.env ?? (globalThis as unknown as {
         process?: { env?: Record<string, string | undefined> };
     }).process?.env;
-    return processEnv?.VITE_SYNC_ENABLED;
+    return processEnv?.VITE_SYNC_ENABLED ?? processEnv?.SYNC_ENABLED;
 }
 
-function parseBooleanLike(value: string | undefined): boolean {
+function isExplicitlyDisabled(value: string | undefined): boolean {
     if (!value) return false;
     const normalized = value.trim().toLowerCase();
-    return normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on";
+    return normalized === "false"
+        || normalized === "0"
+        || normalized === "no"
+        || normalized === "off"
+        || normalized === "disabled";
 }
 
 const SYNC_ENABLED = (() => {
     const raw = readSyncEnabledRawValue();
-    if (!raw || !raw.trim()) {
-        // Default to enabled when not explicitly configured.
-        return true;
-    }
-    return parseBooleanLike(raw);
+    // Default to enabled unless explicitly switched off.
+    return !isExplicitlyDisabled(raw);
 })();
 
 type UsePlannerSyncParams = {

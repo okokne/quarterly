@@ -17,35 +17,92 @@ export type SupabaseAuthSession = {
     user: SupabaseAuthUser;
 };
 
+declare const __VITE_SUPABASE_URL__: string | undefined;
+declare const __VITE_SUPABASE_ANON_KEY__: string | undefined;
+declare const __VITE_SUPABASE_PUBLISHABLE_KEY__: string | undefined;
+declare const __VITE_AUTH_REDIRECT_URL__: string | undefined;
+declare const __VITE_SYNC_ENABLED__: string | undefined;
+
 function readViteEnv(name: string): string | undefined {
+    if (name === "VITE_SUPABASE_URL" && typeof __VITE_SUPABASE_URL__ === "string" && __VITE_SUPABASE_URL__.trim()) {
+        return __VITE_SUPABASE_URL__;
+    }
+    if (name === "VITE_SUPABASE_ANON_KEY" && typeof __VITE_SUPABASE_ANON_KEY__ === "string" && __VITE_SUPABASE_ANON_KEY__.trim()) {
+        return __VITE_SUPABASE_ANON_KEY__;
+    }
+    if (name === "VITE_SUPABASE_PUBLISHABLE_KEY" && typeof __VITE_SUPABASE_PUBLISHABLE_KEY__ === "string" && __VITE_SUPABASE_PUBLISHABLE_KEY__.trim()) {
+        return __VITE_SUPABASE_PUBLISHABLE_KEY__;
+    }
+    if (name === "VITE_AUTH_REDIRECT_URL" && typeof __VITE_AUTH_REDIRECT_URL__ === "string" && __VITE_AUTH_REDIRECT_URL__.trim()) {
+        return __VITE_AUTH_REDIRECT_URL__;
+    }
+    if (name === "VITE_SYNC_ENABLED" && typeof __VITE_SYNC_ENABLED__ === "string" && __VITE_SYNC_ENABLED__.trim()) {
+        return __VITE_SYNC_ENABLED__;
+    }
+
     const runtimeEnv = (globalThis as unknown as {
         __TWY_ENV__?: Record<string, string | undefined>;
         process?: { env?: Record<string, string | undefined> };
         __VITE_SUPABASE_URL__?: string;
         __VITE_SUPABASE_ANON_KEY__?: string;
+        __VITE_SUPABASE_PUBLISHABLE_KEY__?: string;
         __VITE_AUTH_REDIRECT_URL__?: string;
+        __SUPABASE_URL__?: string;
+        __SUPABASE_ANON_KEY__?: string;
+        __SUPABASE_PUBLISHABLE_KEY__?: string;
+        __AUTH_REDIRECT_URL__?: string;
     }).__TWY_ENV__;
     if (runtimeEnv?.[name]) return runtimeEnv[name];
 
     const constants = globalThis as unknown as {
         __VITE_SUPABASE_URL__?: string;
         __VITE_SUPABASE_ANON_KEY__?: string;
+        __VITE_SUPABASE_PUBLISHABLE_KEY__?: string;
         __VITE_AUTH_REDIRECT_URL__?: string;
+        __SUPABASE_URL__?: string;
+        __SUPABASE_ANON_KEY__?: string;
+        __SUPABASE_PUBLISHABLE_KEY__?: string;
+        __AUTH_REDIRECT_URL__?: string;
     };
     if (name === "VITE_SUPABASE_URL" && constants.__VITE_SUPABASE_URL__) {
         return constants.__VITE_SUPABASE_URL__;
     }
+    if (name === "SUPABASE_URL" && constants.__SUPABASE_URL__) {
+        return constants.__SUPABASE_URL__;
+    }
     if (name === "VITE_SUPABASE_ANON_KEY" && constants.__VITE_SUPABASE_ANON_KEY__) {
         return constants.__VITE_SUPABASE_ANON_KEY__;
     }
+    if (name === "VITE_SUPABASE_PUBLISHABLE_KEY" && constants.__VITE_SUPABASE_PUBLISHABLE_KEY__) {
+        return constants.__VITE_SUPABASE_PUBLISHABLE_KEY__;
+    }
+    if (name === "SUPABASE_ANON_KEY" && constants.__SUPABASE_ANON_KEY__) {
+        return constants.__SUPABASE_ANON_KEY__;
+    }
+    if (name === "SUPABASE_PUBLISHABLE_KEY" && constants.__SUPABASE_PUBLISHABLE_KEY__) {
+        return constants.__SUPABASE_PUBLISHABLE_KEY__;
+    }
     if (name === "VITE_AUTH_REDIRECT_URL" && constants.__VITE_AUTH_REDIRECT_URL__) {
         return constants.__VITE_AUTH_REDIRECT_URL__;
+    }
+    if (name === "AUTH_REDIRECT_URL" && constants.__AUTH_REDIRECT_URL__) {
+        return constants.__AUTH_REDIRECT_URL__;
     }
 
     const processEnv = (globalThis as unknown as {
         process?: { env?: Record<string, string | undefined> };
     }).process?.env;
     return processEnv?.[name];
+}
+
+function firstDefinedEnv(names: string[]): string | undefined {
+    for (const name of names) {
+        const value = readViteEnv(name);
+        if (typeof value === "string" && value.trim()) {
+            return value.trim();
+        }
+    }
+    return undefined;
 }
 
 const SUPABASE_SESSION_STORAGE_KEY = "twy_supabase_session";
@@ -95,7 +152,11 @@ export function getMagicLinkRedirectTarget(override?: string): {
         return { url: normalizedManual, error: null };
     }
 
-    const configured = readViteEnv("VITE_AUTH_REDIRECT_URL")?.trim();
+    const configured = firstDefinedEnv([
+        "VITE_AUTH_REDIRECT_URL",
+        "AUTH_REDIRECT_URL",
+        "NEXT_PUBLIC_AUTH_REDIRECT_URL"
+    ]);
     if (configured) {
         const normalizedConfigured = normalizeRedirectUrl(configured);
         if (!normalizedConfigured) {
@@ -110,8 +171,19 @@ export function getMagicLinkRedirectTarget(override?: string): {
 }
 
 export function getSupabaseConfigFromEnv(): SupabaseConfig | null {
-    const url = readViteEnv("VITE_SUPABASE_URL");
-    const anonKey = readViteEnv("VITE_SUPABASE_ANON_KEY");
+    const url = firstDefinedEnv([
+        "VITE_SUPABASE_URL",
+        "SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_URL"
+    ]);
+    const anonKey = firstDefinedEnv([
+        "VITE_SUPABASE_ANON_KEY",
+        "VITE_SUPABASE_PUBLISHABLE_KEY",
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_PUBLISHABLE_KEY",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+    ]);
     if (!url || !anonKey) return null;
     return { url: normalizeBaseUrl(url), anonKey };
 }
