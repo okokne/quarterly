@@ -51,7 +51,12 @@ function parseBooleanLike(value: string | undefined): boolean {
 }
 
 const SYNC_ENABLED = (() => {
-    return parseBooleanLike(readSyncEnabledRawValue());
+    const raw = readSyncEnabledRawValue();
+    if (!raw || !raw.trim()) {
+        // Default to enabled when not explicitly configured.
+        return true;
+    }
+    return parseBooleanLike(raw);
 })();
 
 type UsePlannerSyncParams = {
