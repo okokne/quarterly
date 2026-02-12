@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PersistedPlannerState, SyncConflictResolution, SyncStatus } from "../types";
 import {
-    CLOUD_VERSION_CONFLICT_ERROR,
-    fetchCloudPlannerState,
+    PlannerStateRecord,
     pushPlannerStateToCloud,
     resolveConflictState,
+    resolveInitialSyncAction,
     syncPlannerState
 } from "../sync/plannerSync";
 import {
@@ -77,6 +77,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     const [syncError, setSyncError] = useState<string | null>(null);
     const [pendingConflict, setPendingConflict] = useState(false);
     const [conflictCloudState, setConflictCloudState] = useState<PersistedPlannerState | null>(null);
+    const [hasPendingLocalChanges, setHasPendingLocalChanges] = useState(false);
     const debounceTimerRef = useRef<number | null>(null);
     const skipNextPushRef = useRef(false);
     const lastSyncedSerializedRef = useRef<string | null>(null);
@@ -88,6 +89,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         if (!navigator.onLine) return "offline";
         return "idle";
     });
+    const [onlineTick, setOnlineTick] = useState(0);
 
     const syncEnabled = SYNC_ENABLED && hasSupabaseConfig();
     const magicLinkRedirect = getMagicLinkRedirectTarget();
@@ -97,9 +99,60 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setAuthMessage(null);
     }, []);
 
+    const applyCloudRecord = useCallback((recordState: PersistedPlannerState) => {
+        skipNextPushRef.current = true;
+        onApplyRemoteState(recordState);
+        const serialized = safeSerialize(recordState);
+        if (serialized.ok) {
+            lastSyncedSerializedRef.current = serialized.json;
+        }
+        setPendingConflict(false);
+        setConflictCloudState(null);
+        setHasPendingLocalChanges(false);
+    }, [onApplyRemoteState]);
+
+    const attemptAutoConflictResolution = useCallback(async (
+        activeSession: SupabaseAuthSession,
+        cloudRecord: PlannerStateRecord
+    ): Promise<boolean> => {
+        const localWriteTs = readStateWriteTs();
+        const localUpdatedAt = localWriteTs > 0 ? new Date(localWriteTs).toISOString() : null;
+        const decision = resolveInitialSyncAction({
+            local: state,
+            cloud: cloudRecord,
+            localUpdatedAt
+        });
+
+        if (decision === "push_local") {
+            const pushed = await pushPlannerStateToCloud({
+                session: activeSession,
+                state,
+                previousVersion: cloudRecord.version
+            });
+            if (!pushed.error && pushed.record?.version) {
+                cloudVersionRef.current = pushed.record.version;
+                const serialized = safeSerialize(state);
+                if (serialized.ok) {
+                    lastSyncedSerializedRef.current = serialized.json;
+                }
+                setPendingConflict(false);
+                setConflictCloudState(null);
+                setHasPendingLocalChanges(false);
+                return true;
+            }
+        }
+
+        if (cloudRecord.version) {
+            cloudVersionRef.current = cloudRecord.version;
+        }
+        applyCloudRecord(cloudRecord.state);
+        return true;
+    }, [applyCloudRecord, state]);
+
     const loadSession = useCallback(async () => {
         if (!syncEnabled) {
             setSession(null);
+            setHasPendingLocalChanges(false);
             return;
         }
         const consumed = await consumeSupabaseSessionFromUrl();
@@ -140,7 +193,10 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
 
     useEffect(() => {
         if (!SYNC_ENABLED) return;
-        const toOnline = () => setSyncStatus("idle");
+        const toOnline = () => {
+            setSyncStatus("idle");
+            setOnlineTick((prev) => prev + 1);
+        };
         const toOffline = () => setSyncStatus("offline");
         window.addEventListener("online", toOnline);
         window.addEventListener("offline", toOffline);
@@ -173,23 +229,17 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             if (result.record?.version) {
                 cloudVersionRef.current = result.record.version;
             }
-            skipNextPushRef.current = true;
-            onApplyRemoteState(result.pulledState);
-            const serialized = safeSerialize(result.pulledState);
-            if (serialized.ok) {
-                lastSyncedSerializedRef.current = serialized.json;
-            }
+            applyCloudRecord(result.pulledState);
             setSyncStatus("synced");
             return true;
         }
         if (result.action === "conflict" && result.record) {
-            if (result.record.version) {
-                cloudVersionRef.current = result.record.version;
+            const resolved = await attemptAutoConflictResolution(activeSession, result.record);
+            setSyncStatus(resolved ? "synced" : "error");
+            if (!resolved) {
+                setSyncError("Konnte Sync-Konflikt nicht automatisch aufloesen.");
             }
-            setPendingConflict(true);
-            setConflictCloudState(result.record.state);
-            setSyncStatus("idle");
-            return true;
+            return resolved;
         }
         if (result.record?.version) {
             cloudVersionRef.current = result.record.version;
@@ -198,9 +248,12 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         if (serialized.ok) {
             lastSyncedSerializedRef.current = serialized.json;
         }
+        setPendingConflict(false);
+        setConflictCloudState(null);
+        setHasPendingLocalChanges(false);
         setSyncStatus("synced");
         return true;
-    }, [onApplyRemoteState, state, syncEnabled]);
+    }, [applyCloudRecord, attemptAutoConflictResolution, state, syncEnabled]);
 
     useEffect(() => {
         if (!syncEnabled || !session) return;
@@ -220,10 +273,6 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
     const requestSyncNow = useCallback(async () => {
         if (!syncEnabled || !session || !navigator.onLine) {
             setSyncStatus(navigator.onLine ? "idle" : "offline");
-            return false;
-        }
-        if (pendingConflict) {
-            setSyncStatus("idle");
             return false;
         }
         setSyncStatus("syncing");
@@ -246,23 +295,18 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
 
         if (result.action === "pulled" && result.pulledState) {
-            skipNextPushRef.current = true;
-            onApplyRemoteState(result.pulledState);
-            const pulledSerialized = safeSerialize(result.pulledState);
-            if (pulledSerialized.ok) {
-                lastSyncedSerializedRef.current = pulledSerialized.json;
-            }
-            setPendingConflict(false);
-            setConflictCloudState(null);
+            applyCloudRecord(result.pulledState);
             setSyncStatus("synced");
             return true;
         }
 
         if (result.action === "conflict" && result.record) {
-            setPendingConflict(true);
-            setConflictCloudState(result.record.state);
-            setSyncStatus("idle");
-            return false;
+            const resolved = await attemptAutoConflictResolution(session, result.record);
+            setSyncStatus(resolved ? "synced" : "error");
+            if (!resolved) {
+                setSyncError("Konnte Sync-Konflikt nicht automatisch aufloesen.");
+            }
+            return resolved;
         }
 
         const serialized = safeSerialize(state);
@@ -271,20 +315,13 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
         setPendingConflict(false);
         setConflictCloudState(null);
+        setHasPendingLocalChanges(false);
         setSyncStatus("synced");
         return true;
-    }, [pendingConflict, session, state, syncEnabled]);
+    }, [applyCloudRecord, attemptAutoConflictResolution, session, state, syncEnabled]);
 
     useEffect(() => {
-        if (!syncEnabled || !session || pendingConflict) return;
-        if (!navigator.onLine) {
-            setSyncStatus("offline");
-            return;
-        }
-        if (skipNextPushRef.current) {
-            skipNextPushRef.current = false;
-            return;
-        }
+        if (!syncEnabled) return;
         const serialized = safeSerialize(state);
         if (!serialized.ok) {
             setSyncStatus("error");
@@ -292,6 +329,19 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
             return;
         }
         if (serialized.json === lastSyncedSerializedRef.current) {
+            setHasPendingLocalChanges(false);
+            return;
+        }
+        setHasPendingLocalChanges(true);
+        if (!session) {
+            return;
+        }
+        if (!navigator.onLine) {
+            setSyncStatus("offline");
+            return;
+        }
+        if (skipNextPushRef.current) {
+            skipNextPushRef.current = false;
             return;
         }
         if (debounceTimerRef.current !== null) {
@@ -306,7 +356,13 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
                 debounceTimerRef.current = null;
             }
         };
-    }, [pendingConflict, requestSyncNow, session, state, syncEnabled]);
+    }, [requestSyncNow, session, state, syncEnabled]);
+
+    useEffect(() => {
+        if (!syncEnabled || !session || !hasPendingLocalChanges) return;
+        if (!navigator.onLine) return;
+        void requestSyncNow();
+    }, [hasPendingLocalChanges, onlineTick, requestSyncNow, session, syncEnabled]);
 
     const signUp = useCallback(async (email: string, password: string): Promise<boolean> => {
         if (!syncEnabled) {
@@ -375,6 +431,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         setConflictCloudState(null);
         setSyncStatus("idle");
         setSyncError(null);
+        setHasPendingLocalChanges(false);
         initialSyncDoneForUserRef.current = null;
         cloudVersionRef.current = 0;
     }, [clearAuthFeedback, session]);
@@ -436,6 +493,7 @@ export function usePlannerSync({ state, onApplyRemoteState }: UsePlannerSyncPara
         }
         setPendingConflict(false);
         setConflictCloudState(null);
+        setHasPendingLocalChanges(false);
         setSyncStatus("synced");
         return true;
     }, [conflictCloudState, onApplyRemoteState, session, state]);

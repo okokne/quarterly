@@ -52,14 +52,16 @@ export function resolveInitialSyncAction(input: {
     if (Number.isFinite(localMs) && Number.isFinite(cloudMs)) {
         const deltaMs = localMs - cloudMs;
         if (deltaMs > 1000) return "push_local";
-        if (deltaMs < -1000) return "pull_cloud";
-    } else if (Number.isFinite(localMs)) {
+        // Cloud-first on ties or near-ties to avoid repetitive manual conflicts.
+        return "pull_cloud";
+    } else if (Number.isFinite(localMs) && !Number.isFinite(cloudMs)) {
         return "push_local";
-    } else if (Number.isFinite(cloudMs)) {
+    } else if (!Number.isFinite(localMs) && Number.isFinite(cloudMs)) {
         return "pull_cloud";
     }
 
-    return "conflict";
+    // Default cloud-first fallback when both sides contain data but timestamps are inconclusive.
+    return "pull_cloud";
 }
 
 export function resolveConflictState(input: {

@@ -181,3 +181,48 @@ test("resolveInitialSyncAction returns no_op for semantically equal state", () =
     });
     assert.equal(action, "no_op");
 });
+
+test("resolveInitialSyncAction defaults to pull_cloud when both sides differ and timestamps are missing", () => {
+    const local = {
+        ...emptyState(),
+        cycle: buildCycle("Local", "2026-02-02")
+    };
+    const cloudState = {
+        ...emptyState(),
+        cycle: buildCycle("Cloud", "2026-02-03")
+    };
+
+    const action = resolveInitialSyncAction({
+        local,
+        cloud: {
+            state: cloudState,
+            version: 3,
+            updatedAt: "invalid-date",
+            schemaVersion: 1
+        }
+    });
+    assert.equal(action, "pull_cloud");
+});
+
+test("resolveInitialSyncAction prefers pull_cloud on near-tie timestamps", () => {
+    const local = {
+        ...emptyState(),
+        cycle: buildCycle("Local", "2026-02-02")
+    };
+    const cloudState = {
+        ...emptyState(),
+        cycle: buildCycle("Cloud", "2026-02-01")
+    };
+
+    const action = resolveInitialSyncAction({
+        local,
+        cloud: {
+            state: cloudState,
+            version: 2,
+            updatedAt: "2026-02-11T10:00:00.000Z",
+            schemaVersion: 1
+        },
+        localUpdatedAt: "2026-02-11T10:00:00.400Z"
+    });
+    assert.equal(action, "pull_cloud");
+});
