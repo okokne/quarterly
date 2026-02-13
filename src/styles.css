@@ -2607,6 +2607,11 @@ button.ghost-danger:hover {
   font-size: 0.84rem;
 }
 
+.success-text {
+  color: var(--success);
+  font-size: 0.84rem;
+}
+
 .empty {
   font-style: normal;
   color: var(--text-muted);

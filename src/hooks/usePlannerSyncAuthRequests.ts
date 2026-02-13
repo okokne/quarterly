@@ -30,6 +30,17 @@ export function usePlannerSyncAuthRequests({
     setAuthError,
     setAuthMessage
 }: UsePlannerSyncAuthRequestsParams) {
+    const isEmailConfirmationMessage = useCallback((message: string | null | undefined): boolean => {
+        const normalized = (message ?? "").toLowerCase();
+        if (!normalized) return false;
+        return (
+            normalized.includes("konto erstellt")
+            || normalized.includes("e-mail bestaetigen")
+            || normalized.includes("email bestaetigen")
+            || normalized.includes("confirm your email")
+        );
+    }, []);
+
     const mapRateLimitError = useCallback((message: string | null | undefined): string | null => {
         const normalized = (message ?? "").toLowerCase();
         if (!normalized) return null;
@@ -52,12 +63,16 @@ export function usePlannerSyncAuthRequests({
         const result = await signUpWithEmailPassword({ email, password });
         setAuthLoading(false);
         if (result.error) {
+            if (isEmailConfirmationMessage(result.error)) {
+                setAuthMessage(result.error);
+                return true;
+            }
             setAuthError(result.error);
             return false;
         }
         markSessionSignedIn(result.session, "Account created and signed in.");
         return true;
-    }, [clearAuthFeedback, ensureSyncEnabled, markSessionSignedIn, setAuthError, setAuthLoading]);
+    }, [clearAuthFeedback, ensureSyncEnabled, isEmailConfirmationMessage, markSessionSignedIn, setAuthError, setAuthLoading, setAuthMessage]);
 
     const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
         if (!ensureSyncEnabled()) return false;

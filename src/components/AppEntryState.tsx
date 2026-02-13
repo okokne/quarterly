@@ -145,6 +145,19 @@ export function AppEntryState({
         setLocalAuthHint(tr(language, "auth.magicLinkCheckInboxHint"));
     };
 
+    const submitRegistration = async () => {
+        if (!emailTrimmed || !registerPasswordRules.isValid || entryPassword !== registerConfirm) return;
+        const ok = await onSignUp(emailTrimmed, entryPassword);
+        if (!ok) return;
+        // After successful registration (or email-confirmation success), return to sign-in view.
+        setRegisterConfirm("");
+        setEntryPassword("");
+        setShowRegisterHint(false);
+        setMagicLinkWasSent(false);
+        setMagicLinkCooldownUntil(null);
+        setAuthMode("password");
+    };
+
     return (
         <div className="page">
             <header className="hero">
@@ -176,7 +189,7 @@ export function AppEntryState({
                             <div className="auth-entry-feedback">
                                 {authError && <p className="error-text">{authError}</p>}
                                 {syncError && <p className="error-text">{syncError}</p>}
-                                {authMessage && <p className="hint">{authMessage}</p>}
+                                {authMessage && <p className="success-text">{authMessage}</p>}
                                 {localAuthHint && <p className="hint">{localAuthHint}</p>}
                                 {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
                             </div>
@@ -318,7 +331,7 @@ export function AppEntryState({
                                                 className="primary"
                                                 disabled={authLoading || !emailTrimmed || !registerPasswordRules.isValid || entryPassword !== registerConfirm}
                                                 onClick={() => {
-                                                    void onSignUp(emailTrimmed, entryPassword);
+                                                    void submitRegistration();
                                                 }}
                                             >
                                                 {tr(language, "auth.createAccount")}
