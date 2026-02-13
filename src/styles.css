@@ -341,7 +341,54 @@ p {
 }
 
 .auth-entry-box {
-  margin-top: 12px;
+  margin-top: 0;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-subtle) 70%, transparent);
+}
+
+.auth-entry-card {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.auth-entry-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-entry-intro h2 {
+  margin: 0;
+}
+
+.auth-entry-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-entry-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.auth-entry-actions {
+  margin-top: 4px;
+}
+
+.auth-entry-support {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
 }
 
 .header-main {

@@ -527,7 +527,6 @@ export default function App() {
     authError,
     syncError,
     authMessage,
-    magicLinkRedirectUrl,
     magicLinkRedirectError,
     authLoading,
     entryEmail,

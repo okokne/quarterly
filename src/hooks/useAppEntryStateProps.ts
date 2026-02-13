@@ -9,7 +9,6 @@ type UseAppEntryStatePropsParams = {
     authError: string | null;
     syncError: string | null;
     authMessage: string | null;
-    magicLinkRedirectUrl: string | null;
     magicLinkRedirectError: string | null;
     authLoading: boolean;
     entryEmail: string;

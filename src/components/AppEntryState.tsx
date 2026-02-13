@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppLanguage } from "../types";
 import { t as tr } from "../i18n";
 
-type AuthMode = "email" | "password" | "registerPrompt" | "register" | "code";
+type AuthMode = "email" | "password" | "registerPrompt" | "register";
 
 type AppEntryStateProps = {
     language: AppLanguage;
@@ -13,7 +13,6 @@ type AppEntryStateProps = {
     authError: string | null;
     syncError: string | null;
     authMessage: string | null;
-    magicLinkRedirectUrl: string | null;
     magicLinkRedirectError: string | null;
     authLoading: boolean;
     entryEmail: string;
@@ -44,7 +43,6 @@ export function AppEntryState({
     authError,
     syncError,
     authMessage,
-    magicLinkRedirectUrl,
     magicLinkRedirectError,
     authLoading,
     entryEmail,
@@ -60,34 +58,52 @@ export function AppEntryState({
     onSignIn,
     onSignUp,
     onCheckEmailAccount,
-    onRequestOneTimeCode,
-    onVerifyOneTimeCode,
     onRequestMagicLink,
     onCreateCycle
 }: AppEntryStateProps) {
     const [authMode, setAuthMode] = useState<AuthMode>("email");
     const [registerConfirm, setRegisterConfirm] = useState("");
-    const [codeInput, setCodeInput] = useState("");
-    const [codePrimed, setCodePrimed] = useState(false);
     const [localAuthHint, setLocalAuthHint] = useState<string | null>(null);
+    const [magicLinkWasSent, setMagicLinkWasSent] = useState(false);
+    const [magicLinkCooldownUntil, setMagicLinkCooldownUntil] = useState<number | null>(null);
+    const [clockTick, setClockTick] = useState(() => Date.now());
     const emailTrimmed = useMemo(() => entryEmail.trim(), [entryEmail]);
+    const magicLinkSecondsLeft = useMemo(() => {
+        if (!magicLinkCooldownUntil) return 0;
+        return Math.max(0, Math.ceil((magicLinkCooldownUntil - clockTick) / 1000));
+    }, [clockTick, magicLinkCooldownUntil]);
+
+    useEffect(() => {
+        if (!magicLinkCooldownUntil) return;
+        const intervalId = window.setInterval(() => {
+            setClockTick(Date.now());
+        }, 1000);
+        return () => window.clearInterval(intervalId);
+    }, [magicLinkCooldownUntil]);
+
+    useEffect(() => {
+        if (magicLinkCooldownUntil && magicLinkSecondsLeft <= 0) {
+            setMagicLinkCooldownUntil(null);
+        }
+    }, [magicLinkCooldownUntil, magicLinkSecondsLeft]);
 
     const resetAuthFlow = () => {
         setAuthMode("email");
         setEntryPassword("");
         setRegisterConfirm("");
-        setCodeInput("");
-        setCodePrimed(false);
         setLocalAuthHint(null);
+        setMagicLinkWasSent(false);
+        setMagicLinkCooldownUntil(null);
     };
 
     const continueWithEmail = async () => {
         if (!emailTrimmed) return;
         setLocalAuthHint(null);
+        setMagicLinkWasSent(false);
+        setMagicLinkCooldownUntil(null);
         const result = await onCheckEmailAccount(emailTrimmed);
         if (result === "exists") {
             setAuthMode("password");
-            setCodePrimed(true);
             return;
         }
         if (result === "missing") {
@@ -95,18 +111,14 @@ export function AppEntryState({
         }
     };
 
-    const requestCodeAndOpen = async () => {
+    const requestPasswordlessSignIn = async () => {
         if (!emailTrimmed) return;
-        if (codePrimed) {
-            setCodeInput("");
-            setAuthMode("code");
-            return;
-        }
-        const ok = await onRequestOneTimeCode(emailTrimmed);
+        if (magicLinkSecondsLeft > 0) return;
+        const ok = await onRequestMagicLink(emailTrimmed);
         if (!ok) return;
-        setCodePrimed(true);
-        setCodeInput("");
-        setAuthMode("code");
+        setMagicLinkWasSent(true);
+        setMagicLinkCooldownUntil(Date.now() + 60_000);
+        setLocalAuthHint(tr(language, "auth.magicLinkCheckInboxHint"));
     };
 
     return (
@@ -127,21 +139,21 @@ export function AppEntryState({
             )}
 
             {!awaitingCloudDashboard && !isAuthenticated && (
-                <section className="card">
-                    <h2>{tr(language, "auth.entryTitle")}</h2>
+                <section className="card auth-entry-card">
+                    <div className="auth-entry-intro">
+                        <h2>{tr(language, "auth.entryTitle")}</h2>
+                        <p className="muted">{tr(language, "auth.entrySubtitle")}</p>
+                    </div>
                     {!syncEnabled && (
                         <p className="warning-text">{tr(language, "settings.syncDisabledHint")}</p>
                     )}
-                    <p className="muted">{tr(language, "auth.entrySubtitle")}</p>
-
-                    {authError && <p className="error-text">{authError}</p>}
-                    {syncError && <p className="error-text">{syncError}</p>}
-                    {authMessage && <p className="hint">{authMessage}</p>}
-                    {localAuthHint && <p className="hint">{localAuthHint}</p>}
-                    {magicLinkRedirectUrl && (
-                        <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
-                    )}
-                    {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
+                    <div className="auth-entry-feedback">
+                        {authError && <p className="error-text">{authError}</p>}
+                        {syncError && <p className="error-text">{syncError}</p>}
+                        {authMessage && <p className="hint">{authMessage}</p>}
+                        {localAuthHint && <p className="hint">{localAuthHint}</p>}
+                        {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
+                    </div>
 
                     <div className="settings-auth-box auth-entry-box">
                         <label>
@@ -157,7 +169,7 @@ export function AppEntryState({
                         </label>
 
                         {authMode === "email" && (
-                            <div className="button-row">
+                            <div className="button-row auth-entry-actions">
                                 <button
                                     className="primary"
                                     disabled={authLoading || !emailTrimmed}
@@ -182,7 +194,7 @@ export function AppEntryState({
                                         disabled={authLoading}
                                     />
                                 </label>
-                                <div className="button-row">
+                                <div className="button-row auth-entry-actions">
                                     <button
                                         className="primary"
                                         disabled={authLoading || !emailTrimmed || entryPassword.length < 6}
@@ -193,12 +205,16 @@ export function AppEntryState({
                                         {tr(language, "settings.accountSignIn")}
                                     </button>
                                     <button
-                                        disabled={authLoading || !emailTrimmed}
+                                        disabled={authLoading || !emailTrimmed || magicLinkSecondsLeft > 0}
                                         onClick={() => {
-                                            void requestCodeAndOpen();
+                                            void requestPasswordlessSignIn();
                                         }}
                                     >
-                                        {tr(language, "auth.signInWithCode")}
+                                        {magicLinkWasSent
+                                            ? (magicLinkSecondsLeft > 0
+                                                ? tr(language, "auth.magicLinkResendIn", { seconds: magicLinkSecondsLeft })
+                                                : tr(language, "auth.magicLinkResendNow"))
+                                            : tr(language, "auth.signInWithoutPassword")}
                                     </button>
                                     <button
                                         disabled={authLoading}
@@ -207,13 +223,18 @@ export function AppEntryState({
                                         {tr(language, "auth.otherEmail")}
                                     </button>
                                 </div>
+                                {magicLinkWasSent && (
+                                    <p className="auth-entry-support">
+                                        {tr(language, "auth.magicLinkCheckInboxHint")}
+                                    </p>
+                                )}
                             </>
                         )}
 
                         {authMode === "registerPrompt" && (
                             <>
                                 <p className="muted">{tr(language, "auth.noAccountPrompt")}</p>
-                                <div className="button-row">
+                                <div className="button-row auth-entry-actions">
                                     <button className="primary" disabled={authLoading} onClick={() => setAuthMode("register")}>
                                         {tr(language, "auth.register")}
                                     </button>
@@ -246,7 +267,7 @@ export function AppEntryState({
                                         disabled={authLoading}
                                     />
                                 </label>
-                                <div className="button-row">
+                                <div className="button-row auth-entry-actions">
                                     <button
                                         className="primary"
                                         disabled={authLoading || !emailTrimmed || entryPassword.length < 6 || entryPassword !== registerConfirm}
@@ -260,69 +281,6 @@ export function AppEntryState({
                                         {tr(language, "auth.otherEmail")}
                                     </button>
                                 </div>
-                            </>
-                        )}
-
-                        {authMode === "code" && (
-                            <>
-                                {!codePrimed && (
-                                    <button
-                                        className="button"
-                                        disabled={authLoading || !emailTrimmed}
-                                        onClick={() => {
-                                            void requestCodeAndOpen();
-                                        }}
-                                    >
-                                        {tr(language, "auth.sendCode")}
-                                    </button>
-                                )}
-                                <label>
-                                    {tr(language, "auth.codeLabel")}
-                                    <input
-                                        value={codeInput}
-                                        onChange={(event) => setCodeInput(event.target.value)}
-                                        placeholder="123456"
-                                        inputMode="numeric"
-                                        autoComplete="one-time-code"
-                                        disabled={authLoading}
-                                    />
-                                </label>
-                                <div className="button-row">
-                                    <button
-                                        className="primary"
-                                        disabled={authLoading || !emailTrimmed || !codeInput.trim()}
-                                        onClick={() => {
-                                            void onVerifyOneTimeCode(emailTrimmed, codeInput.trim());
-                                        }}
-                                    >
-                                        {tr(language, "auth.confirmCode")}
-                                    </button>
-                                    <button
-                                        disabled={authLoading || !emailTrimmed}
-                                        onClick={() => {
-                                            void onRequestOneTimeCode(emailTrimmed);
-                                        }}
-                                    >
-                                        {tr(language, "auth.resendCode")}
-                                    </button>
-                                    <button
-                                        disabled={authLoading}
-                                        onClick={() => setAuthMode("password")}
-                                    >
-                                        {tr(language, "common.back")}
-                                    </button>
-                                </div>
-                                <p className="hint">{tr(language, "auth.codeHint")}</p>
-                                <button
-                                    className="button"
-                                    disabled={authLoading || !emailTrimmed}
-                                    onClick={() => {
-                                        void onRequestMagicLink(emailTrimmed);
-                                        setLocalAuthHint(tr(language, "auth.magicLinkFallbackHint"));
-                                    }}
-                                >
-                                    {tr(language, "settings.accountMagicLink")}
-                                </button>
                             </>
                         )}
                     </div>
