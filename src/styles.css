@@ -408,6 +408,17 @@ p {
   padding: 10px 12px;
 }
 
+.auth-entry-register-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
 @media (max-width: 900px) {
   .auth-entry-card {
     width: 100%;

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppLanguage } from "../types";
 import { t as tr } from "../i18n";
 
-type AuthMode = "email" | "password" | "registerPrompt" | "register";
+type AuthMode = "email" | "password" | "register";
 
 type AppEntryStateProps = {
     language: AppLanguage;
@@ -27,7 +27,6 @@ type AppEntryStateProps = {
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;
-    onCheckEmailAccount: (email: string) => Promise<"exists" | "missing" | "error">;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
 };
@@ -55,7 +54,6 @@ export function AppEntryState({
     onSignOut,
     onSignIn,
     onSignUp,
-    onCheckEmailAccount,
     onRequestMagicLink,
     onCreateCycle
 }: AppEntryStateProps) {
@@ -65,8 +63,7 @@ export function AppEntryState({
     const [magicLinkWasSent, setMagicLinkWasSent] = useState(false);
     const [magicLinkCooldownUntil, setMagicLinkCooldownUntil] = useState<number | null>(null);
     const [clockTick, setClockTick] = useState(() => Date.now());
-    const [lastCheckedEmail, setLastCheckedEmail] = useState<string | null>(null);
-    const [lastCheckResult, setLastCheckResult] = useState<"exists" | "missing" | null>(null);
+    const [showRegisterHint, setShowRegisterHint] = useState(false);
     const emailTrimmed = useMemo(() => entryEmail.trim(), [entryEmail]);
     const magicLinkSecondsLeft = useMemo(() => {
         if (!magicLinkCooldownUntil) return 0;
@@ -92,38 +89,28 @@ export function AppEntryState({
         setEntryPassword("");
         setRegisterConfirm("");
         setLocalAuthHint(null);
+        setShowRegisterHint(false);
         setMagicLinkWasSent(false);
         setMagicLinkCooldownUntil(null);
     };
 
-    const continueWithEmail = async () => {
+    const continueWithEmail = () => {
         if (!emailTrimmed) return;
         setLocalAuthHint(null);
+        setShowRegisterHint(false);
         setMagicLinkWasSent(false);
         setMagicLinkCooldownUntil(null);
-
-        if (lastCheckedEmail === emailTrimmed && lastCheckResult) {
-            setAuthMode(lastCheckResult === "exists" ? "password" : "registerPrompt");
-            return;
-        }
-
-        const result = await onCheckEmailAccount(emailTrimmed);
-        if (result === "exists") {
-            setLastCheckedEmail(emailTrimmed);
-            setLastCheckResult("exists");
-            setAuthMode("password");
-            return;
-        }
-        if (result === "missing") {
-            setLastCheckedEmail(emailTrimmed);
-            setLastCheckResult("missing");
-            setAuthMode("registerPrompt");
-            return;
-        }
-
-        // Rate-limit or temporary lookup issues should not block sign-in flow.
-        setLocalAuthHint(tr(language, "auth.lookupFallbackHint"));
         setAuthMode("password");
+    };
+
+    const signInWithPassword = async () => {
+        if (!emailTrimmed || !entryPassword.trim()) return;
+        setShowRegisterHint(false);
+        const ok = await onSignIn(emailTrimmed, entryPassword);
+        if (!ok) {
+            setShowRegisterHint(true);
+            setLocalAuthHint(tr(language, "auth.signInFailedRegisterHint"));
+        }
     };
 
     const requestPasswordlessSignIn = async () => {
@@ -191,7 +178,7 @@ export function AppEntryState({
                                             className="primary"
                                             disabled={authLoading || !emailTrimmed}
                                             onClick={() => {
-                                                void continueWithEmail();
+                                                continueWithEmail();
                                             }}
                                         >
                                             {tr(language, "auth.continue")}
@@ -216,7 +203,7 @@ export function AppEntryState({
                                                 className="primary"
                                                 disabled={authLoading || !emailTrimmed || !entryPassword.trim()}
                                                 onClick={() => {
-                                                    void onSignIn(emailTrimmed, entryPassword);
+                                                    void signInWithPassword();
                                                 }}
                                             >
                                                 {tr(language, "settings.accountSignIn")}
@@ -245,20 +232,20 @@ export function AppEntryState({
                                                 {tr(language, "auth.magicLinkCheckInboxHint")}
                                             </p>
                                         )}
-                                    </>
-                                )}
-
-                                {authMode === "registerPrompt" && (
-                                    <>
-                                        <p className="muted">{tr(language, "auth.noAccountPrompt")}</p>
-                                        <div className="button-row auth-entry-actions">
-                                            <button className="primary" disabled={authLoading} onClick={() => setAuthMode("register")}>
-                                                {tr(language, "auth.register")}
-                                            </button>
-                                            <button disabled={authLoading} onClick={() => resetAuthFlow()}>
-                                                {tr(language, "common.back")}
-                                            </button>
-                                        </div>
+                                        {showRegisterHint && (
+                                            <div className="auth-entry-register-hint">
+                                                <p className="muted">{tr(language, "auth.noAccountPrompt")}</p>
+                                                <button
+                                                    disabled={authLoading}
+                                                    onClick={() => {
+                                                        setRegisterConfirm("");
+                                                        setAuthMode("register");
+                                                    }}
+                                                >
+                                                    {tr(language, "auth.register")}
+                                                </button>
+                                            </div>
+                                        )}
                                     </>
                                 )}
 

@@ -23,7 +23,6 @@ type UseAppEntryStatePropsParams = {
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;
-    onCheckEmailAccount: (email: string) => Promise<"exists" | "missing" | "error">;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
 };
