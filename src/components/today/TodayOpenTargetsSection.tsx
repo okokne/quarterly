@@ -1,5 +1,5 @@
 import { t as tr } from "../../i18n";
-import { AppLanguage, Id, WeeklyTarget } from "../../types";
+import { AppLanguage, WeeklyTarget } from "../../types";
 import { ProgressBar } from "../ProgressBar";
 
 type TodayOpenTargetsSectionProps = {
@@ -7,15 +7,13 @@ type TodayOpenTargetsSectionProps = {
     selectedWeek: number;
     selectedWeekTargets: WeeklyTarget[];
     getWeeklyRemaining: (weekIndex: number) => Array<WeeklyTarget & { remaining: number }>;
-    totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
 };
 
 export function TodayOpenTargetsSection({
     language,
     selectedWeek,
     selectedWeekTargets,
-    getWeeklyRemaining,
-    totalWeeklyDone
+    getWeeklyRemaining
 }: TodayOpenTargetsSectionProps) {
     return (
         <div className="subcard">
@@ -23,8 +21,7 @@ export function TodayOpenTargetsSection({
             <div className="list">
                 {selectedWeekTargets.length === 0 && <p className="empty">{tr(language, "today.noWeekTargets")}</p>}
                 {getWeeklyRemaining(selectedWeek).map((target) => {
-                    const autoDone = totalWeeklyDone(selectedWeek, target.id);
-                    const done = Math.max(target.done, autoDone);
+                    const done = Math.max(0, target.target - target.remaining);
                     const remaining = Math.max(0, target.target - done);
                     return (
                         <div key={target.id} className="list-item column">

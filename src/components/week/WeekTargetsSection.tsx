@@ -98,6 +98,10 @@ export function WeekTargetsSection({
                     const isEditingTarget = editingTargetId === target.id;
                     const isTouchDragActive = touchDraggingTargetId === target.id;
                     const isTouchDragOver = touchDragOverTargetId === target.id && !isTouchDragActive;
+                    const autoDone = totalWeeklyDone(selectedWeek, target.id);
+                    const manualAdjust = target.manualAdjust ?? 0;
+                    const effectiveDone = Math.min(target.target, Math.max(0, autoDone + manualAdjust));
+                    const remaining = Math.max(0, target.target - effectiveDone);
 
                     return (
                         <div
@@ -181,9 +185,25 @@ export function WeekTargetsSection({
 
                                 <div className="week-target-controls">
                                     <div className="week-target-stepper">
-                                        <button onClick={() => onUpdateWeeklyTarget(target.id, { done: Math.max(0, target.done - 1) })}>–</button>
-                                        <span className="muted week-target-done">{target.done}</span>
-                                        <button onClick={() => onUpdateWeeklyTarget(target.id, { done: Math.min(target.target, target.done + 1) })}>+</button>
+                                        <button
+                                            onClick={() =>
+                                                onUpdateWeeklyTarget(target.id, {
+                                                    manualAdjust: Math.max(-target.target, manualAdjust - 1)
+                                                })
+                                            }
+                                        >
+                                            –
+                                        </button>
+                                        <span className="muted week-target-done">{manualAdjust >= 0 ? `+${manualAdjust}` : manualAdjust}</span>
+                                        <button
+                                            onClick={() =>
+                                                onUpdateWeeklyTarget(target.id, {
+                                                    manualAdjust: Math.min(target.target, manualAdjust + 1)
+                                                })
+                                            }
+                                        >
+                                            +
+                                        </button>
                                     </div>
                                     <div className="week-target-actions">
                                         {isEditingTarget ? (
@@ -216,15 +236,17 @@ export function WeekTargetsSection({
 
                             <div className="progress-bar-wrapper">
                                 <ProgressBar
-                                    value={Math.max(target.done, totalWeeklyDone(selectedWeek, target.id))}
+                                    value={effectiveDone}
                                     max={target.target}
                                 />
                             </div>
                             <div className="muted" style={{ fontSize: "0.8rem" }}>
-                                {tr(language, "week.autoFromPlan", {
-                                    done: totalWeeklyDone(selectedWeek, target.id),
+                                {tr(language, "week.targetSotSummary", {
+                                    auto: autoDone,
+                                    adjust: manualAdjust >= 0 ? `+${manualAdjust}` : `${manualAdjust}`,
+                                    total: effectiveDone,
                                     unit: target.unit ?? "",
-                                    remaining: Math.max(0, target.target - Math.max(target.done, totalWeeklyDone(selectedWeek, target.id)))
+                                    remaining
                                 })}
                             </div>
                         </div>

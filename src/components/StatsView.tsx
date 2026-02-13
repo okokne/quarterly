@@ -24,6 +24,7 @@ interface StatsViewProps {
     selectedWeek: number;
     setSelectedWeek: (week: number) => void;
     setActiveTab: (tab: Tab) => void;
+    onOpenHabitsManager: () => void;
 }
 
 export function StatsView({
@@ -36,7 +37,8 @@ export function StatsView({
     language,
     selectedWeek,
     setSelectedWeek,
-    setActiveTab
+    setActiveTab,
+    onOpenHabitsManager
 }: StatsViewProps) {
     const [openHabits, setOpenHabits] = useState<Record<string, boolean>>({});
     const [habitEditMode, setHabitEditMode] = useState(false);
@@ -156,6 +158,15 @@ export function StatsView({
                         <h3>{tr(language, "stats.habitTracker")}</h3>
                         <div className="habit-tracker-topbar-right">
                             <span className="habit-mini-label">{tr(language, "stats.last7Days")}</span>
+                            {!readOnly && (
+                                <button
+                                    type="button"
+                                    className="habit-tracker-mode-btn"
+                                    onClick={onOpenHabitsManager}
+                                >
+                                    {tr(language, "common.manage")}
+                                </button>
+                            )}
                             {!readOnly && (
                                 <button
                                     type="button"

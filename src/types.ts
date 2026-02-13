@@ -101,7 +101,7 @@ export type WeeklyTarget = {
     title: string;
     target: number;
     unit?: string;
-    done: number;
+    manualAdjust: number;
     notes?: string;
 };
 

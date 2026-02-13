@@ -171,9 +171,22 @@ p {
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 24px;
   flex-wrap: wrap;
+}
+
+.header-cycle-trigger {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
 }
 
 /* ─── Search ─── */
@@ -238,18 +251,12 @@ p {
   font-size: 0.9rem;
 }
 
-.header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
 .header-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .sync-status {
@@ -291,24 +298,9 @@ p {
 
 .header-main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
   flex: 1;
-}
-
-.header-progress {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.header-progress-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 /* ─── Progress Bar ─── */
@@ -2749,6 +2741,129 @@ button.ghost-danger:hover {
   margin-top: 8px;
 }
 
+/* ─── Overlay Panels ─── */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1150;
+  background: rgba(45, 42, 38, 0.34);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.overlay-card {
+  width: min(760px, 100%);
+  max-height: min(85vh, 860px);
+  overflow: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.search-overlay-card {
+  width: min(780px, 100%);
+}
+
+.search-overlay-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.search-overlay-results {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  min-height: 90px;
+}
+
+.details-overlay-card {
+  width: min(420px, 100%);
+}
+
+.details-progress-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.habits-manager-card {
+  width: min(920px, 100%);
+}
+
+.cycle-drawer {
+  width: min(980px, 100%);
+}
+
+.cycle-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+}
+
+.cycle-overview-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.cycle-overview-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.today-date-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.today-date-input {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.today-date-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 680px) {
   .page {
@@ -2772,44 +2887,24 @@ button.ghost-danger:hover {
     width: 100%;
   }
 
-  .header-right {
-    width: 100%;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
-  }
-
   .header-actions {
-    gap: 6px;
-    justify-content: flex-end;
+    width: 100%;
+    gap: 8px;
+    justify-content: flex-start;
   }
 
   .header-actions .sync-status {
     display: none;
   }
 
-  .header-actions .header-history-btn {
-    display: none;
+  .overlay-card {
+    max-height: min(90vh, 860px);
+    padding: 16px;
   }
 
-  .search-container {
-    order: 1;
-  }
-
-  .search-input {
-    width: 122px;
-  }
-
-  .search-input:focus,
-  .search-container:focus-within .search-input {
-    width: 164px;
-  }
-
-  .search-results {
-    left: auto;
-    right: 0;
-    width: min(290px, calc(100vw - 36px));
+  .today-date-controls .button,
+  .today-date-controls .today-date-input {
+    width: 100%;
   }
 
   .stats-chart {

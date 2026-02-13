@@ -1,26 +1,17 @@
 import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
 import { formatDate, formatRange } from "../utils";
-import { ProgressRing } from "./ProgressRing";
-import { SearchResultItem } from "../types/search";
 
 type AppHeaderProps = {
     title?: string;
     startDate: string;
     selectedWeek: number;
     currentWeek: Week;
-    onboardingDone: boolean;
-    weekCompletion: { done: number; total: number };
     language: AppLanguage;
     dateFormat: DateFormat;
-    searchQuery: string;
-    setSearchQuery: (value: string) => void;
-    searchResults: SearchResultItem[];
-    onSearchResultSelect: (result: SearchResultItem) => void;
-    canUndo: boolean;
-    canRedo: boolean;
-    onUndo: () => void;
-    onRedo: () => void;
+    onOpenCycleDrawer: () => void;
+    onOpenSearch: () => void;
+    onOpenHeaderDetails: () => void;
     onOpenSettings: () => void;
     syncStatus?: SyncStatus;
 };
@@ -30,18 +21,11 @@ export function AppHeader({
     startDate,
     selectedWeek,
     currentWeek,
-    onboardingDone,
-    weekCompletion,
     language,
     dateFormat,
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    onSearchResultSelect,
-    canUndo,
-    canRedo,
-    onUndo,
-    onRedo,
+    onOpenCycleDrawer,
+    onOpenSearch,
+    onOpenHeaderDetails,
     onOpenSettings,
     syncStatus
 }: AppHeaderProps) {
@@ -49,8 +33,10 @@ export function AppHeader({
         <header className="header">
             <div className="header-main">
                 <div>
-                    <p className="eyebrow">Quarterly</p>
-                    <h1>{title ?? "Quarterly"}</h1>
+                    <button className="header-cycle-trigger" onClick={onOpenCycleDrawer}>
+                        <p className="eyebrow">Quarterly</p>
+                        <h1>{title ?? "Quarterly"}</h1>
+                    </button>
                     <p className="muted">{tr(language, "app.brandTagline")}</p>
                     <p className="muted">{tr(language, "app.headerStartWeek", {
                         date: formatDate(startDate, dateFormat, language),
@@ -58,73 +44,38 @@ export function AppHeader({
                         range: formatRange(currentWeek.startDate, currentWeek.endDate, dateFormat, language)
                     })}</p>
                 </div>
-                {onboardingDone && weekCompletion.total > 0 && (
-                    <div className="header-progress">
-                        <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={72} strokeWidth={7} />
-                        <span className="header-progress-label">{tr(language, "app.headerWeekShort", { week: selectedWeek })}</span>
-                    </div>
-                )}
             </div>
-            <div className="header-right">
-                <div className="search-container">
-                    <input
-                        type="text"
-                        className="search-input"
-                        placeholder={tr(language, "app.searchPlaceholder")}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    {searchResults.length > 0 && (
-                        <div className="search-results">
-                            {searchResults.map((result, index) => (
-                                <button
-                                    key={index}
-                                    className="search-result-item"
-                                    onClick={() => onSearchResultSelect(result)}
-                                >
-                                    <span className="search-type">{result.type}</span>
-                                    <span>{result.text}</span>
-                                    {result.week && <span className="muted">{tr(language, "app.headerWeekShort", { week: result.week })}</span>}
-                                    {result.date && <span className="muted">{formatDate(result.date, dateFormat, language)}</span>}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className="header-actions">
-                    {syncStatus && (
-                        <span className={`sync-status ${syncStatus}`}>
-                            {syncStatus === "syncing" && tr(language, "app.syncSyncing")}
-                            {syncStatus === "synced" && tr(language, "app.syncSynced")}
-                            {syncStatus === "error" && tr(language, "app.syncError")}
-                            {syncStatus === "offline" && tr(language, "app.syncOffline")}
-                            {syncStatus === "idle" && tr(language, "app.syncLocal")}
-                        </span>
-                    )}
-                    <button
-                        onClick={onUndo}
-                        disabled={!canUndo}
-                        title={tr(language, "app.undo")}
-                        className="icon-btn header-history-btn"
-                    >
-                        ↩️
-                    </button>
-                    <button
-                        onClick={onRedo}
-                        disabled={!canRedo}
-                        title={tr(language, "app.redo")}
-                        className="icon-btn header-history-btn"
-                    >
-                        ↪️
-                    </button>
-                    <button
-                        onClick={onOpenSettings}
-                        title={tr(language, "common.settings")}
-                        className="icon-btn"
-                    >
-                        ⚙️
-                    </button>
-                </div>
+            <div className="header-actions">
+                <button
+                    onClick={onOpenSearch}
+                    title={tr(language, "app.searchTitle")}
+                    className="icon-btn"
+                >
+                    🔍
+                </button>
+                <button
+                    onClick={onOpenHeaderDetails}
+                    title={tr(language, "app.detailsTitle")}
+                    className="icon-btn"
+                >
+                    …
+                </button>
+                {syncStatus && (
+                    <span className={`sync-status ${syncStatus}`}>
+                        {syncStatus === "syncing" && tr(language, "app.syncSyncing")}
+                        {syncStatus === "synced" && tr(language, "app.syncSynced")}
+                        {syncStatus === "error" && tr(language, "app.syncError")}
+                        {syncStatus === "offline" && tr(language, "app.syncOffline")}
+                        {syncStatus === "idle" && tr(language, "app.syncLocal")}
+                    </span>
+                )}
+                <button
+                    onClick={onOpenSettings}
+                    title={tr(language, "common.settings")}
+                    className="icon-btn"
+                >
+                    ⚙️
+                </button>
             </div>
         </header>
     );

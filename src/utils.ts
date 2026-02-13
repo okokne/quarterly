@@ -35,3 +35,9 @@ export { buildCycle, buildDemoCycle } from "./utils/cycleFactory";
 export { isHabitPlannedOnDate } from "./utils/habitPlanning";
 export { migrateCycle } from "./utils/cycleMigration";
 export { cycleReducer } from "./utils/cycleReducer";
+export {
+    getAutoDoneForTargetInWeek,
+    getBlockContribution,
+    getEffectiveWeeklyDone,
+    getRemainingFromEffectiveDone
+} from "./utils/weeklyTargetMetrics";

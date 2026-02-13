@@ -2,7 +2,7 @@ import { Cycle, DailyBlock } from "../types";
 import { uid } from "./id";
 import { toIsoDate } from "./date";
 import { buildReviewEntriesFromLegacy, normalizeReviewEntries } from "./reviewEntries";
-import { clamp } from "./cycleMath";
+import { clamp, getDatesInWeek } from "./cycleMath";
 
 export function migrateCycle(raw: any): Cycle | null {
     if (!raw) return null;
@@ -68,6 +68,51 @@ export function migrateCycle(raw: any): Cycle | null {
             }
         });
         cycle.dailyPlans = normalizedPlans;
+
+        const weeklyTargets: Record<number, Cycle["weeklyTargets"][number]> = {};
+        Object.entries(cycle.weeklyTargets ?? {}).forEach(([weekKey, targets]) => {
+            const weekIndex = Number.parseInt(weekKey, 10);
+            const week = cycle.weeks.find((item) => item.index === weekIndex);
+            if (!week || !Array.isArray(targets)) {
+                return;
+            }
+
+            weeklyTargets[weekIndex] = targets
+                .filter((target) => target && typeof target === "object")
+                .map((target) => {
+                    const rawTarget = target as Record<string, unknown>;
+                    const id = typeof rawTarget.id === "string" && rawTarget.id.trim() ? rawTarget.id : uid();
+                    const targetValue = clamp(asSafeNumber(rawTarget.target, 1), 1, 9999);
+                    const manualAdjustRaw = asSafeNumber(rawTarget.manualAdjust, Number.NaN);
+                    const legacyDone = clamp(asSafeNumber(rawTarget.done, 0), 0, targetValue);
+
+                    const autoDone = getDatesInWeek(week).reduce((sum, date) => {
+                        const blocks = cycle.dailyPlans[date] ?? [];
+                        return sum + blocks
+                            .filter((block) => block.linkedTargetId === id)
+                            .reduce((acc, block) => {
+                                const amount = Math.max(1, block.amount ?? 1);
+                                const fallback = block.done ? amount : 0;
+                                const actual = Math.max(0, Number.isFinite(block.actual) ? Number(block.actual) : fallback);
+                                return acc + actual;
+                            }, 0);
+                    }, 0);
+
+                    const manualAdjust = Number.isFinite(manualAdjustRaw)
+                        ? Math.floor(manualAdjustRaw)
+                        : Math.floor(legacyDone - autoDone);
+
+                    return {
+                        id,
+                        title: typeof rawTarget.title === "string" && rawTarget.title.trim() ? rawTarget.title.trim() : "Target",
+                        target: targetValue,
+                        unit: typeof rawTarget.unit === "string" && rawTarget.unit.trim() ? rawTarget.unit.trim() : undefined,
+                        manualAdjust,
+                        notes: typeof rawTarget.notes === "string" ? rawTarget.notes : undefined
+                    };
+                });
+        });
+        cycle.weeklyTargets = weeklyTargets;
 
         cycle.journalEntries = cycle.journalEntries
             .filter((entry) => entry && typeof entry === "object")

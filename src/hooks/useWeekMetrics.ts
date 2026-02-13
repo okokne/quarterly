@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { Cycle, Id } from "../types";
-import { getDatesInWeek } from "../utils";
+import { Cycle, Id, WeeklyTarget } from "../types";
+import { getAutoDoneForTargetInWeek, getEffectiveWeeklyDone, getRemainingFromEffectiveDone } from "../utils";
 
 type WeekCompletion = {
     done: number;
@@ -16,24 +16,19 @@ type UseWeekMetricsParams = {
 export function useWeekMetrics({ cycle, selectedWeek }: UseWeekMetricsParams) {
     const totalWeeklyDone = useCallback((weekIndex: number, targetId: Id): number => {
         if (!cycle) return 0;
+        return getAutoDoneForTargetInWeek(cycle, weekIndex, targetId);
+    }, [cycle]);
 
-        const week = cycle.weeks.find((item) => item.index === weekIndex);
-        if (!week) return 0;
-
-        const dates = getDatesInWeek(week);
-        return dates.reduce((sum, date) => {
-            const blocks = cycle.dailyPlans[date] ?? [];
-            return sum + blocks
-                .filter((block) => block.linkedTargetId === targetId)
-                .reduce((acc, block) => acc + (block.actual ?? (block.done ? 1 : 0)), 0);
-        }, 0);
+    const getEffectiveDone = useCallback((weekIndex: number, target: WeeklyTarget) => {
+        if (!cycle) return 0;
+        return getEffectiveWeeklyDone(cycle, weekIndex, target);
     }, [cycle]);
 
     const getWeeklyRemaining = useCallback((weekIndex: number) => {
         if (!cycle) return [];
         return (cycle.weeklyTargets[weekIndex] ?? []).map((target) => ({
             ...target,
-            remaining: Math.max(0, target.target - target.done)
+            remaining: getRemainingFromEffectiveDone(cycle, weekIndex, target)
         }));
     }, [cycle]);
 
@@ -47,19 +42,19 @@ export function useWeekMetrics({ cycle, selectedWeek }: UseWeekMetricsParams) {
         let totalTarget = 0;
 
         targets.forEach((target) => {
-            const autoDone = totalWeeklyDone(selectedWeek, target.id);
-            const done = Math.max(target.done, autoDone);
+            const done = getEffectiveDone(selectedWeek, target);
             totalDone += Math.min(done, target.target);
             totalTarget += target.target;
         });
 
         const percent = totalTarget > 0 ? Math.round((totalDone / totalTarget) * 100) : 0;
         return { done: totalDone, total: totalTarget, percent };
-    }, [cycle, selectedWeek, totalWeeklyDone]);
+    }, [cycle, getEffectiveDone, selectedWeek]);
 
     return {
         weekCompletion,
         totalWeeklyDone,
+        getEffectiveDone,
         getWeeklyRemaining
     };
 }

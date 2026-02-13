@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Cycle } from "../types";
-import { getDatesInWeek } from "../utils";
+import { getEffectiveWeeklyDone } from "../utils";
 
 export type GoalTrackingWeek = {
     weekIndex: number;
@@ -23,16 +23,6 @@ type UseStatsMetricsParams = {
     selectedWeek: number;
 };
 
-function getAutoDoneForTarget(cycle: Cycle, week: Cycle["weeks"][number], targetId: string): number {
-    const dates = getDatesInWeek(week);
-    return dates.reduce((sum, date) => {
-        const blocks = cycle.dailyPlans[date] ?? [];
-        return sum + blocks
-            .filter((block) => block.linkedTargetId === targetId)
-            .reduce((acc, block) => acc + (block.actual ?? (block.done ? 1 : 0)), 0);
-    }, 0);
-}
-
 export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) {
     const weekPercents = useMemo(() => {
         const percents: Record<number, number> = {};
@@ -42,8 +32,7 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
             let totalTarget = 0;
 
             targets.forEach((target) => {
-                const autoDone = getAutoDoneForTarget(cycle, week, target.id);
-                const done = Math.max(target.done, autoDone);
+                const done = getEffectiveWeeklyDone(cycle, week.index, target);
                 totalDone += Math.min(done, target.target);
                 totalTarget += target.target;
             });
@@ -60,8 +49,7 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
         cycle.weeks.forEach((week) => {
             const targets = cycle.weeklyTargets[week.index] ?? [];
             targets.forEach((target) => {
-                const autoDone = getAutoDoneForTarget(cycle, week, target.id);
-                const done = Math.max(target.done, autoDone);
+                const done = getEffectiveWeeklyDone(cycle, week.index, target);
                 cycleDone += Math.min(done, target.target);
                 cycleTotal += target.target;
             });
@@ -81,8 +69,7 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
             const targets = cycle.weeklyTargets[week.index] ?? [];
             targets.forEach((target) => {
                 const key = target.title.toLowerCase().trim();
-                const autoDone = getAutoDoneForTarget(cycle, week, target.id);
-                const done = Math.max(target.done, autoDone);
+                const done = getEffectiveWeeklyDone(cycle, week.index, target);
 
                 if (!targetMap.has(key)) {
                     targetMap.set(key, { title: target.title, unit: target.unit ?? "", weeks: [] });

@@ -16,14 +16,10 @@ import { GoogleCalendar } from "../googleCalendar";
 import { SettingsAppearanceSection } from "./settings/SettingsAppearanceSection";
 import { SettingsFormatSection } from "./settings/SettingsFormatSection";
 import { SettingsSyncSection } from "./settings/SettingsSyncSection";
-import { SettingsHabitsSection } from "./settings/SettingsHabitsSection";
-import { SettingsArchiveSection } from "./settings/SettingsArchiveSection";
-import { SettingsDataSection } from "./settings/SettingsDataSection";
 import { SettingsImportExportSection } from "./settings/SettingsImportExportSection";
 import { SettingsNotificationsSection } from "./settings/SettingsNotificationsSection";
 
 export interface SettingsModalProps {
-    cycle: Cycle | null;
     activeCycle: Cycle | null;
     readOnly: boolean;
     templates: DailyTemplate[];
@@ -47,10 +43,7 @@ export interface SettingsModalProps {
     setTemplates: (val: DailyTemplate[]) => void;
     setHistory: (updater: (prev: Cycle[]) => Cycle[]) => void;
     setShowSettings: (val: boolean) => void;
-    setShowDemoConfirm: (val: boolean) => void;
-    setShowDeleteConfirm: (val: boolean) => void;
     setViewingArchiveId: (id: Id | null) => void;
-    setShowArchiveDeleteConfirm: (id: Id | null) => void;
     // Dispatch
     dispatch: (action: { type: 'SET'; payload: Cycle | null }) => void;
     // Handlers
@@ -82,7 +75,6 @@ export interface SettingsModalProps {
 }
 
 export function SettingsModal({
-    cycle,
     activeCycle,
     readOnly,
     templates,
@@ -105,10 +97,7 @@ export function SettingsModal({
     setTemplates,
     setHistory,
     setShowSettings,
-    setShowDemoConfirm,
-    setShowDeleteConfirm,
     setViewingArchiveId,
-    setShowArchiveDeleteConfirm,
     dispatch,
     handleRequestNotifications,
     habits,
@@ -221,34 +210,14 @@ export function SettingsModal({
                     readOnly={readOnly}
                     onRequestNotifications={handleRequestNotifications}
                 />
-
-                <SettingsHabitsSection
-                    cycle={cycle}
-                    language={language}
-                    readOnly={readOnly}
-                    habits={habits}
-                    setHabits={setHabits}
-                    habitLog={habitLog}
-                    setHabitLog={setHabitLog}
-                />
-
-                <SettingsArchiveSection
-                    language={language}
-                    history={history}
-                    dateFormat={dateFormat}
-                    readOnly={readOnly}
-                    setViewingArchiveId={setViewingArchiveId}
-                    setShowSettings={setShowSettings}
-                    setShowArchiveDeleteConfirm={setShowArchiveDeleteConfirm}
-                />
-
-                <SettingsDataSection
-                    language={language}
-                    readOnly={readOnly}
-                    setShowSettings={setShowSettings}
-                    setShowDemoConfirm={setShowDemoConfirm}
-                    setShowDeleteConfirm={setShowDeleteConfirm}
-                />
+                <div className="settings-section">
+                    <h3>{tr(language, "cycle.drawerTitle")}</h3>
+                    <p className="muted">{tr(language, "settings.cycleDrawerHint")}</p>
+                </div>
+                <div className="settings-section">
+                    <h3>{tr(language, "common.habits")}</h3>
+                    <p className="muted">{tr(language, "settings.habitsInAppHint")}</p>
+                </div>
             </div>
         </div>
     );

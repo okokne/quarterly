@@ -4,7 +4,6 @@ import {
     AppLanguage,
     Cycle,
     DateFormat,
-    FinalReview,
     Id,
     WeeklyReview,
     WeeklyTarget
@@ -40,7 +39,6 @@ type WeekTabProps = {
     onDeleteWeeklyTarget: (targetId: Id) => void;
     totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
     weeklyReview: WeeklyReview;
-    finalReview: FinalReview;
 };
 
 export function WeekTab({
@@ -66,8 +64,7 @@ export function WeekTab({
     onUpdateWeeklyTarget,
     onDeleteWeeklyTarget,
     totalWeeklyDone,
-    weeklyReview,
-    finalReview
+    weeklyReview
 }: WeekTabProps) {
     const {
         editingGoalId,
@@ -155,11 +152,9 @@ export function WeekTab({
                 />
 
                 <WeekReviewsSection
-                    cycle={cycle}
                     language={language}
                     selectedWeek={selectedWeek}
                     weeklyReview={weeklyReview}
-                    finalReview={finalReview}
                     updateCycle={updateCycle}
                 />
             </fieldset>

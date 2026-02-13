@@ -8,7 +8,6 @@ import {
     DailyReview,
     DailyTemplate,
     DateFormat,
-    FinalReview,
     Habit,
     Id,
     TimeFormat,
@@ -55,7 +54,6 @@ type AppDashboardContentProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    currentWeek: Cycle["weeks"][number];
     selectedWeekTargets: WeeklyTarget[];
     totalWeeklyTargets: WeeklyTarget[];
     dayBlocks: DailyBlock[];
@@ -68,7 +66,6 @@ type AppDashboardContentProps = {
     habitLog: Record<string, string[]>;
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
-    finalReview: FinalReview;
     showReminder: boolean;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onAddGoal: () => void;
@@ -90,7 +87,7 @@ type AppDashboardContentProps = {
     getActiveHabitsForDate: (date: string) => Array<{ id: Id; title: string; emoji: string }>;
     onToggleHabit: (date: string, habitId: Id) => void;
     onDeleteHabit: (habitId: Id) => void;
-    onOpenSettings: () => void;
+    onOpenHabitsManager: () => void;
 };
 
 export function AppDashboardContent({
@@ -114,7 +111,6 @@ export function AppDashboardContent({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    currentWeek,
     selectedWeekTargets,
     totalWeeklyTargets,
     dayBlocks,
@@ -127,7 +123,6 @@ export function AppDashboardContent({
     habitLog,
     dailyReview,
     weeklyReview,
-    finalReview,
     showReminder,
     updateCycle,
     onAddGoal,
@@ -149,7 +144,7 @@ export function AppDashboardContent({
     getActiveHabitsForDate,
     onToggleHabit,
     onDeleteHabit,
-    onOpenSettings
+    onOpenHabitsManager
 }: AppDashboardContentProps) {
     const onboardingDone = step >= 4;
 
@@ -202,7 +197,6 @@ export function AppDashboardContent({
                     setSelectedDate={setSelectedDate}
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
-                    currentWeek={currentWeek}
                     selectedWeekTargets={selectedWeekTargets}
                     blockDraft={blockDraft}
                     setBlockDraft={setBlockDraft}
@@ -218,12 +212,11 @@ export function AppDashboardContent({
                     onUpdateBlock={onUpdateBlock}
                     onDeleteBlock={onDeleteBlock}
                     getWeeklyRemaining={getWeeklyRemaining}
-                    totalWeeklyDone={totalWeeklyDone}
                     getActiveHabitsForDate={getActiveHabitsForDate}
                     habitLog={habitLog}
                     onToggleHabit={onToggleHabit}
                     onDeleteHabit={onDeleteHabit}
-                    onOpenSettings={onOpenSettings}
+                    onOpenHabitsManager={onOpenHabitsManager}
                     dailyReview={dailyReview}
                     updateCycle={updateCycle}
                 />
@@ -254,7 +247,6 @@ export function AppDashboardContent({
                     onDeleteWeeklyTarget={onDeleteWeeklyTarget}
                     totalWeeklyDone={totalWeeklyDone}
                     weeklyReview={weeklyReview}
-                    finalReview={finalReview}
                 />
             )}
 
@@ -270,6 +262,7 @@ export function AppDashboardContent({
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
                     setActiveTab={setActiveTab}
+                    onOpenHabitsManager={onOpenHabitsManager}
                 />
             )}
 

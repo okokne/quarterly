@@ -35,7 +35,6 @@ type TodayTabProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    currentWeek: Cycle["weeks"][number];
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
@@ -51,12 +50,11 @@ type TodayTabProps = {
     onUpdateBlock: (date: string, blockId: Id, changes: Partial<DailyBlock>) => void | Promise<void>;
     onDeleteBlock: (date: string, blockId: Id) => void | Promise<void>;
     getWeeklyRemaining: (weekIndex: number) => Array<WeeklyTarget & { remaining: number }>;
-    totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
     getActiveHabitsForDate: (date: string) => Array<{ id: Id; title: string; emoji: string }>;
     habitLog: Record<string, string[]>;
     onToggleHabit: (date: string, habitId: Id) => void;
     onDeleteHabit: (habitId: Id) => void;
-    onOpenSettings: () => void;
+    onOpenHabitsManager: () => void;
     dailyReview: DailyReview;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
 };
@@ -71,7 +69,6 @@ export function TodayTab({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    currentWeek,
     selectedWeekTargets,
     blockDraft,
     setBlockDraft,
@@ -87,12 +84,11 @@ export function TodayTab({
     onUpdateBlock,
     onDeleteBlock,
     getWeeklyRemaining,
-    totalWeeklyDone,
     getActiveHabitsForDate,
     habitLog,
     onToggleHabit,
     onDeleteHabit,
-    onOpenSettings,
+    onOpenHabitsManager,
     dailyReview,
     updateCycle
 }: TodayTabProps) {
@@ -108,11 +104,9 @@ export function TodayTab({
                 language={language}
                 dateFormat={dateFormat}
                 cycle={cycle}
-                selectedWeek={selectedWeek}
                 setSelectedWeek={setSelectedWeek}
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
-                currentWeek={currentWeek}
             />
 
             <fieldset className="readonly-fieldset" disabled={isArchiveView}>
@@ -142,7 +136,6 @@ export function TodayTab({
                     selectedWeek={selectedWeek}
                     selectedWeekTargets={selectedWeekTargets}
                     getWeeklyRemaining={getWeeklyRemaining}
-                    totalWeeklyDone={totalWeeklyDone}
                 />
 
                 <TodayHabitsSection
@@ -153,13 +146,14 @@ export function TodayTab({
                     getActiveHabitsForDate={getActiveHabitsForDate}
                     onToggleHabit={onToggleHabit}
                     onDeleteHabit={onDeleteHabit}
-                    onOpenSettings={onOpenSettings}
+                    onOpenHabitsManager={onOpenHabitsManager}
                 />
 
                 <TodayDailyReviewSection
                     language={language}
                     dateFormat={dateFormat}
                     selectedDate={selectedDate}
+                    dayBlocks={dayBlocks}
                     dailyReview={dailyReview}
                     updateCycle={updateCycle}
                 />

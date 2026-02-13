@@ -44,25 +44,25 @@ export function buildDemoCycle(): Cycle {
     const g3: Goal = { id: uid(), title: "Fokussierte Deep-Work-Routine etablieren.", metric: "5 Sessions/Woche" };
     cycle.goals = [g1, g2, g3];
 
-    const t1_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", done: 45 };
-    const t1_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 5 };
-    const t1_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", done: 6 };
-    const t1_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", done: 4 };
+    const t1_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", manualAdjust: 45 };
+    const t1_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", manualAdjust: 5 };
+    const t1_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", manualAdjust: 6 };
+    const t1_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", manualAdjust: 4 };
 
-    const t2_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", done: 38 };
-    const t2_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 4 };
-    const t2_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", done: 7 };
-    const t2_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", done: 3 };
-    const t2_book = { id: uid(), title: "Buch lesen", target: 50, unit: "Seiten", done: 30 };
+    const t2_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", manualAdjust: 38 };
+    const t2_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", manualAdjust: 4 };
+    const t2_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", manualAdjust: 7 };
+    const t2_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", manualAdjust: 3 };
+    const t2_book = { id: uid(), title: "Buch lesen", target: 50, unit: "Seiten", manualAdjust: 30 };
 
-    const t3_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 60, unit: "Calls", done: 25 };
-    const t3_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 2 };
-    const t3_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", done: 3 };
-    const t3_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", done: 2 };
+    const t3_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 60, unit: "Calls", manualAdjust: 25 };
+    const t3_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", manualAdjust: 2 };
+    const t3_med = { id: uid(), title: "Meditation", target: 7, unit: "Tage", manualAdjust: 3 };
+    const t3_focus = { id: uid(), title: "Deep Work Sessions", target: 5, unit: "Sessions", manualAdjust: 2 };
 
-    const t4_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", done: 12 };
-    const t4_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", done: 1 };
-    const t4_content = { id: uid(), title: "Content erstellen", target: 3, unit: "Posts", done: 1 };
+    const t4_calls = { id: uid(), title: "Kaltakquise‑Anrufe", target: 50, unit: "Calls", manualAdjust: 12 };
+    const t4_sport = { id: uid(), title: "Sport", target: 5, unit: "Sessions", manualAdjust: 1 };
+    const t4_content = { id: uid(), title: "Content erstellen", target: 3, unit: "Posts", manualAdjust: 1 };
 
     cycle.weeklyTargets = {
         1: [t1_calls, t1_sport, t1_med, t1_focus],

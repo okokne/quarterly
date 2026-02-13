@@ -3,7 +3,6 @@ import { SettingsModalProps } from "../components/SettingsModal";
 type SettingsModalBindingInput = {
     core: Pick<
         SettingsModalProps,
-        "cycle" |
         "activeCycle" |
         "readOnly" |
         "templates" |
@@ -32,10 +31,7 @@ type SettingsModalBindingInput = {
         "setTemplates" |
         "setHistory" |
         "setShowSettings" |
-        "setShowDemoConfirm" |
-        "setShowDeleteConfirm" |
-        "setViewingArchiveId" |
-        "setShowArchiveDeleteConfirm"
+        "setViewingArchiveId"
     >;
     actions: Pick<
         SettingsModalProps,

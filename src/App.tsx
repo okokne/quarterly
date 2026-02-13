@@ -7,6 +7,10 @@ import { AppHeader } from "./components/AppHeader";
 import { AppDashboardContent } from "./components/AppDashboardContent";
 import { AppEntryState } from "./components/AppEntryState";
 import { AppStateBanners } from "./components/AppStateBanners";
+import { SearchOverlay } from "./components/SearchOverlay";
+import { HeaderDetailsPanel } from "./components/HeaderDetailsPanel";
+import { HabitsManagerSheet } from "./components/HabitsManagerSheet";
+import { CycleDrawer } from "./components/CycleDrawer";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
 import { useHabitsStore } from "./hooks/useHabitsStore";
 import { useDailyBlocks } from "./hooks/useDailyBlocks";
@@ -82,6 +86,14 @@ export default function App() {
     setSelectedWeek,
     showSettings,
     setShowSettings,
+    showSearchOverlay,
+    setShowSearchOverlay,
+    showHeaderDetails,
+    setShowHeaderDetails,
+    showHabitsManager,
+    setShowHabitsManager,
+    showCycleDrawer,
+    setShowCycleDrawer,
     openSettings,
     goalDraft,
     setGoalDraft,
@@ -304,7 +316,6 @@ export default function App() {
     dashboardCycle,
     dailyReview,
     weeklyReview,
-    finalReview,
     onboardingGoalsComplete,
     onboardingDone
   } = useAppDashboardDerived({
@@ -349,7 +360,6 @@ export default function App() {
   const settingsModalProps = useAppSettingsModalProps({
     language,
     core: {
-      cycle,
       activeCycle,
       readOnly: isArchiveView,
       templates,
@@ -376,10 +386,7 @@ export default function App() {
       setTemplates,
       setHistory,
       setShowSettings,
-      setShowDemoConfirm,
-      setShowDeleteConfirm,
-      setViewingArchiveId,
-      setShowArchiveDeleteConfirm
+      setViewingArchiveId
     },
     actions: {
       dispatch
@@ -441,7 +448,7 @@ export default function App() {
       handleResetLegacy,
       showCycleEndPrompt,
       setShowCycleEndPrompt,
-      setShowSettings
+      onOpenCycleDrawer: () => setShowCycleDrawer(true)
     }
   });
   const dashboardContentProps = useAppDashboardContentProps({
@@ -465,7 +472,6 @@ export default function App() {
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    currentWeek,
     selectedWeekTargets,
     totalWeeklyTargets,
     dayBlocks,
@@ -478,7 +484,6 @@ export default function App() {
     habitLog,
     dailyReview,
     weeklyReview,
-    finalReview,
     showReminder,
     updateCycle,
     onAddGoal: handleAddGoal,
@@ -500,7 +505,7 @@ export default function App() {
     getActiveHabitsForDate,
     onToggleHabit: toggleHabit,
     onDeleteHabit: deleteHabit,
-    onOpenSettings: openSettings
+    onOpenHabitsManager: () => setShowHabitsManager(true)
   });
   const entryStateProps = useAppEntryStateProps({
     language,
@@ -561,20 +566,69 @@ export default function App() {
         startDate={cycle.startDate}
         selectedWeek={selectedWeek}
         currentWeek={currentWeek}
-        onboardingDone={onboardingDone}
-        weekCompletion={weekCompletion}
+        language={language}
+        dateFormat={dateFormat}
+        onOpenCycleDrawer={() => setShowCycleDrawer(true)}
+        onOpenSearch={() => setShowSearchOverlay(true)}
+        onOpenHeaderDetails={() => setShowHeaderDetails(true)}
+        onOpenSettings={openSettings}
+        syncStatus={syncEnabled ? syncStatus : undefined}
+      />
+
+      <SearchOverlay
+        open={showSearchOverlay}
         language={language}
         dateFormat={dateFormat}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         searchResults={searchResults}
-        onSearchResultSelect={onHeaderSearchResultSelect}
+        onClose={() => setShowSearchOverlay(false)}
+        onSelectResult={onHeaderSearchResultSelect}
+      />
+
+      <HeaderDetailsPanel
+        open={showHeaderDetails}
+        language={language}
+        onboardingDone={onboardingDone}
+        selectedWeek={selectedWeek}
+        weekCompletion={weekCompletion}
         canUndo={past.length > 0}
         canRedo={future.length > 0}
         onUndo={handleUndo}
         onRedo={handleRedo}
-        onOpenSettings={openSettings}
-        syncStatus={syncEnabled ? syncStatus : undefined}
+        onClose={() => setShowHeaderDetails(false)}
+      />
+
+      <HabitsManagerSheet
+        open={showHabitsManager}
+        language={language}
+        cycle={cycle}
+        readOnly={isArchiveView}
+        habits={habits}
+        setHabits={setHabits}
+        habitLog={habitLog}
+        setHabitLog={setHabitLog}
+        onClose={() => setShowHabitsManager(false)}
+      />
+
+      <CycleDrawer
+        open={showCycleDrawer}
+        language={language}
+        dateFormat={dateFormat}
+        cycle={cycle}
+        history={history}
+        readOnly={isArchiveView}
+        updateCycle={updateCycle}
+        onArchiveRestart={() => {
+          setShowCycleDrawer(false);
+          setShowDeleteConfirm(true);
+        }}
+        onViewArchivedCycle={(archiveId) => {
+          setShowCycleDrawer(false);
+          setViewingArchiveId(archiveId);
+        }}
+        onDeleteArchivedCycle={(archiveId) => setShowArchiveDeleteConfirm(archiveId)}
+        onClose={() => setShowCycleDrawer(false)}
       />
 
       <SettingsModalHost show={showSettings} props={settingsModalProps} />

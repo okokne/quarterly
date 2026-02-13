@@ -9,7 +9,7 @@ type TodayHabitsSectionProps = {
     getActiveHabitsForDate: (date: string) => Array<{ id: Id; title: string; emoji: string }>;
     onToggleHabit: (date: string, habitId: Id) => void;
     onDeleteHabit: (habitId: Id) => void;
-    onOpenSettings: () => void;
+    onOpenHabitsManager: () => void;
 };
 
 export function TodayHabitsSection({
@@ -20,18 +20,18 @@ export function TodayHabitsSection({
     getActiveHabitsForDate,
     onToggleHabit,
     onDeleteHabit,
-    onOpenSettings
+    onOpenHabitsManager
 }: TodayHabitsSectionProps) {
     return (
         <div className="subcard">
             <div className="section-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h3>{tr(language, "today.habits")}</h3>
                 <button
-                    onClick={onOpenSettings}
+                    onClick={onOpenHabitsManager}
                     className="text-btn"
                     style={{ fontSize: "0.8rem" }}
                 >
-                    {tr(language, "common.manage")} ⚙️
+                    {tr(language, "common.manage")}
                 </button>
             </div>
 
@@ -62,7 +62,7 @@ export function TodayHabitsSection({
 
                 <button
                     className="habit-chip add-habit-btn"
-                    onClick={onOpenSettings}
+                    onClick={onOpenHabitsManager}
                     title={tr(language, "today.newHabit")}
                 >
                     {tr(language, "today.new")}

@@ -5,7 +5,6 @@ import {
     DailyBlock,
     DailyReview,
     DailyTemplate,
-    FinalReview,
     Habit,
     Id,
     WeeklyReview,
@@ -49,7 +48,6 @@ type UseAppDashboardContentPropsParams = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    currentWeek: Cycle["weeks"][number];
     selectedWeekTargets: WeeklyTarget[];
     totalWeeklyTargets: WeeklyTarget[];
     dayBlocks: DailyBlock[];
@@ -62,7 +60,6 @@ type UseAppDashboardContentPropsParams = {
     habitLog: Record<string, string[]>;
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
-    finalReview: FinalReview;
     showReminder: boolean;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onAddGoal: () => void;
@@ -84,7 +81,7 @@ type UseAppDashboardContentPropsParams = {
     getActiveHabitsForDate: (date: string) => Array<{ id: Id; title: string; emoji: string }>;
     onToggleHabit: (date: string, habitId: Id) => void;
     onDeleteHabit: (habitId: Id) => void;
-    onOpenSettings: () => void;
+    onOpenHabitsManager: () => void;
 };
 
 export function useAppDashboardContentProps(params: UseAppDashboardContentPropsParams) {

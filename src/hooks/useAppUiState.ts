@@ -22,6 +22,10 @@ export function useAppUiState() {
     const [selectedDate, setSelectedDate] = useState(() => toIsoDate(new Date()));
     const [selectedWeek, setSelectedWeek] = useState(1);
     const [showSettings, setShowSettings] = useState(false);
+    const [showSearchOverlay, setShowSearchOverlay] = useState(false);
+    const [showHeaderDetails, setShowHeaderDetails] = useState(false);
+    const [showHabitsManager, setShowHabitsManager] = useState(false);
+    const [showCycleDrawer, setShowCycleDrawer] = useState(false);
     const openSettings = useCallback(() => {
         setShowSettings(true);
     }, []);
@@ -70,6 +74,14 @@ export function useAppUiState() {
         setSelectedWeek,
         showSettings,
         setShowSettings,
+        showSearchOverlay,
+        setShowSearchOverlay,
+        showHeaderDetails,
+        setShowHeaderDetails,
+        showHabitsManager,
+        setShowHabitsManager,
+        showCycleDrawer,
+        setShowCycleDrawer,
         openSettings,
         goalDraft,
         setGoalDraft,

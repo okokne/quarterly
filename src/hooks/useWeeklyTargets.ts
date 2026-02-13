@@ -26,7 +26,7 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
                     title: draft.title.trim(),
                     target: clamp(draft.target || 1, 1, 9999),
                     unit: draft.unit.trim() || undefined,
-                    done: 0
+                    manualAdjust: 0
                 }
             ];
             return { ...prev, weeklyTargets: { ...prev.weeklyTargets, [selectedWeek]: next } };
@@ -89,7 +89,7 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
             title: target.title,
             target: target.target,
             unit: target.unit,
-            done: 0,
+            manualAdjust: 0,
             notes: target.notes
         }));
 

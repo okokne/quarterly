@@ -28,7 +28,7 @@ export interface ConfirmModalsProps {
     // Cycle end prompt
     showCycleEndPrompt: boolean;
     setShowCycleEndPrompt: (val: boolean) => void;
-    setShowSettings: (val: boolean) => void;
+    onOpenCycleDrawer: () => void;
 }
 
 export function ConfirmModals({
@@ -52,7 +52,7 @@ export function ConfirmModals({
     handleDeleteFromHistory,
     showCycleEndPrompt,
     setShowCycleEndPrompt,
-    setShowSettings,
+    onOpenCycleDrawer,
 }: ConfirmModalsProps) {
     return (
         <>
@@ -168,7 +168,7 @@ export function ConfirmModals({
                                 className="primary"
                                 onClick={() => {
                                     setShowCycleEndPrompt(false);
-                                    setShowSettings(true);
+                                    onOpenCycleDrawer();
                                 }}
                             >
                                 {tr(language, "modals.archiveNow")}

@@ -1,4 +1,4 @@
-import { Cycle, DailyReview, FinalReview, WeeklyReview, emptyDailyReview, emptyFinalReview, emptyWeeklyReview } from "../types";
+import { Cycle, DailyReview, WeeklyReview, emptyDailyReview, emptyWeeklyReview } from "../types";
 import { buildCycle } from "../utils";
 
 type UseAppDashboardDerivedParams = {
@@ -15,7 +15,6 @@ type UseAppDashboardDerivedResult = {
     dashboardCycle: Cycle;
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
-    finalReview: FinalReview;
     onboardingGoalsComplete: boolean;
     onboardingDone: boolean;
 };
@@ -32,7 +31,6 @@ export function useAppDashboardDerived({
     const dashboardCycle = cycle ?? activeCycle ?? buildCycle(titleInput.trim(), startDateInput);
     const dailyReview = dashboardCycle.dailyReviews[selectedDate] ?? emptyDailyReview;
     const weeklyReview = dashboardCycle.weeklyReviews[selectedWeek] ?? emptyWeeklyReview;
-    const finalReview = dashboardCycle.finalReview ?? emptyFinalReview;
     const onboardingGoalsComplete = dashboardCycle.goals.length > 0;
     const onboardingDone = step >= 4;
 
@@ -40,7 +38,6 @@ export function useAppDashboardDerived({
         dashboardCycle,
         dailyReview,
         weeklyReview,
-        finalReview,
         onboardingGoalsComplete,
         onboardingDone
     };

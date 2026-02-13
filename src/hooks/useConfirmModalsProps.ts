@@ -32,7 +32,7 @@ type ConfirmModalsBindingInput = {
         "handleResetLegacy" |
         "showCycleEndPrompt" |
         "setShowCycleEndPrompt" |
-        "setShowSettings"
+        "onOpenCycleDrawer"
     >;
 };
 
