@@ -40,7 +40,6 @@ export function useAppUiState() {
         actual: 0
     });
 
-    const [showDemoConfirm, setShowDemoConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showArchiveDeleteConfirm, setShowArchiveDeleteConfirm] = useState<Id | null>(null);
     const [showLegacyPrompt, setShowLegacyPrompt] = useState(false);
@@ -85,8 +84,6 @@ export function useAppUiState() {
         setTargetDraft,
         blockDraft,
         setBlockDraft,
-        showDemoConfirm,
-        setShowDemoConfirm,
         showDeleteConfirm,
         setShowDeleteConfirm,
         showArchiveDeleteConfirm,

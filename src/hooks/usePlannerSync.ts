@@ -216,7 +216,7 @@ export function usePlannerSync({
             userId: userScope,
             dataSource: bootstrap.source,
             activeWorkspaceId: userScope,
-            demoMode: false,
+            guestScope: false,
             hasCycle: !!nextState.cycle
         });
 

@@ -3,10 +3,6 @@ import { t as tr } from "../i18n";
 
 export interface ConfirmModalsProps {
     language: AppLanguage;
-    // Demo confirm
-    showDemoConfirm: boolean;
-    setShowDemoConfirm: (val: boolean) => void;
-    handleLoadDemo: () => void;
     // Template modal
     showTemplateModal: boolean;
     setShowTemplateModal: (val: boolean) => void;
@@ -29,9 +25,6 @@ export interface ConfirmModalsProps {
 
 export function ConfirmModals({
     language,
-    showDemoConfirm,
-    setShowDemoConfirm,
-    handleLoadDemo,
     showTemplateModal,
     setShowTemplateModal,
     templateNameDraft,
@@ -49,27 +42,6 @@ export function ConfirmModals({
 }: ConfirmModalsProps) {
     return (
         <>
-            {showDemoConfirm && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <h3>{tr(language, "modals.demoTitle")}</h3>
-                        <p>{tr(language, "modals.demoBody")}</p>
-                        <div className="modal-actions">
-                            <button onClick={() => setShowDemoConfirm(false)}>{tr(language, "common.cancel")}</button>
-                            <button
-                                className="primary"
-                                onClick={() => {
-                                    setShowDemoConfirm(false);
-                                    handleLoadDemo();
-                                }}
-                            >
-                                {tr(language, "modals.demoConfirm")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {showTemplateModal && (
                 <div className="modal-backdrop">
                     <div className="modal">

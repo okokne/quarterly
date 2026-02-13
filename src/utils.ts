@@ -32,7 +32,7 @@ export {
 } from "./utils/reviewEntries";
 
 export { loadCycle, saveCycle } from "./utils/cycleStorage";
-export { buildCycle, buildDemoCycle } from "./utils/cycleFactory";
+export { buildCycle } from "./utils/cycleFactory";
 export { isHabitPlannedOnDate } from "./utils/habitPlanning";
 export { migrateCycle } from "./utils/cycleMigration";
 export { cycleReducer } from "./utils/cycleReducer";

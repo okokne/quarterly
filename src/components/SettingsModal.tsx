@@ -42,7 +42,6 @@ export interface SettingsModalProps {
     setTemplates: (val: DailyTemplate[]) => void;
     setHistory: (updater: (prev: Cycle[]) => Cycle[]) => void;
     setShowSettings: (val: boolean) => void;
-    setShowDemoConfirm: (val: boolean) => void;
     setViewingArchiveId: (id: Id | null) => void;
     // Dispatch
     dispatch: (action: { type: 'SET'; payload: Cycle | null }) => void;
@@ -92,7 +91,6 @@ export function SettingsModal({
     setTemplates,
     setHistory,
     setShowSettings,
-    setShowDemoConfirm,
     setViewingArchiveId,
     dispatch,
     handleRequestNotifications,
@@ -193,15 +191,6 @@ export function SettingsModal({
                 <div className="settings-section">
                     <h3>{tr(language, "cycle.drawerTitle")}</h3>
                     <p className="muted">{tr(language, "settings.cycleDrawerHint")}</p>
-                </div>
-                <div className="settings-section">
-                    <h3>{tr(language, "settings.loadDemo")}</h3>
-                    <div className="settings-row">
-                        <label>{tr(language, "settings.loadDemo")}</label>
-                        <button className="button" onClick={() => setShowDemoConfirm(true)}>
-                            {tr(language, "settings.loadDemo")}
-                        </button>
-                    </div>
                 </div>
                 <div className="settings-section">
                     <h3>{tr(language, "common.habits")}</h3>

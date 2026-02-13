@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback } from "react";
-import { buildCycle, buildDemoCycle } from "../utils";
+import { buildCycle } from "../utils";
 import { Cycle, CycleAction, Id, LEGACY_KEY } from "../types";
 import { GoogleCalendar } from "../googleCalendar";
 
@@ -11,9 +11,6 @@ type UseAppCycleActionsParams = {
     setHistory: Dispatch<SetStateAction<Cycle[]>>;
     dispatch: Dispatch<CycleAction>;
     setStep: Dispatch<SetStateAction<1 | 2 | 3 | 4>>;
-    setActiveTab: Dispatch<SetStateAction<"today" | "week" | "stats" | "journal">>;
-    setSelectedWeek: Dispatch<SetStateAction<number>>;
-    setSelectedDate: Dispatch<SetStateAction<string>>;
     setCalendarList: Dispatch<SetStateAction<GoogleCalendar[]>>;
     setShowLegacyPrompt: Dispatch<SetStateAction<boolean>>;
     setShowArchiveDeleteConfirm: Dispatch<SetStateAction<Id | null>>;
@@ -27,21 +24,10 @@ export function useAppCycleActions({
     setHistory,
     dispatch,
     setStep,
-    setActiveTab,
-    setSelectedWeek,
-    setSelectedDate,
     setCalendarList,
     setShowLegacyPrompt,
     setShowArchiveDeleteConfirm
 }: UseAppCycleActionsParams) {
-    const handleLoadDemo = useCallback(() => {
-        const demo = buildDemoCycle();
-        dispatch({ type: "SET", payload: demo });
-        setActiveTab("today");
-        setSelectedWeek(1);
-        setSelectedDate(demo.weeks[0].startDate);
-    }, [dispatch, setActiveTab, setSelectedDate, setSelectedWeek]);
-
     const handleCreateCycle = useCallback(() => {
         dispatch({ type: "SET", payload: buildCycle(titleInput, startDateInput) });
     }, [dispatch, startDateInput, titleInput]);
@@ -68,7 +54,6 @@ export function useAppCycleActions({
     }, [setHistory, setShowArchiveDeleteConfirm]);
 
     return {
-        handleLoadDemo,
         handleCreateCycle,
         handleArchiveCycle,
         handleResetLegacy,

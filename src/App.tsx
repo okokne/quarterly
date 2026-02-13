@@ -101,8 +101,6 @@ export default function App() {
     setTargetDraft,
     blockDraft,
     setBlockDraft,
-    showDemoConfirm,
-    setShowDemoConfirm,
     showDeleteConfirm,
     setShowDeleteConfirm,
     showArchiveDeleteConfirm,
@@ -177,7 +175,6 @@ export default function App() {
   });
 
   const {
-    handleLoadDemo,
     handleCreateCycle,
     handleArchiveCycle,
     handleResetLegacy,
@@ -190,9 +187,6 @@ export default function App() {
     setHistory,
     dispatch,
     setStep,
-    setActiveTab,
-    setSelectedWeek,
-    setSelectedDate,
     setCalendarList,
     setShowLegacyPrompt,
     setShowArchiveDeleteConfirm
@@ -400,7 +394,6 @@ export default function App() {
       setTemplates,
       setHistory,
       setShowSettings,
-      setShowDemoConfirm,
       setViewingArchiveId
     },
     actions: {
@@ -432,11 +425,6 @@ export default function App() {
   });
   const confirmModalsProps = useConfirmModalsProps({
     language,
-    demo: {
-      showDemoConfirm,
-      setShowDemoConfirm,
-      handleLoadDemo
-    },
     template: {
       showTemplateModal,
       setShowTemplateModal,

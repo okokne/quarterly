@@ -2,12 +2,6 @@ import { ConfirmModalsProps } from "../components/ConfirmModals";
 
 type ConfirmModalsBindingInput = {
     language: ConfirmModalsProps["language"];
-    demo: Pick<
-        ConfirmModalsProps,
-        "showDemoConfirm" |
-        "setShowDemoConfirm" |
-        "handleLoadDemo"
-    >;
     template: Pick<
         ConfirmModalsProps,
         "showTemplateModal" |
@@ -36,7 +30,6 @@ type ConfirmModalsBindingInput = {
 export function useConfirmModalsProps(input: ConfirmModalsBindingInput): ConfirmModalsProps {
     return {
         language: input.language,
-        ...input.demo,
         ...input.template,
         ...input.archive,
         ...input.prompts
