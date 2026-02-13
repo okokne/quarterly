@@ -8,10 +8,6 @@ type HeaderDetailsPanelProps = {
     onboardingDone: boolean;
     selectedWeek: number;
     weekCompletion: { done: number; total: number };
-    canUndo: boolean;
-    canRedo: boolean;
-    onUndo: () => void;
-    onRedo: () => void;
     onClose: () => void;
 };
 
@@ -21,10 +17,6 @@ export function HeaderDetailsPanel({
     onboardingDone,
     selectedWeek,
     weekCompletion,
-    canUndo,
-    canRedo,
-    onUndo,
-    onRedo,
     onClose
 }: HeaderDetailsPanelProps) {
     if (!open) return null;
@@ -46,15 +38,6 @@ export function HeaderDetailsPanel({
                         </div>
                     </div>
                 )}
-
-                <div className="button-row">
-                    <button onClick={onUndo} disabled={!canUndo}>
-                        {tr(language, "app.undo")}
-                    </button>
-                    <button onClick={onRedo} disabled={!canRedo}>
-                        {tr(language, "app.redo")}
-                    </button>
-                </div>
             </div>
         </div>
     );

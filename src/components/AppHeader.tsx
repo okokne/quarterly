@@ -1,6 +1,7 @@
 import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
 import { formatDate, formatRange } from "../utils";
+import { ProgressRing } from "./ProgressRing";
 
 type AppHeaderProps = {
     title?: string;
@@ -13,6 +14,7 @@ type AppHeaderProps = {
     onOpenSearch: () => void;
     onOpenHeaderDetails: () => void;
     onOpenSettings: () => void;
+    weekCompletion: { done: number; total: number };
     syncStatus?: SyncStatus;
 };
 
@@ -27,6 +29,7 @@ export function AppHeader({
     onOpenSearch,
     onOpenHeaderDetails,
     onOpenSettings,
+    weekCompletion,
     syncStatus
 }: AppHeaderProps) {
     return (
@@ -46,6 +49,15 @@ export function AppHeader({
                 </div>
             </div>
             <div className="header-actions">
+                {weekCompletion.total > 0 && (
+                    <div className="header-week-progress" title={tr(language, "today.weekProgress")}>
+                        <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={48} strokeWidth={6} />
+                        <div className="header-week-progress-meta">
+                            <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
+                            <span>{weekCompletion.done}/{weekCompletion.total}</span>
+                        </div>
+                    </div>
+                )}
                 <button
                     onClick={onOpenCycleDrawer}
                     title={tr(language, "app.openCycleDrawer")}

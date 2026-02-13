@@ -8,7 +8,8 @@ export {
     formatTime,
     parseIso,
     toIsoDate,
-    weekdayLabel
+    weekdayLabel,
+    weekdayLabelLong
 } from "./utils/date";
 
 export { clamp, getDatesInWeek, getWeekIndexForDate } from "./utils/cycleMath";

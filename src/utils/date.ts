@@ -59,3 +59,11 @@ export function weekdayLabel(dateStr: string, language: AppLanguage = "de"): str
         : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return labels[day];
 }
+
+export function weekdayLabelLong(dateStr: string, language: AppLanguage = "de"): string {
+    const day = parseIso(dateStr).getDay(); // 0=So
+    const labels = language === "de"
+        ? ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
+        : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return labels[day];
+}

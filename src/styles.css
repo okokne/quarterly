@@ -259,6 +259,35 @@ p {
   justify-content: flex-end;
 }
 
+.header-week-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.header-week-progress-meta {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  line-height: 1.2;
+}
+
+.header-week-progress-meta strong {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.header-week-progress-meta span {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
 .sync-status {
   display: inline-flex;
   align-items: center;
@@ -2885,22 +2914,6 @@ button.ghost-danger:hover {
   margin-left: auto;
 }
 
-.today-week-progress {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-}
-
-.today-week-progress-value {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
 .today-calendar-trigger {
   position: relative;
   display: inline-flex;
@@ -2921,11 +2934,14 @@ button.ghost-danger:hover {
   color: var(--accent);
 }
 
-.today-calendar-trigger input {
-  position: absolute;
-  inset: 0;
+.today-calendar-input {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
   opacity: 0;
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .today-week-strip {
@@ -3035,6 +3051,10 @@ button.ghost-danger:hover {
   }
 
   .header-actions .sync-status {
+    display: none;
+  }
+
+  .header-week-progress-meta {
     display: none;
   }
 

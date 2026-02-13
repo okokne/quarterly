@@ -53,7 +53,7 @@ export default function App() {
     ...initial,
     present: initial.present ? migrateCycle(initial.present) : null
   }));
-  const { present: activeCycle, past, future } = cycleState;
+  const { present: activeCycle } = cycleState;
   const {
     history,
     setHistory,
@@ -472,7 +472,6 @@ export default function App() {
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    weekCompletion,
     selectedWeekTargets,
     totalWeeklyTargets,
     dayBlocks,
@@ -573,6 +572,7 @@ export default function App() {
         onOpenSearch={() => setShowSearchOverlay(true)}
         onOpenHeaderDetails={() => setShowHeaderDetails(true)}
         onOpenSettings={openSettings}
+        weekCompletion={weekCompletion}
         syncStatus={syncEnabled ? syncStatus : undefined}
       />
 
@@ -593,10 +593,6 @@ export default function App() {
         onboardingDone={onboardingDone}
         selectedWeek={selectedWeek}
         weekCompletion={weekCompletion}
-        canUndo={past.length > 0}
-        canRedo={future.length > 0}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
         onClose={() => setShowHeaderDetails(false)}
       />
 

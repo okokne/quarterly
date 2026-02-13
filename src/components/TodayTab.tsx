@@ -17,7 +17,7 @@ import {
 } from "../types";
 import {
     formatDate,
-    weekdayLabel
+    weekdayLabelLong
 } from "../utils";
 import { TodayOpenTargetsSection } from "./today/TodayOpenTargetsSection";
 import { TodayHabitsSection } from "./today/TodayHabitsSection";
@@ -35,7 +35,6 @@ type TodayTabProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    weekCompletion: { done: number; total: number; percent: number };
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
@@ -70,7 +69,6 @@ export function TodayTab({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    weekCompletion,
     selectedWeekTargets,
     blockDraft,
     setBlockDraft,
@@ -102,7 +100,7 @@ export function TodayTab({
         <section className="card">
             <div className="section-title">
                 <h2>{tr(language, "today.title")}</h2>
-                <span className="muted">{weekdayLabel(selectedDate, language)} · {formatDate(selectedDate, dateFormat, language)}</span>
+                <span className="muted">{weekdayLabelLong(selectedDate, language)} · {formatDate(selectedDate, dateFormat, language)}</span>
             </div>
             {isArchiveView && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
@@ -113,7 +111,6 @@ export function TodayTab({
                 setSelectedWeek={setSelectedWeek}
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
-                weekCompletion={isDateWithinCycle ? weekCompletion : { done: 0, total: 0, percent: 0 }}
             />
 
             <fieldset className="readonly-fieldset" disabled={isArchiveView}>

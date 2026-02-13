@@ -48,7 +48,6 @@ type UseAppDashboardContentPropsParams = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    weekCompletion: { done: number; total: number; percent: number };
     selectedWeekTargets: WeeklyTarget[];
     totalWeeklyTargets: WeeklyTarget[];
     dayBlocks: DailyBlock[];

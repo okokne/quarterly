@@ -54,7 +54,6 @@ type AppDashboardContentProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    weekCompletion: { done: number; total: number; percent: number };
     selectedWeekTargets: WeeklyTarget[];
     totalWeeklyTargets: WeeklyTarget[];
     dayBlocks: DailyBlock[];
@@ -112,7 +111,6 @@ export function AppDashboardContent({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    weekCompletion,
     selectedWeekTargets,
     totalWeeklyTargets,
     dayBlocks,
@@ -199,7 +197,6 @@ export function AppDashboardContent({
                     setSelectedDate={setSelectedDate}
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
-                    weekCompletion={weekCompletion}
                     selectedWeekTargets={selectedWeekTargets}
                     blockDraft={blockDraft}
                     setBlockDraft={setBlockDraft}

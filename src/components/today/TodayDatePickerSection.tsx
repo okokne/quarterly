@@ -1,8 +1,7 @@
 import { Dispatch, SetStateAction, useMemo, useRef } from "react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat } from "../../types";
-import { addDays, formatDate, getWeekIndexForDate, parseIso, toIsoDate, weekdayLabel } from "../../utils";
-import { ProgressRing } from "../ProgressRing";
+import { addDays, formatDate, getWeekIndexForDate, parseIso, toIsoDate, weekdayLabel, weekdayLabelLong } from "../../utils";
 
 type TodayDatePickerSectionProps = {
     language: AppLanguage;
@@ -11,7 +10,6 @@ type TodayDatePickerSectionProps = {
     setSelectedWeek: Dispatch<SetStateAction<number>>;
     selectedDate: string;
     setSelectedDate: Dispatch<SetStateAction<string>>;
-    weekCompletion: { done: number; total: number; percent: number };
 };
 
 export function TodayDatePickerSection({
@@ -20,10 +18,10 @@ export function TodayDatePickerSection({
     cycle,
     setSelectedWeek,
     selectedDate,
-    setSelectedDate,
-    weekCompletion
+    setSelectedDate
 }: TodayDatePickerSectionProps) {
     const touchStartX = useRef<number | null>(null);
+    const dateInputRef = useRef<HTMLInputElement | null>(null);
 
     const weekDates = useMemo(() => {
         const date = parseIso(selectedDate);
@@ -44,34 +42,45 @@ export function TodayDatePickerSection({
         setSelectedWeek(getWeekIndexForDate(cycle, date));
     };
 
+    const openDatePicker = () => {
+        if (!dateInputRef.current) return;
+        const picker = dateInputRef.current as HTMLInputElement & { showPicker?: () => void };
+        if (typeof picker.showPicker === "function") {
+            picker.showPicker();
+            return;
+        }
+        picker.click();
+    };
+
     return (
         <>
             <div className="today-nav-header">
                 <div className="today-date-selected">
-                    <strong>{weekdayLabel(selectedDate, language)}</strong>
+                    <strong>{weekdayLabelLong(selectedDate, language)}</strong>
                     <span className="muted">{formatDate(selectedDate, dateFormat, language)}</span>
                 </div>
                 <div className="today-nav-actions">
-                    <div className="today-week-progress" title={tr(language, "today.weekProgress")}>
-                        <ProgressRing
-                            value={weekCompletion.done}
-                            max={weekCompletion.total || 1}
-                            size={42}
-                            strokeWidth={6}
-                        />
-                        <span className="today-week-progress-value">{weekCompletion.percent}%</span>
-                    </div>
                     <button className="button" type="button" onClick={() => selectDate(todayIso)}>
                         {tr(language, "common.today")}
                     </button>
-                    <label className="today-calendar-trigger" title={tr(language, "today.pickDate")}>
+                    <button
+                        className="today-calendar-trigger"
+                        title={tr(language, "today.pickDate")}
+                        aria-label={tr(language, "today.pickDate")}
+                        type="button"
+                        onClick={openDatePicker}
+                    >
                         🗓
-                        <input
-                            type="date"
-                            value={selectedDate}
-                            onChange={(event) => selectDate(event.target.value)}
-                        />
-                    </label>
+                    </button>
+                    <input
+                        ref={dateInputRef}
+                        className="today-calendar-input"
+                        type="date"
+                        value={selectedDate}
+                        onChange={(event) => selectDate(event.target.value)}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                    />
                 </div>
             </div>
 
@@ -103,13 +112,12 @@ export function TodayDatePickerSection({
                             type="button"
                             className={`today-weekday-chip ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
                             onClick={() => selectDate(date)}
-                            aria-label={`${weekdayLabel(date, language)} ${formatDate(date, dateFormat, language)}`}
+                            aria-label={`${weekdayLabelLong(date, language)} ${formatDate(date, dateFormat, language)}`}
                         >
                             <span className="today-weekday-label">{weekdayLabel(date, language)}</span>
                             <span className="today-weekday-date">{parseIso(date).getDate()}</span>
                             <span className="today-weekday-indicators">
-                                {hasEntries && <span className="day-has-entry-dot" />}
-                                {isToday && <span className="day-today-dot" />}
+                                {isToday ? <span className="day-today-dot" /> : hasEntries ? <span className="day-has-entry-dot" /> : null}
                             </span>
                         </button>
                     );
