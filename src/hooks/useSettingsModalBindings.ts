@@ -5,8 +5,6 @@ type SettingsModalBindingInput = {
         SettingsModalProps,
         "activeCycle" |
         "readOnly" |
-        "templates" |
-        "history" |
         "darkMode" |
         "language" |
         "dateFormat" |
@@ -28,26 +26,12 @@ type SettingsModalBindingInput = {
         "setGoogleConnected" |
         "setCalendarList" |
         "setSelectedCalendarId" |
-        "setTemplates" |
-        "setHistory" |
         "setShowSettings" |
         "setViewingArchiveId"
     >;
     actions: Pick<
         SettingsModalProps,
-        "dispatch" |
         "handleRequestNotifications"
-    >;
-    habits: Pick<
-        SettingsModalProps,
-        "habits" |
-        "setHabits" |
-        "habitLog" |
-        "setHabitLog"
-    >;
-    persistence: Pick<
-        SettingsModalProps,
-        "snapshotMetas"
     >;
     sync: Pick<
         SettingsModalProps,
@@ -59,10 +43,13 @@ type SettingsModalBindingInput = {
         "authMessage" |
         "cloudEmail" |
         "syncError" |
-        "pendingConflict" |
+        "isOnline" |
+        "pendingLocalChangesCount" |
+        "lastSyncedAt" |
+        "onDownloadMyData" |
         "onSignOut" |
-        "onSyncNow" |
-        "onResolveSyncConflict"
+        "onDeleteAccount" |
+        "onSyncNow"
     >;
 };
 
@@ -72,8 +59,6 @@ export function useSettingsModalBindings(input: SettingsModalBindingInput): Sett
         ...input.google,
         ...input.setters,
         ...input.actions,
-        ...input.habits,
-        ...input.persistence,
         ...input.sync
     };
 }

@@ -10,11 +10,13 @@ import { readPersistedPlannerStateFromLocalStorage, safeSerialize } from "../per
 import { bootstrapAfterLogin } from "../sync/bootstrap";
 import { clearOfflineDirty, hasOfflineDirtyChanges, markOfflineDirty } from "../sync/offlineOutbox";
 import {
+    deleteCloudPlannerState,
     PlannerStateRecord,
     pushPlannerStateToCloud,
     resolveInitialSyncAction
 } from "../sync/plannerSync";
 import {
+    deleteSupabaseUser,
     getMagicLinkRedirectTarget,
     hasSupabaseConfig,
     SupabaseAuthSession
@@ -436,6 +438,42 @@ export function usePlannerSync({
         cloudVersionRef
     });
 
+    const deleteAccount = useCallback(async (): Promise<boolean> => {
+        if (!syncEnabled || !session) {
+            setAuthError(syncDisabledError);
+            return false;
+        }
+
+        clearAuthFeedback();
+        setAuthLoading(true);
+
+        const cloudDelete = await deleteCloudPlannerState(session);
+        if (cloudDelete.error) {
+            setAuthLoading(false);
+            setAuthError(cloudDelete.error);
+            return false;
+        }
+
+        const authDelete = await deleteSupabaseUser(session);
+        if (authDelete.error) {
+            setAuthLoading(false);
+            setAuthError(authDelete.error);
+            return false;
+        }
+
+        setAuthLoading(false);
+        await signOut();
+        return true;
+    }, [
+        clearAuthFeedback,
+        session,
+        setAuthError,
+        setAuthLoading,
+        signOut,
+        syncDisabledError,
+        syncEnabled
+    ]);
+
     const resolveSyncConflict = usePlannerSyncConflictResolution({
         session,
         state,
@@ -483,6 +521,7 @@ export function usePlannerSync({
         verifyOneTimeCode,
         requestMagicLink,
         signOut,
+        deleteAccount,
         resolveSyncConflict
     };
 }

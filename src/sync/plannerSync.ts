@@ -139,6 +139,26 @@ export async function fetchCloudPlannerState(
     return { record: row ? normalizeRow(row) : null, error: null };
 }
 
+export async function deleteCloudPlannerState(
+    session: SupabaseAuthSession
+): Promise<{ ok: boolean; error: string | null }> {
+    const userId = encodeURIComponent(session.user.id);
+    const result = await supabaseRestRequest<PlannerStateRow[]>(
+        `/rest/v1/planner_state?user_id=eq.${userId}`,
+        {
+            method: "DELETE",
+            headers: {
+                Prefer: "return=representation"
+            }
+        },
+        session
+    );
+    return {
+        ok: !result.error,
+        error: result.error
+    };
+}
+
 export async function pushPlannerStateToCloud(input: {
     session: SupabaseAuthSession;
     state: PersistedPlannerState;

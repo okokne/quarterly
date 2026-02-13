@@ -1,12 +1,8 @@
 import {
     AppLanguage,
     Cycle,
-    DailyTemplate,
     DateFormat,
-    Habit,
     Id,
-    LocalSnapshotMeta,
-    SyncConflictResolution,
     SyncStatus,
     TimeFormat
 } from "../types";
@@ -15,14 +11,12 @@ import { GoogleCalendar } from "../googleCalendar";
 import { SettingsAppearanceSection } from "./settings/SettingsAppearanceSection";
 import { SettingsFormatSection } from "./settings/SettingsFormatSection";
 import { SettingsSyncSection } from "./settings/SettingsSyncSection";
-import { SettingsImportExportSection } from "./settings/SettingsImportExportSection";
+import { SettingsGoogleCalendarSection } from "./settings/SettingsGoogleCalendarSection";
 import { SettingsNotificationsSection } from "./settings/SettingsNotificationsSection";
 
 export interface SettingsModalProps {
     activeCycle: Cycle | null;
     readOnly: boolean;
-    templates: DailyTemplate[];
-    history: Cycle[];
     darkMode: boolean;
     language: AppLanguage;
     dateFormat: DateFormat;
@@ -39,21 +33,10 @@ export interface SettingsModalProps {
     setGoogleConnected: (val: boolean) => void;
     setCalendarList: (val: GoogleCalendar[]) => void;
     setSelectedCalendarId: (val: string) => void;
-    setTemplates: (val: DailyTemplate[]) => void;
-    setHistory: (updater: (prev: Cycle[]) => Cycle[]) => void;
     setShowSettings: (val: boolean) => void;
     setViewingArchiveId: (id: Id | null) => void;
-    // Dispatch
-    dispatch: (action: { type: 'SET'; payload: Cycle | null }) => void;
     // Handlers
     handleRequestNotifications: () => void;
-
-    // Global Habits
-    habits: Habit[];
-    setHabits: (habits: Habit[]) => void;
-    habitLog: Record<string, string[]>;
-    setHabitLog: (log: Record<string, string[]>) => void;
-    snapshotMetas: LocalSnapshotMeta[];
     syncEnabled: boolean;
     syncStatus: SyncStatus;
     isAuthenticated: boolean;
@@ -62,17 +45,18 @@ export interface SettingsModalProps {
     authMessage: string | null;
     cloudEmail: string | null;
     syncError: string | null;
-    pendingConflict: boolean;
+    isOnline: boolean;
+    pendingLocalChangesCount: number;
+    lastSyncedAt: string | null;
+    onDownloadMyData: () => void;
     onSignOut: () => Promise<void>;
+    onDeleteAccount: () => Promise<boolean>;
     onSyncNow: () => Promise<boolean>;
-    onResolveSyncConflict: (resolution: SyncConflictResolution) => Promise<boolean>;
 }
 
 export function SettingsModal({
     activeCycle,
     readOnly,
-    templates,
-    history,
     darkMode,
     language,
     dateFormat,
@@ -88,17 +72,9 @@ export function SettingsModal({
     setGoogleConnected,
     setCalendarList,
     setSelectedCalendarId,
-    setTemplates,
-    setHistory,
     setShowSettings,
     setViewingArchiveId,
-    dispatch,
     handleRequestNotifications,
-    habits,
-    setHabits,
-    habitLog,
-    setHabitLog,
-    snapshotMetas,
     syncEnabled,
     syncStatus,
     isAuthenticated,
@@ -107,10 +83,13 @@ export function SettingsModal({
     authMessage,
     cloudEmail,
     syncError,
-    pendingConflict,
+    isOnline,
+    pendingLocalChangesCount,
+    lastSyncedAt,
+    onDownloadMyData,
     onSignOut,
-    onSyncNow,
-    onResolveSyncConflict
+    onDeleteAccount,
+    onSyncNow
 }: SettingsModalProps) {
     return (
         <div className="settings-overlay" onClick={() => setShowSettings(false)}>
@@ -135,37 +114,20 @@ export function SettingsModal({
                     setTimeFormat={setTimeFormat}
                 />
 
-                <SettingsImportExportSection
-                    activeCycle={activeCycle}
-                    templates={templates}
-                    history={history}
-                    habits={habits}
-                    habitLog={habitLog}
-                    darkMode={darkMode}
-                    language={language}
-                    dateFormat={dateFormat}
-                    timeFormat={timeFormat}
-                    selectedCalendarId={selectedCalendarId}
-                    readOnly={readOnly}
-                    googleLoading={googleLoading}
-                    googleConnected={googleConnected}
-                    calendarList={calendarList}
-                    snapshotMetas={snapshotMetas}
-                    setGoogleConnected={setGoogleConnected}
-                    setCalendarList={setCalendarList}
-                    setSelectedCalendarId={setSelectedCalendarId}
-                    setTemplates={setTemplates}
-                    setHistory={setHistory}
-                    setHabits={setHabits}
-                    setHabitLog={setHabitLog}
-                    setDarkMode={setDarkMode}
-                    setLanguage={setLanguage}
-                    setDateFormat={setDateFormat}
-                    setTimeFormat={setTimeFormat}
-                    setViewingArchiveId={setViewingArchiveId}
-                    setShowSettings={setShowSettings}
-                    dispatch={dispatch}
-                />
+                <div className="settings-section">
+                    <h3>{tr(language, "settings.integrationsTitle")}</h3>
+                    <SettingsGoogleCalendarSection
+                        language={language}
+                        readOnly={readOnly}
+                        googleLoading={googleLoading}
+                        googleConnected={googleConnected}
+                        calendarList={calendarList}
+                        selectedCalendarId={selectedCalendarId}
+                        setGoogleConnected={setGoogleConnected}
+                        setCalendarList={setCalendarList}
+                        setSelectedCalendarId={setSelectedCalendarId}
+                    />
+                </div>
 
                 <SettingsSyncSection
                     language={language}
@@ -174,13 +136,16 @@ export function SettingsModal({
                     isAuthenticated={isAuthenticated}
                     authLoading={authLoading}
                     cloudEmail={cloudEmail}
-                    pendingConflict={pendingConflict}
                     authError={authError}
                     syncError={syncError}
                     authMessage={authMessage}
+                    isOnline={isOnline}
+                    pendingLocalChangesCount={pendingLocalChangesCount}
+                    lastSyncedAt={lastSyncedAt}
+                    onDownloadMyData={onDownloadMyData}
                     onSignOut={onSignOut}
+                    onDeleteAccount={onDeleteAccount}
                     onSyncNow={onSyncNow}
-                    onResolveSyncConflict={onResolveSyncConflict}
                 />
 
                 <SettingsNotificationsSection

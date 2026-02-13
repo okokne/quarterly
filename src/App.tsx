@@ -249,6 +249,7 @@ export default function App() {
   });
 
   const {
+    persistedPlannerState,
     syncEnabled,
     syncStatus,
     bootstrapStatus,
@@ -267,8 +268,8 @@ export default function App() {
     signIn,
     requestMagicLink,
     signOut,
+    deleteAccount,
     requestSyncNow,
-    resolveSyncConflict,
     snapshotMetas,
     recoveryCandidate,
     persistenceWarning,
@@ -302,6 +303,17 @@ export default function App() {
     onStorageScopeChange: handleStorageScopeChange,
     hasCycle: Boolean(cycle)
   });
+
+  const handleDownloadMyData = useCallback(() => {
+    const data = JSON.stringify(persistedPlannerState, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `quarterly-data-${toIsoDate(new Date())}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }, [persistedPlannerState]);
   const {
     dashboardCycle,
     dailyReview,
@@ -370,8 +382,6 @@ export default function App() {
     core: {
       activeCycle,
       readOnly: isArchiveView,
-      templates,
-      history,
       darkMode,
       language,
       dateFormat,
@@ -391,23 +401,10 @@ export default function App() {
       setGoogleConnected,
       setCalendarList,
       setSelectedCalendarId,
-      setTemplates,
-      setHistory,
       setShowSettings,
       setViewingArchiveId
     },
-    actions: {
-      dispatch
-    },
-    habits: {
-      habits,
-      setHabits,
-      habitLog,
-      setHabitLog
-    },
-    persistence: {
-      snapshotMetas
-    },
+    actions: {},
       sync: {
         syncEnabled,
         syncStatus,
@@ -417,10 +414,13 @@ export default function App() {
         authMessage,
         cloudEmail,
         syncError,
-        pendingConflict,
+        isOnline,
+        pendingLocalChangesCount,
+        lastSyncedAt,
+        onDownloadMyData: handleDownloadMyData,
         onSignOut: signOut,
-        onSyncNow: requestSyncNow,
-        onResolveSyncConflict: resolveSyncConflict
+        onDeleteAccount: deleteAccount,
+        onSyncNow: requestSyncNow
       }
   });
   const confirmModalsProps = useConfirmModalsProps({

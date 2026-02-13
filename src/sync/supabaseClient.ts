@@ -664,6 +664,34 @@ export async function signOutSupabase(
     };
 }
 
+export async function deleteSupabaseUser(
+    session: SupabaseAuthSession
+): Promise<{ ok: boolean; error: string | null }> {
+    const result = await supabaseFetchJson<Record<string, unknown>>("/auth/v1/user", {
+        method: "DELETE"
+    }, session.access_token);
+    if (!result.error) {
+        return { ok: true, error: null };
+    }
+
+    const normalized = result.error.toLowerCase();
+    if (
+        normalized.includes("not found")
+        || normalized.includes("method not allowed")
+        || normalized.includes("not supported")
+    ) {
+        return {
+            ok: false,
+            error: "Account-Loeschen ist fuer diesen Supabase-Auth-Provider nicht direkt verfuegbar."
+        };
+    }
+
+    return {
+        ok: false,
+        error: result.error
+    };
+}
+
 export async function supabaseRestRequest<T>(
     path: string,
     init: RequestInit,

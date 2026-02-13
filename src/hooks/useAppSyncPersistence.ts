@@ -145,6 +145,7 @@ export function useAppSyncPersistence({
         verifyOneTimeCode,
         requestMagicLink,
         signOut,
+        deleteAccount,
         requestSyncNow,
         resolveSyncConflict
     } = usePlannerSync({
@@ -204,6 +205,7 @@ export function useAppSyncPersistence({
         verifyOneTimeCode,
         requestMagicLink,
         signOut,
+        deleteAccount,
         requestSyncNow,
         resolveSyncConflict,
         snapshotMetas,
