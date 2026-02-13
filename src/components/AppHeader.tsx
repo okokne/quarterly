@@ -12,7 +12,6 @@ type AppHeaderProps = {
     dateFormat: DateFormat;
     onOpenCycleDrawer: () => void;
     onOpenSearch: () => void;
-    onOpenHeaderDetails: () => void;
     onOpenSettings: () => void;
     weekCompletion: { done: number; total: number };
     syncStatus?: SyncStatus;
@@ -27,7 +26,6 @@ export function AppHeader({
     dateFormat,
     onOpenCycleDrawer,
     onOpenSearch,
-    onOpenHeaderDetails,
     onOpenSettings,
     weekCompletion,
     syncStatus
@@ -48,53 +46,47 @@ export function AppHeader({
                     })}</p>
                 </div>
             </div>
-            <div className="header-actions">
+            <div className="header-side">
                 {weekCompletion.total > 0 && (
                     <div className="header-week-progress" title={tr(language, "today.weekProgress")}>
-                        <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={48} strokeWidth={6} />
+                        <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={92} strokeWidth={8} />
                         <div className="header-week-progress-meta">
                             <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
-                            <span>{weekCompletion.done}/{weekCompletion.total}</span>
                         </div>
                     </div>
                 )}
-                <button
-                    onClick={onOpenCycleDrawer}
-                    title={tr(language, "app.openCycleDrawer")}
-                    className="icon-btn header-cycle-btn"
-                >
-                    🗂 <span>{tr(language, "app.cycleLabel")}</span>
-                </button>
-                <button
-                    onClick={onOpenSearch}
-                    title={tr(language, "app.searchTitle")}
-                    className="icon-btn"
-                >
-                    🔍
-                </button>
-                <button
-                    onClick={onOpenHeaderDetails}
-                    title={tr(language, "app.detailsTitle")}
-                    className="icon-btn"
-                >
-                    …
-                </button>
-                {syncStatus && (
-                    <span className={`sync-status ${syncStatus}`}>
-                        {syncStatus === "syncing" && tr(language, "app.syncSyncing")}
-                        {syncStatus === "synced" && tr(language, "app.syncSynced")}
-                        {syncStatus === "error" && tr(language, "app.syncError")}
-                        {syncStatus === "offline" && tr(language, "app.syncOffline")}
-                        {syncStatus === "idle" && tr(language, "app.syncLocal")}
-                    </span>
-                )}
-                <button
-                    onClick={onOpenSettings}
-                    title={tr(language, "common.settings")}
-                    className="icon-btn"
-                >
-                    ⚙️
-                </button>
+                <div className="header-actions">
+                    <button
+                        onClick={onOpenCycleDrawer}
+                        title={tr(language, "app.openCycleDrawer")}
+                        className="icon-btn header-cycle-btn"
+                    >
+                        🗂 <span>{tr(language, "app.cycleLabel")}</span>
+                    </button>
+                    <button
+                        onClick={onOpenSearch}
+                        title={tr(language, "app.searchTitle")}
+                        className="icon-btn"
+                    >
+                        🔍
+                    </button>
+                    {syncStatus && (
+                        <span className={`sync-status ${syncStatus}`}>
+                            {syncStatus === "syncing" && tr(language, "app.syncSyncing")}
+                            {syncStatus === "synced" && tr(language, "app.syncSynced")}
+                            {syncStatus === "error" && tr(language, "app.syncError")}
+                            {syncStatus === "offline" && tr(language, "app.syncOffline")}
+                            {syncStatus === "idle" && tr(language, "app.syncLocal")}
+                        </span>
+                    )}
+                    <button
+                        onClick={onOpenSettings}
+                        title={tr(language, "common.settings")}
+                        className="icon-btn"
+                    >
+                        ⚙️
+                    </button>
+                </div>
             </div>
         </header>
     );

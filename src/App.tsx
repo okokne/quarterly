@@ -8,7 +8,6 @@ import { AppDashboardContent } from "./components/AppDashboardContent";
 import { AppEntryState } from "./components/AppEntryState";
 import { AppStateBanners } from "./components/AppStateBanners";
 import { SearchOverlay } from "./components/SearchOverlay";
-import { HeaderDetailsPanel } from "./components/HeaderDetailsPanel";
 import { HabitsManagerSheet } from "./components/HabitsManagerSheet";
 import { CycleDrawer } from "./components/CycleDrawer";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
@@ -88,8 +87,6 @@ export default function App() {
     setShowSettings,
     showSearchOverlay,
     setShowSearchOverlay,
-    showHeaderDetails,
-    setShowHeaderDetails,
     showHabitsManager,
     setShowHabitsManager,
     showCycleDrawer,
@@ -316,8 +313,7 @@ export default function App() {
     dashboardCycle,
     dailyReview,
     weeklyReview,
-    onboardingGoalsComplete,
-    onboardingDone
+    onboardingGoalsComplete
   } = useAppDashboardDerived({
     cycle,
     activeCycle,
@@ -570,7 +566,6 @@ export default function App() {
         dateFormat={dateFormat}
         onOpenCycleDrawer={() => setShowCycleDrawer(true)}
         onOpenSearch={() => setShowSearchOverlay(true)}
-        onOpenHeaderDetails={() => setShowHeaderDetails(true)}
         onOpenSettings={openSettings}
         weekCompletion={weekCompletion}
         syncStatus={syncEnabled ? syncStatus : undefined}
@@ -585,15 +580,6 @@ export default function App() {
         searchResults={searchResults}
         onClose={() => setShowSearchOverlay(false)}
         onSelectResult={onHeaderSearchResultSelect}
-      />
-
-      <HeaderDetailsPanel
-        open={showHeaderDetails}
-        language={language}
-        onboardingDone={onboardingDone}
-        selectedWeek={selectedWeek}
-        weekCompletion={weekCompletion}
-        onClose={() => setShowHeaderDetails(false)}
       />
 
       <HabitsManagerSheet

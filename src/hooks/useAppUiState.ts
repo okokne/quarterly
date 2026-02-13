@@ -23,7 +23,6 @@ export function useAppUiState() {
     const [selectedWeek, setSelectedWeek] = useState(1);
     const [showSettings, setShowSettings] = useState(false);
     const [showSearchOverlay, setShowSearchOverlay] = useState(false);
-    const [showHeaderDetails, setShowHeaderDetails] = useState(false);
     const [showHabitsManager, setShowHabitsManager] = useState(false);
     const [showCycleDrawer, setShowCycleDrawer] = useState(false);
     const openSettings = useCallback(() => {
@@ -76,8 +75,6 @@ export function useAppUiState() {
         setShowSettings,
         showSearchOverlay,
         setShowSearchOverlay,
-        showHeaderDetails,
-        setShowHeaderDetails,
         showHabitsManager,
         setShowHabitsManager,
         showCycleDrawer,

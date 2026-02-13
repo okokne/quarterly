@@ -257,35 +257,39 @@ p {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
+  margin-top: auto;
+}
+
+.header-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 124px;
 }
 
 .header-week-progress {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
+  gap: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .header-week-progress-meta {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .header-week-progress-meta strong {
-  font-size: 0.72rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
-}
-
-.header-week-progress-meta span {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
 }
 
 .sync-status {
@@ -330,6 +334,7 @@ p {
   align-items: flex-start;
   gap: 24px;
   flex: 1;
+  min-width: 320px;
 }
 
 /* ─── Progress Bar ─── */
@@ -3042,19 +3047,24 @@ button.ghost-danger:hover {
 
   .header-main {
     width: 100%;
+    min-width: 0;
+  }
+
+  .header-side {
+    width: 100%;
+    min-height: 0;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .header-actions {
     width: 100%;
     gap: 8px;
     justify-content: flex-start;
+    margin-top: 0;
   }
 
   .header-actions .sync-status {
-    display: none;
-  }
-
-  .header-week-progress-meta {
     display: none;
   }
 

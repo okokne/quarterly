@@ -33,10 +33,6 @@ export function TodayDatePickerSection({
     }, [selectedDate]);
 
     const todayIso = toIsoDate(new Date());
-    const datesWithReviewEntries = useMemo(() => {
-        return new Set((cycle.reviewEntries ?? []).map((entry) => entry.date));
-    }, [cycle.reviewEntries]);
-
     const selectDate = (date: string) => {
         setSelectedDate(date);
         setSelectedWeek(getWeekIndexForDate(cycle, date));
@@ -101,10 +97,6 @@ export function TodayDatePickerSection({
                 {weekDates.map((date) => {
                     const isSelected = date === selectedDate;
                     const isToday = date === todayIso;
-                    const hasEntries = (cycle.dailyPlans[date]?.length ?? 0) > 0
-                        || Boolean(cycle.dailyReviews[date])
-                        || (cycle.habitLog[date]?.length ?? 0) > 0
-                        || datesWithReviewEntries.has(date);
 
                     return (
                         <button
@@ -117,7 +109,7 @@ export function TodayDatePickerSection({
                             <span className="today-weekday-label">{weekdayLabel(date, language)}</span>
                             <span className="today-weekday-date">{parseIso(date).getDate()}</span>
                             <span className="today-weekday-indicators">
-                                {isToday ? <span className="day-today-dot" /> : hasEntries ? <span className="day-has-entry-dot" /> : null}
+                                {isToday ? <span className="day-today-dot" /> : null}
                             </span>
                         </button>
                     );

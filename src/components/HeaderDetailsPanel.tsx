@@ -34,7 +34,6 @@ export function HeaderDetailsPanel({
                         <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={92} strokeWidth={8} />
                         <div>
                             <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
-                            <p className="muted">{weekCompletion.done}/{weekCompletion.total}</p>
                         </div>
                     </div>
                 )}
