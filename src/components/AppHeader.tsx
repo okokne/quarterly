@@ -47,6 +47,13 @@ export function AppHeader({
             </div>
             <div className="header-actions">
                 <button
+                    onClick={onOpenCycleDrawer}
+                    title={tr(language, "app.openCycleDrawer")}
+                    className="icon-btn header-cycle-btn"
+                >
+                    🗂 <span>{tr(language, "app.cycleLabel")}</span>
+                </button>
+                <button
                     onClick={onOpenSearch}
                     title={tr(language, "app.searchTitle")}
                     className="icon-btn"

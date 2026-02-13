@@ -47,6 +47,8 @@ export const translations: TranslationDictionary = {
     "common.to": "bis",
 
     "app.searchPlaceholder": "🔍 Suchen...",
+    "app.cycleLabel": "Zyklus",
+    "app.openCycleDrawer": "Cycle Management öffnen",
     "app.searchTitle": "Suche",
     "app.searchHint": "Suche nach Zielen, Targets oder Tagesblöcken.",
     "app.searchNoResults": "Keine Treffer gefunden.",
@@ -394,6 +396,8 @@ export const translations: TranslationDictionary = {
     "common.to": "to",
 
     "app.searchPlaceholder": "🔍 Search...",
+    "app.cycleLabel": "Cycle",
+    "app.openCycleDrawer": "Open cycle management",
     "app.searchTitle": "Search",
     "app.searchHint": "Search goals, targets, or daily blocks.",
     "app.searchNoResults": "No results found.",

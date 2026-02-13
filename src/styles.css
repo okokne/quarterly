@@ -1657,6 +1657,20 @@ button.ghost-danger:hover {
   line-height: 1;
 }
 
+.header-cycle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+
+.header-cycle-btn span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
 .import-btn {
   display: inline-flex;
   align-items: center;
@@ -2894,6 +2908,10 @@ button.ghost-danger:hover {
   }
 
   .header-actions .sync-status {
+    display: none;
+  }
+
+  .header-cycle-btn span {
     display: none;
   }
 
