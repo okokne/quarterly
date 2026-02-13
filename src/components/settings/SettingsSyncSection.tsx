@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, SyncStatus } from "../../types";
 
@@ -17,6 +18,7 @@ type SettingsSyncSectionProps = {
     onDownloadMyData: () => void;
     onSignOut: () => Promise<void>;
     onDeleteAccount: () => Promise<boolean>;
+    onChangePassword: (newPassword: string) => Promise<boolean>;
     onSyncNow: () => Promise<boolean>;
 };
 
@@ -57,8 +59,41 @@ export function SettingsSyncSection({
     onDownloadMyData,
     onSignOut,
     onDeleteAccount,
+    onChangePassword,
     onSyncNow
 }: SettingsSyncSectionProps) {
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordFormError, setPasswordFormError] = useState<string | null>(null);
+
+    const passwordRules = useMemo(() => ({
+        hasMinLength: newPassword.length >= 10,
+        hasUpperCase: /[A-Z]/.test(newPassword),
+        hasLowerCase: /[a-z]/.test(newPassword)
+    }), [newPassword]);
+    const passwordValid = passwordRules.hasMinLength && passwordRules.hasUpperCase && passwordRules.hasLowerCase;
+    const passwordsMatch = newPassword.length > 0 && newPassword === confirmPassword;
+
+    const handleSubmitPasswordChange = () => {
+        if (!passwordValid) {
+            setPasswordFormError(tr(language, "auth.passwordRulesInfo"));
+            return;
+        }
+        if (!passwordsMatch) {
+            setPasswordFormError(tr(language, "auth.passwordMismatch"));
+            return;
+        }
+        setPasswordFormError(null);
+        void (async () => {
+            const ok = await onChangePassword(newPassword);
+            if (!ok) return;
+            setNewPassword("");
+            setConfirmPassword("");
+            setShowChangePassword(false);
+        })();
+    };
+
     return (
         <div className="settings-section">
             <h3>{tr(language, "settings.accountSyncTitle")}</h3>
@@ -78,7 +113,71 @@ export function SettingsSyncSection({
                             >
                                 {tr(language, "settings.accountSignOut")}
                             </button>
+                            <button
+                                className="button ghost"
+                                disabled={authLoading}
+                                onClick={() => {
+                                    setPasswordFormError(null);
+                                    setShowChangePassword((value) => !value);
+                                }}
+                            >
+                                {tr(language, "settings.changePassword")}
+                            </button>
                         </div>
+                        {showChangePassword && (
+                            <div className="settings-password-form">
+                                <label>
+                                    {tr(language, "settings.newPassword")}
+                                    <input
+                                        type="password"
+                                        autoComplete="new-password"
+                                        value={newPassword}
+                                        onChange={(event) => setNewPassword(event.target.value)}
+                                    />
+                                </label>
+                                <div className="auth-password-rules">
+                                    <p className="hint">{tr(language, "auth.passwordRulesInfo")}</p>
+                                    <p className={`auth-password-rule ${passwordRules.hasMinLength ? "met" : "unmet"}`}>
+                                        {tr(language, "auth.passwordRuleMinLength")}
+                                    </p>
+                                    <p className={`auth-password-rule ${passwordRules.hasUpperCase ? "met" : "unmet"}`}>
+                                        {tr(language, "auth.passwordRuleUppercase")}
+                                    </p>
+                                    <p className={`auth-password-rule ${passwordRules.hasLowerCase ? "met" : "unmet"}`}>
+                                        {tr(language, "auth.passwordRuleLowercase")}
+                                    </p>
+                                </div>
+                                <label>
+                                    {tr(language, "settings.newPasswordConfirm")}
+                                    <input
+                                        type="password"
+                                        autoComplete="new-password"
+                                        value={confirmPassword}
+                                        onChange={(event) => setConfirmPassword(event.target.value)}
+                                    />
+                                </label>
+                                {passwordFormError ? <p className="muted sync-error">{passwordFormError}</p> : null}
+                                <div className="button-row compact">
+                                    <button
+                                        className="button"
+                                        disabled={authLoading}
+                                        onClick={handleSubmitPasswordChange}
+                                    >
+                                        {tr(language, "settings.savePassword")}
+                                    </button>
+                                    <button
+                                        className="button ghost"
+                                        disabled={authLoading}
+                                        onClick={() => {
+                                            setShowChangePassword(false);
+                                            setPasswordFormError(null);
+                                        }}
+                                    >
+                                        {tr(language, "common.cancel")}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </>
                 ) : (
                     <p className="muted">{tr(language, "settings.authInLoginHint")}</p>

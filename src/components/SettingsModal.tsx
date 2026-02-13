@@ -51,6 +51,7 @@ export interface SettingsModalProps {
     onDownloadMyData: () => void;
     onSignOut: () => Promise<void>;
     onDeleteAccount: () => Promise<boolean>;
+    onChangePassword: (newPassword: string) => Promise<boolean>;
     onSyncNow: () => Promise<boolean>;
 }
 
@@ -89,6 +90,7 @@ export function SettingsModal({
     onDownloadMyData,
     onSignOut,
     onDeleteAccount,
+    onChangePassword,
     onSyncNow
 }: SettingsModalProps) {
     return (
@@ -145,6 +147,7 @@ export function SettingsModal({
                     onDownloadMyData={onDownloadMyData}
                     onSignOut={onSignOut}
                     onDeleteAccount={onDeleteAccount}
+                    onChangePassword={onChangePassword}
                     onSyncNow={onSyncNow}
                 />
 

@@ -49,6 +49,7 @@ type SettingsModalBindingInput = {
         "onDownloadMyData" |
         "onSignOut" |
         "onDeleteAccount" |
+        "onChangePassword" |
         "onSyncNow"
     >;
 };

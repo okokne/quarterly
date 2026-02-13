@@ -147,7 +147,7 @@ export function getMagicLinkRedirectTarget(override?: string): {
     if (manual) {
         const normalizedManual = normalizeRedirectUrl(manual);
         if (!normalizedManual) {
-            return { url: null, error: "Ungueltige Magic-Link Redirect-URL (override)." };
+            return { url: null, error: "Ungültige Magic-Link Redirect-URL (override)." };
         }
         return { url: normalizedManual, error: null };
     }
@@ -160,7 +160,7 @@ export function getMagicLinkRedirectTarget(override?: string): {
     if (configured) {
         const normalizedConfigured = normalizeRedirectUrl(configured);
         if (!normalizedConfigured) {
-            return { url: null, error: "Ungueltige VITE_AUTH_REDIRECT_URL." };
+            return { url: null, error: "Ungültige VITE_AUTH_REDIRECT_URL." };
         }
         return { url: normalizedConfigured, error: null };
     }
@@ -385,7 +385,7 @@ export async function signUpWithEmailPassword(input: {
     ) {
         return {
             session: null,
-            error: "Konto erstellt. Bitte E-Mail bestaetigen und dann einloggen."
+            error: "Konto erstellt. Bitte E-Mail bestätigen und dann einloggen."
         };
     }
 
@@ -596,13 +596,13 @@ export async function consumeSupabaseSessionFromUrl(): Promise<{
 
     if (!accessToken || !refreshToken || !expiresInRaw) {
         clearAuthCallbackParamsFromUrl();
-        return { session: null, error: "Ungueltiger Login-Link." };
+        return { session: null, error: "Ungültiger Login-Link." };
     }
 
     const expiresIn = Number.parseInt(expiresInRaw, 10);
     if (!Number.isFinite(expiresIn) || expiresIn <= 0) {
         clearAuthCallbackParamsFromUrl();
-        return { session: null, error: "Ungueltiger Login-Link." };
+        return { session: null, error: "Ungültiger Login-Link." };
     }
 
     const jwtPayload = decodeJwtPayload(accessToken);
@@ -682,12 +682,29 @@ export async function deleteSupabaseUser(
     ) {
         return {
             ok: false,
-            error: "Account-Loeschen ist fuer diesen Supabase-Auth-Provider nicht direkt verfuegbar."
+            error: "Account-Löschen ist für diesen Supabase-Auth-Provider nicht direkt verfügbar."
         };
     }
 
     return {
         ok: false,
+        error: result.error
+    };
+}
+
+export async function updateSupabasePassword(input: {
+    session: SupabaseAuthSession;
+    password: string;
+}): Promise<{ ok: boolean; error: string | null }> {
+    const result = await supabaseFetchJson<Record<string, unknown>>("/auth/v1/user", {
+        method: "PUT",
+        body: JSON.stringify({
+            password: input.password
+        })
+    }, input.session.access_token);
+
+    return {
+        ok: !result.error,
         error: result.error
     };
 }

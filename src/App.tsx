@@ -269,6 +269,7 @@ export default function App() {
     requestMagicLink,
     signOut,
     deleteAccount,
+    changePassword,
     requestSyncNow,
     snapshotMetas,
     recoveryCandidate,
@@ -420,6 +421,7 @@ export default function App() {
         onDownloadMyData: handleDownloadMyData,
         onSignOut: signOut,
         onDeleteAccount: deleteAccount,
+        onChangePassword: changePassword,
         onSyncNow: requestSyncNow
       }
   });

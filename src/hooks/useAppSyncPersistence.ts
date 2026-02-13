@@ -146,6 +146,7 @@ export function useAppSyncPersistence({
         requestMagicLink,
         signOut,
         deleteAccount,
+        changePassword,
         requestSyncNow,
         resolveSyncConflict
     } = usePlannerSync({
@@ -206,6 +207,7 @@ export function useAppSyncPersistence({
         requestMagicLink,
         signOut,
         deleteAccount,
+        changePassword,
         requestSyncNow,
         resolveSyncConflict,
         snapshotMetas,

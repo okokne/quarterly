@@ -19,7 +19,8 @@ import {
     deleteSupabaseUser,
     getMagicLinkRedirectTarget,
     hasSupabaseConfig,
-    SupabaseAuthSession
+    SupabaseAuthSession,
+    updateSupabasePassword
 } from "../sync/supabaseClient";
 import { readStateWriteTs } from "../persistence/localSnapshots";
 import { debugSync } from "../sync/syncDebug";
@@ -474,6 +475,37 @@ export function usePlannerSync({
         syncEnabled
     ]);
 
+    const changePassword = useCallback(async (newPassword: string): Promise<boolean> => {
+        if (!syncEnabled || !session) {
+            setAuthError(syncDisabledError);
+            return false;
+        }
+
+        clearAuthFeedback();
+        setAuthLoading(true);
+        const result = await updateSupabasePassword({
+            session,
+            password: newPassword
+        });
+        setAuthLoading(false);
+
+        if (result.error) {
+            setAuthError(result.error);
+            return false;
+        }
+
+        setAuthMessage("Passwort wurde aktualisiert.");
+        return true;
+    }, [
+        clearAuthFeedback,
+        session,
+        setAuthError,
+        setAuthLoading,
+        setAuthMessage,
+        syncDisabledError,
+        syncEnabled
+    ]);
+
     const resolveSyncConflict = usePlannerSyncConflictResolution({
         session,
         state,
@@ -522,6 +554,7 @@ export function usePlannerSync({
         requestMagicLink,
         signOut,
         deleteAccount,
+        changePassword,
         resolveSyncConflict
     };
 }
