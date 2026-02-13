@@ -351,13 +351,14 @@ p {
 }
 
 .auth-entry-card {
-  width: min(980px, 100%);
-  margin-inline: auto;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .auth-entry-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 0.9fr) minmax(420px, 1.3fr);
+  grid-template-columns: minmax(280px, 1fr) minmax(520px, 1.5fr);
   gap: 28px;
   align-items: start;
 }

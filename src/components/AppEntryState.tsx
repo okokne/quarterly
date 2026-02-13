@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppLanguage } from "../types";
 import { t as tr } from "../i18n";
 
-type AuthMode = "email" | "password" | "register";
+type AuthMode = "email" | "password" | "registerPrompt" | "register";
 
 type AppEntryStateProps = {
     language: AppLanguage;
@@ -27,6 +27,7 @@ type AppEntryStateProps = {
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;
+    onCheckEmailAccount: (email: string) => Promise<"exists" | "missing" | "error">;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
 };
@@ -54,6 +55,7 @@ export function AppEntryState({
     onSignOut,
     onSignIn,
     onSignUp,
+    onCheckEmailAccount,
     onRequestMagicLink,
     onCreateCycle
 }: AppEntryStateProps) {
@@ -63,6 +65,8 @@ export function AppEntryState({
     const [magicLinkWasSent, setMagicLinkWasSent] = useState(false);
     const [magicLinkCooldownUntil, setMagicLinkCooldownUntil] = useState<number | null>(null);
     const [clockTick, setClockTick] = useState(() => Date.now());
+    const [lastCheckedEmail, setLastCheckedEmail] = useState<string | null>(null);
+    const [lastCheckResult, setLastCheckResult] = useState<"exists" | "missing" | null>(null);
     const emailTrimmed = useMemo(() => entryEmail.trim(), [entryEmail]);
     const magicLinkSecondsLeft = useMemo(() => {
         if (!magicLinkCooldownUntil) return 0;
@@ -92,11 +96,33 @@ export function AppEntryState({
         setMagicLinkCooldownUntil(null);
     };
 
-    const continueWithEmail = () => {
+    const continueWithEmail = async () => {
         if (!emailTrimmed) return;
         setLocalAuthHint(null);
         setMagicLinkWasSent(false);
         setMagicLinkCooldownUntil(null);
+
+        if (lastCheckedEmail === emailTrimmed && lastCheckResult) {
+            setAuthMode(lastCheckResult === "exists" ? "password" : "registerPrompt");
+            return;
+        }
+
+        const result = await onCheckEmailAccount(emailTrimmed);
+        if (result === "exists") {
+            setLastCheckedEmail(emailTrimmed);
+            setLastCheckResult("exists");
+            setAuthMode("password");
+            return;
+        }
+        if (result === "missing") {
+            setLastCheckedEmail(emailTrimmed);
+            setLastCheckResult("missing");
+            setAuthMode("registerPrompt");
+            return;
+        }
+
+        // Rate-limit or temporary lookup issues should not block sign-in flow.
+        setLocalAuthHint(tr(language, "auth.lookupFallbackHint"));
         setAuthMode("password");
     };
 
@@ -165,7 +191,7 @@ export function AppEntryState({
                                             className="primary"
                                             disabled={authLoading || !emailTrimmed}
                                             onClick={() => {
-                                                continueWithEmail();
+                                                void continueWithEmail();
                                             }}
                                         >
                                             {tr(language, "auth.continue")}
@@ -188,7 +214,7 @@ export function AppEntryState({
                                         <div className="button-row auth-entry-actions">
                                             <button
                                                 className="primary"
-                                                disabled={authLoading || !emailTrimmed || entryPassword.length < 6}
+                                                disabled={authLoading || !emailTrimmed || !entryPassword.trim()}
                                                 onClick={() => {
                                                     void onSignIn(emailTrimmed, entryPassword);
                                                 }}
@@ -209,19 +235,9 @@ export function AppEntryState({
                                             </button>
                                             <button
                                                 disabled={authLoading}
-                                                onClick={() => {
-                                                    setEntryPassword("");
-                                                    setRegisterConfirm("");
-                                                    setAuthMode("register");
-                                                }}
-                                            >
-                                                {tr(language, "auth.register")}
-                                            </button>
-                                            <button
-                                                disabled={authLoading}
                                                 onClick={() => resetAuthFlow()}
                                             >
-                                                {tr(language, "auth.otherEmail")}
+                                                {tr(language, "common.back")}
                                             </button>
                                         </div>
                                         {magicLinkWasSent && (
@@ -229,6 +245,20 @@ export function AppEntryState({
                                                 {tr(language, "auth.magicLinkCheckInboxHint")}
                                             </p>
                                         )}
+                                    </>
+                                )}
+
+                                {authMode === "registerPrompt" && (
+                                    <>
+                                        <p className="muted">{tr(language, "auth.noAccountPrompt")}</p>
+                                        <div className="button-row auth-entry-actions">
+                                            <button className="primary" disabled={authLoading} onClick={() => setAuthMode("register")}>
+                                                {tr(language, "auth.register")}
+                                            </button>
+                                            <button disabled={authLoading} onClick={() => resetAuthFlow()}>
+                                                {tr(language, "common.back")}
+                                            </button>
+                                        </div>
                                     </>
                                 )}
 
@@ -265,7 +295,7 @@ export function AppEntryState({
                                                 {tr(language, "auth.createAccount")}
                                             </button>
                                             <button disabled={authLoading} onClick={() => resetAuthFlow()}>
-                                                {tr(language, "auth.otherEmail")}
+                                                {tr(language, "common.back")}
                                             </button>
                                         </div>
                                     </>

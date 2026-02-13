@@ -271,6 +271,7 @@ export default function App() {
     isOnline,
     signUp,
     signIn,
+    checkEmailAccount,
     requestMagicLink,
     signOut,
     requestSyncNow,
@@ -537,6 +538,7 @@ export default function App() {
     onSignOut: signOut,
     onSignIn: signIn,
     onSignUp: signUp,
+    onCheckEmailAccount: checkEmailAccount,
     onCreateCycle: handleCreateCycle,
     onRequestMagicLink: requestMagicLink
   });

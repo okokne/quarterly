@@ -30,6 +30,15 @@ export function usePlannerSyncAuthRequests({
     setAuthError,
     setAuthMessage
 }: UsePlannerSyncAuthRequestsParams) {
+    const mapRateLimitError = useCallback((message: string | null | undefined): string | null => {
+        const normalized = (message ?? "").toLowerCase();
+        if (!normalized) return null;
+        if (normalized.includes("rate limit")) {
+            return "Zu viele E-Mail-Anfragen in kurzer Zeit. Bitte warte kurz und versuche es erneut.";
+        }
+        return null;
+    }, []);
+
     const ensureSyncEnabled = useCallback(() => {
         if (syncEnabled) return true;
         setAuthError(syncDisabledError);
@@ -71,11 +80,11 @@ export function usePlannerSyncAuthRequests({
         const result = await checkAccountExistsByEmail({ email });
         setAuthLoading(false);
         if (result.error) {
-            setAuthError(result.error);
+            setAuthError(mapRateLimitError(result.error) ?? result.error);
             return "error";
         }
         return result.exists ? "exists" : "missing";
-    }, [clearAuthFeedback, ensureSyncEnabled, setAuthError, setAuthLoading]);
+    }, [clearAuthFeedback, ensureSyncEnabled, mapRateLimitError, setAuthError, setAuthLoading]);
 
     const requestOneTimeCode = useCallback(async (email: string): Promise<boolean> => {
         if (!ensureSyncEnabled()) return false;
@@ -84,12 +93,12 @@ export function usePlannerSyncAuthRequests({
         const result = await requestExistingAccountEmailOtp({ email });
         setAuthLoading(false);
         if (result.error) {
-            setAuthError(result.error);
+            setAuthError(mapRateLimitError(result.error) ?? result.error);
             return false;
         }
         setAuthMessage("Einmalcode wurde gesendet.");
         return true;
-    }, [clearAuthFeedback, ensureSyncEnabled, setAuthError, setAuthLoading, setAuthMessage]);
+    }, [clearAuthFeedback, ensureSyncEnabled, mapRateLimitError, setAuthError, setAuthLoading, setAuthMessage]);
 
     const verifyOneTimeCode = useCallback(async (email: string, code: string): Promise<boolean> => {
         if (!ensureSyncEnabled()) return false;
@@ -115,12 +124,12 @@ export function usePlannerSyncAuthRequests({
         });
         setAuthLoading(false);
         if (result.error) {
-            setAuthError(result.error);
+            setAuthError(mapRateLimitError(result.error) ?? result.error);
             return false;
         }
         setAuthMessage("Magic-Link wurde gesendet. Bitte E-Mail pruefen.");
         return true;
-    }, [clearAuthFeedback, ensureSyncEnabled, magicLinkRedirectUrl, setAuthError, setAuthLoading, setAuthMessage]);
+    }, [clearAuthFeedback, ensureSyncEnabled, magicLinkRedirectUrl, mapRateLimitError, setAuthError, setAuthLoading, setAuthMessage]);
 
     return {
         signUp,
