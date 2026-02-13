@@ -419,6 +419,29 @@ p {
   padding: 10px 12px;
 }
 
+.auth-password-rules {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-password-rule {
+  font-size: 0.84rem;
+  margin: 0;
+}
+
+.auth-password-rule.met {
+  color: var(--success);
+}
+
+.auth-password-rule.unmet {
+  color: var(--text-secondary);
+}
+
 @media (max-width: 900px) {
   .auth-entry-card {
     width: 100%;

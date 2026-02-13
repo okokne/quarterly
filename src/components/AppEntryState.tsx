@@ -65,6 +65,17 @@ export function AppEntryState({
     const [clockTick, setClockTick] = useState(() => Date.now());
     const [showRegisterHint, setShowRegisterHint] = useState(false);
     const emailTrimmed = useMemo(() => entryEmail.trim(), [entryEmail]);
+    const registerPasswordRules = useMemo(() => {
+        const hasMinLength = entryPassword.length >= 10;
+        const hasUpperCase = /[A-Z]/.test(entryPassword);
+        const hasLowerCase = /[a-z]/.test(entryPassword);
+        return {
+            hasMinLength,
+            hasUpperCase,
+            hasLowerCase,
+            isValid: hasMinLength && hasUpperCase && hasLowerCase
+        };
+    }, [entryPassword]);
     const magicLinkSecondsLeft = useMemo(() => {
         if (!magicLinkCooldownUntil) return 0;
         return Math.max(0, Math.ceil((magicLinkCooldownUntil - clockTick) / 1000));
@@ -280,6 +291,18 @@ export function AppEntryState({
                                                 disabled={authLoading}
                                             />
                                         </label>
+                                        <div className="auth-password-rules">
+                                            <p className="hint">{tr(language, "auth.passwordRulesInfo")}</p>
+                                            <p className={`auth-password-rule ${registerPasswordRules.hasMinLength ? "met" : "unmet"}`}>
+                                                {tr(language, "auth.passwordRuleMinLength")}
+                                            </p>
+                                            <p className={`auth-password-rule ${registerPasswordRules.hasUpperCase ? "met" : "unmet"}`}>
+                                                {tr(language, "auth.passwordRuleUppercase")}
+                                            </p>
+                                            <p className={`auth-password-rule ${registerPasswordRules.hasLowerCase ? "met" : "unmet"}`}>
+                                                {tr(language, "auth.passwordRuleLowercase")}
+                                            </p>
+                                        </div>
                                         <label>
                                             {tr(language, "auth.passwordConfirm")}
                                             <input
@@ -293,7 +316,7 @@ export function AppEntryState({
                                         <div className="button-row auth-entry-actions">
                                             <button
                                                 className="primary"
-                                                disabled={authLoading || !emailTrimmed || entryPassword.length < 6 || entryPassword !== registerConfirm}
+                                                disabled={authLoading || !emailTrimmed || !registerPasswordRules.isValid || entryPassword !== registerConfirm}
                                                 onClick={() => {
                                                     void onSignUp(emailTrimmed, entryPassword);
                                                 }}
