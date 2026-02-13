@@ -19,7 +19,6 @@ type UseAppEntryStatePropsParams = {
     setTitleInput: (value: string) => void;
     startDateInput: string;
     setStartDateInput: (value: string) => void;
-    onRequestSyncNow: () => Promise<boolean>;
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;

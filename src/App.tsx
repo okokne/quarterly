@@ -533,7 +533,6 @@ export default function App() {
     setTitleInput,
     startDateInput,
     setStartDateInput,
-    onRequestSyncNow: requestSyncNow,
     onSignOut: signOut,
     onSignIn: signIn,
     onSignUp: signUp,

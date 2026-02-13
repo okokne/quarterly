@@ -23,7 +23,6 @@ type AppEntryStateProps = {
     setTitleInput: (value: string) => void;
     startDateInput: string;
     setStartDateInput: (value: string) => void;
-    onRequestSyncNow: () => Promise<boolean>;
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;
@@ -50,7 +49,6 @@ export function AppEntryState({
     setTitleInput,
     startDateInput,
     setStartDateInput,
-    onRequestSyncNow,
     onSignOut,
     onSignIn,
     onSignUp,
@@ -350,9 +348,22 @@ export function AppEntryState({
 
             {!awaitingCloudDashboard && isAuthenticated && (
                 <>
-                    <section className="card">
+                    <section className="card auth-cycle-setup-card">
+                        <button
+                            className="auth-cycle-signout-button"
+                            onClick={() => { void onSignOut(); }}
+                            title={tr(language, "settings.accountSignOut")}
+                            aria-label={tr(language, "settings.accountSignOut")}
+                        >
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" />
+                                <path d="M14 8l6 4-6 4" />
+                                <path d="M20 12H10" />
+                            </svg>
+                        </button>
                         <h2>{tr(language, "empty.newCycleTitle")}</h2>
                         <p className="hint">{tr(language, "settings.accountSignedInAs", { email: cloudEmail ?? "-" })}</p>
+                        <p className="hint">{tr(language, "empty.firstCycleHint")}</p>
                         <div className="grid">
                             <label>
                                 {tr(language, "empty.titleOptional")}
@@ -367,12 +378,6 @@ export function AppEntryState({
                         <div className="button-row">
                             <button className="primary" onClick={onCreateCycle}>
                                 {tr(language, "empty.createCycle")}
-                            </button>
-                            <button onClick={() => { void onRequestSyncNow(); }}>
-                                {tr(language, "settings.syncNow")}
-                            </button>
-                            <button onClick={() => { void onSignOut(); }}>
-                                {tr(language, "settings.accountSignOut")}
                             </button>
                         </div>
                     </section>
