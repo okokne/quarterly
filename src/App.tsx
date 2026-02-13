@@ -626,7 +626,6 @@ export default function App() {
           setStartQuarterReview(false);
           setShowDeleteConfirm(true);
         }}
-        selectedWeek={selectedWeek}
         habits={habits}
         onOpenHabitsManager={() => {
           setShowCycleDrawer(false);

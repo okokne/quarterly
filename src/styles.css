@@ -271,7 +271,9 @@ p {
 
 .header-week-progress {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
+  justify-content: flex-end;
   gap: 16px;
   padding: 0;
   border: none;
@@ -281,7 +283,8 @@ p {
 .header-week-progress-meta {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
+  text-align: right;
   gap: 0;
   line-height: 1.1;
 }
@@ -2900,14 +2903,47 @@ button.ghost-danger:hover {
 .cycle-status-main {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 18px;
 }
 
-.cycle-status-copy {
+.cycle-status-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 124px;
+  min-height: 124px;
+}
+
+.cycle-status-ring .progress-ring-text {
+  display: none;
+}
+
+.cycle-status-ring-center {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 220px;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.cycle-status-ring-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.cycle-status-ring-label {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
 }
 
 .cycle-goal-item {
@@ -2931,6 +2967,42 @@ button.ghost-danger:hover {
   display: grid;
   grid-template-columns: 1.2fr 1fr auto;
   gap: 8px;
+}
+
+.cycle-goals-section {
+  text-align: left;
+}
+
+.cycle-goal-list {
+  margin-bottom: 2px;
+}
+
+.cycle-goal-card {
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.cycle-goal-card.dragging {
+  opacity: 0.58;
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+
+.cycle-goal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cycle-goal-edit-btn {
+  width: 34px;
+  height: 34px;
+}
+
+.cycle-goal-drag-handle {
+  margin-right: 0;
 }
 
 .cycle-actions-footer .button-row {
@@ -3107,9 +3179,7 @@ button.ghost-danger:hover {
 }
 
 .day-has-entry-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--text-muted);
+  display: none;
 }
 
 .day-today-dot {
@@ -3169,12 +3239,20 @@ button.ghost-danger:hover {
   }
 
   .cycle-status-main {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
   }
 
   .cycle-goal-add {
     grid-template-columns: 1fr;
+  }
+
+  .cycle-goal-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cycle-goal-actions {
+    justify-content: flex-start;
   }
 
   .overlay-card {

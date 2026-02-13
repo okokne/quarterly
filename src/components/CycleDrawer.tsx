@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { DragEvent, useMemo, useRef, useState } from "react";
 import { AppLanguage, Cycle, DateFormat, Habit, Id } from "../types";
 import { t as tr } from "../i18n";
 import { CycleVisionSection } from "./cycle/CycleVisionSection";
@@ -11,7 +11,6 @@ type CycleDrawerProps = {
     language: AppLanguage;
     dateFormat: DateFormat;
     cycle: Cycle | null;
-    selectedWeek: number;
     habits: Habit[];
     history: Cycle[];
     readOnly: boolean;
@@ -29,7 +28,6 @@ export function CycleDrawer({
     language,
     dateFormat,
     cycle,
-    selectedWeek,
     habits,
     history,
     readOnly,
@@ -47,7 +45,6 @@ export function CycleDrawer({
     const todayIso = toIsoDate(new Date());
     const currentWeek = getWeekIndexForDate(cycle, todayIso);
     const remainingWeeks = Math.max(totalWeeks - currentWeek, 0);
-    const quarterProgress = Math.round((currentWeek / totalWeeks) * 100);
     const quarterEndDate = addDays(cycle.startDate, 83);
     const isQuarterComplete = todayIso >= quarterEndDate;
 
@@ -66,6 +63,7 @@ export function CycleDrawer({
     const [editingGoalId, setEditingGoalId] = useState<Id | null>(null);
     const [goalEditTitle, setGoalEditTitle] = useState("");
     const [goalEditMetric, setGoalEditMetric] = useState("");
+    const [draggingGoalId, setDraggingGoalId] = useState<Id | null>(null);
     const [isVisionEditing, setIsVisionEditing] = useState(false);
     const archiveAnchorRef = useRef<HTMLDivElement | null>(null);
 
@@ -77,7 +75,6 @@ export function CycleDrawer({
     const addGoal = () => {
         if (readOnly) return;
         if (!goalTitleDraft.trim()) return;
-        if (cycle.goals.length >= 3) return;
         updateCycle((prev) => ({
             ...prev,
             goals: [...prev.goals, {
@@ -118,6 +115,30 @@ export function CycleDrawer({
         }
     };
 
+    const moveGoal = (fromIndex: number, toIndex: number) => {
+        if (readOnly || fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+        updateCycle((prev) => {
+            const goals = [...prev.goals];
+            const [moved] = goals.splice(fromIndex, 1);
+            if (!moved) return prev;
+            goals.splice(toIndex, 0, moved);
+            return { ...prev, goals };
+        });
+    };
+
+    const handleGoalDrop = (targetIndex: number) => {
+        if (!draggingGoalId) return;
+        const fromIndex = cycle.goals.findIndex((goal) => goal.id === draggingGoalId);
+        moveGoal(fromIndex, targetIndex);
+        setDraggingGoalId(null);
+    };
+
+    const allowGoalDrop = (event: DragEvent<HTMLDivElement>) => {
+        if (readOnly) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+    };
+
     const finalReview = cycle.finalReview ?? {
         breakthroughs: "",
         keyLearning: "",
@@ -139,63 +160,90 @@ export function CycleDrawer({
                         <span className="muted">{tr(language, "cycle.weekLabel", { week: currentWeek, total: totalWeeks })}</span>
                     </div>
                     <div className="cycle-status-main">
-                        <ProgressRing value={currentWeek} max={totalWeeks} size={92} strokeWidth={8} />
-                        <div className="cycle-status-copy">
-                            <strong>{tr(language, "cycle.remainingWeeks", { count: remainingWeeks })}</strong>
-                            <span className="muted">{tr(language, "cycle.currentWeekFocus", { week: selectedWeek, total: totalWeeks })}</span>
-                            <div className="progress-bar">
-                                <div className="progress-bar-fill" style={{ width: `${quarterProgress}%` }} />
+                        <div className="cycle-status-ring" aria-label={tr(language, "cycle.remainingWeeks", { count: remainingWeeks })}>
+                            <ProgressRing value={currentWeek} max={totalWeeks} size={124} strokeWidth={9} />
+                            <div className="cycle-status-ring-center">
+                                <span className="cycle-status-ring-value">{remainingWeeks}</span>
+                                <span className="cycle-status-ring-label">{tr(language, "cycle.remainingWeeksShort")}</span>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section className="cycle-section">
+                <section className="cycle-section cycle-goals-section stats-goals-focus">
                     <div className="cycle-status-header">
                         <h3>{tr(language, "cycle.goalsTitle")}</h3>
                         <span className="muted">{tr(language, "cycle.goalsHint")}</span>
                     </div>
                     {cycle.goals.length === 0 && <p className="muted">{tr(language, "week.noGoals")}</p>}
-                    {cycle.goals.map((goal) => (
-                        <div key={goal.id} className="cycle-goal-item">
-                            {editingGoalId === goal.id ? (
-                                <div className="cycle-goal-edit">
-                                    <input value={goalEditTitle} onChange={(event) => setGoalEditTitle(event.target.value)} />
-                                    <input value={goalEditMetric} onChange={(event) => setGoalEditMetric(event.target.value)} placeholder={tr(language, "onboarding.metricOptional")} />
+                    <div className="stats-goal-list cycle-goal-list">
+                        {cycle.goals.map((goal, index) => {
+                            const isEditing = editingGoalId === goal.id;
+                            return (
+                                <div
+                                    key={goal.id}
+                                    className={`stats-goal-card cycle-goal-card ${draggingGoalId === goal.id ? "dragging" : ""}`}
+                                    draggable={!readOnly && !isEditing}
+                                    onDragStart={(event) => {
+                                        if (readOnly || isEditing) {
+                                            event.preventDefault();
+                                            return;
+                                        }
+                                        setDraggingGoalId(goal.id);
+                                        event.dataTransfer.effectAllowed = "move";
+                                    }}
+                                    onDragOver={allowGoalDrop}
+                                    onDrop={() => handleGoalDrop(index)}
+                                    onDragEnd={() => setDraggingGoalId(null)}
+                                >
+                                    <div className="stats-goal-index" aria-hidden="true">
+                                        {index + 1}
+                                    </div>
+                                    <div className="stats-goal-content">
+                                        {isEditing ? (
+                                            <div className="cycle-goal-edit">
+                                                <input value={goalEditTitle} onChange={(event) => setGoalEditTitle(event.target.value)} />
+                                                <input value={goalEditMetric} onChange={(event) => setGoalEditMetric(event.target.value)} placeholder={tr(language, "onboarding.metricOptional")} />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <strong className="stats-goal-title">{goal.title}</strong>
+                                                {goal.metric && <div className="stats-goal-metric">{goal.metric}</div>}
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="cycle-goal-actions">
+                                        {isEditing ? (
+                                            <>
+                                                <button className="button" onClick={saveGoalEdit} disabled={readOnly || !goalEditTitle.trim()}>{tr(language, "common.save")}</button>
+                                                <button className="button" onClick={() => setEditingGoalId(null)}>{tr(language, "common.cancel")}</button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button className="icon-btn cycle-goal-edit-btn" onClick={() => startGoalEdit(goal.id, goal.title, goal.metric)} title={tr(language, "common.edit")} aria-label={tr(language, "common.edit")}>✎</button>
+                                                <span className="drag-handle cycle-goal-drag-handle" aria-label={tr(language, "common.reorder")} title={tr(language, "common.reorder")}>⋮⋮</span>
+                                            </>
+                                        )}
+                                        <button className="button ghost-danger" disabled={readOnly} onClick={() => deleteGoal(goal.id)}>{tr(language, "common.delete")}</button>
+                                    </div>
                                 </div>
-                            ) : (
-                                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                    <strong>{goal.title}</strong>
-                                    {goal.metric && <span className="muted">{goal.metric}</span>}
-                                </div>
-                            )}
-                            <div className="button-row compact">
-                                {editingGoalId === goal.id ? (
-                                    <>
-                                        <button className="button" onClick={saveGoalEdit} disabled={readOnly || !goalEditTitle.trim()}>{tr(language, "common.save")}</button>
-                                        <button className="button" onClick={() => setEditingGoalId(null)}>{tr(language, "common.cancel")}</button>
-                                    </>
-                                ) : (
-                                    <button className="icon-btn" onClick={() => startGoalEdit(goal.id, goal.title, goal.metric)} title={tr(language, "common.edit")} aria-label={tr(language, "common.edit")}>✎</button>
-                                )}
-                                <button className="button ghost-danger" disabled={readOnly} onClick={() => deleteGoal(goal.id)}>{tr(language, "common.delete")}</button>
-                            </div>
-                        </div>
-                    ))}
+                            );
+                        })}
+                    </div>
                     <div className="cycle-goal-add">
                         <input
                             value={goalTitleDraft}
                             onChange={(event) => setGoalTitleDraft(event.target.value)}
                             placeholder={tr(language, "onboarding.goal")}
-                            disabled={readOnly || cycle.goals.length >= 3}
+                            disabled={readOnly}
                         />
                         <input
                             value={goalMetricDraft}
                             onChange={(event) => setGoalMetricDraft(event.target.value)}
                             placeholder={tr(language, "onboarding.metricOptional")}
-                            disabled={readOnly || cycle.goals.length >= 3}
+                            disabled={readOnly}
                         />
-                        <button className="button" disabled={readOnly || cycle.goals.length >= 3 || !goalTitleDraft.trim()} onClick={addGoal}>
+                        <button className="button" disabled={readOnly || !goalTitleDraft.trim()} onClick={addGoal}>
                             {tr(language, "onboarding.goalAdd")}
                         </button>
                     </div>
