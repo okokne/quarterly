@@ -3069,6 +3069,7 @@ button.ghost-danger:hover {
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 1rem;
+  overflow: hidden;
 }
 
 .today-calendar-trigger:hover {
@@ -3077,13 +3078,12 @@ button.ghost-danger:hover {
 }
 
 .today-calendar-input {
-  position: fixed;
-  left: -9999px;
-  top: -9999px;
-  width: 1px;
-  height: 1px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .today-week-strip {

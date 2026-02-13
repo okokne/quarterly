@@ -21,7 +21,6 @@ export function TodayDatePickerSection({
     setSelectedDate
 }: TodayDatePickerSectionProps) {
     const touchStartX = useRef<number | null>(null);
-    const dateInputRef = useRef<HTMLInputElement | null>(null);
 
     const weekDates = useMemo(() => {
         const date = parseIso(selectedDate);
@@ -38,16 +37,6 @@ export function TodayDatePickerSection({
         setSelectedWeek(getWeekIndexForDate(cycle, date));
     };
 
-    const openDatePicker = () => {
-        if (!dateInputRef.current) return;
-        const picker = dateInputRef.current as HTMLInputElement & { showPicker?: () => void };
-        if (typeof picker.showPicker === "function") {
-            picker.showPicker();
-            return;
-        }
-        picker.click();
-    };
-
     return (
         <>
             <div className="today-nav-header">
@@ -59,24 +48,20 @@ export function TodayDatePickerSection({
                     <button className="button" type="button" onClick={() => selectDate(todayIso)}>
                         {tr(language, "common.today")}
                     </button>
-                    <button
+                    <label
                         className="today-calendar-trigger"
                         title={tr(language, "today.pickDate")}
                         aria-label={tr(language, "today.pickDate")}
-                        type="button"
-                        onClick={openDatePicker}
                     >
-                        🗓
-                    </button>
-                    <input
-                        ref={dateInputRef}
-                        className="today-calendar-input"
-                        type="date"
-                        value={selectedDate}
-                        onChange={(event) => selectDate(event.target.value)}
-                        tabIndex={-1}
-                        aria-hidden="true"
-                    />
+                        <span aria-hidden="true">🗓</span>
+                        <input
+                            className="today-calendar-input"
+                            type="date"
+                            value={selectedDate}
+                            onChange={(event) => selectDate(event.target.value)}
+                            aria-label={tr(language, "today.pickDate")}
+                        />
+                    </label>
                 </div>
             </div>
 
