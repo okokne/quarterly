@@ -31,6 +31,7 @@ type SettingsModalBindingInput = {
         "setTemplates" |
         "setHistory" |
         "setShowSettings" |
+        "setShowDemoConfirm" |
         "setViewingArchiveId"
     >;
     actions: Pick<

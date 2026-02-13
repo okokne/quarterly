@@ -400,6 +400,7 @@ export default function App() {
       setTemplates,
       setHistory,
       setShowSettings,
+      setShowDemoConfirm,
       setViewingArchiveId
     },
     actions: {
