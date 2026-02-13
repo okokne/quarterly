@@ -94,13 +94,24 @@ export function AppEntryState({
         setMagicLinkCooldownUntil(null);
     };
 
-    const continueWithEmail = () => {
+    const startSignInFlow = () => {
         if (!emailTrimmed) return;
         setLocalAuthHint(null);
         setShowRegisterHint(false);
         setMagicLinkWasSent(false);
         setMagicLinkCooldownUntil(null);
         setAuthMode("password");
+    };
+
+    const startRegisterFlow = () => {
+        if (!emailTrimmed) return;
+        setLocalAuthHint(null);
+        setShowRegisterHint(false);
+        setMagicLinkWasSent(false);
+        setMagicLinkCooldownUntil(null);
+        setEntryPassword("");
+        setRegisterConfirm("");
+        setAuthMode("register");
     };
 
     const signInWithPassword = async () => {
@@ -178,10 +189,18 @@ export function AppEntryState({
                                             className="primary"
                                             disabled={authLoading || !emailTrimmed}
                                             onClick={() => {
-                                                continueWithEmail();
+                                                startSignInFlow();
                                             }}
                                         >
-                                            {tr(language, "auth.continue")}
+                                            {tr(language, "settings.accountSignIn")}
+                                        </button>
+                                        <button
+                                            disabled={authLoading || !emailTrimmed}
+                                            onClick={() => {
+                                                startRegisterFlow();
+                                            }}
+                                        >
+                                            {tr(language, "auth.register")}
                                         </button>
                                     </div>
                                 )}
