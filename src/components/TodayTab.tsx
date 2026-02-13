@@ -35,6 +35,7 @@ type TodayTabProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
+    weekCompletion: { done: number; total: number; percent: number };
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
@@ -69,6 +70,7 @@ export function TodayTab({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
+    weekCompletion,
     selectedWeekTargets,
     blockDraft,
     setBlockDraft,
@@ -92,6 +94,10 @@ export function TodayTab({
     dailyReview,
     updateCycle
 }: TodayTabProps) {
+    const cycleEndDate = cycle.weeks[cycle.weeks.length - 1]?.endDate ?? cycle.startDate;
+    const isDateWithinCycle = selectedDate >= cycle.startDate && selectedDate <= cycleEndDate;
+    const activeWeekTargets = isDateWithinCycle ? selectedWeekTargets : [];
+
     return (
         <section className="card">
             <div className="section-title">
@@ -107,6 +113,7 @@ export function TodayTab({
                 setSelectedWeek={setSelectedWeek}
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
+                weekCompletion={isDateWithinCycle ? weekCompletion : { done: 0, total: 0, percent: 0 }}
             />
 
             <fieldset className="readonly-fieldset" disabled={isArchiveView}>
@@ -115,7 +122,7 @@ export function TodayTab({
                     timeFormat={timeFormat}
                     isArchiveView={isArchiveView}
                     selectedDate={selectedDate}
-                    selectedWeekTargets={selectedWeekTargets}
+                    selectedWeekTargets={activeWeekTargets}
                     blockDraft={blockDraft}
                     setBlockDraft={setBlockDraft}
                     dayBlocks={dayBlocks}
@@ -134,7 +141,7 @@ export function TodayTab({
                 <TodayOpenTargetsSection
                     language={language}
                     selectedWeek={selectedWeek}
-                    selectedWeekTargets={selectedWeekTargets}
+                    selectedWeekTargets={activeWeekTargets}
                     getWeeklyRemaining={getWeeklyRemaining}
                 />
 

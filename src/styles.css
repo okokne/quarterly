@@ -2854,28 +2854,155 @@ button.ghost-danger:hover {
   gap: 4px;
 }
 
-.today-date-controls {
+.today-nav-header {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.today-date-input {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
+  margin-bottom: 10px;
 }
 
 .today-date-selected {
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-subtle);
+}
+
+.today-date-selected strong {
+  font-size: 0.9rem;
+}
+
+.today-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.today-week-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.today-week-progress-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.today-calendar-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.today-calendar-trigger:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.today-calendar-trigger input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.today-week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  touch-action: pan-y;
+}
+
+.today-weekday-chip {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 8px 6px;
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+
+.today-weekday-chip:hover {
+  border-color: var(--accent-muted);
+}
+
+.today-weekday-chip:active {
+  transform: translateY(1px);
+}
+
+.today-weekday-chip.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.today-weekday-chip.today {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.today-weekday-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.today-weekday-date {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.today-weekday-indicators {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 8px;
+}
+
+.day-has-entry-dot,
+.day-today-dot {
+  border-radius: 999px;
+}
+
+.day-has-entry-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-muted);
+}
+
+.day-today-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
 }
 
 /* ─── Responsive ─── */
@@ -2920,9 +3047,40 @@ button.ghost-danger:hover {
     padding: 16px;
   }
 
-  .today-date-controls .button,
-  .today-date-controls .today-date-input {
+  .today-nav-header {
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .today-date-selected {
     width: 100%;
+  }
+
+  .today-nav-actions {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
+
+  .today-nav-actions .button {
+    flex: 1 1 auto;
+  }
+
+  .today-week-strip {
+    gap: 6px;
+  }
+
+  .today-weekday-chip {
+    min-height: 66px;
+    padding: 7px 4px;
+  }
+
+  .today-weekday-label {
+    font-size: 0.62rem;
+  }
+
+  .today-weekday-date {
+    font-size: 0.88rem;
   }
 
   .stats-chart {

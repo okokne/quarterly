@@ -472,6 +472,7 @@ export default function App() {
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
+    weekCompletion,
     selectedWeekTargets,
     totalWeeklyTargets,
     dayBlocks,
