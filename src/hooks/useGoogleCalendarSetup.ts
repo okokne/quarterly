@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { GoogleCalendar, initGoogleApi, initGoogleIdentity, isSignedIn, listCalendars } from "../googleCalendar";
-import { CALENDAR_ID_STORAGE_KEY } from "../types";
+import { CALENDAR_ID_STORAGE_KEY, StorageScope } from "../types";
+import { readScopedStorageValue } from "../persistence/storageScope";
 
-export function useGoogleCalendarSetup() {
+type UseGoogleCalendarSetupParams = {
+    storageScope: StorageScope;
+};
+
+export function useGoogleCalendarSetup({ storageScope }: UseGoogleCalendarSetupParams) {
     const [googleLoading, setGoogleLoading] = useState(true);
     const [googleConnected, setGoogleConnected] = useState(false);
     const [calendarList, setCalendarList] = useState<GoogleCalendar[]>([]);
     const [selectedCalendarId, setSelectedCalendarId] = useState(() => {
-        return localStorage.getItem(CALENDAR_ID_STORAGE_KEY) || "primary";
+        return readScopedStorageValue(CALENDAR_ID_STORAGE_KEY, storageScope) || "primary";
     });
 
     useEffect(() => {

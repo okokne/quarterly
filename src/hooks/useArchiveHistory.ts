@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Cycle, HISTORY_STORAGE_KEY, Id } from "../types";
+import { Cycle, HISTORY_STORAGE_KEY, Id, StorageScope } from "../types";
+import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
 
-function readHistory(): Cycle[] {
-    const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+function readHistory(scope: StorageScope): Cycle[] {
+    const raw = readScopedStorageValue(HISTORY_STORAGE_KEY, scope);
     if (!raw) return [];
     try {
         return JSON.parse(raw) as Cycle[];
@@ -13,10 +14,11 @@ function readHistory(): Cycle[] {
 
 type UseArchiveHistoryParams = {
     activeCycle: Cycle | null;
+    storageScope: StorageScope;
 };
 
-export function useArchiveHistory({ activeCycle }: UseArchiveHistoryParams) {
-    const [history, setHistory] = useState<Cycle[]>(readHistory);
+export function useArchiveHistory({ activeCycle, storageScope }: UseArchiveHistoryParams) {
+    const [history, setHistory] = useState<Cycle[]>(() => readHistory(storageScope));
     const [viewingArchiveId, setViewingArchiveId] = useState<Id | null>(null);
     const isArchiveView = viewingArchiveId !== null;
 
@@ -29,11 +31,11 @@ export function useArchiveHistory({ activeCycle }: UseArchiveHistoryParams) {
 
     useEffect(() => {
         try {
-            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+            writeScopedStorageValue(HISTORY_STORAGE_KEY, storageScope, JSON.stringify(history));
         } catch (err) {
             console.error("Failed to persist history:", err);
         }
-    }, [history]);
+    }, [history, storageScope]);
 
     return {
         history,

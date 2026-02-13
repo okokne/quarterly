@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import {
   Cycle, Id, WeeklyTarget, DailyTemplate,
-  STORAGE_KEY, LEGACY_KEY,
+  LEGACY_KEY, StorageScope,
   emptyWeeklyReview, emptyDailyReview, emptyFinalReview
 } from "./types";
 import {
   uid, toIsoDate, addDays,
   formatRange,
   getWeekIndexForDate,
-  loadCycle, saveCycle, buildCycle, buildDemoCycle, migrateCycle,
+  buildCycle, buildDemoCycle, migrateCycle,
   cycleReducer
 } from "./utils";
 import { StatsView } from "./components/StatsView";
@@ -32,19 +32,45 @@ import { usePreferences } from "./hooks/usePreferences";
 import { useArchiveHistory } from "./hooks/useArchiveHistory";
 import { useCycleSearch } from "./hooks/useCycleSearch";
 import { buildPersistedPlannerState } from "./persistence/stateSerializer";
+import { readPersistedPlannerStateFromLocalStorage } from "./persistence/stateSerializer";
 import { usePlannerPersistence } from "./hooks/usePlannerPersistence";
 import { usePlannerSync } from "./hooks/usePlannerSync";
+import { debugSync } from "./sync/syncDebug";
+import {
+  getActiveStorageScope,
+  migrateLegacyPlannerKeysToGuestScope,
+  setActiveStorageScope
+} from "./persistence/storageScope";
 
 export default function App() {
+  const initialStorageScope = useMemo<StorageScope>(() => {
+    migrateLegacyPlannerKeysToGuestScope();
+    return getActiveStorageScope();
+  }, []);
+
+  const [storageScope, setStorageScope] = useState<StorageScope>(initialStorageScope);
+  const handleStorageScopeChange = useCallback((nextScope: StorageScope) => {
+    const normalized = setActiveStorageScope(nextScope);
+    setStorageScope(normalized);
+  }, []);
+
+  useEffect(() => {
+    setActiveStorageScope(storageScope);
+  }, [storageScope]);
+
+  const initialPersistedState = useMemo(
+    () => readPersistedPlannerStateFromLocalStorage(undefined, initialStorageScope),
+    [initialStorageScope]
+  );
+
   const [cycleState, dispatch] = useReducer(cycleReducer, {
-    present: null,
+    present: initialPersistedState.cycle,
     past: [],
     future: []
-  }, (initial) => {
-    const loaded = loadCycle();
-    const migrated = loaded ? migrateCycle(loaded) : null;
-    return { ...initial, present: migrated };
-  });
+  }, (initial) => ({
+    ...initial,
+    present: initial.present ? migrateCycle(initial.present) : null
+  }));
   const { present: activeCycle, past, future } = cycleState;
   const {
     history,
@@ -53,7 +79,7 @@ export default function App() {
     setViewingArchiveId,
     isArchiveView,
     cycle
-  } = useArchiveHistory({ activeCycle });
+  } = useArchiveHistory({ activeCycle, storageScope });
 
   const {
     habits,
@@ -62,7 +88,7 @@ export default function App() {
     setHabitLog,
     getActiveHabitsForDate,
     toggleHabit
-  } = useHabitsStore({ activeCycle, isArchiveView });
+  } = useHabitsStore({ activeCycle, isArchiveView, storageScope });
 
   const handleDeleteHabit = (habitId: Id) => {
     setHabits((prev) => prev.filter((habit) => habit.id !== habitId));
@@ -90,7 +116,7 @@ export default function App() {
     setCalendarList,
     selectedCalendarId,
     setSelectedCalendarId
-  } = useGoogleCalendarSetup();
+  } = useGoogleCalendarSetup({ storageScope });
 
   // Unregister Service Worker to fix caching issues
   useEffect(() => {
@@ -130,19 +156,11 @@ export default function App() {
     setDateFormat,
     timeFormat,
     setTimeFormat
-  } = usePreferences();
+  } = usePreferences({ storageScope });
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const searchResults = useCycleSearch({ cycle, searchQuery, language });
-
-  useEffect(() => {
-    if (activeCycle) {
-      saveCycle(activeCycle);
-      return;
-    }
-    localStorage.removeItem(STORAGE_KEY);
-  }, [activeCycle]);
 
   useEffect(() => {
     if (!cycle) return;
@@ -209,7 +227,6 @@ export default function App() {
     const archivedCycle = { ...activeCycle };
     setHistory(prev => [...prev, archivedCycle]);
     dispatch({ type: 'SET', payload: null });
-    localStorage.removeItem(STORAGE_KEY);
     setStep(1);
     // Google Calendar State
     if (googleConnected) {
@@ -299,7 +316,8 @@ export default function App() {
     deleteTemplate
   } = useDailyTemplates({
     selectedDate,
-    updateCycle
+    updateCycle,
+    storageScope
   });
 
   const persistedPlannerState = useMemo(() => buildPersistedPlannerState({
@@ -355,21 +373,12 @@ export default function App() {
   ]);
 
   const {
-    snapshotMetas,
-    recoveryCandidate,
-    persistenceWarning,
-    clearPersistenceWarning,
-    dismissRecovery,
-    restoreLatestSnapshot
-  } = usePlannerPersistence({
-    state: persistedPlannerState,
-    applyState: applyPersistedState
-  });
-
-  const {
     syncEnabled,
     syncStatus,
     initialSyncReady,
+    bootstrapStatus,
+    activeScope,
+    lastBootstrapSource,
     isAuthenticated,
     authLoading,
     authError,
@@ -387,10 +396,34 @@ export default function App() {
     resolveSyncConflict
   } = usePlannerSync({
     state: persistedPlannerState,
-    onApplyRemoteState: applyPersistedState
+    onApplyRemoteState: applyPersistedState,
+    storageScope,
+    onStorageScopeChange: handleStorageScopeChange
   });
 
-  const awaitingCloudDashboard = !cycle && syncEnabled && isAuthenticated && !initialSyncReady;
+  const {
+    snapshotMetas,
+    recoveryCandidate,
+    persistenceWarning,
+    clearPersistenceWarning,
+    dismissRecovery,
+    restoreLatestSnapshot
+  } = usePlannerPersistence({
+    state: persistedPlannerState,
+    applyState: applyPersistedState,
+    storageScope,
+    suspendWrites: bootstrapStatus === "restoring"
+  });
+
+  const awaitingCloudDashboard = !cycle && syncEnabled && isAuthenticated && bootstrapStatus !== "ready";
+
+  useEffect(() => {
+    debugSync("plans_screen_render", {
+      source: lastBootstrapSource,
+      scope: activeScope,
+      count: cycle ? 1 : 0
+    });
+  }, [activeScope, cycle, lastBootstrapSource]);
 
   if (!cycle) {
     const tourSlides = [

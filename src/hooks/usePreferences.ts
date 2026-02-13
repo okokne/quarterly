@@ -5,69 +5,75 @@ import {
     APP_DATE_FORMAT_STORAGE_KEY,
     APP_TIME_FORMAT_STORAGE_KEY,
     DateFormat,
-    TimeFormat
+    TimeFormat,
+    StorageScope
 } from "../types";
 import { APP_LANGUAGE_STORAGE_KEY, detectInitialLanguage, isAppLanguage } from "../i18n";
+import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
 
-function readDateFormat(): DateFormat {
-    const stored = localStorage.getItem(APP_DATE_FORMAT_STORAGE_KEY);
+function readDateFormat(scope: StorageScope): DateFormat {
+    const stored = readScopedStorageValue(APP_DATE_FORMAT_STORAGE_KEY, scope);
     if (stored === "eu_short" || stored === "eu_long" || stored === "iso") return stored;
     return "eu_short";
 }
 
-function readTimeFormat(): TimeFormat {
-    const stored = localStorage.getItem(APP_TIME_FORMAT_STORAGE_KEY);
+function readTimeFormat(scope: StorageScope): TimeFormat {
+    const stored = readScopedStorageValue(APP_TIME_FORMAT_STORAGE_KEY, scope);
     if (stored === "24h" || stored === "12h") return stored;
     return "24h";
 }
 
-function readLanguage(): AppLanguage {
-    const stored = localStorage.getItem(APP_LANGUAGE_STORAGE_KEY);
+function readLanguage(scope: StorageScope): AppLanguage {
+    const stored = readScopedStorageValue(APP_LANGUAGE_STORAGE_KEY, scope);
     if (isAppLanguage(stored)) return stored;
     return detectInitialLanguage();
 }
 
-export function usePreferences() {
+type UsePreferencesParams = {
+    storageScope: StorageScope;
+};
+
+export function usePreferences({ storageScope }: UsePreferencesParams) {
     const [darkMode, setDarkMode] = useState(() => {
-        const stored = localStorage.getItem(APP_DARK_MODE_STORAGE_KEY);
+        const stored = readScopedStorageValue(APP_DARK_MODE_STORAGE_KEY, storageScope);
         return stored === "true";
     });
-    const [language, setLanguage] = useState<AppLanguage>(readLanguage);
-    const [dateFormat, setDateFormat] = useState<DateFormat>(readDateFormat);
-    const [timeFormat, setTimeFormat] = useState<TimeFormat>(readTimeFormat);
+    const [language, setLanguage] = useState<AppLanguage>(() => readLanguage(storageScope));
+    const [dateFormat, setDateFormat] = useState<DateFormat>(() => readDateFormat(storageScope));
+    const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => readTimeFormat(storageScope));
 
     useEffect(() => {
         document.body.classList.toggle("dark-mode", darkMode);
         try {
-            localStorage.setItem(APP_DARK_MODE_STORAGE_KEY, darkMode.toString());
+            writeScopedStorageValue(APP_DARK_MODE_STORAGE_KEY, storageScope, darkMode.toString());
         } catch (err) {
             console.error("Failed to persist dark mode:", err);
         }
-    }, [darkMode]);
+    }, [darkMode, storageScope]);
 
     useEffect(() => {
         try {
-            localStorage.setItem(APP_DATE_FORMAT_STORAGE_KEY, dateFormat);
+            writeScopedStorageValue(APP_DATE_FORMAT_STORAGE_KEY, storageScope, dateFormat);
         } catch (err) {
             console.error("Failed to persist date format:", err);
         }
-    }, [dateFormat]);
+    }, [dateFormat, storageScope]);
 
     useEffect(() => {
         try {
-            localStorage.setItem(APP_TIME_FORMAT_STORAGE_KEY, timeFormat);
+            writeScopedStorageValue(APP_TIME_FORMAT_STORAGE_KEY, storageScope, timeFormat);
         } catch (err) {
             console.error("Failed to persist time format:", err);
         }
-    }, [timeFormat]);
+    }, [timeFormat, storageScope]);
 
     useEffect(() => {
         try {
-            localStorage.setItem(APP_LANGUAGE_STORAGE_KEY, language);
+            writeScopedStorageValue(APP_LANGUAGE_STORAGE_KEY, storageScope, language);
         } catch (err) {
             console.error("Failed to persist language:", err);
         }
-    }, [language]);
+    }, [language, storageScope]);
 
     return {
         darkMode,

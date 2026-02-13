@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Cycle, DailyBlock, DailyTemplate, DAILY_TEMPLATES_STORAGE_KEY, Id } from "../types";
+import { Cycle, DailyBlock, DailyTemplate, DAILY_TEMPLATES_STORAGE_KEY, Id, StorageScope } from "../types";
+import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
 
 type UseDailyTemplatesParams = {
     selectedDate: string;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
+    storageScope: StorageScope;
 };
 
 function parseTemplates(raw: string | null): DailyTemplate[] {
@@ -15,18 +17,18 @@ function parseTemplates(raw: string | null): DailyTemplate[] {
     }
 }
 
-export function useDailyTemplates({ selectedDate, updateCycle }: UseDailyTemplatesParams) {
+export function useDailyTemplates({ selectedDate, updateCycle, storageScope }: UseDailyTemplatesParams) {
     const [templates, setTemplates] = useState<DailyTemplate[]>(() => {
-        return parseTemplates(localStorage.getItem(DAILY_TEMPLATES_STORAGE_KEY));
+        return parseTemplates(readScopedStorageValue(DAILY_TEMPLATES_STORAGE_KEY, storageScope));
     });
 
     useEffect(() => {
         try {
-            localStorage.setItem(DAILY_TEMPLATES_STORAGE_KEY, JSON.stringify(templates));
+            writeScopedStorageValue(DAILY_TEMPLATES_STORAGE_KEY, storageScope, JSON.stringify(templates));
         } catch (err) {
             console.error("Failed to persist templates:", err);
         }
-    }, [templates]);
+    }, [templates, storageScope]);
 
     const saveAsTemplate = (name: string, dayBlocks: DailyBlock[]): boolean => {
         if (!name.trim()) return false;

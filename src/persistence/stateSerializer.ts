@@ -10,12 +10,20 @@ import {
     HISTORY_STORAGE_KEY,
     PersistedPlannerPreferences,
     PersistedPlannerState,
+    StorageScope,
     STORAGE_KEY,
     Cycle,
     DailyTemplate,
     Habit
 } from "../types";
 import { migrateCycle } from "../utils";
+import {
+    GUEST_SCOPE,
+    getActiveStorageScope,
+    readScopedStorageValue,
+    removeScopedStorageValue,
+    writeScopedStorageValue
+} from "./storageScope";
 
 export type ImportMode = "replace" | "merge_missing";
 
@@ -64,7 +72,7 @@ function readLanguage(raw: string | null): PersistedPlannerPreferences["language
     return detectInitialLanguage();
 }
 
-function readPreferencesFromStorage(fallback?: PersistedPlannerPreferences): PersistedPlannerPreferences {
+function readPreferencesFromStorage(scope: StorageScope, fallback?: PersistedPlannerPreferences): PersistedPlannerPreferences {
     if (typeof localStorage === "undefined") {
         return fallback ?? {
             darkMode: false,
@@ -83,11 +91,11 @@ function readPreferencesFromStorage(fallback?: PersistedPlannerPreferences): Per
             timeFormat: DEFAULT_TIME_FORMAT,
             selectedCalendarId: "primary"
         }),
-        darkMode: localStorage.getItem(APP_DARK_MODE_STORAGE_KEY) === "true",
-        language: readLanguage(localStorage.getItem(APP_LANGUAGE_STORAGE_KEY)),
-        dateFormat: readDateFormat(localStorage.getItem(APP_DATE_FORMAT_STORAGE_KEY)),
-        timeFormat: readTimeFormat(localStorage.getItem(APP_TIME_FORMAT_STORAGE_KEY)),
-        selectedCalendarId: localStorage.getItem(CALENDAR_ID_STORAGE_KEY) || "primary"
+        darkMode: readScopedStorageValue(APP_DARK_MODE_STORAGE_KEY, scope) === "true",
+        language: readLanguage(readScopedStorageValue(APP_LANGUAGE_STORAGE_KEY, scope)),
+        dateFormat: readDateFormat(readScopedStorageValue(APP_DATE_FORMAT_STORAGE_KEY, scope)),
+        timeFormat: readTimeFormat(readScopedStorageValue(APP_TIME_FORMAT_STORAGE_KEY, scope)),
+        selectedCalendarId: readScopedStorageValue(CALENDAR_ID_STORAGE_KEY, scope) || "primary"
     };
 }
 
@@ -104,9 +112,10 @@ function normalizeHabitLog(raw: unknown): Record<string, string[]> {
 
 function normalizePreferences(
     raw: unknown,
-    fallback?: PersistedPlannerPreferences
+    fallback?: PersistedPlannerPreferences,
+    scope: StorageScope = GUEST_SCOPE
 ): PersistedPlannerPreferences {
-    const base = readPreferencesFromStorage(fallback);
+    const base = readPreferencesFromStorage(scope, fallback);
     if (!raw || typeof raw !== "object") return base;
     const candidate = raw as Partial<PersistedPlannerPreferences>;
 
@@ -134,7 +143,8 @@ function normalizePreferences(
 
 export function sanitizePersistedPlannerState(
     raw: unknown,
-    fallbackPreferences?: PersistedPlannerPreferences
+    fallbackPreferences?: PersistedPlannerPreferences,
+    scope: StorageScope = GUEST_SCOPE
 ): PersistedPlannerState {
     const defaults = {
         cycle: null,
@@ -142,7 +152,7 @@ export function sanitizePersistedPlannerState(
         history: [],
         habits: [],
         habitLog: {},
-        preferences: normalizePreferences(undefined, fallbackPreferences)
+        preferences: normalizePreferences(undefined, fallbackPreferences, scope)
     } satisfies PersistedPlannerState;
 
     if (!raw || typeof raw !== "object") {
@@ -157,7 +167,7 @@ export function sanitizePersistedPlannerState(
         : [];
     const habits = Array.isArray(input.habits) ? input.habits : [];
     const habitLog = normalizeHabitLog(input.habitLog);
-    const preferences = normalizePreferences(input.preferences, fallbackPreferences);
+    const preferences = normalizePreferences(input.preferences, fallbackPreferences, scope);
 
     return {
         cycle,
@@ -199,7 +209,8 @@ export function hasMeaningfulPlannerData(state: PersistedPlannerState): boolean 
 }
 
 export function readPersistedPlannerStateFromLocalStorage(
-    fallbackPreferences?: PersistedPlannerPreferences
+    fallbackPreferences?: PersistedPlannerPreferences,
+    scope: StorageScope = getActiveStorageScope()
 ): PersistedPlannerState {
     if (typeof localStorage === "undefined") {
         return {
@@ -208,15 +219,15 @@ export function readPersistedPlannerStateFromLocalStorage(
             history: [],
             habits: [],
             habitLog: {},
-            preferences: readPreferencesFromStorage(fallbackPreferences)
+            preferences: readPreferencesFromStorage(scope, fallbackPreferences)
         };
     }
 
-    const cycle = readCycle(localStorage.getItem(STORAGE_KEY));
-    const templates = safeJsonParse<DailyTemplate[]>(localStorage.getItem(DAILY_TEMPLATES_STORAGE_KEY), []);
-    const history = readHistory(localStorage.getItem(HISTORY_STORAGE_KEY));
-    const habits = safeJsonParse<Habit[]>(localStorage.getItem(HABITS_STORAGE_KEY), []);
-    const habitLog = normalizeHabitLog(safeJsonParse<unknown>(localStorage.getItem(HABIT_LOG_STORAGE_KEY), {}));
+    const cycle = readCycle(readScopedStorageValue(STORAGE_KEY, scope));
+    const templates = safeJsonParse<DailyTemplate[]>(readScopedStorageValue(DAILY_TEMPLATES_STORAGE_KEY, scope), []);
+    const history = readHistory(readScopedStorageValue(HISTORY_STORAGE_KEY, scope));
+    const habits = safeJsonParse<Habit[]>(readScopedStorageValue(HABITS_STORAGE_KEY, scope), []);
+    const habitLog = normalizeHabitLog(safeJsonParse<unknown>(readScopedStorageValue(HABIT_LOG_STORAGE_KEY, scope), {}));
 
     return sanitizePersistedPlannerState(
         {
@@ -225,29 +236,33 @@ export function readPersistedPlannerStateFromLocalStorage(
             history,
             habits: Array.isArray(habits) ? habits : [],
             habitLog,
-            preferences: readPreferencesFromStorage(fallbackPreferences)
+            preferences: readPreferencesFromStorage(scope, fallbackPreferences)
         },
-        fallbackPreferences
+        fallbackPreferences,
+        scope
     );
 }
 
-export function writePersistedPlannerStateToLocalStorage(state: PersistedPlannerState): Error | null {
+export function writePersistedPlannerStateToLocalStorage(
+    state: PersistedPlannerState,
+    scope: StorageScope = getActiveStorageScope()
+): Error | null {
     if (typeof localStorage === "undefined") return null;
     try {
         if (state.cycle) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cycle));
+            writeScopedStorageValue(STORAGE_KEY, scope, JSON.stringify(state.cycle));
         } else {
-            localStorage.removeItem(STORAGE_KEY);
+            removeScopedStorageValue(STORAGE_KEY, scope);
         }
-        localStorage.setItem(DAILY_TEMPLATES_STORAGE_KEY, JSON.stringify(state.templates));
-        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(state.history));
-        localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(state.habits));
-        localStorage.setItem(HABIT_LOG_STORAGE_KEY, JSON.stringify(state.habitLog));
-        localStorage.setItem(APP_DARK_MODE_STORAGE_KEY, String(state.preferences.darkMode));
-        localStorage.setItem(APP_LANGUAGE_STORAGE_KEY, state.preferences.language);
-        localStorage.setItem(APP_DATE_FORMAT_STORAGE_KEY, state.preferences.dateFormat);
-        localStorage.setItem(APP_TIME_FORMAT_STORAGE_KEY, state.preferences.timeFormat);
-        localStorage.setItem(CALENDAR_ID_STORAGE_KEY, state.preferences.selectedCalendarId || "primary");
+        writeScopedStorageValue(DAILY_TEMPLATES_STORAGE_KEY, scope, JSON.stringify(state.templates));
+        writeScopedStorageValue(HISTORY_STORAGE_KEY, scope, JSON.stringify(state.history));
+        writeScopedStorageValue(HABITS_STORAGE_KEY, scope, JSON.stringify(state.habits));
+        writeScopedStorageValue(HABIT_LOG_STORAGE_KEY, scope, JSON.stringify(state.habitLog));
+        writeScopedStorageValue(APP_DARK_MODE_STORAGE_KEY, scope, String(state.preferences.darkMode));
+        writeScopedStorageValue(APP_LANGUAGE_STORAGE_KEY, scope, state.preferences.language);
+        writeScopedStorageValue(APP_DATE_FORMAT_STORAGE_KEY, scope, state.preferences.dateFormat);
+        writeScopedStorageValue(APP_TIME_FORMAT_STORAGE_KEY, scope, state.preferences.timeFormat);
+        writeScopedStorageValue(CALENDAR_ID_STORAGE_KEY, scope, state.preferences.selectedCalendarId || "primary");
         return null;
     } catch (err) {
         return err instanceof Error ? err : new Error("Unknown localStorage write error");

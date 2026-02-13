@@ -20,6 +20,9 @@ export type TimeFormat = "24h" | "12h";
 export type AppLanguage = "de" | "en";
 export type SyncStatus = "idle" | "syncing" | "synced" | "error" | "offline";
 export type SyncConflictResolution = "keep_local" | "keep_cloud" | "export_both";
+export type StorageScope = "guest" | string;
+export type BootstrapStatus = "idle" | "restoring" | "ready" | "error";
+export type SyncSource = "cloud" | "local_scoped" | "guest" | "none";
 
 export type Cycle = {
     id: Id;

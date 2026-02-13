@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
     AppLanguage,
-    CALENDAR_ID_STORAGE_KEY,
     Cycle,
     DailyTemplate,
     DateFormat,
@@ -379,11 +378,6 @@ export function SettingsModal({
                                             setTimeFormat(nextState.preferences.timeFormat);
                                             if (nextState.preferences.selectedCalendarId.trim()) {
                                                 setSelectedCalendarId(nextState.preferences.selectedCalendarId);
-                                                try {
-                                                    localStorage.setItem(CALENDAR_ID_STORAGE_KEY, nextState.preferences.selectedCalendarId);
-                                                } catch (err) {
-                                                    console.error("Failed to persist calendar id:", err);
-                                                }
                                             }
                                             setViewingArchiveId(null);
                                             setShowSettings(false);
@@ -474,11 +468,6 @@ export function SettingsModal({
                                     disabled={readOnly}
                                     onChange={(e) => {
                                         setSelectedCalendarId(e.target.value);
-                                        try {
-                                            localStorage.setItem(CALENDAR_ID_STORAGE_KEY, e.target.value);
-                                        } catch (err) {
-                                            console.error("Failed to persist calendar id:", err);
-                                        }
                                     }}
                                     className="settings-select"
                                 >

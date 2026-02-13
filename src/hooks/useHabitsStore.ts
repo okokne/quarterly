@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Cycle, Habit, HABITS_STORAGE_KEY, HABIT_LOG_STORAGE_KEY, Id } from "../types";
+import { Cycle, Habit, HABITS_STORAGE_KEY, HABIT_LOG_STORAGE_KEY, Id, StorageScope } from "../types";
 import { parseIso } from "../utils";
 import { toggleHabitLogEntry } from "../regressionLogic";
+import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
 
 function parseStored<T>(raw: string | null, fallback: T): T {
     if (!raw) return fallback;
@@ -15,31 +16,32 @@ function parseStored<T>(raw: string | null, fallback: T): T {
 type UseHabitsStoreParams = {
     activeCycle: Cycle | null;
     isArchiveView: boolean;
+    storageScope: StorageScope;
 };
 
-export function useHabitsStore({ activeCycle, isArchiveView }: UseHabitsStoreParams) {
+export function useHabitsStore({ activeCycle, isArchiveView, storageScope }: UseHabitsStoreParams) {
     const [habits, setHabits] = useState<Habit[]>(() =>
-        parseStored<Habit[]>(localStorage.getItem(HABITS_STORAGE_KEY), [])
+        parseStored<Habit[]>(readScopedStorageValue(HABITS_STORAGE_KEY, storageScope), [])
     );
     const [habitLog, setHabitLog] = useState<Record<string, string[]>>(() =>
-        parseStored<Record<string, string[]>>(localStorage.getItem(HABIT_LOG_STORAGE_KEY), {})
+        parseStored<Record<string, string[]>>(readScopedStorageValue(HABIT_LOG_STORAGE_KEY, storageScope), {})
     );
 
     useEffect(() => {
         try {
-            localStorage.setItem(HABITS_STORAGE_KEY, JSON.stringify(habits));
+            writeScopedStorageValue(HABITS_STORAGE_KEY, storageScope, JSON.stringify(habits));
         } catch (err) {
             console.error("Failed to persist habits:", err);
         }
-    }, [habits]);
+    }, [habits, storageScope]);
 
     useEffect(() => {
         try {
-            localStorage.setItem(HABIT_LOG_STORAGE_KEY, JSON.stringify(habitLog));
+            writeScopedStorageValue(HABIT_LOG_STORAGE_KEY, storageScope, JSON.stringify(habitLog));
         } catch (err) {
             console.error("Failed to persist habit log:", err);
         }
-    }, [habitLog]);
+    }, [habitLog, storageScope]);
 
     // One-time per cycle migration: old cycle-scoped habits -> global store.
     useEffect(() => {

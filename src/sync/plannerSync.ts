@@ -1,6 +1,7 @@
 import { PersistedPlannerState, SyncConflictResolution } from "../types";
 import { supabaseRestRequest, SupabaseAuthSession } from "./supabaseClient";
 import { safeSerialize, sanitizePersistedPlannerState } from "../persistence/stateSerializer";
+import { debugSync } from "./syncDebug";
 
 export type PlannerStateRecord = {
     userId?: string;
@@ -107,6 +108,10 @@ export async function fetchCloudPlannerState(
     session: SupabaseAuthSession
 ): Promise<{ record: PlannerStateRecord | null; error: string | null }> {
     const userId = encodeURIComponent(session.user.id);
+    debugSync("fetch_plans_request", {
+        endpoint: "/rest/v1/planner_state",
+        userId: session.user.id
+    });
     const result = await supabaseRestRequest<PlannerStateRow[]>(
         `/rest/v1/planner_state?select=user_id,state_json,version,updated_at,schema_version&user_id=eq.${userId}&limit=1`,
         {
@@ -115,9 +120,22 @@ export async function fetchCloudPlannerState(
         session
     );
     if (result.error) {
+        debugSync("fetch_plans_response", {
+            userId: session.user.id,
+            ok: false,
+            status: result.status,
+            error: result.error
+        });
         return { record: null, error: result.error };
     }
     const row = result.data?.[0];
+    debugSync("fetch_plans_response", {
+        userId: session.user.id,
+        ok: true,
+        status: result.status,
+        count: row ? 1 : 0,
+        version: row?.version ?? null
+    });
     return { record: row ? normalizeRow(row) : null, error: null };
 }
 

@@ -18,6 +18,7 @@ import {
     TimeFormat
 } from "./types";
 import type { Id } from "./types";
+import { getActiveStorageScope, readScopedStorageValue, writeScopedStorageValue } from "./persistence/storageScope";
 
 // ─── ID Generator ───
 export function uid(): Id {
@@ -105,7 +106,7 @@ export function clamp(n: number, min: number, max: number): number {
 
 // ─── Persistence ───
 export function loadCycle(): Cycle | null {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = readScopedStorageValue(STORAGE_KEY, getActiveStorageScope());
     if (!raw) return null;
     try {
         return JSON.parse(raw) as Cycle;
@@ -117,7 +118,7 @@ export function loadCycle(): Cycle | null {
 export function saveCycle(cycle: Cycle | null): void {
     if (!cycle) return;
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(cycle));
+        writeScopedStorageValue(STORAGE_KEY, getActiveStorageScope(), JSON.stringify(cycle));
     } catch (err) {
         console.error("Failed to persist cycle:", err);
     }

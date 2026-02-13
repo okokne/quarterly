@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       __VITE_SYNC_ENABLED__: JSON.stringify(env.VITE_SYNC_ENABLED ?? env.SYNC_ENABLED ?? ""),
+      __VITE_SYNC_DEBUG__: JSON.stringify(env.VITE_SYNC_DEBUG ?? env.SYNC_DEBUG ?? ""),
       __VITE_SUPABASE_URL__: JSON.stringify(
         env.VITE_SUPABASE_URL ?? env.SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL ?? ""
       ),

@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     LocalSnapshotMeta,
     PersistedPlannerState,
-    STATE_WRITE_TS_STORAGE_KEY
+    STATE_WRITE_TS_STORAGE_KEY,
+    StorageScope
 } from "../types";
 import {
     createAutoSnapshot,
@@ -19,6 +20,7 @@ import {
     safeSerialize,
     writePersistedPlannerStateToLocalStorage
 } from "../persistence/stateSerializer";
+import { getScopedStorageKey } from "../persistence/storageScope";
 
 function formatStorageError(error: Error): string {
     const quotaLike = /quota/i.test(error.name) || /quota/i.test(error.message);
@@ -31,20 +33,35 @@ function formatStorageError(error: Error): string {
 type UsePlannerPersistenceParams = {
     state: PersistedPlannerState;
     applyState: (state: PersistedPlannerState) => void;
+    storageScope: StorageScope;
+    suspendWrites?: boolean;
 };
 
-export function usePlannerPersistence({ state, applyState }: UsePlannerPersistenceParams) {
-    const [snapshotMetas, setSnapshotMetas] = useState<LocalSnapshotMeta[]>(() => listSnapshotMetas());
+export function usePlannerPersistence({
+    state,
+    applyState,
+    storageScope,
+    suspendWrites = false
+}: UsePlannerPersistenceParams) {
+    const [snapshotMetas, setSnapshotMetas] = useState<LocalSnapshotMeta[]>(() => listSnapshotMetas(storageScope));
     const [recoveryCandidate, setRecoveryCandidate] = useState<LocalSnapshotMeta | null>(null);
     const [persistenceWarning, setPersistenceWarning] = useState<string | null>(null);
 
     const lastSerializedRef = useRef<string | null>(null);
-    const localWriteTsRef = useRef<number>(readStateWriteTs());
+    const localWriteTsRef = useRef<number>(readStateWriteTs(storageScope));
     const didRunInitialPersistRef = useRef(false);
 
     const refreshMetas = useCallback(() => {
-        setSnapshotMetas(listSnapshotMetas());
-    }, []);
+        setSnapshotMetas(listSnapshotMetas(storageScope));
+    }, [storageScope]);
+
+    useEffect(() => {
+        localWriteTsRef.current = readStateWriteTs(storageScope);
+        didRunInitialPersistRef.current = false;
+        lastSerializedRef.current = null;
+        setRecoveryCandidate(null);
+        refreshMetas();
+    }, [storageScope, refreshMetas]);
 
     useEffect(() => {
         const health = isStorageHealthOk();
@@ -54,15 +71,16 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
     }, []);
 
     useEffect(() => {
-        const latest = getLatestSnapshotRecord();
+        const latest = getLatestSnapshotRecord(storageScope);
         if (!latest) return;
         if (!hasMeaningfulPlannerData(state) && hasMeaningfulPlannerData(latest.payload)) {
             const { snapshotId, createdAt, bytes } = latest;
             setRecoveryCandidate({ snapshotId, createdAt, bytes });
         }
-    }, [state]);
+    }, [state, storageScope]);
 
     useEffect(() => {
+        if (suspendWrites) return;
         const serialized = safeSerialize(state);
         if (!serialized.ok) {
             setPersistenceWarning(formatStorageError(serialized.error));
@@ -82,7 +100,7 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
         }
         lastSerializedRef.current = serialized.json;
 
-        const snapshotResult = createAutoSnapshot(state);
+        const snapshotResult = createAutoSnapshot(state, undefined, storageScope);
         if (snapshotResult.error) {
             setPersistenceWarning(formatStorageError(snapshotResult.error));
             return;
@@ -90,38 +108,39 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
         refreshMetas();
 
         const ts = Date.now();
-        const tsError = stampStateWriteTs(ts);
+        const tsError = stampStateWriteTs(ts, storageScope);
         if (tsError) {
             setPersistenceWarning(formatStorageError(tsError));
             return;
         }
         localWriteTsRef.current = ts;
-    }, [state, refreshMetas]);
+    }, [state, refreshMetas, storageScope, suspendWrites]);
 
     useEffect(() => {
+        const tsStorageKey = getScopedStorageKey(STATE_WRITE_TS_STORAGE_KEY, storageScope);
         const handleStorage = (event: StorageEvent) => {
-            if (event.key !== STATE_WRITE_TS_STORAGE_KEY || !event.newValue) return;
+            if (event.key !== tsStorageKey || !event.newValue) return;
             const incomingTs = Number(event.newValue);
             if (!Number.isFinite(incomingTs)) return;
             if (incomingTs <= localWriteTsRef.current) return;
 
             localWriteTsRef.current = incomingTs;
-            const nextState = readPersistedPlannerStateFromLocalStorage(state.preferences);
+            const nextState = readPersistedPlannerStateFromLocalStorage(state.preferences, storageScope);
             applyState(nextState);
             refreshMetas();
         };
 
         window.addEventListener("storage", handleStorage);
         return () => window.removeEventListener("storage", handleStorage);
-    }, [applyState, refreshMetas, state.preferences]);
+    }, [applyState, refreshMetas, state.preferences, storageScope]);
 
     const restoreSnapshot = useCallback((snapshotId?: string): boolean => {
         const record = snapshotId
-            ? getSnapshotRecordById(snapshotId)
-            : getLatestSnapshotRecord();
+            ? getSnapshotRecordById(snapshotId, storageScope)
+            : getLatestSnapshotRecord(storageScope);
         if (!record) return false;
 
-        const writeError = writePersistedPlannerStateToLocalStorage(record.payload);
+        const writeError = writePersistedPlannerStateToLocalStorage(record.payload, storageScope);
         if (writeError) {
             setPersistenceWarning(formatStorageError(writeError));
             return false;
@@ -132,17 +151,17 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
         refreshMetas();
 
         const ts = Date.now();
-        const tsError = stampStateWriteTs(ts);
+        const tsError = stampStateWriteTs(ts, storageScope);
         if (!tsError) {
             localWriteTsRef.current = ts;
         }
         return true;
-    }, [applyState, refreshMetas]);
+    }, [applyState, refreshMetas, storageScope]);
 
     const downloadSnapshot = useCallback((snapshotId?: string): boolean => {
         const record = snapshotId
-            ? getSnapshotRecordById(snapshotId)
-            : getLatestSnapshotRecord();
+            ? getSnapshotRecordById(snapshotId, storageScope)
+            : getLatestSnapshotRecord(storageScope);
         if (!record) return false;
         const serialized = safeSerialize(record.payload);
         if (!serialized.ok) {
@@ -157,7 +176,7 @@ export function usePlannerPersistence({ state, applyState }: UsePlannerPersisten
         a.click();
         URL.revokeObjectURL(url);
         return true;
-    }, []);
+    }, [storageScope]);
 
     const hasSnapshots = useMemo(() => snapshotMetas.length > 0, [snapshotMetas]);
 

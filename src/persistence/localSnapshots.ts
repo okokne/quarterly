@@ -3,9 +3,15 @@ import {
     LocalSnapshotMeta,
     LocalSnapshotRecord,
     PersistedPlannerState,
-    STATE_WRITE_TS_STORAGE_KEY
+    STATE_WRITE_TS_STORAGE_KEY,
+    StorageScope
 } from "../types";
 import { safeSerialize } from "./stateSerializer";
+import {
+    getActiveStorageScope,
+    readScopedStorageValue,
+    writeScopedStorageValue
+} from "./storageScope";
 
 export const MAX_AUTO_SNAPSHOTS = 30;
 
@@ -37,9 +43,9 @@ export function rotateSnapshots(records: LocalSnapshotRecord[], limit: number = 
     return records.slice(records.length - safeLimit);
 }
 
-function readRawSnapshots(): LocalSnapshotRecord[] {
+function readRawSnapshots(scope: StorageScope): LocalSnapshotRecord[] {
     if (typeof localStorage === "undefined") return [];
-    const raw = localStorage.getItem(AUTO_SNAPSHOTS_STORAGE_KEY);
+    const raw = readScopedStorageValue(AUTO_SNAPSHOTS_STORAGE_KEY, scope);
     if (!raw) return [];
     try {
         const parsed = JSON.parse(raw);
@@ -58,61 +64,71 @@ function readRawSnapshots(): LocalSnapshotRecord[] {
     }
 }
 
-function writeRawSnapshots(records: LocalSnapshotRecord[]): Error | null {
+function writeRawSnapshots(records: LocalSnapshotRecord[], scope: StorageScope): Error | null {
     if (typeof localStorage === "undefined") return null;
     const serialized = safeSerialize(records);
     if (!serialized.ok) return serialized.error;
     try {
-        localStorage.setItem(AUTO_SNAPSHOTS_STORAGE_KEY, serialized.json);
+        writeScopedStorageValue(AUTO_SNAPSHOTS_STORAGE_KEY, scope, serialized.json);
         return null;
     } catch (err) {
         return err instanceof Error ? err : new Error("Unknown snapshot write error");
     }
 }
 
-export function createAutoSnapshot(state: PersistedPlannerState, limit: number = MAX_AUTO_SNAPSHOTS): {
+export function createAutoSnapshot(
+    state: PersistedPlannerState,
+    limit: number = MAX_AUTO_SNAPSHOTS,
+    scope: StorageScope = getActiveStorageScope()
+): {
     record: LocalSnapshotRecord | null;
     error: Error | null;
 } {
     const nextRecord = buildSnapshotRecord(state);
-    const current = readRawSnapshots();
+    const current = readRawSnapshots(scope);
     const rotated = rotateSnapshots([...current, nextRecord], limit);
-    const error = writeRawSnapshots(rotated);
+    const error = writeRawSnapshots(rotated, scope);
     if (error) return { record: null, error };
     return { record: nextRecord, error: null };
 }
 
-export function listSnapshotRecords(): LocalSnapshotRecord[] {
-    return readRawSnapshots();
+export function listSnapshotRecords(scope: StorageScope = getActiveStorageScope()): LocalSnapshotRecord[] {
+    return readRawSnapshots(scope);
 }
 
-export function listSnapshotMetas(): LocalSnapshotMeta[] {
-    return readRawSnapshots().map(({ snapshotId, createdAt, bytes }) => ({ snapshotId, createdAt, bytes }));
+export function listSnapshotMetas(scope: StorageScope = getActiveStorageScope()): LocalSnapshotMeta[] {
+    return readRawSnapshots(scope).map(({ snapshotId, createdAt, bytes }) => ({ snapshotId, createdAt, bytes }));
 }
 
-export function getLatestSnapshotRecord(): LocalSnapshotRecord | null {
-    const all = readRawSnapshots();
+export function getLatestSnapshotRecord(scope: StorageScope = getActiveStorageScope()): LocalSnapshotRecord | null {
+    const all = readRawSnapshots(scope);
     if (all.length === 0) return null;
     return all[all.length - 1] ?? null;
 }
 
-export function getSnapshotRecordById(snapshotId: string): LocalSnapshotRecord | null {
-    return readRawSnapshots().find((entry) => entry.snapshotId === snapshotId) ?? null;
+export function getSnapshotRecordById(
+    snapshotId: string,
+    scope: StorageScope = getActiveStorageScope()
+): LocalSnapshotRecord | null {
+    return readRawSnapshots(scope).find((entry) => entry.snapshotId === snapshotId) ?? null;
 }
 
-export function stampStateWriteTs(ts: number = Date.now()): Error | null {
+export function stampStateWriteTs(
+    ts: number = Date.now(),
+    scope: StorageScope = getActiveStorageScope()
+): Error | null {
     if (typeof localStorage === "undefined") return null;
     try {
-        localStorage.setItem(STATE_WRITE_TS_STORAGE_KEY, String(ts));
+        writeScopedStorageValue(STATE_WRITE_TS_STORAGE_KEY, scope, String(ts));
         return null;
     } catch (err) {
         return err instanceof Error ? err : new Error("Unknown write timestamp error");
     }
 }
 
-export function readStateWriteTs(): number {
+export function readStateWriteTs(scope: StorageScope = getActiveStorageScope()): number {
     if (typeof localStorage === "undefined") return 0;
-    const raw = localStorage.getItem(STATE_WRITE_TS_STORAGE_KEY);
+    const raw = readScopedStorageValue(STATE_WRITE_TS_STORAGE_KEY, scope);
     if (!raw) return 0;
     const parsed = Number(raw);
     return Number.isFinite(parsed) ? parsed : 0;
