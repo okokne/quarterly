@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppLanguage } from "../types";
 import { t as tr } from "../i18n";
 
-type AuthMode = "email" | "password" | "registerPrompt" | "register";
+type AuthMode = "email" | "password" | "register";
 
 type AppEntryStateProps = {
     language: AppLanguage;
@@ -27,9 +27,6 @@ type AppEntryStateProps = {
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;
-    onCheckEmailAccount: (email: string) => Promise<"exists" | "missing" | "error">;
-    onRequestOneTimeCode: (email: string) => Promise<boolean>;
-    onVerifyOneTimeCode: (email: string, code: string) => Promise<boolean>;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
 };
@@ -57,7 +54,6 @@ export function AppEntryState({
     onSignOut,
     onSignIn,
     onSignUp,
-    onCheckEmailAccount,
     onRequestMagicLink,
     onCreateCycle
 }: AppEntryStateProps) {
@@ -96,19 +92,12 @@ export function AppEntryState({
         setMagicLinkCooldownUntil(null);
     };
 
-    const continueWithEmail = async () => {
+    const continueWithEmail = () => {
         if (!emailTrimmed) return;
         setLocalAuthHint(null);
         setMagicLinkWasSent(false);
         setMagicLinkCooldownUntil(null);
-        const result = await onCheckEmailAccount(emailTrimmed);
-        if (result === "exists") {
-            setAuthMode("password");
-            return;
-        }
-        if (result === "missing") {
-            setAuthMode("registerPrompt");
-        }
+        setAuthMode("password");
     };
 
     const requestPasswordlessSignIn = async () => {
@@ -140,149 +129,149 @@ export function AppEntryState({
 
             {!awaitingCloudDashboard && !isAuthenticated && (
                 <section className="card auth-entry-card">
-                    <div className="auth-entry-intro">
-                        <h2>{tr(language, "auth.entryTitle")}</h2>
-                        <p className="muted">{tr(language, "auth.entrySubtitle")}</p>
-                    </div>
-                    {!syncEnabled && (
-                        <p className="warning-text">{tr(language, "settings.syncDisabledHint")}</p>
-                    )}
-                    <div className="auth-entry-feedback">
-                        {authError && <p className="error-text">{authError}</p>}
-                        {syncError && <p className="error-text">{syncError}</p>}
-                        {authMessage && <p className="hint">{authMessage}</p>}
-                        {localAuthHint && <p className="hint">{localAuthHint}</p>}
-                        {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
-                    </div>
-
-                    <div className="settings-auth-box auth-entry-box">
-                        <label>
-                            {tr(language, "settings.accountEmail")}
-                            <input
-                                type="email"
-                                value={entryEmail}
-                                onChange={(event) => setEntryEmail(event.target.value)}
-                                placeholder="name@example.com"
-                                autoComplete="email"
-                                disabled={authLoading || authMode !== "email"}
-                            />
-                        </label>
-
-                        {authMode === "email" && (
-                            <div className="button-row auth-entry-actions">
-                                <button
-                                    className="primary"
-                                    disabled={authLoading || !emailTrimmed}
-                                    onClick={() => {
-                                        void continueWithEmail();
-                                    }}
-                                >
-                                    {tr(language, "auth.continue")}
-                                </button>
+                    <div className="auth-entry-layout">
+                        <div className="auth-entry-intro">
+                            <h2>{tr(language, "auth.entryTitle")}</h2>
+                            <p className="muted">{tr(language, "auth.entrySubtitle")}</p>
+                        </div>
+                        <div className="auth-entry-main">
+                            {!syncEnabled && (
+                                <p className="warning-text">{tr(language, "settings.syncDisabledHint")}</p>
+                            )}
+                            <div className="auth-entry-feedback">
+                                {authError && <p className="error-text">{authError}</p>}
+                                {syncError && <p className="error-text">{syncError}</p>}
+                                {authMessage && <p className="hint">{authMessage}</p>}
+                                {localAuthHint && <p className="hint">{localAuthHint}</p>}
+                                {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
                             </div>
-                        )}
 
-                        {authMode === "password" && (
-                            <>
+                            <div className="settings-auth-box auth-entry-box">
                                 <label>
-                                    {tr(language, "settings.accountPassword")}
+                                    {tr(language, "settings.accountEmail")}
                                     <input
-                                        type="password"
-                                        value={entryPassword}
-                                        onChange={(event) => setEntryPassword(event.target.value)}
-                                        autoComplete="current-password"
-                                        disabled={authLoading}
+                                        type="email"
+                                        value={entryEmail}
+                                        onChange={(event) => setEntryEmail(event.target.value)}
+                                        placeholder="name@example.com"
+                                        autoComplete="email"
+                                        disabled={authLoading || authMode !== "email"}
                                     />
                                 </label>
-                                <div className="button-row auth-entry-actions">
-                                    <button
-                                        className="primary"
-                                        disabled={authLoading || !emailTrimmed || entryPassword.length < 6}
-                                        onClick={() => {
-                                            void onSignIn(emailTrimmed, entryPassword);
-                                        }}
-                                    >
-                                        {tr(language, "settings.accountSignIn")}
-                                    </button>
-                                    <button
-                                        disabled={authLoading || !emailTrimmed || magicLinkSecondsLeft > 0}
-                                        onClick={() => {
-                                            void requestPasswordlessSignIn();
-                                        }}
-                                    >
-                                        {magicLinkWasSent
-                                            ? (magicLinkSecondsLeft > 0
-                                                ? tr(language, "auth.magicLinkResendIn", { seconds: magicLinkSecondsLeft })
-                                                : tr(language, "auth.magicLinkResendNow"))
-                                            : tr(language, "auth.signInWithoutPassword")}
-                                    </button>
-                                    <button
-                                        disabled={authLoading}
-                                        onClick={() => resetAuthFlow()}
-                                    >
-                                        {tr(language, "auth.otherEmail")}
-                                    </button>
-                                </div>
-                                {magicLinkWasSent && (
-                                    <p className="auth-entry-support">
-                                        {tr(language, "auth.magicLinkCheckInboxHint")}
-                                    </p>
+
+                                {authMode === "email" && (
+                                    <div className="button-row auth-entry-actions">
+                                        <button
+                                            className="primary"
+                                            disabled={authLoading || !emailTrimmed}
+                                            onClick={() => {
+                                                continueWithEmail();
+                                            }}
+                                        >
+                                            {tr(language, "auth.continue")}
+                                        </button>
+                                    </div>
                                 )}
-                            </>
-                        )}
 
-                        {authMode === "registerPrompt" && (
-                            <>
-                                <p className="muted">{tr(language, "auth.noAccountPrompt")}</p>
-                                <div className="button-row auth-entry-actions">
-                                    <button className="primary" disabled={authLoading} onClick={() => setAuthMode("register")}>
-                                        {tr(language, "auth.register")}
-                                    </button>
-                                    <button disabled={authLoading} onClick={() => resetAuthFlow()}>
-                                        {tr(language, "auth.otherEmail")}
-                                    </button>
-                                </div>
-                            </>
-                        )}
+                                {authMode === "password" && (
+                                    <>
+                                        <label>
+                                            {tr(language, "settings.accountPassword")}
+                                            <input
+                                                type="password"
+                                                value={entryPassword}
+                                                onChange={(event) => setEntryPassword(event.target.value)}
+                                                autoComplete="current-password"
+                                                disabled={authLoading}
+                                            />
+                                        </label>
+                                        <div className="button-row auth-entry-actions">
+                                            <button
+                                                className="primary"
+                                                disabled={authLoading || !emailTrimmed || entryPassword.length < 6}
+                                                onClick={() => {
+                                                    void onSignIn(emailTrimmed, entryPassword);
+                                                }}
+                                            >
+                                                {tr(language, "settings.accountSignIn")}
+                                            </button>
+                                            <button
+                                                disabled={authLoading || !emailTrimmed || magicLinkSecondsLeft > 0}
+                                                onClick={() => {
+                                                    void requestPasswordlessSignIn();
+                                                }}
+                                            >
+                                                {magicLinkWasSent
+                                                    ? (magicLinkSecondsLeft > 0
+                                                        ? tr(language, "auth.magicLinkResendIn", { seconds: magicLinkSecondsLeft })
+                                                        : tr(language, "auth.magicLinkResendNow"))
+                                                    : tr(language, "auth.signInWithoutPassword")}
+                                            </button>
+                                            <button
+                                                disabled={authLoading}
+                                                onClick={() => {
+                                                    setEntryPassword("");
+                                                    setRegisterConfirm("");
+                                                    setAuthMode("register");
+                                                }}
+                                            >
+                                                {tr(language, "auth.register")}
+                                            </button>
+                                            <button
+                                                disabled={authLoading}
+                                                onClick={() => resetAuthFlow()}
+                                            >
+                                                {tr(language, "auth.otherEmail")}
+                                            </button>
+                                        </div>
+                                        {magicLinkWasSent && (
+                                            <p className="auth-entry-support">
+                                                {tr(language, "auth.magicLinkCheckInboxHint")}
+                                            </p>
+                                        )}
+                                    </>
+                                )}
 
-                        {authMode === "register" && (
-                            <>
-                                <label>
-                                    {tr(language, "settings.accountPassword")}
-                                    <input
-                                        type="password"
-                                        value={entryPassword}
-                                        onChange={(event) => setEntryPassword(event.target.value)}
-                                        autoComplete="new-password"
-                                        disabled={authLoading}
-                                    />
-                                </label>
-                                <label>
-                                    {tr(language, "auth.passwordConfirm")}
-                                    <input
-                                        type="password"
-                                        value={registerConfirm}
-                                        onChange={(event) => setRegisterConfirm(event.target.value)}
-                                        autoComplete="new-password"
-                                        disabled={authLoading}
-                                    />
-                                </label>
-                                <div className="button-row auth-entry-actions">
-                                    <button
-                                        className="primary"
-                                        disabled={authLoading || !emailTrimmed || entryPassword.length < 6 || entryPassword !== registerConfirm}
-                                        onClick={() => {
-                                            void onSignUp(emailTrimmed, entryPassword);
-                                        }}
-                                    >
-                                        {tr(language, "auth.createAccount")}
-                                    </button>
-                                    <button disabled={authLoading} onClick={() => resetAuthFlow()}>
-                                        {tr(language, "auth.otherEmail")}
-                                    </button>
-                                </div>
-                            </>
-                        )}
+                                {authMode === "register" && (
+                                    <>
+                                        <label>
+                                            {tr(language, "settings.accountPassword")}
+                                            <input
+                                                type="password"
+                                                value={entryPassword}
+                                                onChange={(event) => setEntryPassword(event.target.value)}
+                                                autoComplete="new-password"
+                                                disabled={authLoading}
+                                            />
+                                        </label>
+                                        <label>
+                                            {tr(language, "auth.passwordConfirm")}
+                                            <input
+                                                type="password"
+                                                value={registerConfirm}
+                                                onChange={(event) => setRegisterConfirm(event.target.value)}
+                                                autoComplete="new-password"
+                                                disabled={authLoading}
+                                            />
+                                        </label>
+                                        <div className="button-row auth-entry-actions">
+                                            <button
+                                                className="primary"
+                                                disabled={authLoading || !emailTrimmed || entryPassword.length < 6 || entryPassword !== registerConfirm}
+                                                onClick={() => {
+                                                    void onSignUp(emailTrimmed, entryPassword);
+                                                }}
+                                            >
+                                                {tr(language, "auth.createAccount")}
+                                            </button>
+                                            <button disabled={authLoading} onClick={() => resetAuthFlow()}>
+                                                {tr(language, "auth.otherEmail")}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </section>
             )}

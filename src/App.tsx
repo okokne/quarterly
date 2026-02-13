@@ -262,7 +262,6 @@ export default function App() {
     authLoading,
     authError,
     authMessage,
-    magicLinkRedirectUrl,
     magicLinkRedirectError,
     cloudEmail,
     syncError,
@@ -272,9 +271,6 @@ export default function App() {
     isOnline,
     signUp,
     signIn,
-    checkEmailAccount,
-    requestOneTimeCode,
-    verifyOneTimeCode,
     requestMagicLink,
     signOut,
     requestSyncNow,
@@ -541,9 +537,6 @@ export default function App() {
     onSignOut: signOut,
     onSignIn: signIn,
     onSignUp: signUp,
-    onCheckEmailAccount: checkEmailAccount,
-    onRequestOneTimeCode: requestOneTimeCode,
-    onVerifyOneTimeCode: verifyOneTimeCode,
     onCreateCycle: handleCreateCycle,
     onRequestMagicLink: requestMagicLink
   });
