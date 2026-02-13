@@ -479,6 +479,8 @@ export async function checkAccountExistsByEmail(input: {
         || message.includes("no user")
         || message.includes("user does not exist")
         || message.includes("invalid email")
+        || message.includes("signups not allowed for otp")
+        || message.includes("otp signups are disabled")
     ) {
         return { exists: false, error: null };
     }
