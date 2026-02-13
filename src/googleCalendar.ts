@@ -68,10 +68,6 @@ declare global {
     }
 }
 
-// Access global gapi and google objects
-const getGapi = (): any => (window as any).gapi;
-const getGoogle = (): any => (window as any).google;
-
 function clearStoredToken(): void {
     sessionStorage.removeItem(TOKEN_STORAGE_KEY);
 }

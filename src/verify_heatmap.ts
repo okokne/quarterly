@@ -9,12 +9,6 @@ type Habit = {
     frequency: 'daily' | 'weekdays' | number[];
 };
 
-const addDays = (dateStr: string, days: number): string => {
-    const d = new Date(dateStr);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().split('T')[0];
-};
-
 const isHabitPlannedOnDate = (habit: Habit, date: string, today: string): boolean => {
     if (date > today) return false;
     if (habit.startedAt && date < habit.startedAt) return false;
@@ -86,4 +80,3 @@ console.log(`Before Date (${dateBefore}): Expected 'future' (or inactive/grey), 
 const dateFuture = '2023-01-15';
 const classFuture = getCellClass(habit, dateFuture, today, []);
 console.log(`Future Date (${dateFuture}): Expected 'future', Got '${classFuture}'`);
-

@@ -1,0 +1,206 @@
+import { Dispatch, SetStateAction } from "react";
+import { t as tr } from "../../i18n";
+import { AppLanguage, Cycle, ReviewSignal } from "../../types";
+import { ComposerType, FilterOption } from "./types";
+
+type JournalComposerProps = {
+    cycle: Cycle;
+    language: AppLanguage;
+    readOnly: boolean;
+    showComposer: boolean;
+    setShowComposer: Dispatch<SetStateAction<boolean>>;
+    composerType: ComposerType;
+    setComposerType: Dispatch<SetStateAction<ComposerType>>;
+    signalOptions: Array<FilterOption<ReviewSignal>>;
+    customDate: string;
+    setCustomDate: Dispatch<SetStateAction<string>>;
+    customTitle: string;
+    setCustomTitle: Dispatch<SetStateAction<string>>;
+    customContent: string;
+    setCustomContent: Dispatch<SetStateAction<string>>;
+    customSignals: ReviewSignal[];
+    toggleCustomSignal: (signal: ReviewSignal) => void;
+    dailyDate: string;
+    setDailyDate: Dispatch<SetStateAction<string>>;
+    dailyGood: string;
+    setDailyGood: Dispatch<SetStateAction<string>>;
+    dailyBad: string;
+    setDailyBad: Dispatch<SetStateAction<string>>;
+    weeklyWeek: string;
+    setWeeklyWeek: Dispatch<SetStateAction<string>>;
+    weeklyGood: string;
+    setWeeklyGood: Dispatch<SetStateAction<string>>;
+    weeklyBad: string;
+    setWeeklyBad: Dispatch<SetStateAction<string>>;
+    weeklyChange: string;
+    setWeeklyChange: Dispatch<SetStateAction<string>>;
+    composerSubmitDisabled: boolean;
+    handleCreateEntry: () => void;
+};
+
+export function JournalComposer({
+    cycle,
+    language,
+    readOnly,
+    showComposer,
+    setShowComposer,
+    composerType,
+    setComposerType,
+    signalOptions,
+    customDate,
+    setCustomDate,
+    customTitle,
+    setCustomTitle,
+    customContent,
+    setCustomContent,
+    customSignals,
+    toggleCustomSignal,
+    dailyDate,
+    setDailyDate,
+    dailyGood,
+    setDailyGood,
+    dailyBad,
+    setDailyBad,
+    weeklyWeek,
+    setWeeklyWeek,
+    weeklyGood,
+    setWeeklyGood,
+    weeklyBad,
+    setWeeklyBad,
+    weeklyChange,
+    setWeeklyChange,
+    composerSubmitDisabled,
+    handleCreateEntry
+}: JournalComposerProps) {
+    if (!showComposer) return null;
+
+    return (
+        <div className="subcard journal-entry-form">
+            <h3>{tr(language, "journal.newEntry")}</h3>
+            <div className="journal-composer-type-row">
+                <button className={`journal-filter-chip ${composerType === "custom" ? "active" : ""}`} onClick={() => setComposerType("custom")}>{tr(language, "journal.filterTypeCustom")}</button>
+                <button className={`journal-filter-chip ${composerType === "daily" ? "active" : ""}`} onClick={() => setComposerType("daily")}>{tr(language, "journal.filterTypeDaily")}</button>
+                <button className={`journal-filter-chip ${composerType === "weekly" ? "active" : ""}`} onClick={() => setComposerType("weekly")}>{tr(language, "journal.filterTypeWeekly")}</button>
+            </div>
+
+            {composerType === "custom" && (
+                <>
+                    <div className="grid">
+                        <label>
+                            {tr(language, "common.title")}
+                            <input
+                                value={customTitle}
+                                onChange={(e) => setCustomTitle(e.target.value)}
+                                placeholder={tr(language, "journal.entryTitlePlaceholder")}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "journal.entryDate")}
+                            <input
+                                type="date"
+                                value={customDate}
+                                onChange={(e) => setCustomDate(e.target.value)}
+                            />
+                        </label>
+                    </div>
+                    <div className="journal-filter-row">
+                        <span className="journal-filter-label">{tr(language, "journal.filterSignals")}</span>
+                        <div className="journal-filter-chip-row">
+                            {signalOptions.map((option) => (
+                                <button
+                                    key={option.id}
+                                    className={`journal-filter-chip ${customSignals.includes(option.id) ? "active" : ""}`}
+                                    onClick={() => toggleCustomSignal(option.id)}
+                                >
+                                    {tr(language, option.labelKey)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <label>
+                        {tr(language, "journal.entryBodyOptional")}
+                        <textarea
+                            value={customContent}
+                            onChange={(e) => setCustomContent(e.target.value)}
+                            placeholder={tr(language, "journal.entryBodyPlaceholder")}
+                        />
+                    </label>
+                </>
+            )}
+
+            {composerType === "daily" && (
+                <>
+                    <div className="grid">
+                        <label>
+                            {tr(language, "journal.entryDate")}
+                            <input
+                                type="date"
+                                value={dailyDate}
+                                onChange={(e) => setDailyDate(e.target.value)}
+                            />
+                        </label>
+                    </div>
+                    <div className="grid">
+                        <label>
+                            {tr(language, "review.good")}
+                            <textarea
+                                value={dailyGood}
+                                onChange={(e) => setDailyGood(e.target.value)}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "review.bad")}
+                            <textarea
+                                value={dailyBad}
+                                onChange={(e) => setDailyBad(e.target.value)}
+                            />
+                        </label>
+                    </div>
+                </>
+            )}
+
+            {composerType === "weekly" && (
+                <>
+                    <label>
+                        {tr(language, "week.select")}
+                        <select value={weeklyWeek} onChange={(e) => setWeeklyWeek(e.target.value)}>
+                            {cycle.weeks.map((week) => (
+                                <option key={week.index} value={week.index}>
+                                    {tr(language, "app.headerWeekShort", { week: week.index })}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                    <div className="grid">
+                        <label>
+                            {tr(language, "review.good")}
+                            <textarea
+                                value={weeklyGood}
+                                onChange={(e) => setWeeklyGood(e.target.value)}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "review.bad")}
+                            <textarea
+                                value={weeklyBad}
+                                onChange={(e) => setWeeklyBad(e.target.value)}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "review.changeNextWeek")}
+                            <textarea
+                                value={weeklyChange}
+                                onChange={(e) => setWeeklyChange(e.target.value)}
+                            />
+                        </label>
+                    </div>
+                </>
+            )}
+
+            <div className="button-row">
+                <button className="primary" onClick={handleCreateEntry} disabled={readOnly || composerSubmitDisabled}>{tr(language, "common.save")}</button>
+                <button onClick={() => setShowComposer(false)}>{tr(language, "common.cancel")}</button>
+            </div>
+        </div>
+    );
+}

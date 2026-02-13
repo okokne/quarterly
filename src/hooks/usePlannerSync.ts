@@ -3,7 +3,6 @@ import {
     BootstrapStatus,
     PersistedPlannerState,
     StorageScope,
-    SyncConflictResolution,
     SyncSource,
     SyncStatus
 } from "../types";
@@ -13,65 +12,24 @@ import { clearOfflineDirty, hasOfflineDirtyChanges, markOfflineDirty } from "../
 import {
     PlannerStateRecord,
     pushPlannerStateToCloud,
-    resolveConflictState,
-    resolveInitialSyncAction,
-    syncPlannerState
+    resolveInitialSyncAction
 } from "../sync/plannerSync";
 import {
-    consumeSupabaseSessionFromUrl,
-    clearStoredSupabaseSession,
     getMagicLinkRedirectTarget,
     hasSupabaseConfig,
-    isSupabaseSessionExpired,
-    readStoredSupabaseSession,
-    refreshSupabaseSession,
-    signInWithEmailPassword,
-    signInWithMagicLink,
-    signOutSupabase,
-    signUpWithEmailPassword,
     SupabaseAuthSession
 } from "../sync/supabaseClient";
 import { readStateWriteTs } from "../persistence/localSnapshots";
 import { debugSync } from "../sync/syncDebug";
+import { isSyncEnabledByConfig } from "../sync/syncConfig";
+import { usePlannerSyncAuthRequests } from "./usePlannerSyncAuthRequests";
+import { usePlannerSyncConflictResolution } from "./usePlannerSyncConflictResolution";
+import { usePlannerSyncInitialSession } from "./usePlannerSyncInitialSession";
+import { usePlannerSyncNetworkEffects } from "./usePlannerSyncNetworkEffects";
+import { usePlannerSyncRequestNow } from "./usePlannerSyncRequestNow";
+import { usePlannerSyncSignOut } from "./usePlannerSyncSignOut";
 
-declare const __VITE_SYNC_ENABLED__: string | undefined;
-
-function readSyncEnabledRawValue(): string | undefined {
-    if (typeof __VITE_SYNC_ENABLED__ === "string" && __VITE_SYNC_ENABLED__.trim()) {
-        return __VITE_SYNC_ENABLED__;
-    }
-
-    const runtimeEnv = (globalThis as unknown as {
-        __TWY_ENV__?: Record<string, string | undefined>;
-        __VITE_SYNC_ENABLED__?: string;
-        __SYNC_ENABLED__?: string;
-        process?: { env?: Record<string, string | undefined> };
-    });
-    if (typeof runtimeEnv.__TWY_ENV__?.VITE_SYNC_ENABLED === "string") return runtimeEnv.__TWY_ENV__.VITE_SYNC_ENABLED;
-    if (typeof runtimeEnv.__TWY_ENV__?.SYNC_ENABLED === "string") return runtimeEnv.__TWY_ENV__.SYNC_ENABLED;
-    if (typeof runtimeEnv.__VITE_SYNC_ENABLED__ === "string") return runtimeEnv.__VITE_SYNC_ENABLED__;
-    if (typeof runtimeEnv.__SYNC_ENABLED__ === "string") return runtimeEnv.__SYNC_ENABLED__;
-
-    const processEnv = runtimeEnv.process?.env ?? (globalThis as unknown as {
-        process?: { env?: Record<string, string | undefined> };
-    }).process?.env;
-    return processEnv?.VITE_SYNC_ENABLED ?? processEnv?.SYNC_ENABLED;
-}
-
-function isExplicitlyDisabled(value: string | undefined): boolean {
-    if (!value) return false;
-    const normalized = value.trim().toLowerCase();
-    return normalized === "false"
-        || normalized === "0"
-        || normalized === "no"
-        || normalized === "off"
-        || normalized === "disabled";
-}
-
-const SYNC_ENABLED = (() => {
-    const raw = readSyncEnabledRawValue();
-    return !isExplicitlyDisabled(raw);
-})();
+const SYNC_ENABLED = isSyncEnabledByConfig();
 
 type UsePlannerSyncParams = {
     state: PersistedPlannerState;
@@ -125,10 +83,17 @@ export function usePlannerSync({
     const magicLinkRedirect = getMagicLinkRedirectTarget();
     const activeScope = storageScope;
     const sessionUserId = session?.user.id ?? null;
+    const syncDisabledError = "Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.";
 
     const clearAuthFeedback = useCallback(() => {
         setAuthError(null);
         setAuthMessage(null);
+    }, []);
+    const markSessionSignedIn = useCallback((nextSession: SupabaseAuthSession | null, message: string) => {
+        setSession(nextSession);
+        setInitialSyncReady(false);
+        setBootstrapStatus("restoring");
+        setAuthMessage(message);
     }, []);
 
     const applySyncedState = useCallback((nextState: PersistedPlannerState) => {
@@ -263,45 +228,15 @@ export function usePlannerSync({
         return true;
     }, [applySyncedState, onStorageScopeChange, state.preferences]);
 
-    const loadSession = useCallback(async () => {
-        if (!syncEnabled) {
-            setSession(null);
-            setHasPendingLocalChanges(false);
-            setInitialSyncReady(false);
-            setBootstrapStatus("idle");
-            return;
-        }
-        const consumed = await consumeSupabaseSessionFromUrl();
-        if (consumed.error) {
-            setAuthError(consumed.error);
-        }
-        if (consumed.session) {
-            setSession(consumed.session);
-            setAuthMessage("Magic-Link bestaetigt. Du bist eingeloggt.");
-            return;
-        }
-        const stored = readStoredSupabaseSession();
-        if (!stored) {
-            setSession(null);
-            setInitialSyncReady(false);
-            return;
-        }
-        if (!isSupabaseSessionExpired(stored)) {
-            setSession(stored);
-            return;
-        }
-        const refreshed = await refreshSupabaseSession(stored);
-        if (!refreshed.session || refreshed.error) {
-            setSession(null);
-            setInitialSyncReady(false);
-            return;
-        }
-        setSession(refreshed.session);
-    }, [syncEnabled]);
-
-    useEffect(() => {
-        void loadSession();
-    }, [loadSession]);
+    usePlannerSyncInitialSession({
+        syncEnabled,
+        markSessionSignedIn,
+        setSession,
+        setHasPendingLocalChanges,
+        setInitialSyncReady,
+        setBootstrapStatus,
+        setAuthError
+    });
 
     useEffect(() => {
         if (magicLinkRedirect.error) {
@@ -309,20 +244,11 @@ export function usePlannerSync({
         }
     }, [magicLinkRedirect.error]);
 
-    useEffect(() => {
-        if (!SYNC_ENABLED) return;
-        const toOnline = () => {
-            setSyncStatus("idle");
-            setOnlineTick((prev) => prev + 1);
-        };
-        const toOffline = () => setSyncStatus("offline");
-        window.addEventListener("online", toOnline);
-        window.addEventListener("offline", toOffline);
-        return () => {
-            window.removeEventListener("online", toOnline);
-            window.removeEventListener("offline", toOffline);
-        };
-    }, []);
+    usePlannerSyncNetworkEffects({
+        syncFeatureEnabled: SYNC_ENABLED,
+        setSyncStatus,
+        setOnlineTick
+    });
 
     useEffect(() => {
         if (!syncEnabled) {
@@ -374,85 +300,23 @@ export function usePlannerSync({
         syncEnabled
     ]);
 
-    const requestSyncNow = useCallback(async () => {
-        if (!syncEnabled || !session) {
-            setSyncStatus("idle");
-            return false;
-        }
-        if (bootstrapStatus !== "ready" || storageScope !== session.user.id) {
-            const bootstrapOk = await runBootstrapForSession(session);
-            if (!bootstrapOk) return false;
-        }
-        if (!navigator.onLine) {
-            setSyncStatus("offline");
-            markOfflineDirty(storageScope);
-            return false;
-        }
-
-        setSyncStatus("syncing");
-        setSyncError(null);
-        const localWriteTs = readStateWriteTs(storageScope);
-        const result = await syncPlannerState({
-            session,
-            state,
-            localUpdatedAt: localWriteTs > 0 ? new Date(localWriteTs).toISOString() : null
-        });
-
-        if (!result.ok) {
-            if (!navigator.onLine || /network/i.test(result.error ?? "")) {
-                markOfflineDirty(storageScope);
-                setSyncStatus("offline");
-            } else {
-                setSyncStatus("error");
-            }
-            setSyncError(result.error ?? "Sync failed.");
-            return false;
-        }
-
-        if (result.record?.version) {
-            cloudVersionRef.current = result.record.version;
-        }
-
-        if (result.action === "pulled" && result.pulledState) {
-            applySyncedState(result.pulledState);
-            clearOfflineDirty(storageScope);
-            setSyncStatus("synced");
-            return true;
-        }
-
-        if (result.action === "conflict" && result.record) {
-            const resolved = await attemptAutoConflictResolution(session, result.record, storageScope);
-            if (!resolved) {
-                setPendingConflict(true);
-                setConflictCloudState(result.record.state);
-                setSyncStatus("error");
-                setSyncError("Konnte Sync-Konflikt nicht automatisch aufloesen.");
-                return false;
-            }
-            setSyncStatus("synced");
-            return true;
-        }
-
-        const serialized = safeSerialize(state);
-        if (serialized.ok) {
-            lastSyncedSerializedRef.current = serialized.json;
-        }
-        setPendingConflict(false);
-        setConflictCloudState(null);
-        setHasPendingLocalChanges(false);
-        clearOfflineDirty(storageScope);
-        setSyncStatus("synced");
-        return true;
-    }, [
-        applySyncedState,
-        attemptAutoConflictResolution,
-        bootstrapStatus,
-        runBootstrapForSession,
+    const requestSyncNow = usePlannerSyncRequestNow({
+        syncEnabled,
         session,
         state,
         storageScope,
-        syncEnabled
-    ]);
+        bootstrapStatus,
+        setSyncStatus,
+        setSyncError,
+        setPendingConflict,
+        setConflictCloudState,
+        setHasPendingLocalChanges,
+        lastSyncedSerializedRef,
+        cloudVersionRef,
+        runBootstrapForSession,
+        applySyncedState,
+        attemptAutoConflictResolution
+    });
 
     useEffect(() => {
         if (!syncEnabled) return;
@@ -518,152 +382,53 @@ export function usePlannerSync({
         syncEnabled
     ]);
 
-    const signUp = useCallback(async (email: string, password: string): Promise<boolean> => {
-        if (!syncEnabled) {
-            setAuthError("Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.");
-            return false;
-        }
-        clearAuthFeedback();
-        setAuthLoading(true);
-        const result = await signUpWithEmailPassword({ email, password });
-        setAuthLoading(false);
-        if (result.error) {
-            setAuthError(result.error);
-            return false;
-        }
-        setSession(result.session);
-        setInitialSyncReady(false);
-        setBootstrapStatus("restoring");
-        setAuthMessage("Account created and signed in.");
-        return true;
-    }, [clearAuthFeedback, syncEnabled]);
+    const { signUp, signIn, requestMagicLink } = usePlannerSyncAuthRequests({
+        syncEnabled,
+        syncDisabledError,
+        magicLinkRedirectUrl: magicLinkRedirect.url,
+        clearAuthFeedback,
+        markSessionSignedIn,
+        setAuthLoading,
+        setAuthError,
+        setAuthMessage
+    });
 
-    const signIn = useCallback(async (email: string, password: string): Promise<boolean> => {
-        if (!syncEnabled) {
-            setAuthError("Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.");
-            return false;
-        }
-        clearAuthFeedback();
-        setAuthLoading(true);
-        const result = await signInWithEmailPassword({ email, password });
-        setAuthLoading(false);
-        if (result.error || !result.session) {
-            setAuthError(result.error ?? "Login failed.");
-            return false;
-        }
-        setSession(result.session);
-        setInitialSyncReady(false);
-        setBootstrapStatus("restoring");
-        setAuthMessage("Signed in.");
-        return true;
-    }, [clearAuthFeedback, syncEnabled]);
+    const signOut = usePlannerSyncSignOut({
+        session,
+        clearAuthFeedback,
+        applySyncedState,
+        statePreferences: state.preferences,
+        storageScope,
+        onStorageScopeChange,
+        setAuthLoading,
+        setSession,
+        setPendingConflict,
+        setConflictCloudState,
+        setSyncStatus,
+        setSyncError,
+        setHasPendingLocalChanges,
+        setInitialSyncReady,
+        setBootstrapStatus,
+        setLastBootstrapSource,
+        initialSyncDoneForUserRef,
+        cloudVersionRef
+    });
 
-    const requestMagicLink = useCallback(async (email: string): Promise<boolean> => {
-        if (!syncEnabled) {
-            setAuthError("Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.");
-            return false;
-        }
-        clearAuthFeedback();
-        setAuthLoading(true);
-        const result = await signInWithMagicLink({
-            email,
-            redirectTo: magicLinkRedirect.url ?? undefined
-        });
-        setAuthLoading(false);
-        if (result.error) {
-            setAuthError(result.error);
-            return false;
-        }
-        setAuthMessage("Magic-Link wurde gesendet. Bitte E-Mail pruefen.");
-        return true;
-    }, [clearAuthFeedback, magicLinkRedirect.url, syncEnabled]);
-
-    const signOut = useCallback(async () => {
-        clearAuthFeedback();
-        setAuthLoading(true);
-        await signOutSupabase(session);
-        setAuthLoading(false);
-        clearStoredSupabaseSession();
-        setSession(null);
-        setPendingConflict(false);
-        setConflictCloudState(null);
-        setSyncStatus("idle");
-        setSyncError(null);
-        setHasPendingLocalChanges(false);
-        setInitialSyncReady(true);
-        setBootstrapStatus("ready");
-        setLastBootstrapSource("guest");
-        onStorageScopeChange("guest");
-        applySyncedState(readPersistedPlannerStateFromLocalStorage(state.preferences, "guest"));
-        clearOfflineDirty(storageScope);
-        initialSyncDoneForUserRef.current = null;
-        cloudVersionRef.current = 0;
-    }, [applySyncedState, clearAuthFeedback, onStorageScopeChange, session, state.preferences, storageScope]);
-
-    const resolveSyncConflict = useCallback(async (resolution: SyncConflictResolution): Promise<boolean> => {
-        if (!session || !conflictCloudState) return false;
-        if (resolution === "export_both") {
-            const local = safeSerialize(state);
-            const cloud = safeSerialize(conflictCloudState);
-            if (local.ok) {
-                const blob = new Blob([local.json], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "planner-conflict-local.json";
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-            if (cloud.ok) {
-                const blob = new Blob([cloud.json], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "planner-conflict-cloud.json";
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-            setAuthMessage("Conflict files exported. Choose local or cloud afterwards.");
-            return true;
-        }
-
-        const resolved = resolveConflictState({
-            local: state,
-            cloud: {
-                userId: session.user.id,
-                state: conflictCloudState,
-                version: 1,
-                updatedAt: new Date().toISOString(),
-                schemaVersion: 1
-            },
-            resolution
-        });
-
-        if (resolution === "keep_cloud") {
-            skipNextPushRef.current = true;
-            onApplyRemoteState(resolved);
-        }
-
-        const pushed = await pushPlannerStateToCloud({
-            session,
-            state: resolved,
-            previousVersion: cloudVersionRef.current > 0 ? cloudVersionRef.current : undefined
-        });
-        if (pushed.error) {
-            setSyncStatus("error");
-            setSyncError(pushed.error);
-            return false;
-        }
-        if (pushed.record?.version) {
-            cloudVersionRef.current = pushed.record.version;
-        }
-        setPendingConflict(false);
-        setConflictCloudState(null);
-        setHasPendingLocalChanges(false);
-        clearOfflineDirty(storageScope);
-        setSyncStatus("synced");
-        return true;
-    }, [conflictCloudState, onApplyRemoteState, session, state, storageScope]);
+    const resolveSyncConflict = usePlannerSyncConflictResolution({
+        session,
+        state,
+        conflictCloudState,
+        onApplyRemoteState,
+        cloudVersionRef,
+        skipNextPushRef,
+        storageScope,
+        setAuthMessage,
+        setPendingConflict,
+        setConflictCloudState,
+        setHasPendingLocalChanges,
+        setSyncStatus,
+        setSyncError
+    });
 
     const cloudEmail = session?.user.email ?? null;
 

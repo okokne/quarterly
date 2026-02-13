@@ -1,7 +1,7 @@
 import { AppLanguage, Id } from "../types";
 import { t as tr } from "../i18n";
 
-interface ConfirmModalsProps {
+export interface ConfirmModalsProps {
     language: AppLanguage;
     // Demo confirm
     showDemoConfirm: boolean;

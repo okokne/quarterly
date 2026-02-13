@@ -2,13 +2,7 @@ import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
 import { formatDate, formatRange } from "../utils";
 import { ProgressRing } from "./ProgressRing";
-
-export type SearchResultItem = {
-    type: string;
-    text: string;
-    week?: number;
-    date?: string;
-};
+import { SearchResultItem } from "../types/search";
 
 type AppHeaderProps = {
     title?: string;

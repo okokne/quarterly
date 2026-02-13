@@ -77,6 +77,18 @@ export function useHabitsStore({ activeCycle, isArchiveView, storageScope }: Use
         if (isArchiveView) return;
         setHabitLog((prev) => toggleHabitLogEntry(prev, date, habitId));
     }, [isArchiveView]);
+    const deleteHabit = useCallback((habitId: Id) => {
+        if (isArchiveView) return;
+        setHabits((prev) => prev.filter((habit) => habit.id !== habitId));
+        setHabitLog((prev) => {
+            const next: Record<string, string[]> = {};
+            Object.entries(prev).forEach(([date, ids]) => {
+                const filtered = ids.filter((id) => id !== habitId);
+                if (filtered.length > 0) next[date] = filtered;
+            });
+            return next;
+        });
+    }, [isArchiveView]);
 
     return {
         habits,
@@ -84,6 +96,7 @@ export function useHabitsStore({ activeCycle, isArchiveView, storageScope }: Use
         habitLog,
         setHabitLog,
         getActiveHabitsForDate,
-        toggleHabit
+        toggleHabit,
+        deleteHabit
     };
 }

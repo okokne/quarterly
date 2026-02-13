@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { SearchResultItem } from "../components/AppHeader";
 import { t as tr } from "../i18n";
 import { AppLanguage, Cycle } from "../types";
+import { SearchResultItem } from "../types/search";
 
 type UseCycleSearchParams = {
     cycle: Cycle | null;

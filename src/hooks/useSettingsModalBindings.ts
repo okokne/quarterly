@@ -40,8 +40,7 @@ type SettingsModalBindingInput = {
     actions: Pick<
         SettingsModalProps,
         "dispatch" |
-        "handleRequestNotifications" |
-        "updateCycle"
+        "handleRequestNotifications"
     >;
     habits: Pick<
         SettingsModalProps,
