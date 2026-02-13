@@ -21,6 +21,7 @@ export function TodayDatePickerSection({
     setSelectedDate
 }: TodayDatePickerSectionProps) {
     const touchStartX = useRef<number | null>(null);
+    const dateInputRef = useRef<HTMLInputElement | null>(null);
 
     const weekDates = useMemo(() => {
         const date = parseIso(selectedDate);
@@ -35,6 +36,21 @@ export function TodayDatePickerSection({
     const selectDate = (date: string) => {
         setSelectedDate(date);
         setSelectedWeek(getWeekIndexForDate(cycle, date));
+    };
+
+    const openDatePicker = () => {
+        const picker = dateInputRef.current as (HTMLInputElement & { showPicker?: () => void }) | null;
+        if (!picker) return;
+        try {
+            if (typeof picker.showPicker === "function") {
+                picker.showPicker();
+                return;
+            }
+        } catch {
+            // Fallback below
+        }
+        picker.focus({ preventScroll: true });
+        picker.click();
     };
 
     return (
@@ -52,9 +68,11 @@ export function TodayDatePickerSection({
                         className="today-calendar-trigger"
                         title={tr(language, "today.pickDate")}
                         aria-label={tr(language, "today.pickDate")}
+                        onClick={openDatePicker}
                     >
                         <span aria-hidden="true">🗓</span>
                         <input
+                            ref={dateInputRef}
                             className="today-calendar-input"
                             type="date"
                             value={selectedDate}

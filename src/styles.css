@@ -3084,6 +3084,7 @@ button.ghost-danger:hover {
   height: 100%;
   opacity: 0;
   cursor: pointer;
+  z-index: 2;
 }
 
 .today-week-strip {
