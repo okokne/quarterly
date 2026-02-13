@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { DailyBlockDraft } from "./useDailyBlocks";
 import { Id } from "../types";
 import { toIsoDate } from "../utils";
-import { EntryScreen } from "../components/AppEntryState";
 
 type GoalDraft = {
     title: string;
@@ -25,6 +24,7 @@ export function useAppUiState() {
     const [showSearchOverlay, setShowSearchOverlay] = useState(false);
     const [showHabitsManager, setShowHabitsManager] = useState(false);
     const [showCycleDrawer, setShowCycleDrawer] = useState(false);
+    const [showSyncStatusSheet, setShowSyncStatusSheet] = useState(false);
     const openSettings = useCallback(() => {
         setShowSettings(true);
     }, []);
@@ -46,8 +46,6 @@ export function useAppUiState() {
     const [showLegacyPrompt, setShowLegacyPrompt] = useState(false);
 
     const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-    const [entryScreen, setEntryScreen] = useState<EntryScreen>("welcome");
-    const [entryTourStep, setEntryTourStep] = useState(0);
     const [entryEmail, setEntryEmail] = useState("");
     const [entryPassword, setEntryPassword] = useState("");
 
@@ -78,6 +76,8 @@ export function useAppUiState() {
         setShowHabitsManager,
         showCycleDrawer,
         setShowCycleDrawer,
+        showSyncStatusSheet,
+        setShowSyncStatusSheet,
         openSettings,
         goalDraft,
         setGoalDraft,
@@ -95,10 +95,6 @@ export function useAppUiState() {
         setShowLegacyPrompt,
         step,
         setStep,
-        entryScreen,
-        setEntryScreen,
-        entryTourStep,
-        setEntryTourStep,
         entryEmail,
         setEntryEmail,
         entryPassword,

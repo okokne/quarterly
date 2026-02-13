@@ -449,6 +449,91 @@ export async function signInWithMagicLink(input: {
     };
 }
 
+export async function requestExistingAccountEmailOtp(input: {
+    email: string;
+}): Promise<{ ok: boolean; error: string | null }> {
+    const result = await supabaseFetchJson<Record<string, unknown>>("/auth/v1/otp", {
+        method: "POST",
+        body: JSON.stringify({
+            email: input.email.trim(),
+            create_user: false
+        })
+    });
+    return {
+        ok: !result.error,
+        error: result.error
+    };
+}
+
+export async function checkAccountExistsByEmail(input: {
+    email: string;
+}): Promise<{ exists: boolean; error: string | null }> {
+    const otp = await requestExistingAccountEmailOtp({ email: input.email });
+    if (otp.ok) {
+        return { exists: true, error: null };
+    }
+
+    const message = (otp.error ?? "").toLowerCase();
+    if (
+        message.includes("not found")
+        || message.includes("no user")
+        || message.includes("user does not exist")
+        || message.includes("invalid email")
+    ) {
+        return { exists: false, error: null };
+    }
+
+    return { exists: false, error: otp.error ?? "Account lookup failed." };
+}
+
+export async function verifyEmailOtpCode(input: {
+    email: string;
+    code: string;
+}): Promise<{ session: SupabaseAuthSession | null; error: string | null }> {
+    const result = await supabaseFetchJson<Record<string, unknown>>("/auth/v1/verify", {
+        method: "POST",
+        body: JSON.stringify({
+            email: input.email.trim(),
+            token: input.code.trim(),
+            type: "email"
+        })
+    });
+
+    if (!result.data || result.error) {
+        return { session: null, error: result.error ?? "Code verification failed." };
+    }
+
+    const payload = (
+        ("access_token" in result.data ? result.data : null)
+        ?? (typeof result.data.session === "object" && result.data.session ? result.data.session as Record<string, unknown> : null)
+    );
+    if (!payload) {
+        return { session: null, error: "Code verification failed." };
+    }
+
+    const accessToken = typeof payload.access_token === "string" ? payload.access_token : null;
+    const refreshToken = typeof payload.refresh_token === "string" ? payload.refresh_token : null;
+    const expiresIn = typeof payload.expires_in === "number" ? payload.expires_in : null;
+    const tokenType = typeof payload.token_type === "string" ? payload.token_type : null;
+    const user = (typeof payload.user === "object" && payload.user) ? payload.user as SupabaseAuthUser : null;
+    const expiresAt = typeof payload.expires_at === "number" ? payload.expires_at : undefined;
+
+    if (!accessToken || !refreshToken || !expiresIn || !tokenType || !user?.id) {
+        return { session: null, error: "Code verification failed." };
+    }
+
+    const session = toSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: expiresIn,
+        expires_at: expiresAt,
+        token_type: tokenType,
+        user
+    });
+    writeStoredSupabaseSession(session);
+    return { session, error: null };
+}
+
 function clearAuthCallbackParamsFromUrl(): void {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);

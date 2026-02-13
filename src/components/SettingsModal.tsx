@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
     AppLanguage,
     Cycle,
@@ -61,14 +60,9 @@ export interface SettingsModalProps {
     authLoading: boolean;
     authError: string | null;
     authMessage: string | null;
-    magicLinkRedirectUrl: string | null;
-    magicLinkRedirectError: string | null;
     cloudEmail: string | null;
     syncError: string | null;
     pendingConflict: boolean;
-    onSignUp: (email: string, password: string) => Promise<boolean>;
-    onSignIn: (email: string, password: string) => Promise<boolean>;
-    onRequestMagicLink: (email: string) => Promise<boolean>;
     onSignOut: () => Promise<void>;
     onSyncNow: () => Promise<boolean>;
     onResolveSyncConflict: (resolution: SyncConflictResolution) => Promise<boolean>;
@@ -111,20 +105,13 @@ export function SettingsModal({
     authLoading,
     authError,
     authMessage,
-    magicLinkRedirectUrl,
-    magicLinkRedirectError,
     cloudEmail,
     syncError,
     pendingConflict,
-    onSignUp,
-    onSignIn,
-    onRequestMagicLink,
     onSignOut,
     onSyncNow,
     onResolveSyncConflict
 }: SettingsModalProps) {
-    const [authEmailInput, setAuthEmailInput] = useState("");
-    const [authPasswordInput, setAuthPasswordInput] = useState("");
     return (
         <div className="settings-overlay" onClick={() => setShowSettings(false)}>
             <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
@@ -186,20 +173,11 @@ export function SettingsModal({
                     syncStatus={syncStatus}
                     isAuthenticated={isAuthenticated}
                     authLoading={authLoading}
-                    authEmailInput={authEmailInput}
-                    setAuthEmailInput={setAuthEmailInput}
-                    authPasswordInput={authPasswordInput}
-                    setAuthPasswordInput={setAuthPasswordInput}
-                    magicLinkRedirectUrl={magicLinkRedirectUrl}
-                    magicLinkRedirectError={magicLinkRedirectError}
                     cloudEmail={cloudEmail}
                     pendingConflict={pendingConflict}
                     authError={authError}
                     syncError={syncError}
                     authMessage={authMessage}
-                    onSignUp={onSignUp}
-                    onSignIn={onSignIn}
-                    onRequestMagicLink={onRequestMagicLink}
                     onSignOut={onSignOut}
                     onSyncNow={onSyncNow}
                     onResolveSyncConflict={onResolveSyncConflict}

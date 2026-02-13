@@ -309,6 +309,10 @@ p {
   background: var(--bg-subtle);
 }
 
+.sync-status-button {
+  cursor: pointer;
+}
+
 .sync-status.synced {
   color: var(--success);
   border-color: color-mix(in srgb, var(--success) 35%, transparent);
@@ -330,6 +334,14 @@ p {
 .sync-status.offline {
   color: var(--text-secondary);
   border-color: var(--border);
+}
+
+.sync-status-sheet {
+  width: min(520px, 100%);
+}
+
+.auth-entry-box {
+  margin-top: 12px;
 }
 
 .header-main {

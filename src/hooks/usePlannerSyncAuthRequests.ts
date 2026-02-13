@@ -1,9 +1,12 @@
 import { useCallback } from "react";
 import {
+    checkAccountExistsByEmail,
+    requestExistingAccountEmailOtp,
     signInWithEmailPassword,
     signInWithMagicLink,
     signUpWithEmailPassword,
-    SupabaseAuthSession
+    SupabaseAuthSession,
+    verifyEmailOtpCode
 } from "../sync/supabaseClient";
 
 type UsePlannerSyncAuthRequestsParams = {
@@ -61,6 +64,47 @@ export function usePlannerSyncAuthRequests({
         return true;
     }, [clearAuthFeedback, ensureSyncEnabled, markSessionSignedIn, setAuthError, setAuthLoading]);
 
+    const checkEmailAccount = useCallback(async (email: string): Promise<"exists" | "missing" | "error"> => {
+        if (!ensureSyncEnabled()) return "error";
+        clearAuthFeedback();
+        setAuthLoading(true);
+        const result = await checkAccountExistsByEmail({ email });
+        setAuthLoading(false);
+        if (result.error) {
+            setAuthError(result.error);
+            return "error";
+        }
+        return result.exists ? "exists" : "missing";
+    }, [clearAuthFeedback, ensureSyncEnabled, setAuthError, setAuthLoading]);
+
+    const requestOneTimeCode = useCallback(async (email: string): Promise<boolean> => {
+        if (!ensureSyncEnabled()) return false;
+        clearAuthFeedback();
+        setAuthLoading(true);
+        const result = await requestExistingAccountEmailOtp({ email });
+        setAuthLoading(false);
+        if (result.error) {
+            setAuthError(result.error);
+            return false;
+        }
+        setAuthMessage("Einmalcode wurde gesendet.");
+        return true;
+    }, [clearAuthFeedback, ensureSyncEnabled, setAuthError, setAuthLoading, setAuthMessage]);
+
+    const verifyOneTimeCode = useCallback(async (email: string, code: string): Promise<boolean> => {
+        if (!ensureSyncEnabled()) return false;
+        clearAuthFeedback();
+        setAuthLoading(true);
+        const result = await verifyEmailOtpCode({ email, code });
+        setAuthLoading(false);
+        if (result.error || !result.session) {
+            setAuthError(result.error ?? "Code verification failed.");
+            return false;
+        }
+        markSessionSignedIn(result.session, "Signed in.");
+        return true;
+    }, [clearAuthFeedback, ensureSyncEnabled, markSessionSignedIn, setAuthError, setAuthLoading]);
+
     const requestMagicLink = useCallback(async (email: string): Promise<boolean> => {
         if (!ensureSyncEnabled()) return false;
         clearAuthFeedback();
@@ -81,6 +125,9 @@ export function usePlannerSyncAuthRequests({
     return {
         signUp,
         signIn,
+        checkEmailAccount,
+        requestOneTimeCode,
+        verifyOneTimeCode,
         requestMagicLink
     };
 }

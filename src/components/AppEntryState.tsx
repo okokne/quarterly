@@ -1,16 +1,12 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, useState } from "react";
 import { AppLanguage } from "../types";
 import { t as tr } from "../i18n";
 
-export type EntryScreen = "welcome" | "auth" | "tour" | "new";
+type AuthMode = "email" | "password" | "registerPrompt" | "register" | "code";
 
 type AppEntryStateProps = {
     language: AppLanguage;
     awaitingCloudDashboard: boolean;
-    entryScreen: EntryScreen;
-    setEntryScreen: (screen: EntryScreen) => void;
-    entryTourStep: number;
-    setEntryTourStep: Dispatch<SetStateAction<number>>;
     syncEnabled: boolean;
     isAuthenticated: boolean;
     cloudEmail: string | null;
@@ -32,18 +28,16 @@ type AppEntryStateProps = {
     onSignOut: () => Promise<void>;
     onSignIn: (email: string, password: string) => Promise<boolean>;
     onSignUp: (email: string, password: string) => Promise<boolean>;
+    onCheckEmailAccount: (email: string) => Promise<"exists" | "missing" | "error">;
+    onRequestOneTimeCode: (email: string) => Promise<boolean>;
+    onVerifyOneTimeCode: (email: string, code: string) => Promise<boolean>;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
-    onLoadDemo: () => void;
 };
 
 export function AppEntryState({
     language,
     awaitingCloudDashboard,
-    entryScreen,
-    setEntryScreen,
-    entryTourStep,
-    setEntryTourStep,
     syncEnabled,
     isAuthenticated,
     cloudEmail,
@@ -65,24 +59,55 @@ export function AppEntryState({
     onSignOut,
     onSignIn,
     onSignUp,
+    onCheckEmailAccount,
+    onRequestOneTimeCode,
+    onVerifyOneTimeCode,
     onRequestMagicLink,
-    onCreateCycle,
-    onLoadDemo
+    onCreateCycle
 }: AppEntryStateProps) {
-    const tourSlides = [
-        {
-            title: tr(language, "welcome.tourWhatTitle"),
-            body: tr(language, "welcome.tourWhatBody")
-        },
-        {
-            title: tr(language, "welcome.tourWhyTitle"),
-            body: tr(language, "welcome.tourWhyBody")
-        },
-        {
-            title: tr(language, "welcome.tourHowTitle"),
-            body: tr(language, "welcome.tourHowBody")
+    const [authMode, setAuthMode] = useState<AuthMode>("email");
+    const [registerConfirm, setRegisterConfirm] = useState("");
+    const [codeInput, setCodeInput] = useState("");
+    const [codePrimed, setCodePrimed] = useState(false);
+    const [localAuthHint, setLocalAuthHint] = useState<string | null>(null);
+    const emailTrimmed = useMemo(() => entryEmail.trim(), [entryEmail]);
+
+    const resetAuthFlow = () => {
+        setAuthMode("email");
+        setEntryPassword("");
+        setRegisterConfirm("");
+        setCodeInput("");
+        setCodePrimed(false);
+        setLocalAuthHint(null);
+    };
+
+    const continueWithEmail = async () => {
+        if (!emailTrimmed) return;
+        setLocalAuthHint(null);
+        const result = await onCheckEmailAccount(emailTrimmed);
+        if (result === "exists") {
+            setAuthMode("password");
+            setCodePrimed(true);
+            return;
         }
-    ];
+        if (result === "missing") {
+            setAuthMode("registerPrompt");
+        }
+    };
+
+    const requestCodeAndOpen = async () => {
+        if (!emailTrimmed) return;
+        if (codePrimed) {
+            setCodeInput("");
+            setAuthMode("code");
+            return;
+        }
+        const ok = await onRequestOneTimeCode(emailTrimmed);
+        if (!ok) return;
+        setCodePrimed(true);
+        setCodeInput("");
+        setAuthMode("code");
+    };
 
     return (
         <div className="page">
@@ -96,135 +121,219 @@ export function AppEntryState({
 
             {awaitingCloudDashboard && (
                 <section className="card">
-                    <h2>Cloud-Daten werden geladen</h2>
-                    <p className="muted">Du bist eingeloggt. Wir stellen dein Dashboard aus der Cloud wieder her.</p>
+                    <h2>{tr(language, "auth.restoringTitle")}</h2>
+                    <p className="muted">{tr(language, "auth.restoringBody")}</p>
                 </section>
             )}
 
-            {!awaitingCloudDashboard && entryScreen === "welcome" && (
+            {!awaitingCloudDashboard && !isAuthenticated && (
                 <section className="card">
-                    <h2>{tr(language, "welcome.title")}</h2>
-                    <p className="muted">{tr(language, "welcome.subtitle")}</p>
-                    <div className="button-row">
-                        <button className="primary" onClick={() => setEntryScreen("new")}>{tr(language, "welcome.newStart")}</button>
-                        <button
-                            onClick={async () => {
-                                if (isAuthenticated) {
-                                    await onRequestSyncNow();
-                                    setEntryScreen("new");
-                                    return;
-                                }
-                                setEntryScreen("auth");
-                            }}
-                        >
-                            {tr(language, "welcome.login")}
-                        </button>
-                        <button onClick={() => setEntryScreen("tour")}>{tr(language, "welcome.tour")}</button>
-                    </div>
-                </section>
-            )}
-
-            {!awaitingCloudDashboard && entryScreen === "auth" && (
-                <section className="card">
-                    <h2>{tr(language, "welcome.authTitle")}</h2>
+                    <h2>{tr(language, "auth.entryTitle")}</h2>
                     {!syncEnabled && (
                         <p className="warning-text">{tr(language, "settings.syncDisabledHint")}</p>
                     )}
-                    <p className="muted">{tr(language, "welcome.authSubtitle")}</p>
+                    <p className="muted">{tr(language, "auth.entrySubtitle")}</p>
+
                     {authError && <p className="error-text">{authError}</p>}
                     {syncError && <p className="error-text">{syncError}</p>}
                     {authMessage && <p className="hint">{authMessage}</p>}
-                    {isAuthenticated && cloudEmail && <p className="hint">{tr(language, "settings.accountSignedInAs", { email: cloudEmail })}</p>}
-                    {isAuthenticated ? (
-                        <div className="button-row">
-                            <button className="primary" disabled={authLoading} onClick={async () => {
-                                await onRequestSyncNow();
-                                setEntryScreen("new");
-                            }}>
-                                {tr(language, "welcome.login")}
-                            </button>
-                            <button disabled={authLoading} onClick={() => {
-                                void onSignOut();
-                            }}>
-                                {tr(language, "settings.accountSignOut")}
-                            </button>
-                            <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="grid">
-                                <label>
-                                    {tr(language, "settings.accountEmail")}
-                                    <input
-                                        type="email"
-                                        value={entryEmail}
-                                        onChange={(e) => setEntryEmail(e.target.value)}
-                                        placeholder="name@example.com"
-                                    />
-                                </label>
+                    {localAuthHint && <p className="hint">{localAuthHint}</p>}
+                    {magicLinkRedirectUrl && (
+                        <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
+                    )}
+                    {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
+
+                    <div className="settings-auth-box auth-entry-box">
+                        <label>
+                            {tr(language, "settings.accountEmail")}
+                            <input
+                                type="email"
+                                value={entryEmail}
+                                onChange={(event) => setEntryEmail(event.target.value)}
+                                placeholder="name@example.com"
+                                autoComplete="email"
+                                disabled={authLoading || authMode !== "email"}
+                            />
+                        </label>
+
+                        {authMode === "email" && (
+                            <div className="button-row">
+                                <button
+                                    className="primary"
+                                    disabled={authLoading || !emailTrimmed}
+                                    onClick={() => {
+                                        void continueWithEmail();
+                                    }}
+                                >
+                                    {tr(language, "auth.continue")}
+                                </button>
+                            </div>
+                        )}
+
+                        {authMode === "password" && (
+                            <>
                                 <label>
                                     {tr(language, "settings.accountPassword")}
                                     <input
                                         type="password"
                                         value={entryPassword}
-                                        onChange={(e) => setEntryPassword(e.target.value)}
+                                        onChange={(event) => setEntryPassword(event.target.value)}
+                                        autoComplete="current-password"
+                                        disabled={authLoading}
                                     />
                                 </label>
-                            </div>
-                            <div className="button-row">
-                                <button className="primary" disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
-                                    const ok = await onSignIn(entryEmail, entryPassword);
-                                    if (ok) setEntryScreen("new");
-                                }}>
-                                    {tr(language, "settings.accountSignIn")}
-                                </button>
-                                <button disabled={authLoading || !entryEmail || entryPassword.length < 6} onClick={async () => {
-                                    const ok = await onSignUp(entryEmail, entryPassword);
-                                    if (ok) setEntryScreen("new");
-                                }}>
-                                    {tr(language, "settings.accountCreate")}
-                                </button>
-                                <button disabled={authLoading || !entryEmail} onClick={() => {
-                                    void onRequestMagicLink(entryEmail);
-                                }}>
+                                <div className="button-row">
+                                    <button
+                                        className="primary"
+                                        disabled={authLoading || !emailTrimmed || entryPassword.length < 6}
+                                        onClick={() => {
+                                            void onSignIn(emailTrimmed, entryPassword);
+                                        }}
+                                    >
+                                        {tr(language, "settings.accountSignIn")}
+                                    </button>
+                                    <button
+                                        disabled={authLoading || !emailTrimmed}
+                                        onClick={() => {
+                                            void requestCodeAndOpen();
+                                        }}
+                                    >
+                                        {tr(language, "auth.signInWithCode")}
+                                    </button>
+                                    <button
+                                        disabled={authLoading}
+                                        onClick={() => resetAuthFlow()}
+                                    >
+                                        {tr(language, "auth.otherEmail")}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {authMode === "registerPrompt" && (
+                            <>
+                                <p className="muted">{tr(language, "auth.noAccountPrompt")}</p>
+                                <div className="button-row">
+                                    <button className="primary" disabled={authLoading} onClick={() => setAuthMode("register")}>
+                                        {tr(language, "auth.register")}
+                                    </button>
+                                    <button disabled={authLoading} onClick={() => resetAuthFlow()}>
+                                        {tr(language, "auth.otherEmail")}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {authMode === "register" && (
+                            <>
+                                <label>
+                                    {tr(language, "settings.accountPassword")}
+                                    <input
+                                        type="password"
+                                        value={entryPassword}
+                                        onChange={(event) => setEntryPassword(event.target.value)}
+                                        autoComplete="new-password"
+                                        disabled={authLoading}
+                                    />
+                                </label>
+                                <label>
+                                    {tr(language, "auth.passwordConfirm")}
+                                    <input
+                                        type="password"
+                                        value={registerConfirm}
+                                        onChange={(event) => setRegisterConfirm(event.target.value)}
+                                        autoComplete="new-password"
+                                        disabled={authLoading}
+                                    />
+                                </label>
+                                <div className="button-row">
+                                    <button
+                                        className="primary"
+                                        disabled={authLoading || !emailTrimmed || entryPassword.length < 6 || entryPassword !== registerConfirm}
+                                        onClick={() => {
+                                            void onSignUp(emailTrimmed, entryPassword);
+                                        }}
+                                    >
+                                        {tr(language, "auth.createAccount")}
+                                    </button>
+                                    <button disabled={authLoading} onClick={() => resetAuthFlow()}>
+                                        {tr(language, "auth.otherEmail")}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {authMode === "code" && (
+                            <>
+                                {!codePrimed && (
+                                    <button
+                                        className="button"
+                                        disabled={authLoading || !emailTrimmed}
+                                        onClick={() => {
+                                            void requestCodeAndOpen();
+                                        }}
+                                    >
+                                        {tr(language, "auth.sendCode")}
+                                    </button>
+                                )}
+                                <label>
+                                    {tr(language, "auth.codeLabel")}
+                                    <input
+                                        value={codeInput}
+                                        onChange={(event) => setCodeInput(event.target.value)}
+                                        placeholder="123456"
+                                        inputMode="numeric"
+                                        autoComplete="one-time-code"
+                                        disabled={authLoading}
+                                    />
+                                </label>
+                                <div className="button-row">
+                                    <button
+                                        className="primary"
+                                        disabled={authLoading || !emailTrimmed || !codeInput.trim()}
+                                        onClick={() => {
+                                            void onVerifyOneTimeCode(emailTrimmed, codeInput.trim());
+                                        }}
+                                    >
+                                        {tr(language, "auth.confirmCode")}
+                                    </button>
+                                    <button
+                                        disabled={authLoading || !emailTrimmed}
+                                        onClick={() => {
+                                            void onRequestOneTimeCode(emailTrimmed);
+                                        }}
+                                    >
+                                        {tr(language, "auth.resendCode")}
+                                    </button>
+                                    <button
+                                        disabled={authLoading}
+                                        onClick={() => setAuthMode("password")}
+                                    >
+                                        {tr(language, "common.back")}
+                                    </button>
+                                </div>
+                                <p className="hint">{tr(language, "auth.codeHint")}</p>
+                                <button
+                                    className="button"
+                                    disabled={authLoading || !emailTrimmed}
+                                    onClick={() => {
+                                        void onRequestMagicLink(emailTrimmed);
+                                        setLocalAuthHint(tr(language, "auth.magicLinkFallbackHint"));
+                                    }}
+                                >
                                     {tr(language, "settings.accountMagicLink")}
                                 </button>
-                                <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
-                            </div>
-                        </>
-                    )}
-                    {magicLinkRedirectUrl && (
-                        <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
-                    )}
-                    {magicLinkRedirectError && <p className="error-text">{magicLinkRedirectError}</p>}
-                </section>
-            )}
-
-            {!awaitingCloudDashboard && entryScreen === "tour" && (
-                <section className="card">
-                    <h2>{tourSlides[entryTourStep]?.title}</h2>
-                    <p>{tourSlides[entryTourStep]?.body}</p>
-                    <div className="button-row">
-                        <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
-                        {entryTourStep > 0 && (
-                            <button onClick={() => setEntryTourStep((prev) => Math.max(0, prev - 1))}>{tr(language, "welcome.prev")}</button>
-                        )}
-                        {entryTourStep < tourSlides.length - 1 ? (
-                            <button className="primary" onClick={() => setEntryTourStep((prev) => Math.min(tourSlides.length - 1, prev + 1))}>{tr(language, "common.next")}</button>
-                        ) : (
-                            <button className="primary" onClick={() => {
-                                setEntryTourStep(0);
-                                setEntryScreen("new");
-                            }}>{tr(language, "common.done")}</button>
+                            </>
                         )}
                     </div>
                 </section>
             )}
 
-            {!awaitingCloudDashboard && entryScreen === "new" && (
+            {!awaitingCloudDashboard && isAuthenticated && (
                 <>
                     <section className="card">
                         <h2>{tr(language, "empty.newCycleTitle")}</h2>
+                        <p className="hint">{tr(language, "settings.accountSignedInAs", { email: cloudEmail ?? "-" })}</p>
                         <div className="grid">
                             <label>
                                 {tr(language, "empty.titleOptional")}
@@ -240,14 +349,13 @@ export function AppEntryState({
                             <button className="primary" onClick={onCreateCycle}>
                                 {tr(language, "empty.createCycle")}
                             </button>
-                            <button onClick={() => setEntryScreen("welcome")}>{tr(language, "common.back")}</button>
+                            <button onClick={() => { void onRequestSyncNow(); }}>
+                                {tr(language, "settings.syncNow")}
+                            </button>
+                            <button onClick={() => { void onSignOut(); }}>
+                                {tr(language, "settings.accountSignOut")}
+                            </button>
                         </div>
-                    </section>
-
-                    <section className="card">
-                        <h2>{tr(language, "empty.demoTitle")}</h2>
-                        <p>{tr(language, "empty.demoDescription")}</p>
-                        <button onClick={onLoadDemo}>{tr(language, "empty.loadDemo")}</button>
                     </section>
                 </>
             )}

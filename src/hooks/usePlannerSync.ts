@@ -66,6 +66,7 @@ export function usePlannerSync({
     const [pendingConflict, setPendingConflict] = useState(false);
     const [conflictCloudState, setConflictCloudState] = useState<PersistedPlannerState | null>(null);
     const [hasPendingLocalChanges, setHasPendingLocalChanges] = useState(false);
+    const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
     const debounceTimerRef = useRef<number | null>(null);
     const skipNextPushRef = useRef(false);
     const lastSyncedSerializedRef = useRef<string | null>(null);
@@ -78,6 +79,7 @@ export function usePlannerSync({
         return "idle";
     });
     const [onlineTick, setOnlineTick] = useState(0);
+    const previousSyncStatusRef = useRef<SyncStatus>(syncStatus);
 
     const syncEnabled = SYNC_ENABLED && hasSupabaseConfig();
     const magicLinkRedirect = getMagicLinkRedirectTarget();
@@ -264,6 +266,13 @@ export function usePlannerSync({
     });
 
     useEffect(() => {
+        if (syncStatus === "synced" && previousSyncStatusRef.current !== "synced") {
+            setLastSyncedAt(new Date().toISOString());
+        }
+        previousSyncStatusRef.current = syncStatus;
+    }, [syncStatus]);
+
+    useEffect(() => {
         if (!syncEnabled) {
             setBootstrapStatus("idle");
             setInitialSyncReady(false);
@@ -395,7 +404,7 @@ export function usePlannerSync({
         syncEnabled
     ]);
 
-    const { signUp, signIn, requestMagicLink } = usePlannerSyncAuthRequests({
+    const { signUp, signIn, checkEmailAccount, requestOneTimeCode, verifyOneTimeCode, requestMagicLink } = usePlannerSyncAuthRequests({
         syncEnabled,
         syncDisabledError,
         magicLinkRedirectUrl: magicLinkRedirect.url,
@@ -444,6 +453,8 @@ export function usePlannerSync({
     });
 
     const cloudEmail = session?.user.email ?? null;
+    const pendingLocalChangesCount = (hasPendingLocalChanges || hasOfflineDirtyChanges(storageScope)) ? 1 : 0;
+    const isOnline = typeof navigator === "undefined" ? true : navigator.onLine;
 
     return {
         syncEnabled,
@@ -462,8 +473,14 @@ export function usePlannerSync({
         cloudEmail,
         syncError,
         pendingConflict,
+        pendingLocalChangesCount,
+        lastSyncedAt,
+        isOnline,
         signUp,
         signIn,
+        checkEmailAccount,
+        requestOneTimeCode,
+        verifyOneTimeCode,
         requestMagicLink,
         signOut,
         resolveSyncConflict

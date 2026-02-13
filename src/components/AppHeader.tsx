@@ -13,6 +13,7 @@ type AppHeaderProps = {
     onOpenCycleDrawer: () => void;
     onOpenSearch: () => void;
     onOpenSettings: () => void;
+    onOpenSyncStatus: () => void;
     weekCompletion: { done: number; total: number };
     syncStatus?: SyncStatus;
 };
@@ -27,9 +28,20 @@ export function AppHeader({
     onOpenCycleDrawer,
     onOpenSearch,
     onOpenSettings,
+    onOpenSyncStatus,
     weekCompletion,
     syncStatus
 }: AppHeaderProps) {
+    const syncLabel = syncStatus === "syncing"
+        ? tr(language, "app.syncBadgeSyncing")
+        : syncStatus === "synced"
+            ? tr(language, "app.syncBadgeSaved")
+            : syncStatus === "error"
+                ? tr(language, "app.syncBadgeProblem")
+                : syncStatus === "offline"
+                    ? tr(language, "app.syncBadgeOffline")
+                    : tr(language, "app.syncBadgeSaved");
+
     return (
         <header className="header">
             <div className="header-main">
@@ -75,13 +87,14 @@ export function AppHeader({
                         🔍
                     </button>
                     {syncStatus && (
-                        <span className={`sync-status ${syncStatus}`}>
-                            {syncStatus === "syncing" && tr(language, "app.syncSyncing")}
-                            {syncStatus === "synced" && tr(language, "app.syncSynced")}
-                            {syncStatus === "error" && tr(language, "app.syncError")}
-                            {syncStatus === "offline" && tr(language, "app.syncOffline")}
-                            {syncStatus === "idle" && tr(language, "app.syncLocal")}
-                        </span>
+                        <button
+                            type="button"
+                            className={`sync-status sync-status-button ${syncStatus}`}
+                            onClick={onOpenSyncStatus}
+                            title={tr(language, "app.openSyncStatus")}
+                        >
+                            {syncLabel}
+                        </button>
                     )}
                     <button
                         onClick={onOpenSettings}

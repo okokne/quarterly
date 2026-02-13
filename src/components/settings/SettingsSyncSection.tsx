@@ -7,20 +7,11 @@ type SettingsSyncSectionProps = {
     syncStatus: SyncStatus;
     isAuthenticated: boolean;
     authLoading: boolean;
-    authEmailInput: string;
-    setAuthEmailInput: (value: string) => void;
-    authPasswordInput: string;
-    setAuthPasswordInput: (value: string) => void;
-    magicLinkRedirectUrl: string | null;
-    magicLinkRedirectError: string | null;
     cloudEmail: string | null;
     pendingConflict: boolean;
     authError: string | null;
     syncError: string | null;
     authMessage: string | null;
-    onSignUp: (email: string, password: string) => Promise<boolean>;
-    onSignIn: (email: string, password: string) => Promise<boolean>;
-    onRequestMagicLink: (email: string) => Promise<boolean>;
     onSignOut: () => Promise<void>;
     onSyncNow: () => Promise<boolean>;
     onResolveSyncConflict: (resolution: SyncConflictResolution) => Promise<boolean>;
@@ -40,20 +31,11 @@ export function SettingsSyncSection({
     syncStatus,
     isAuthenticated,
     authLoading,
-    authEmailInput,
-    setAuthEmailInput,
-    authPasswordInput,
-    setAuthPasswordInput,
-    magicLinkRedirectUrl,
-    magicLinkRedirectError,
     cloudEmail,
     pendingConflict,
     authError,
     syncError,
     authMessage,
-    onSignUp,
-    onSignIn,
-    onRequestMagicLink,
     onSignOut,
     onSyncNow,
     onResolveSyncConflict
@@ -73,54 +55,7 @@ export function SettingsSyncSection({
                     </div>
                     {!isAuthenticated ? (
                         <div className="settings-auth-box">
-                            <input
-                                type="email"
-                                value={authEmailInput}
-                                onChange={(event) => setAuthEmailInput(event.target.value)}
-                                placeholder={tr(language, "settings.accountEmail")}
-                                autoComplete="email"
-                            />
-                            <input
-                                type="password"
-                                value={authPasswordInput}
-                                onChange={(event) => setAuthPasswordInput(event.target.value)}
-                                placeholder={tr(language, "settings.accountPassword")}
-                                autoComplete="current-password"
-                            />
-                            <div className="button-row compact">
-                                <button
-                                    className="button"
-                                    disabled={authLoading || !authEmailInput.trim() || authPasswordInput.length < 6}
-                                    onClick={() => {
-                                        void onSignUp(authEmailInput.trim(), authPasswordInput);
-                                    }}
-                                >
-                                    {tr(language, "settings.accountCreate")}
-                                </button>
-                                <button
-                                    className="button primary"
-                                    disabled={authLoading || !authEmailInput.trim() || authPasswordInput.length < 6}
-                                    onClick={() => {
-                                        void onSignIn(authEmailInput.trim(), authPasswordInput);
-                                    }}
-                                >
-                                    {tr(language, "settings.accountSignIn")}
-                                </button>
-                            </div>
-                            <p className="muted">{tr(language, "settings.accountMagicHint")}</p>
-                            <button
-                                className="button"
-                                disabled={authLoading || !authEmailInput.trim()}
-                                onClick={() => {
-                                    void onRequestMagicLink(authEmailInput.trim());
-                                }}
-                            >
-                                {tr(language, "settings.accountMagicLink")}
-                            </button>
-                            {magicLinkRedirectUrl && (
-                                <p className="hint">{tr(language, "settings.accountMagicRedirect", { url: magicLinkRedirectUrl })}</p>
-                            )}
-                            {magicLinkRedirectError && <p className="muted sync-error">{magicLinkRedirectError}</p>}
+                            <p className="muted">{tr(language, "settings.authInLoginHint")}</p>
                         </div>
                     ) : (
                         <div className="settings-auth-box">

@@ -10,6 +10,7 @@ import { AppStateBanners } from "./components/AppStateBanners";
 import { SearchOverlay } from "./components/SearchOverlay";
 import { HabitsManagerSheet } from "./components/HabitsManagerSheet";
 import { CycleDrawer } from "./components/CycleDrawer";
+import { SyncStatusSheet } from "./components/SyncStatusSheet";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
 import { useHabitsStore } from "./hooks/useHabitsStore";
 import { useDailyBlocks } from "./hooks/useDailyBlocks";
@@ -91,6 +92,8 @@ export default function App() {
     setShowHabitsManager,
     showCycleDrawer,
     setShowCycleDrawer,
+    showSyncStatusSheet,
+    setShowSyncStatusSheet,
     openSettings,
     goalDraft,
     setGoalDraft,
@@ -108,10 +111,6 @@ export default function App() {
     setShowLegacyPrompt,
     step,
     setStep,
-    entryScreen,
-    setEntryScreen,
-    entryTourStep,
-    setEntryTourStep,
     entryEmail,
     setEntryEmail,
     entryPassword,
@@ -258,6 +257,7 @@ export default function App() {
   const {
     syncEnabled,
     syncStatus,
+    bootstrapStatus,
     isAuthenticated,
     authLoading,
     authError,
@@ -267,8 +267,14 @@ export default function App() {
     cloudEmail,
     syncError,
     pendingConflict,
+    pendingLocalChangesCount,
+    lastSyncedAt,
+    isOnline,
     signUp,
     signIn,
+    checkEmailAccount,
+    requestOneTimeCode,
+    verifyOneTimeCode,
     requestMagicLink,
     signOut,
     requestSyncNow,
@@ -412,25 +418,20 @@ export default function App() {
     persistence: {
       snapshotMetas
     },
-    sync: {
-      syncEnabled,
-      syncStatus,
-      isAuthenticated,
-      authLoading,
-      authError,
-      authMessage,
-      magicLinkRedirectUrl,
-      magicLinkRedirectError,
-      cloudEmail,
-      syncError,
-      pendingConflict,
-      onSignUp: signUp,
-      onSignIn: signIn,
-      onRequestMagicLink: requestMagicLink,
-      onSignOut: signOut,
-      onSyncNow: requestSyncNow,
-      onResolveSyncConflict: resolveSyncConflict
-    }
+      sync: {
+        syncEnabled,
+        syncStatus,
+        isAuthenticated,
+        authLoading,
+        authError,
+        authMessage,
+        cloudEmail,
+        syncError,
+        pendingConflict,
+        onSignOut: signOut,
+        onSyncNow: requestSyncNow,
+        onResolveSyncConflict: resolveSyncConflict
+      }
   });
   const confirmModalsProps = useConfirmModalsProps({
     language,
@@ -520,10 +521,6 @@ export default function App() {
   const entryStateProps = useAppEntryStateProps({
     language,
     awaitingCloudDashboard,
-    entryScreen,
-    setEntryScreen,
-    entryTourStep,
-    setEntryTourStep,
     syncEnabled,
     isAuthenticated,
     cloudEmail,
@@ -545,12 +542,14 @@ export default function App() {
     onSignOut: signOut,
     onSignIn: signIn,
     onSignUp: signUp,
-    onRequestMagicLink: requestMagicLink,
+    onCheckEmailAccount: checkEmailAccount,
+    onRequestOneTimeCode: requestOneTimeCode,
+    onVerifyOneTimeCode: verifyOneTimeCode,
     onCreateCycle: handleCreateCycle,
-    onLoadDemo: handleLoadDemo
+    onRequestMagicLink: requestMagicLink
   });
 
-  if (!cycle) {
+  if (!isAuthenticated || bootstrapStatus !== "ready" || !cycle) {
     return (
       <AppEntryState {...entryStateProps} />
     );
@@ -586,6 +585,7 @@ export default function App() {
         onOpenCycleDrawer={openQuarterDashboard}
         onOpenSearch={() => setShowSearchOverlay(true)}
         onOpenSettings={openSettings}
+        onOpenSyncStatus={() => setShowSyncStatusSheet(true)}
         weekCompletion={weekCompletion}
         syncStatus={syncEnabled ? syncStatus : undefined}
       />
@@ -599,6 +599,18 @@ export default function App() {
         searchResults={searchResults}
         onClose={() => setShowSearchOverlay(false)}
         onSelectResult={onHeaderSearchResultSelect}
+      />
+
+      <SyncStatusSheet
+        open={showSyncStatusSheet}
+        language={language}
+        syncEnabled={syncEnabled}
+        syncStatus={syncStatus}
+        isOnline={isOnline}
+        lastSyncedAt={lastSyncedAt}
+        pendingLocalChangesCount={pendingLocalChangesCount}
+        onSyncNow={requestSyncNow}
+        onClose={() => setShowSyncStatusSheet(false)}
       />
 
       <HabitsManagerSheet

@@ -135,8 +135,14 @@ export function useAppSyncPersistence({
         cloudEmail,
         syncError,
         pendingConflict,
+        pendingLocalChangesCount,
+        lastSyncedAt,
+        isOnline,
         signUp,
         signIn,
+        checkEmailAccount,
+        requestOneTimeCode,
+        verifyOneTimeCode,
         requestMagicLink,
         signOut,
         requestSyncNow,
@@ -170,7 +176,7 @@ export function useAppSyncPersistence({
         });
     }, [activeScope, hasCycle, lastBootstrapSource]);
 
-    const awaitingCloudDashboard = !hasCycle && syncEnabled && isAuthenticated && bootstrapStatus !== "ready";
+    const awaitingCloudDashboard = syncEnabled && isAuthenticated && bootstrapStatus !== "ready";
 
     return {
         persistedPlannerState,
@@ -188,8 +194,14 @@ export function useAppSyncPersistence({
         cloudEmail,
         syncError,
         pendingConflict,
+        pendingLocalChangesCount,
+        lastSyncedAt,
+        isOnline,
         signUp,
         signIn,
+        checkEmailAccount,
+        requestOneTimeCode,
+        verifyOneTimeCode,
         requestMagicLink,
         signOut,
         requestSyncNow,
