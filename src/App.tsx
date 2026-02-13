@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
 import { Cycle } from "./types";
-import { migrateCycle, cycleReducer } from "./utils";
+import { addDays, migrateCycle, cycleReducer, toIsoDate } from "./utils";
 import { ConfirmModals } from "./components/ConfirmModals";
 import { SettingsModalHost } from "./components/SettingsModalHost";
 import { AppHeader } from "./components/AppHeader";
@@ -104,8 +104,6 @@ export default function App() {
     setShowDeleteConfirm,
     showArchiveDeleteConfirm,
     setShowArchiveDeleteConfirm,
-    showCycleEndPrompt,
-    setShowCycleEndPrompt,
     showLegacyPrompt,
     setShowLegacyPrompt,
     step,
@@ -160,13 +158,11 @@ export default function App() {
   });
   useAppCycleEffects({
     cycle,
-    viewingArchiveId,
     step,
     setStep,
     setSelectedWeek,
     setSelectedDate,
-    setShowLegacyPrompt,
-    setShowCycleEndPrompt
+    setShowLegacyPrompt
   });
 
   const updateCycle = (updater: (prev: Cycle) => Cycle) => {
@@ -324,6 +320,23 @@ export default function App() {
     selectedWeek,
     step
   });
+  const [startQuarterReview, setStartQuarterReview] = useState(false);
+  const openQuarterDashboard = () => {
+    setStartQuarterReview(false);
+    setShowCycleDrawer(true);
+  };
+  const todayIso = toIsoDate(new Date());
+  const cycleEndDate = cycle ? addDays(cycle.startDate, 83) : null;
+  const isQuarterComplete = Boolean(cycle && !isArchiveView && cycleEndDate && todayIso >= cycleEndDate);
+  const hasQuarterReview = Boolean(
+    cycle?.finalReview
+      && (
+        (cycle.finalReview.breakthroughs ?? "").trim()
+        || (cycle.finalReview.keyLearning ?? "").trim()
+        || (cycle.finalReview.lifeQuality ?? "").trim()
+        || (cycle.finalReview.nextCycle ?? "").trim()
+      )
+  );
   const {
     handleAddGoal,
     handleDeleteGoal,
@@ -444,10 +457,7 @@ export default function App() {
     prompts: {
       showLegacyPrompt,
       setShowLegacyPrompt,
-      handleResetLegacy,
-      showCycleEndPrompt,
-      setShowCycleEndPrompt,
-      onOpenCycleDrawer: () => setShowCycleDrawer(true)
+      handleResetLegacy
     }
   });
   const dashboardContentProps = useAppDashboardContentProps({
@@ -560,6 +570,11 @@ export default function App() {
         onDismissRecovery={dismissRecovery}
         persistenceWarning={persistenceWarning}
         onClearPersistenceWarning={clearPersistenceWarning}
+        showQuarterReviewBanner={isQuarterComplete && !hasQuarterReview}
+        onStartQuarterReview={() => {
+          setStartQuarterReview(true);
+          setShowCycleDrawer(true);
+        }}
       />
       <AppHeader
         title={cycle.title}
@@ -568,7 +583,7 @@ export default function App() {
         currentWeek={currentWeek}
         language={language}
         dateFormat={dateFormat}
-        onOpenCycleDrawer={() => setShowCycleDrawer(true)}
+        onOpenCycleDrawer={openQuarterDashboard}
         onOpenSearch={() => setShowSearchOverlay(true)}
         onOpenSettings={openSettings}
         weekCompletion={weekCompletion}
@@ -608,14 +623,26 @@ export default function App() {
         updateCycle={updateCycle}
         onArchiveRestart={() => {
           setShowCycleDrawer(false);
+          setStartQuarterReview(false);
           setShowDeleteConfirm(true);
         }}
+        selectedWeek={selectedWeek}
+        habits={habits}
+        onOpenHabitsManager={() => {
+          setShowCycleDrawer(false);
+          setShowHabitsManager(true);
+        }}
+        startInQuarterReview={startQuarterReview}
         onViewArchivedCycle={(archiveId) => {
           setShowCycleDrawer(false);
+          setStartQuarterReview(false);
           setViewingArchiveId(archiveId);
         }}
         onDeleteArchivedCycle={(archiveId) => setShowArchiveDeleteConfirm(archiveId)}
-        onClose={() => setShowCycleDrawer(false)}
+        onClose={() => {
+          setShowCycleDrawer(false);
+          setStartQuarterReview(false);
+        }}
       />
 
       <SettingsModalHost show={showSettings} props={settingsModalProps} />

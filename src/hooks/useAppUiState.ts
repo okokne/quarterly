@@ -43,7 +43,6 @@ export function useAppUiState() {
     const [showDemoConfirm, setShowDemoConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showArchiveDeleteConfirm, setShowArchiveDeleteConfirm] = useState<Id | null>(null);
-    const [showCycleEndPrompt, setShowCycleEndPrompt] = useState(false);
     const [showLegacyPrompt, setShowLegacyPrompt] = useState(false);
 
     const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -92,8 +91,6 @@ export function useAppUiState() {
         setShowDeleteConfirm,
         showArchiveDeleteConfirm,
         setShowArchiveDeleteConfirm,
-        showCycleEndPrompt,
-        setShowCycleEndPrompt,
         showLegacyPrompt,
         setShowLegacyPrompt,
         step,

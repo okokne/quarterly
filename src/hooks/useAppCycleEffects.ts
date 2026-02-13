@@ -1,29 +1,25 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
-import { Cycle, Id, LEGACY_KEY } from "../types";
-import { addDays, getWeekIndexForDate, toIsoDate } from "../utils";
+import { Cycle, LEGACY_KEY } from "../types";
+import { getWeekIndexForDate, toIsoDate } from "../utils";
 
 type OnboardingStep = 1 | 2 | 3 | 4;
 
 type UseAppCycleEffectsParams = {
     cycle: Cycle | null;
-    viewingArchiveId: Id | null;
     step: OnboardingStep;
     setStep: Dispatch<SetStateAction<OnboardingStep>>;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
     setSelectedDate: Dispatch<SetStateAction<string>>;
     setShowLegacyPrompt: Dispatch<SetStateAction<boolean>>;
-    setShowCycleEndPrompt: Dispatch<SetStateAction<boolean>>;
 };
 
 export function useAppCycleEffects({
     cycle,
-    viewingArchiveId,
     step,
     setStep,
     setSelectedWeek,
     setSelectedDate,
-    setShowLegacyPrompt,
-    setShowCycleEndPrompt
+    setShowLegacyPrompt
 }: UseAppCycleEffectsParams) {
     useEffect(() => {
         if (!cycle) return;
@@ -52,16 +48,4 @@ export function useAppCycleEffects({
         if (legacy) setShowLegacyPrompt(true);
     }, [cycle, setShowLegacyPrompt]);
 
-    useEffect(() => {
-        if (!cycle || !cycle.startDate) return;
-        try {
-            const endDate = addDays(cycle.startDate, 83);
-            const today = toIsoDate(new Date());
-            if (today >= endDate && !viewingArchiveId && !cycle.finalReview) {
-                setShowCycleEndPrompt(true);
-            }
-        } catch (error) {
-            console.error("Date calc error", error);
-        }
-    }, [cycle, viewingArchiveId, setShowCycleEndPrompt]);
 }

@@ -25,10 +25,6 @@ export interface ConfirmModalsProps {
     showArchiveDeleteConfirm: Id | null;
     setShowArchiveDeleteConfirm: (id: Id | null) => void;
     handleDeleteFromHistory: (id: Id) => void;
-    // Cycle end prompt
-    showCycleEndPrompt: boolean;
-    setShowCycleEndPrompt: (val: boolean) => void;
-    onOpenCycleDrawer: () => void;
 }
 
 export function ConfirmModals({
@@ -49,10 +45,7 @@ export function ConfirmModals({
     handleResetLegacy,
     showArchiveDeleteConfirm,
     setShowArchiveDeleteConfirm,
-    handleDeleteFromHistory,
-    showCycleEndPrompt,
-    setShowCycleEndPrompt,
-    onOpenCycleDrawer,
+    handleDeleteFromHistory
 }: ConfirmModalsProps) {
     return (
         <>
@@ -157,26 +150,6 @@ export function ConfirmModals({
                 </div>
             )}
 
-            {showCycleEndPrompt && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <h3>{tr(language, "modals.cycleEndTitle")}</h3>
-                        <p>{tr(language, "modals.cycleEndBody")}</p>
-                        <div className="modal-actions">
-                            <button onClick={() => setShowCycleEndPrompt(false)}>{tr(language, "modals.later")}</button>
-                            <button
-                                className="primary"
-                                onClick={() => {
-                                    setShowCycleEndPrompt(false);
-                                    onOpenCycleDrawer();
-                                }}
-                            >
-                                {tr(language, "modals.archiveNow")}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

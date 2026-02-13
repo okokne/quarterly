@@ -14,6 +14,8 @@ type AppStateBannersProps = {
     onDismissRecovery: () => void;
     persistenceWarning: string | null;
     onClearPersistenceWarning: () => void;
+    showQuarterReviewBanner: boolean;
+    onStartQuarterReview: () => void;
 };
 
 export function AppStateBanners({
@@ -27,7 +29,9 @@ export function AppStateBanners({
     onRestoreLatestSnapshot,
     onDismissRecovery,
     persistenceWarning,
-    onClearPersistenceWarning
+    onClearPersistenceWarning,
+    showQuarterReviewBanner,
+    onStartQuarterReview
 }: AppStateBannersProps) {
     return (
         <>
@@ -53,6 +57,17 @@ export function AppStateBanners({
                     <div className="banner-actions">
                         <button onClick={onRestoreLatestSnapshot}>{tr(language, "app.recoveryRestore")}</button>
                         <button onClick={onDismissRecovery}>{tr(language, "common.cancel")}</button>
+                    </div>
+                </section>
+            )}
+
+            {showQuarterReviewBanner && !viewingArchiveId && (
+                <section className="banner">
+                    <span>{tr(language, "app.quarterCompleteBanner")}</span>
+                    <div className="banner-actions">
+                        <button className="primary" onClick={onStartQuarterReview}>
+                            {tr(language, "app.startQuarterReview")}
+                        </button>
                     </div>
                 </section>
             )}

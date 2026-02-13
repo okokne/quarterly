@@ -61,7 +61,11 @@ export function AppHeader({
                         title={tr(language, "app.openCycleDrawer")}
                         className="icon-btn header-cycle-btn"
                     >
-                        🗂 <span>{tr(language, "app.cycleLabel")}</span>
+                        🗂
+                        <span className="header-cycle-btn-text">
+                            <strong>{tr(language, "app.cycleLabel")}</strong>
+                            <em>{tr(language, "app.myQuarterContext", { week: selectedWeek, remaining: Math.max(0, 12 - selectedWeek) })}</em>
+                        </span>
                     </button>
                     <button
                         onClick={onOpenSearch}

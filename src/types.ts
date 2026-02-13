@@ -130,6 +130,7 @@ export type WeeklyReview = {
 
 export type FinalReview = {
     breakthroughs: string;
+    keyLearning: string;
     lifeQuality: string;
     nextCycle: string;
 };
@@ -176,7 +177,7 @@ export type LocalSnapshotRecord = LocalSnapshotMeta & {
 // ─── Empty Defaults ───
 export const emptyWeeklyReview: WeeklyReview = { good: "", bad: "", change: "" };
 export const emptyDailyReview: DailyReview = { good: "", bad: "" };
-export const emptyFinalReview: FinalReview = { breakthroughs: "", lifeQuality: "", nextCycle: "" };
+export const emptyFinalReview: FinalReview = { breakthroughs: "", keyLearning: "", lifeQuality: "", nextCycle: "" };
 
 // ─── Undo/Redo ───
 export type CycleState = {

@@ -29,10 +29,7 @@ type ConfirmModalsBindingInput = {
         ConfirmModalsProps,
         "showLegacyPrompt" |
         "setShowLegacyPrompt" |
-        "handleResetLegacy" |
-        "showCycleEndPrompt" |
-        "setShowCycleEndPrompt" |
-        "onOpenCycleDrawer"
+        "handleResetLegacy"
     >;
 };
 

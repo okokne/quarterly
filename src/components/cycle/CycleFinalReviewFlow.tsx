@@ -16,6 +16,7 @@ export function CycleFinalReviewFlow({
 }: CycleFinalReviewFlowProps) {
     const finalReview = cycle.finalReview ?? {
         breakthroughs: "",
+        keyLearning: "",
         lifeQuality: "",
         nextCycle: ""
     };
@@ -34,6 +35,20 @@ export function CycleFinalReviewFlow({
                             updateCycle((prev) => ({
                                 ...prev,
                                 finalReview: { ...(prev.finalReview ?? finalReview), breakthroughs: value }
+                            }));
+                        }}
+                    />
+                </label>
+                <label>
+                    {tr(language, "review.keyLearning")}
+                    <textarea
+                        disabled={readOnly}
+                        value={finalReview.keyLearning}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            updateCycle((prev) => ({
+                                ...prev,
+                                finalReview: { ...(prev.finalReview ?? finalReview), keyLearning: value }
                             }));
                         }}
                     />

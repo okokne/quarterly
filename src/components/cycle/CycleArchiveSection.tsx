@@ -30,6 +30,9 @@ export function CycleArchiveSection({
                             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                 <strong>{entry.title || tr(language, "settings.untitled")}</strong>
                                 <span className="muted">{formatDate(entry.startDate, dateFormat, language)}</span>
+                                {entry.finalReview && (
+                                    <span className="muted">{tr(language, "cycle.reviewTitle")}</span>
+                                )}
                             </div>
                             <div className="button-row compact">
                                 <button className="button" onClick={() => onViewCycle(entry.id)}>{tr(language, "common.view")}</button>
