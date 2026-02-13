@@ -18,7 +18,7 @@ type WeekTargetsSectionProps = {
     draggingTargetId: Id | null;
     setDraggingTargetId: Dispatch<SetStateAction<Id | null>>;
     onReorderTargets: (weekIndex: number, fromIndex: number, toIndex: number) => void;
-    onUpdateWeeklyTarget: (targetId: Id, changes: Partial<WeeklyTarget>) => void;
+    onAdjustWeeklyTarget: (targetId: Id, delta: number) => void;
     onDeleteWeeklyTarget: (targetId: Id) => void;
     totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
     editingTargetId: Id | null;
@@ -43,7 +43,7 @@ export function WeekTargetsSection({
     draggingTargetId,
     setDraggingTargetId,
     onReorderTargets,
-    onUpdateWeeklyTarget,
+    onAdjustWeeklyTarget,
     onDeleteWeeklyTarget,
     totalWeeklyDone,
     editingTargetId,
@@ -186,21 +186,13 @@ export function WeekTargetsSection({
                                 <div className="week-target-controls">
                                     <div className="week-target-stepper">
                                         <button
-                                            onClick={() =>
-                                                onUpdateWeeklyTarget(target.id, {
-                                                    manualAdjust: Math.max(-target.target, manualAdjust - 1)
-                                                })
-                                            }
+                                            onClick={() => onAdjustWeeklyTarget(target.id, -1)}
                                         >
                                             –
                                         </button>
                                         <span className="muted week-target-done">{manualAdjust >= 0 ? `+${manualAdjust}` : manualAdjust}</span>
                                         <button
-                                            onClick={() =>
-                                                onUpdateWeeklyTarget(target.id, {
-                                                    manualAdjust: Math.min(target.target, manualAdjust + 1)
-                                                })
-                                            }
+                                            onClick={() => onAdjustWeeklyTarget(target.id, 1)}
                                         >
                                             +
                                         </button>

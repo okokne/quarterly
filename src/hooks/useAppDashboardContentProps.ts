@@ -67,6 +67,7 @@ type UseAppDashboardContentPropsParams = {
     onAddWeeklyTarget: () => void;
     onCopyFromPreviousWeek: () => void;
     onUpdateWeeklyTarget: (targetId: Id, changes: Partial<WeeklyTarget>) => void;
+    onAdjustWeeklyTarget: (targetId: Id, delta: number) => void;
     onDeleteWeeklyTarget: (targetId: Id) => void;
     onReorderTargets: (weekIndex: number, fromIndex: number, toIndex: number) => void;
     onAddBlock: (date: string) => void | Promise<void>;

@@ -18,6 +18,7 @@ type UseAppActionsParams = {
     setTargetDraft: Dispatch<SetStateAction<WeeklyTargetDraft>>;
     addWeeklyTarget: (selectedWeek: number, draft: WeeklyTargetDraft) => boolean;
     updateWeeklyTarget: (selectedWeek: number, targetId: Id, changes: Partial<WeeklyTarget>) => void;
+    adjustWeeklyTarget: (selectedWeek: number, targetId: Id, delta: number) => void;
     deleteWeeklyTarget: (selectedWeek: number, targetId: Id) => void;
     copyFromPreviousWeek: (selectedWeek: number) => void;
     saveAsTemplate: (name: string, dayBlocks: DailyBlock[]) => boolean;
@@ -38,6 +39,7 @@ export function useAppActions({
     setTargetDraft,
     addWeeklyTarget,
     updateWeeklyTarget,
+    adjustWeeklyTarget,
     deleteWeeklyTarget,
     copyFromPreviousWeek,
     saveAsTemplate,
@@ -81,6 +83,10 @@ export function useAppActions({
         deleteWeeklyTarget(selectedWeek, targetId);
     }, [deleteWeeklyTarget, selectedWeek]);
 
+    const handleAdjustWeeklyTarget = useCallback((targetId: Id, delta: number) => {
+        adjustWeeklyTarget(selectedWeek, targetId, delta);
+    }, [adjustWeeklyTarget, selectedWeek]);
+
     const handleCopyFromPreviousWeek = useCallback(() => {
         copyFromPreviousWeek(selectedWeek);
     }, [copyFromPreviousWeek, selectedWeek]);
@@ -106,6 +112,7 @@ export function useAppActions({
         handleDeleteGoal,
         handleAddWeeklyTarget,
         handleUpdateWeeklyTarget,
+        handleAdjustWeeklyTarget,
         handleDeleteWeeklyTarget,
         handleCopyFromPreviousWeek,
         handleSaveAsTemplate,

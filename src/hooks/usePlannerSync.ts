@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     BootstrapStatus,
     PersistedPlannerState,
@@ -84,6 +84,19 @@ export function usePlannerSync({
     const activeScope = storageScope;
     const sessionUserId = session?.user.id ?? null;
     const syncDisabledError = "Sync ist deaktiviert. Bitte VITE_SYNC_ENABLED und Supabase-Variablen pruefen.";
+    const statePreferences = useMemo(() => ({
+        darkMode: state.preferences.darkMode,
+        language: state.preferences.language,
+        dateFormat: state.preferences.dateFormat,
+        timeFormat: state.preferences.timeFormat,
+        selectedCalendarId: state.preferences.selectedCalendarId
+    }), [
+        state.preferences.darkMode,
+        state.preferences.language,
+        state.preferences.dateFormat,
+        state.preferences.timeFormat,
+        state.preferences.selectedCalendarId
+    ]);
 
     const clearAuthFeedback = useCallback(() => {
         setAuthError(null);
@@ -162,7 +175,7 @@ export function usePlannerSync({
             expiresAt: activeSession.expires_at ?? null
         });
 
-        const localScopedState = readPersistedPlannerStateFromLocalStorage(state.preferences, userScope);
+        const localScopedState = readPersistedPlannerStateFromLocalStorage(statePreferences, userScope);
         debugSync("bootstrap_start", {
             userId: userScope,
             scope: userScope,
@@ -226,7 +239,7 @@ export function usePlannerSync({
         });
 
         return true;
-    }, [applySyncedState, onStorageScopeChange, state.preferences]);
+    }, [applySyncedState, onStorageScopeChange, statePreferences]);
 
     usePlannerSyncInitialSession({
         syncEnabled,
@@ -266,7 +279,7 @@ export function usePlannerSync({
             if (storageScope !== "guest") {
                 onStorageScopeChange("guest");
             }
-            applySyncedState(readPersistedPlannerStateFromLocalStorage(state.preferences, "guest"));
+            applySyncedState(readPersistedPlannerStateFromLocalStorage(statePreferences, "guest"));
             setSyncStatus(navigator.onLine ? "idle" : "offline");
             clearOfflineDirty("guest");
             return;
@@ -295,7 +308,7 @@ export function usePlannerSync({
         runBootstrapForSession,
         session,
         sessionUserId,
-        state.preferences,
+        statePreferences,
         storageScope,
         syncEnabled
     ]);
@@ -397,7 +410,7 @@ export function usePlannerSync({
         session,
         clearAuthFeedback,
         applySyncedState,
-        statePreferences: state.preferences,
+        statePreferences,
         storageScope,
         onStorageScopeChange,
         setAuthLoading,

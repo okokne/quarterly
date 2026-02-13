@@ -48,6 +48,26 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
         });
     };
 
+    const adjustWeeklyTarget = (selectedWeek: number, targetId: Id, delta: number) => {
+        if (!Number.isFinite(delta) || delta === 0) return;
+        updateCycle((prev) => {
+            const targets = prev.weeklyTargets[selectedWeek] ?? [];
+            return {
+                ...prev,
+                weeklyTargets: {
+                    ...prev.weeklyTargets,
+                    [selectedWeek]: targets.map((target) => {
+                        if (target.id !== targetId) return target;
+                        const currentAdjust = target.manualAdjust ?? 0;
+                        const nextAdjust = clamp(currentAdjust + delta, -target.target, target.target);
+                        if (nextAdjust === currentAdjust) return target;
+                        return { ...target, manualAdjust: nextAdjust };
+                    })
+                }
+            };
+        });
+    };
+
     const deleteWeeklyTarget = (selectedWeek: number, targetId: Id) => {
         updateCycle((prev) => {
             const targets = prev.weeklyTargets[selectedWeek] ?? [];
@@ -105,6 +125,7 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
     return {
         addWeeklyTarget,
         updateWeeklyTarget,
+        adjustWeeklyTarget,
         deleteWeeklyTarget,
         reorderTargets,
         copyFromPreviousWeek

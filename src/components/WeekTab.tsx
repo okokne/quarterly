@@ -36,6 +36,7 @@ type WeekTabProps = {
     setDraggingTargetId: Dispatch<SetStateAction<Id | null>>;
     onReorderTargets: (weekIndex: number, fromIndex: number, toIndex: number) => void;
     onUpdateWeeklyTarget: (targetId: Id, changes: Partial<WeeklyTarget>) => void;
+    onAdjustWeeklyTarget: (targetId: Id, delta: number) => void;
     onDeleteWeeklyTarget: (targetId: Id) => void;
     totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
     weeklyReview: WeeklyReview;
@@ -62,6 +63,7 @@ export function WeekTab({
     setDraggingTargetId,
     onReorderTargets,
     onUpdateWeeklyTarget,
+    onAdjustWeeklyTarget,
     onDeleteWeeklyTarget,
     totalWeeklyDone,
     weeklyReview
@@ -139,7 +141,7 @@ export function WeekTab({
                     draggingTargetId={draggingTargetId}
                     setDraggingTargetId={setDraggingTargetId}
                     onReorderTargets={onReorderTargets}
-                    onUpdateWeeklyTarget={onUpdateWeeklyTarget}
+                    onAdjustWeeklyTarget={onAdjustWeeklyTarget}
                     onDeleteWeeklyTarget={onDeleteWeeklyTarget}
                     totalWeeklyDone={totalWeeklyDone}
                     editingTargetId={editingTargetId}

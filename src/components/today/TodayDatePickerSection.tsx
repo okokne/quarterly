@@ -80,40 +80,62 @@ export function TodayDatePickerSection({
                 </div>
             </div>
 
-            <div
-                className="today-week-strip"
-                onTouchStart={(event) => {
-                    touchStartX.current = event.touches[0]?.clientX ?? null;
-                }}
-                onTouchEnd={(event) => {
-                    if (touchStartX.current === null) return;
-                    const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
-                    const delta = endX - touchStartX.current;
-                    touchStartX.current = null;
-                    if (Math.abs(delta) < 40) return;
-                    selectDate(addDays(selectedDate, delta < 0 ? 7 : -7));
-                }}
-            >
-                {weekDates.map((date) => {
-                    const isSelected = date === selectedDate;
-                    const isToday = date === todayIso;
+            <div className="today-week-strip-nav">
+                <button
+                    type="button"
+                    className="today-week-shift-btn"
+                    onClick={() => selectDate(addDays(selectedDate, -7))}
+                    aria-label={tr(language, "today.prevWeek")}
+                    title={tr(language, "today.prevWeek")}
+                >
+                    ‹
+                </button>
 
-                    return (
-                        <button
-                            key={date}
-                            type="button"
-                            className={`today-weekday-chip ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
-                            onClick={() => selectDate(date)}
-                            aria-label={`${weekdayLabelLong(date, language)} ${formatDate(date, dateFormat, language)}`}
-                        >
-                            <span className="today-weekday-label">{weekdayLabel(date, language)}</span>
-                            <span className="today-weekday-date">{parseIso(date).getDate()}</span>
-                            <span className="today-weekday-indicators">
-                                {isToday ? <span className="day-today-dot" /> : null}
-                            </span>
-                        </button>
-                    );
-                })}
+                <div
+                    className="today-week-strip"
+                    onTouchStart={(event) => {
+                        touchStartX.current = event.touches[0]?.clientX ?? null;
+                    }}
+                    onTouchEnd={(event) => {
+                        if (touchStartX.current === null) return;
+                        const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
+                        const delta = endX - touchStartX.current;
+                        touchStartX.current = null;
+                        if (Math.abs(delta) < 40) return;
+                        selectDate(addDays(selectedDate, delta < 0 ? 7 : -7));
+                    }}
+                >
+                    {weekDates.map((date) => {
+                        const isSelected = date === selectedDate;
+                        const isToday = date === todayIso;
+
+                        return (
+                            <button
+                                key={date}
+                                type="button"
+                                className={`today-weekday-chip ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
+                                onClick={() => selectDate(date)}
+                                aria-label={`${weekdayLabelLong(date, language)} ${formatDate(date, dateFormat, language)}`}
+                            >
+                                <span className="today-weekday-label">{weekdayLabel(date, language)}</span>
+                                <span className="today-weekday-date">{parseIso(date).getDate()}</span>
+                                <span className="today-weekday-indicators">
+                                    {isToday ? <span className="day-today-dot" /> : null}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <button
+                    type="button"
+                    className="today-week-shift-btn"
+                    onClick={() => selectDate(addDays(selectedDate, 7))}
+                    aria-label={tr(language, "today.nextWeek")}
+                    title={tr(language, "today.nextWeek")}
+                >
+                    ›
+                </button>
             </div>
         </>
     );

@@ -239,6 +239,7 @@ export default function App() {
   const {
     addWeeklyTarget,
     updateWeeklyTarget,
+    adjustWeeklyTarget,
     deleteWeeklyTarget,
     reorderTargets: handleReorderTargets,
     copyFromPreviousWeek
@@ -328,6 +329,7 @@ export default function App() {
     handleDeleteGoal,
     handleAddWeeklyTarget,
     handleUpdateWeeklyTarget,
+    handleAdjustWeeklyTarget,
     handleDeleteWeeklyTarget,
     handleCopyFromPreviousWeek,
     handleSaveAsTemplate,
@@ -343,6 +345,7 @@ export default function App() {
     setTargetDraft,
     addWeeklyTarget,
     updateWeeklyTarget,
+    adjustWeeklyTarget,
     deleteWeeklyTarget,
     copyFromPreviousWeek,
     saveAsTemplate,
@@ -487,6 +490,7 @@ export default function App() {
     onAddWeeklyTarget: handleAddWeeklyTarget,
     onCopyFromPreviousWeek: handleCopyFromPreviousWeek,
     onUpdateWeeklyTarget: handleUpdateWeeklyTarget,
+    onAdjustWeeklyTarget: handleAdjustWeeklyTarget,
     onDeleteWeeklyTarget: handleDeleteWeeklyTarget,
     onReorderTargets: handleReorderTargets,
     onAddBlock: handleAddBlock,

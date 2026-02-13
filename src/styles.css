@@ -2950,11 +2950,38 @@ button.ghost-danger:hover {
 }
 
 .today-week-strip {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 12px;
   touch-action: pan-y;
+}
+
+.today-week-strip-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.today-week-shift-btn {
+  width: 36px;
+  flex: 0 0 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.today-week-shift-btn:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
 }
 
 .today-weekday-chip {
@@ -3098,6 +3125,16 @@ button.ghost-danger:hover {
 
   .today-week-strip {
     gap: 6px;
+  }
+
+  .today-week-strip-nav {
+    gap: 6px;
+  }
+
+  .today-week-shift-btn {
+    width: 32px;
+    flex: 0 0 32px;
+    font-size: 1.2rem;
   }
 
   .today-weekday-chip {

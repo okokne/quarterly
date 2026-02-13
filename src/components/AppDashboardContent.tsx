@@ -73,6 +73,7 @@ type AppDashboardContentProps = {
     onAddWeeklyTarget: () => void;
     onCopyFromPreviousWeek: () => void;
     onUpdateWeeklyTarget: (targetId: Id, changes: Partial<WeeklyTarget>) => void;
+    onAdjustWeeklyTarget: (targetId: Id, delta: number) => void;
     onDeleteWeeklyTarget: (targetId: Id) => void;
     onReorderTargets: (weekIndex: number, fromIndex: number, toIndex: number) => void;
     onAddBlock: (date: string) => void | Promise<void>;
@@ -130,6 +131,7 @@ export function AppDashboardContent({
     onAddWeeklyTarget,
     onCopyFromPreviousWeek,
     onUpdateWeeklyTarget,
+    onAdjustWeeklyTarget,
     onDeleteWeeklyTarget,
     onReorderTargets,
     onAddBlock,
@@ -244,6 +246,7 @@ export function AppDashboardContent({
                     setDraggingTargetId={setDraggingTargetId}
                     onReorderTargets={onReorderTargets}
                     onUpdateWeeklyTarget={onUpdateWeeklyTarget}
+                    onAdjustWeeklyTarget={onAdjustWeeklyTarget}
                     onDeleteWeeklyTarget={onDeleteWeeklyTarget}
                     totalWeeklyDone={totalWeeklyDone}
                     weeklyReview={weeklyReview}
