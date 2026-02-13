@@ -354,6 +354,7 @@ p {
   width: 100%;
   max-width: none;
   margin-inline: 0;
+  padding: 34px;
 }
 
 .auth-entry-layout {
@@ -378,13 +379,17 @@ p {
 .auth-entry-main {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg-subtle) 45%, transparent);
 }
 
 .auth-entry-feedback {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 2px 4px 0;
 }
 
 .auth-entry-box label {
@@ -396,7 +401,8 @@ p {
 }
 
 .auth-entry-actions {
-  margin-top: 4px;
+  margin-top: 6px;
+  padding-inline: 2px;
 }
 
 .auth-entry-support {
@@ -445,6 +451,7 @@ p {
 @media (max-width: 900px) {
   .auth-entry-card {
     width: 100%;
+    padding: 24px;
   }
 
   .auth-entry-layout {
@@ -454,6 +461,11 @@ p {
 
   .auth-entry-intro {
     padding: 0;
+  }
+
+  .auth-entry-main {
+    padding: 0;
+    background: transparent;
   }
 }
 
