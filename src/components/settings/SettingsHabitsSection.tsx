@@ -170,7 +170,7 @@ export function SettingsHabitsSection({
                                                         title={tr(language, option.labelKey)}
                                                         aria-label={tr(language, option.labelKey)}
                                                     >
-                                                        <Icon icon={option.icon} size={16} />
+                                                        <Icon icon={option.icon} size={16} className="habit-emoji-icon" />
                                                     </button>
                                                 ))}
                                             </div>
@@ -279,7 +279,7 @@ export function SettingsHabitsSection({
                                     title={tr(language, option.labelKey)}
                                     aria-label={tr(language, option.labelKey)}
                                 >
-                                    <Icon icon={option.icon} size={16} />
+                                    <Icon icon={option.icon} size={16} className="habit-emoji-icon" />
                                 </button>
                             ))}
                         </div>

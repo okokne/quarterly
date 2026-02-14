@@ -1663,7 +1663,7 @@ p {
 .habit-emoji-picker {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 
 .habit-emoji-picker-compact {
@@ -1675,7 +1675,8 @@ p {
   height: 32px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border);
-  background: var(--bg-subtle);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1683,14 +1684,22 @@ p {
   transition: all var(--transition-fast);
 }
 
+.habit-emoji-icon {
+  color: currentColor;
+  stroke: currentColor;
+  opacity: 0.95;
+}
+
 .habit-emoji-btn:hover {
   border-color: var(--accent);
-  transform: scale(1.15);
+  color: var(--accent);
+  transform: scale(1.08);
 }
 
 .habit-emoji-btn.selected {
   border-color: var(--accent);
   background: var(--accent-bg);
+  color: var(--accent);
 }
 
 .habit-freq-chips {
