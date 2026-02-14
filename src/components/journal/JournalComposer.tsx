@@ -1,8 +1,10 @@
 import { CSSProperties, Dispatch, SetStateAction } from "react";
+import { Pencil } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, ReviewSignal } from "../../types";
 import { getWeekLabel } from "../../utils";
 import { ComposerType, FilterOption } from "./types";
+import { Icon } from "../ui/Icon";
 
 type JournalComposerProps = {
     cycle: Cycle;
@@ -23,6 +25,7 @@ type JournalComposerProps = {
     setCustomContextId: Dispatch<SetStateAction<string>>;
     customSignals: ReviewSignal[];
     toggleCustomSignal: (signal: ReviewSignal) => void;
+    onOpenLabelSettings: () => void;
     dailyDate: string;
     setDailyDate: Dispatch<SetStateAction<string>>;
     dailyGood: string;
@@ -60,6 +63,7 @@ export function JournalComposer({
     setCustomContextId,
     customSignals,
     toggleCustomSignal,
+    onOpenLabelSettings,
     dailyDate,
     setDailyDate,
     dailyGood,
@@ -110,7 +114,18 @@ export function JournalComposer({
                         </label>
                     </div>
                     <div className="journal-filter-row">
-                        <span className="journal-filter-label">{tr(language, "journal.filterContext")}</span>
+                        <div className="journal-filter-label-row">
+                            <span className="journal-filter-label">{tr(language, "journal.filterContext")}</span>
+                            <button
+                                type="button"
+                                className="journal-label-settings-btn"
+                                onClick={onOpenLabelSettings}
+                                title={tr(language, "journal.openLabelSettings")}
+                                aria-label={tr(language, "journal.openLabelSettings")}
+                            >
+                                <Icon icon={Pencil} size={13} />
+                            </button>
+                        </div>
                         <div className="journal-filter-chip-row">
                             <button
                                 type="button"

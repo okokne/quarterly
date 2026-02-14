@@ -29,6 +29,7 @@ interface JournalViewProps {
     setSelectedDate: (date: string) => void;
     setActiveTab: (tab: Tab) => void;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
+    onOpenLabelSettings: (contextId?: string) => void;
 }
 
 export function JournalView({
@@ -39,7 +40,8 @@ export function JournalView({
     setSelectedWeek,
     setSelectedDate,
     setActiveTab,
-    updateCycle
+    updateCycle,
+    onOpenLabelSettings
 }: JournalViewProps) {
     const {
         today,
@@ -356,6 +358,10 @@ export function JournalView({
     };
 
     const noteSaveDisabled = !noteTitle.trim() && !noteContent.trim();
+    const handleOpenLabelSettings = () => {
+        const fallbackContextId = customContextId || cycle.defaultJournalContextId || cycle.journalContexts?.[0]?.id;
+        onOpenLabelSettings(fallbackContextId);
+    };
 
     const handleSaveNote = () => {
         if (readOnly || !editingNote || noteSaveDisabled) return;
@@ -453,6 +459,7 @@ export function JournalView({
                 setCustomContextId={setCustomContextId}
                 customSignals={customSignals}
                 toggleCustomSignal={toggleCustomSignal}
+                onOpenLabelSettings={handleOpenLabelSettings}
                 dailyDate={dailyDate}
                 setDailyDate={setDailyDate}
                 dailyGood={dailyGood}

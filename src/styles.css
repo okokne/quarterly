@@ -2725,6 +2725,28 @@ button.ghost-danger:hover {
   text-transform: uppercase;
 }
 
+.journal-filter-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.journal-label-settings-btn {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+.journal-label-settings-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  color: var(--accent-hover);
+}
+
 .journal-filter-chip-row {
   display: flex;
   flex-wrap: wrap;
