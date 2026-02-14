@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, Id, WeeklyTarget } from "../../types";
@@ -12,7 +12,7 @@ type WeekTargetsSectionProps = {
     selectedWeek: number;
     targetDraft: TargetDraft;
     setTargetDraft: Dispatch<SetStateAction<TargetDraft>>;
-    onAddWeeklyTarget: () => void;
+    onAddWeeklyTarget: () => boolean;
     onCopyFromPreviousWeek: () => void;
     totalWeeklyTargets: WeeklyTarget[];
     draggingTargetId: Id | null;
@@ -54,6 +54,8 @@ export function WeekTargetsSection({
     saveTargetEdit,
     setEditingTargetId
 }: WeekTargetsSectionProps) {
+    const [showComposer, setShowComposer] = useState(false);
+    const [expandedTargetDetails, setExpandedTargetDetails] = useState<Record<Id, boolean>>({});
     const {
         touchDraggingTargetId,
         touchDragOverTargetId,
@@ -67,30 +69,79 @@ export function WeekTargetsSection({
         onReorderTargets
     });
 
+    const toggleTargetDetails = (targetId: Id) => {
+        setExpandedTargetDetails((prev) => ({
+            ...prev,
+            [targetId]: !prev[targetId]
+        }));
+    };
+
+    const handleAddTarget = () => {
+        const didAdd = onAddWeeklyTarget();
+        if (!didAdd) return;
+        setShowComposer(false);
+    };
+
     return (
         <>
-            <div className="grid">
-                <label>
-                    {tr(language, "week.weeklyTarget")}
-                    <input value={targetDraft.title} onChange={(e) => setTargetDraft({ ...targetDraft, title: e.target.value })} placeholder={tr(language, "week.weeklyTargetPlaceholder")} />
-                </label>
-                <label>
-                    {tr(language, "week.targetAmount")}
-                    <input type="number" min={1} value={targetDraft.target} onChange={(e) => setTargetDraft({ ...targetDraft, target: Number(e.target.value) })} />
-                </label>
-                <label>
-                    {tr(language, "week.unitOptional")}
-                    <input value={targetDraft.unit} onChange={(e) => setTargetDraft({ ...targetDraft, unit: e.target.value })} placeholder={tr(language, "week.unitExamples")} />
-                </label>
-            </div>
-            <div className="button-row">
-                <button className="primary" onClick={onAddWeeklyTarget}>{tr(language, "week.addWeeklyTarget")}</button>
+            <div className="button-row week-target-composer-toggle-row">
+                {!showComposer && !isArchiveView && (
+                    <button className="primary" type="button" onClick={() => setShowComposer(true)}>
+                        {tr(language, "week.openTargetComposer")}
+                    </button>
+                )}
                 {selectedWeek > 1 && (cycle.weeklyTargets[selectedWeek - 1] ?? []).length > 0 && (
-                    <button onClick={onCopyFromPreviousWeek}>
+                    <button type="button" onClick={onCopyFromPreviousWeek}>
                         {tr(language, "week.copyFromWeek", { week: selectedWeek - 1 })}
                     </button>
                 )}
             </div>
+
+            {showComposer && !isArchiveView && (
+                <div className="week-target-composer">
+                    <div className="grid">
+                        <label>
+                            {tr(language, "week.weeklyTarget")}
+                            <input
+                                value={targetDraft.title}
+                                onChange={(e) => setTargetDraft({ ...targetDraft, title: e.target.value })}
+                                placeholder={tr(language, "week.weeklyTargetPlaceholder")}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "week.targetAmount")}
+                            <input
+                                type="number"
+                                min={1}
+                                value={targetDraft.target}
+                                onChange={(e) => setTargetDraft({ ...targetDraft, target: Number(e.target.value) })}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "week.unitOptional")}
+                            <input
+                                value={targetDraft.unit}
+                                onChange={(e) => setTargetDraft({ ...targetDraft, unit: e.target.value })}
+                                placeholder={tr(language, "week.unitExamples")}
+                            />
+                        </label>
+                    </div>
+                    <div className="button-row">
+                        <button className="primary" type="button" onClick={handleAddTarget}>
+                            {tr(language, "common.add")}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowComposer(false);
+                                setTargetDraft({ title: "", target: 1, unit: "" });
+                            }}
+                        >
+                            {tr(language, "common.cancel")}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="list sortable">
                 {totalWeeklyTargets.length === 0 && <p className="empty">{tr(language, "week.noWeeklyTargets")}</p>}
@@ -102,6 +153,7 @@ export function WeekTargetsSection({
                     const manualAdjust = target.manualAdjust ?? 0;
                     const effectiveDone = Math.min(target.target, Math.max(0, autoDone + manualAdjust));
                     const remaining = Math.max(0, target.target - effectiveDone);
+                    const detailsOpen = !!expandedTargetDetails[target.id];
 
                     return (
                         <div
@@ -174,10 +226,7 @@ export function WeekTargetsSection({
                                                     />
                                                 </div>
                                             ) : (
-                                                <>
-                                                    <strong className="week-target-title">{target.title}</strong>
-                                                    <div className="muted week-target-summary">{tr(language, "week.goalLabel", { target: target.target, unit: target.unit ?? "" })}</div>
-                                                </>
+                                                <strong className="week-target-title">{target.title}</strong>
                                             )}
                                         </div>
                                     </div>
@@ -185,27 +234,26 @@ export function WeekTargetsSection({
 
                                 <div className="week-target-controls">
                                     <div className="week-target-stepper">
-                                        <button
-                                            onClick={() => onAdjustWeeklyTarget(target.id, -1)}
-                                        >
+                                        <button type="button" onClick={() => onAdjustWeeklyTarget(target.id, -1)}>
                                             –
                                         </button>
                                         <span className="muted week-target-done">{manualAdjust >= 0 ? `+${manualAdjust}` : manualAdjust}</span>
-                                        <button
-                                            onClick={() => onAdjustWeeklyTarget(target.id, 1)}
-                                        >
+                                        <button type="button" onClick={() => onAdjustWeeklyTarget(target.id, 1)}>
                                             +
                                         </button>
                                     </div>
                                     <div className="week-target-actions">
                                         {isEditingTarget ? (
                                             <div className="week-edit-actions">
-                                                <button className="primary" onClick={saveTargetEdit} disabled={!targetEditDraft.title.trim()}>{tr(language, "common.save")}</button>
-                                                <button onClick={cancelTargetEdit}>{tr(language, "common.cancel")}</button>
+                                                <button className="primary" type="button" onClick={saveTargetEdit} disabled={!targetEditDraft.title.trim()}>
+                                                    {tr(language, "common.save")}
+                                                </button>
+                                                <button type="button" onClick={cancelTargetEdit}>{tr(language, "common.cancel")}</button>
                                             </div>
                                         ) : (
                                             <button
                                                 className="icon-btn week-edit-btn"
+                                                type="button"
                                                 onClick={() => startTargetEdit(target)}
                                                 title={tr(language, "common.edit")}
                                                 aria-label={tr(language, "common.edit")}
@@ -215,6 +263,7 @@ export function WeekTargetsSection({
                                         )}
                                         <button
                                             className="ghost-danger"
+                                            type="button"
                                             onClick={() => {
                                                 if (editingTargetId === target.id) setEditingTargetId(null);
                                                 onDeleteWeeklyTarget(target.id);
@@ -227,20 +276,33 @@ export function WeekTargetsSection({
                             </div>
 
                             <div className="progress-bar-wrapper">
-                                <ProgressBar
-                                    value={effectiveDone}
-                                    max={target.target}
-                                />
+                                <ProgressBar value={effectiveDone} max={target.target} />
                             </div>
-                            <div className="muted" style={{ fontSize: "0.8rem" }}>
-                                {tr(language, "week.targetSotSummary", {
-                                    auto: autoDone,
-                                    adjust: manualAdjust >= 0 ? `+${manualAdjust}` : `${manualAdjust}`,
-                                    total: effectiveDone,
-                                    unit: target.unit ?? "",
-                                    remaining
+                            <div className="muted week-target-progress-simple">
+                                {tr(language, "week.targetProgressSimple", {
+                                    actual: effectiveDone,
+                                    target: target.target,
+                                    unit: target.unit ?? ""
                                 })}
                             </div>
+                            <button
+                                type="button"
+                                className="week-target-meta-toggle"
+                                onClick={() => toggleTargetDetails(target.id)}
+                            >
+                                {detailsOpen ? tr(language, "week.hideDetails") : tr(language, "week.showDetails")}
+                            </button>
+                            {detailsOpen && (
+                                <div className="muted week-target-meta-line">
+                                    {tr(language, "week.targetSotSummary", {
+                                        auto: autoDone,
+                                        adjust: manualAdjust >= 0 ? `+${manualAdjust}` : `${manualAdjust}`,
+                                        total: effectiveDone,
+                                        unit: target.unit ?? "",
+                                        remaining
+                                    })}
+                                </div>
+                            )}
                         </div>
                     );
                 })}

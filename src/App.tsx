@@ -503,7 +503,8 @@ export default function App() {
     getActiveHabitsForDate,
     onToggleHabit: toggleHabit,
     onDeleteHabit: deleteHabit,
-    onOpenHabitsManager: () => setShowHabitsManager(true)
+    onOpenHabitsManager: () => setShowHabitsManager(true),
+    onOpenCycleDrawer: openQuarterDashboard
   });
   const entryStateProps = useAppEntryStateProps({
     language,

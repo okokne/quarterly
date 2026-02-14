@@ -8,12 +8,12 @@ import {
     WeeklyReview,
     WeeklyTarget
 } from "../types";
-import { formatRange } from "../utils";
+import { formatRange, getWeekProgressPercent } from "../utils";
 import { useWeekTabEditing } from "../hooks/useWeekTabEditing";
 import { WeekGoalsSection } from "./week/WeekGoalsSection";
 import { WeekReviewsSection } from "./week/WeekReviewsSection";
 import { WeekTargetsSection } from "./week/WeekTargetsSection";
-import { GoalDraft, TargetDraft } from "./week/types";
+import { TargetDraft } from "./week/types";
 
 type WeekTabProps = {
     cycle: Cycle;
@@ -22,14 +22,10 @@ type WeekTabProps = {
     isArchiveView: boolean;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    goalDraft: GoalDraft;
-    setGoalDraft: Dispatch<SetStateAction<GoalDraft>>;
-    onAddGoal: () => void;
-    onDeleteGoal: (goalId: Id) => void;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     targetDraft: TargetDraft;
     setTargetDraft: Dispatch<SetStateAction<TargetDraft>>;
-    onAddWeeklyTarget: () => void;
+    onAddWeeklyTarget: () => boolean;
     onCopyFromPreviousWeek: () => void;
     totalWeeklyTargets: WeeklyTarget[];
     draggingTargetId: Id | null;
@@ -40,6 +36,7 @@ type WeekTabProps = {
     onDeleteWeeklyTarget: (targetId: Id) => void;
     totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
     weeklyReview: WeeklyReview;
+    onOpenCycleDrawer: () => void;
 };
 
 export function WeekTab({
@@ -49,10 +46,6 @@ export function WeekTab({
     isArchiveView,
     selectedWeek,
     setSelectedWeek,
-    goalDraft,
-    setGoalDraft,
-    onAddGoal,
-    onDeleteGoal,
     updateCycle,
     targetDraft,
     setTargetDraft,
@@ -66,16 +59,10 @@ export function WeekTab({
     onAdjustWeeklyTarget,
     onDeleteWeeklyTarget,
     totalWeeklyDone,
-    weeklyReview
+    weeklyReview,
+    onOpenCycleDrawer
 }: WeekTabProps) {
     const {
-        editingGoalId,
-        goalEditDraft,
-        setGoalEditDraft,
-        startGoalEdit,
-        cancelGoalEdit,
-        saveGoalEdit,
-        setEditingGoalId,
         editingTargetId,
         targetEditDraft,
         setTargetEditDraft,
@@ -84,14 +71,13 @@ export function WeekTab({
         saveTargetEdit,
         setEditingTargetId
     } = useWeekTabEditing({
-        cycle,
         totalWeeklyTargets,
-        updateCycle,
         onUpdateWeeklyTarget
     });
+    const weekCompletionPercent = getWeekProgressPercent(cycle, selectedWeek);
 
     return (
-        <section className="card">
+        <section className="card week-tab-card">
             <div className="section-title">
                 <h2>{tr(language, "week.title")}</h2>
                 <span className="muted">{tr(language, "week.targets")}</span>
@@ -111,55 +97,55 @@ export function WeekTab({
                 </label>
             </div>
 
-            <fieldset className="readonly-fieldset" disabled={isArchiveView}>
-                <WeekGoalsSection
-                    language={language}
-                    cycle={cycle}
-                    goalDraft={goalDraft}
-                    setGoalDraft={setGoalDraft}
-                    onAddGoal={onAddGoal}
-                    onDeleteGoal={onDeleteGoal}
-                    editingGoalId={editingGoalId}
-                    goalEditDraft={goalEditDraft}
-                    setGoalEditDraft={setGoalEditDraft}
-                    startGoalEdit={startGoalEdit}
-                    cancelGoalEdit={cancelGoalEdit}
-                    saveGoalEdit={saveGoalEdit}
-                    setEditingGoalId={setEditingGoalId}
-                />
+            <WeekGoalsSection
+                language={language}
+                cycle={cycle}
+                onOpenCycleDrawer={onOpenCycleDrawer}
+            />
 
-                <WeekTargetsSection
-                    language={language}
-                    cycle={cycle}
-                    isArchiveView={isArchiveView}
-                    selectedWeek={selectedWeek}
-                    targetDraft={targetDraft}
-                    setTargetDraft={setTargetDraft}
-                    onAddWeeklyTarget={onAddWeeklyTarget}
-                    onCopyFromPreviousWeek={onCopyFromPreviousWeek}
-                    totalWeeklyTargets={totalWeeklyTargets}
-                    draggingTargetId={draggingTargetId}
-                    setDraggingTargetId={setDraggingTargetId}
-                    onReorderTargets={onReorderTargets}
-                    onAdjustWeeklyTarget={onAdjustWeeklyTarget}
-                    onDeleteWeeklyTarget={onDeleteWeeklyTarget}
-                    totalWeeklyDone={totalWeeklyDone}
-                    editingTargetId={editingTargetId}
-                    targetEditDraft={targetEditDraft}
-                    setTargetEditDraft={setTargetEditDraft}
-                    startTargetEdit={startTargetEdit}
-                    cancelTargetEdit={cancelTargetEdit}
-                    saveTargetEdit={saveTargetEdit}
-                    setEditingTargetId={setEditingTargetId}
-                />
+            <div className="subcard week-targets-main-card">
+                <div className="week-targets-main-header">
+                    <h3>{tr(language, "week.targets")}</h3>
+                    <span className="muted">{tr(language, "week.weekSummary", { week: selectedWeek, percent: weekCompletionPercent })}</span>
+                </div>
+                <fieldset className="readonly-fieldset" disabled={isArchiveView}>
+                    <WeekTargetsSection
+                        language={language}
+                        cycle={cycle}
+                        isArchiveView={isArchiveView}
+                        selectedWeek={selectedWeek}
+                        targetDraft={targetDraft}
+                        setTargetDraft={setTargetDraft}
+                        onAddWeeklyTarget={onAddWeeklyTarget}
+                        onCopyFromPreviousWeek={onCopyFromPreviousWeek}
+                        totalWeeklyTargets={totalWeeklyTargets}
+                        draggingTargetId={draggingTargetId}
+                        setDraggingTargetId={setDraggingTargetId}
+                        onReorderTargets={onReorderTargets}
+                        onAdjustWeeklyTarget={onAdjustWeeklyTarget}
+                        onDeleteWeeklyTarget={onDeleteWeeklyTarget}
+                        totalWeeklyDone={totalWeeklyDone}
+                        editingTargetId={editingTargetId}
+                        targetEditDraft={targetEditDraft}
+                        setTargetEditDraft={setTargetEditDraft}
+                        startTargetEdit={startTargetEdit}
+                        cancelTargetEdit={cancelTargetEdit}
+                        saveTargetEdit={saveTargetEdit}
+                        setEditingTargetId={setEditingTargetId}
+                    />
+                </fieldset>
+            </div>
 
-                <WeekReviewsSection
-                    language={language}
-                    selectedWeek={selectedWeek}
-                    weeklyReview={weeklyReview}
-                    updateCycle={updateCycle}
-                />
-            </fieldset>
+            <div className="subcard week-review-main-card">
+                <fieldset className="readonly-fieldset" disabled={isArchiveView}>
+                    <WeekReviewsSection
+                        language={language}
+                        selectedWeek={selectedWeek}
+                        weeklyReview={weeklyReview}
+                        updateCycle={updateCycle}
+                    />
+                </fieldset>
+            </div>
         </section>
     );
 }

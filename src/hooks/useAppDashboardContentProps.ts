@@ -64,7 +64,7 @@ type UseAppDashboardContentPropsParams = {
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onAddGoal: () => void;
     onDeleteGoal: (goalId: Id) => void;
-    onAddWeeklyTarget: () => void;
+    onAddWeeklyTarget: () => boolean;
     onCopyFromPreviousWeek: () => void;
     onUpdateWeeklyTarget: (targetId: Id, changes: Partial<WeeklyTarget>) => void;
     onAdjustWeeklyTarget: (targetId: Id, delta: number) => void;
@@ -83,6 +83,7 @@ type UseAppDashboardContentPropsParams = {
     onToggleHabit: (date: string, habitId: Id) => void;
     onDeleteHabit: (habitId: Id) => void;
     onOpenHabitsManager: () => void;
+    onOpenCycleDrawer: () => void;
 };
 
 export function useAppDashboardContentProps(params: UseAppDashboardContentPropsParams) {

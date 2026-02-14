@@ -70,7 +70,7 @@ type AppDashboardContentProps = {
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onAddGoal: () => void;
     onDeleteGoal: (goalId: Id) => void;
-    onAddWeeklyTarget: () => void;
+    onAddWeeklyTarget: () => boolean;
     onCopyFromPreviousWeek: () => void;
     onUpdateWeeklyTarget: (targetId: Id, changes: Partial<WeeklyTarget>) => void;
     onAdjustWeeklyTarget: (targetId: Id, delta: number) => void;
@@ -89,6 +89,7 @@ type AppDashboardContentProps = {
     onToggleHabit: (date: string, habitId: Id) => void;
     onDeleteHabit: (habitId: Id) => void;
     onOpenHabitsManager: () => void;
+    onOpenCycleDrawer: () => void;
 };
 
 export function AppDashboardContent({
@@ -146,7 +147,8 @@ export function AppDashboardContent({
     getActiveHabitsForDate,
     onToggleHabit,
     onDeleteHabit,
-    onOpenHabitsManager
+    onOpenHabitsManager,
+    onOpenCycleDrawer
 }: AppDashboardContentProps) {
     const onboardingDone = step >= 4;
 
@@ -232,10 +234,6 @@ export function AppDashboardContent({
                     isArchiveView={isArchiveView}
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
-                    goalDraft={goalDraft}
-                    setGoalDraft={setGoalDraft}
-                    onAddGoal={onAddGoal}
-                    onDeleteGoal={onDeleteGoal}
                     updateCycle={updateCycle}
                     targetDraft={targetDraft}
                     setTargetDraft={setTargetDraft}
@@ -250,6 +248,7 @@ export function AppDashboardContent({
                     onDeleteWeeklyTarget={onDeleteWeeklyTarget}
                     totalWeeklyDone={totalWeeklyDone}
                     weeklyReview={weeklyReview}
+                    onOpenCycleDrawer={onOpenCycleDrawer}
                 />
             )}
 

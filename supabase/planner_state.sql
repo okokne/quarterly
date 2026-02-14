@@ -12,17 +12,17 @@ drop policy if exists "planner_state_select_own" on public.planner_state;
 create policy "planner_state_select_own"
   on public.planner_state
   for select
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "planner_state_insert_own" on public.planner_state;
 create policy "planner_state_insert_own"
   on public.planner_state
   for insert
-  with check (auth.uid() = user_id);
+  with check ((select auth.uid()) = user_id);
 
 drop policy if exists "planner_state_update_own" on public.planner_state;
 create policy "planner_state_update_own"
   on public.planner_state
   for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);

@@ -714,5 +714,21 @@ export async function supabaseRestRequest<T>(
     init: RequestInit,
     session: SupabaseAuthSession
 ): Promise<SupabaseFetchResult<T>> {
-    return supabaseFetchJson<T>(path, init, session.access_token);
+    const storedSession = readStoredSupabaseSession();
+    const baseSession = (
+        storedSession
+        && storedSession.user.id === session.user.id
+    ) ? storedSession : session;
+
+    const firstAttempt = await supabaseFetchJson<T>(path, init, baseSession.access_token);
+    if (firstAttempt.status !== 401) {
+        return firstAttempt;
+    }
+
+    const refreshed = await refreshSupabaseSession(baseSession);
+    if (!refreshed.session || refreshed.error) {
+        return firstAttempt;
+    }
+
+    return supabaseFetchJson<T>(path, init, refreshed.session.access_token);
 }

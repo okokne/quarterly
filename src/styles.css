@@ -2370,6 +2370,102 @@ button.ghost-danger:hover {
   justify-content: flex-end;
 }
 
+.week-tab-card {
+  gap: 18px;
+}
+
+.week-goals-context-card {
+  gap: 12px;
+}
+
+.week-goals-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.week-goals-context-header h3 {
+  margin: 0;
+}
+
+.week-goals-readonly-list {
+  gap: 10px;
+}
+
+.week-targets-main-card {
+  gap: 14px;
+}
+
+.week-targets-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.week-targets-main-header h3 {
+  margin: 0;
+}
+
+.week-target-composer-toggle-row {
+  justify-content: flex-start;
+}
+
+.week-target-composer {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--bg-subtle) 72%, transparent);
+  padding: 12px;
+}
+
+.week-target-progress-simple {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.week-target-meta-toggle {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.week-target-meta-toggle:hover {
+  color: var(--text-primary);
+}
+
+.week-target-meta-line {
+  font-size: 0.78rem;
+}
+
+.week-review-main-card {
+  gap: 10px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent-bg) 34%, transparent), var(--bg-subtle));
+}
+
+.week-review-content {
+  display: grid;
+  gap: 10px;
+}
+
+.week-review-content h3 {
+  margin: 0;
+}
+
+.week-review-hint {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
 .journal-view {
   gap: 16px;
 }
@@ -3734,6 +3830,16 @@ button.ghost-danger:hover {
     width: 100%;
   }
 
+  .week-goals-context-header,
+  .week-targets-main-header {
+    align-items: flex-start;
+  }
+
+  .week-goals-context-header button,
+  .week-target-composer-toggle-row button {
+    width: 100%;
+  }
+
   .week-row-actions,
   .week-target-controls {
     width: 100%;
@@ -3779,6 +3885,10 @@ button.ghost-danger:hover {
 
   .week-target-actions .ghost-danger {
     margin-left: auto;
+  }
+
+  .week-target-meta-toggle {
+    font-size: 0.78rem;
   }
 
   .journal-header {
@@ -4470,6 +4580,11 @@ body.dark-mode .archive-banner {
 
 /* ─── Extra Small Mobile Finetune (iPhone SE class) ─── */
 @media (max-width: 390px) {
+  .week-goals-context-header button,
+  .week-target-composer-toggle-row button {
+    width: 100%;
+  }
+
   .week-goal-row,
   .week-target-item {
     padding: 12px;

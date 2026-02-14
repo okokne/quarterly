@@ -73,6 +73,7 @@ export function useAppActions({
         if (didAdd) {
             setTargetDraft({ title: "", target: 1, unit: "" });
         }
+        return didAdd;
     }, [addWeeklyTarget, selectedWeek, setTargetDraft, targetDraft]);
 
     const handleUpdateWeeklyTarget = useCallback((targetId: Id, changes: Partial<WeeklyTarget>) => {
