@@ -73,6 +73,7 @@ export function usePlannerSync({
     const debounceTimerRef = useRef<number | null>(null);
     const skipNextPushRef = useRef(false);
     const lastSyncedSerializedRef = useRef<string | null>(null);
+    const currentSerializedRef = useRef<string | null>(null);
     const initialSyncDoneForUserRef = useRef<string | null>(null);
     const cloudVersionRef = useRef<number>(0);
 
@@ -337,6 +338,7 @@ export function usePlannerSync({
         setConflictCloudState,
         setHasPendingLocalChanges,
         lastSyncedSerializedRef,
+        currentSerializedRef,
         cloudVersionRef,
         runBootstrapForSession,
         applySyncedState,
@@ -351,6 +353,7 @@ export function usePlannerSync({
             setSyncError(serialized.error.message);
             return;
         }
+        currentSerializedRef.current = serialized.json;
         if (serialized.json === lastSyncedSerializedRef.current) {
             setHasPendingLocalChanges(false);
             return;

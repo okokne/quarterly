@@ -18,6 +18,7 @@ type UsePlannerSyncRequestNowParams = {
     setConflictCloudState: (state: PersistedPlannerState | null) => void;
     setHasPendingLocalChanges: (value: boolean) => void;
     lastSyncedSerializedRef: { current: string | null };
+    currentSerializedRef: { current: string | null };
     cloudVersionRef: { current: number };
     runBootstrapForSession: (session: SupabaseAuthSession) => Promise<boolean>;
     applySyncedState: (state: PersistedPlannerState) => void;
@@ -40,6 +41,7 @@ export function usePlannerSyncRequestNow({
     setConflictCloudState,
     setHasPendingLocalChanges,
     lastSyncedSerializedRef,
+    currentSerializedRef,
     cloudVersionRef,
     runBootstrapForSession,
     applySyncedState,
@@ -63,9 +65,18 @@ export function usePlannerSyncRequestNow({
         setSyncStatus("syncing");
         setSyncError(null);
         const serialized = safeSerialize(state);
+        const requestStateSerialized = serialized.ok ? serialized.json : null;
         const localHasUnsyncedChanges = serialized.ok
             ? serialized.json !== lastSyncedSerializedRef.current
             : true;
+        const hasNewerLocalState = () => {
+            const latestSerialized = currentSerializedRef.current;
+            if (!latestSerialized || !requestStateSerialized) return false;
+            return (
+                latestSerialized !== requestStateSerialized
+                && latestSerialized !== lastSyncedSerializedRef.current
+            );
+        };
         const localWriteTs = readStateWriteTs(storageScope);
         const result = await syncPlannerState({
             session,
@@ -91,6 +102,11 @@ export function usePlannerSyncRequestNow({
         }
 
         if (result.action === "pulled" && result.pulledState) {
+            if (hasNewerLocalState()) {
+                setSyncStatus("idle");
+                setHasPendingLocalChanges(true);
+                return false;
+            }
             applySyncedState(result.pulledState);
             clearOfflineDirty(storageScope);
             setSyncStatus("synced");
@@ -98,6 +114,11 @@ export function usePlannerSyncRequestNow({
         }
 
         if (result.action === "conflict" && result.record) {
+            if (hasNewerLocalState()) {
+                setSyncStatus("idle");
+                setHasPendingLocalChanges(true);
+                return false;
+            }
             if (localHasUnsyncedChanges) {
                 const forcedLocalPush = await pushPlannerStateToCloud({
                     session,
@@ -135,6 +156,11 @@ export function usePlannerSyncRequestNow({
         if (serialized.ok) {
             lastSyncedSerializedRef.current = serialized.json;
         }
+        if (hasNewerLocalState()) {
+            setSyncStatus("idle");
+            setHasPendingLocalChanges(true);
+            return false;
+        }
         setPendingConflict(false);
         setConflictCloudState(null);
         setHasPendingLocalChanges(false);
@@ -146,6 +172,7 @@ export function usePlannerSyncRequestNow({
         attemptAutoConflictResolution,
         bootstrapStatus,
         cloudVersionRef,
+        currentSerializedRef,
         lastSyncedSerializedRef,
         runBootstrapForSession,
         session,
