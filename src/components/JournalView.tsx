@@ -7,13 +7,14 @@ import {
     createJournalWeeklyReviewEntry,
     getReviewEntrySearchText,
     getWeekIndexForDate,
+    getWritableReviewEntries,
     matchesSignalFilter
 } from "../utils";
 import { JournalComposer } from "./journal/JournalComposer";
 import { JournalFeedList } from "./journal/JournalFeedList";
 import { JournalFeedToolbar } from "./journal/JournalFeedToolbar";
+import { FilterOption } from "./journal/types";
 import { useJournalState } from "../hooks/useJournalState";
-import { getWritableReviewEntries } from "../utils";
 
 type Tab = "today" | "week" | "stats" | "journal";
 
@@ -65,9 +66,12 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         setSignalFilter,
         rangeFilter,
         setRangeFilter,
+        contextFilter,
+        setContextFilter,
         openMonths,
         setOpenMonths,
         toggleSignalSelection,
+        toggleContextSelection,
         resetComposerFields,
         composerSubmitDisabled,
         typeOptions,
@@ -91,11 +95,28 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
     ]);
 
     const normalizedSearch = searchQuery.trim().toLowerCase();
+    const contextLabelById = useMemo(() => {
+        const map = new Map<string, string>();
+        (cycle.journalContexts ?? []).forEach((context) => {
+            map.set(context.id, context.label);
+        });
+        return map;
+    }, [cycle.journalContexts]);
+    const contextOptions = useMemo<Array<FilterOption<string>>>(() => {
+        return (cycle.journalContexts ?? []).map((context) => ({
+            id: context.id,
+            labelKey: context.label
+        }));
+    }, [cycle.journalContexts]);
 
     const filteredEntries = useMemo(() => {
+        const activeContextFilter = contextFilter.filter((id) => contextLabelById.has(id));
         return allEntries.filter((entry) => {
             if (typeFilter !== "all" && entry.type !== typeFilter) return false;
             if (!matchesSignalFilter(entry, signalFilter)) return false;
+            if (activeContextFilter.length > 0) {
+                if (!entry.contextId || !activeContextFilter.includes(entry.contextId)) return false;
+            }
 
             if (rangeFilter === "current_week") {
                 if (!currentWeek || entry.date < currentWeek.startDate || entry.date > currentWeek.endDate) return false;
@@ -111,6 +132,8 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         });
     }, [
         allEntries,
+        contextFilter,
+        contextLabelById,
         currentMonthKey,
         currentWeek,
         normalizedSearch,
@@ -120,6 +143,10 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
         signalFilter,
         typeFilter
     ]);
+
+    useEffect(() => {
+        setContextFilter((prev) => prev.filter((contextId) => contextLabelById.has(contextId)));
+    }, [contextLabelById, setContextFilter]);
 
     const groupedEntries = useMemo(() => {
         const groups = new Map<string, ReviewEntry[]>();
@@ -343,6 +370,10 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 rangeFilter={rangeFilter}
                 setRangeFilter={setRangeFilter}
                 rangeOptions={rangeOptions}
+                contextFilter={contextFilter}
+                setContextFilter={setContextFilter}
+                contextOptions={contextOptions}
+                toggleContextSelection={toggleContextSelection}
             />
 
             <JournalFeedList
@@ -356,6 +387,7 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 currentMonthKey={currentMonthKey}
                 openMonths={openMonths}
                 setOpenMonths={setOpenMonths}
+                contextLabelById={contextLabelById}
                 handleNavigateEntry={handleNavigateEntry}
                 handleDeleteEntry={handleDeleteEntry}
             />

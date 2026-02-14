@@ -38,12 +38,19 @@ export type Cycle = {
     reviewEntries?: ReviewEntry[];
     finalReview?: FinalReview;
     journalEntries?: JournalEntry[];
+    journalContexts?: JournalContext[];
+    defaultJournalContextId?: string;
     reminder: ReminderSettings;
     habits: Habit[];
     habitLog: Record<string, string[]>; // date -> completed habit IDs
 };
 
-export type ReviewEntryType = "daily" | "weekly" | "custom";
+export type JournalContext = {
+    id: Id;
+    label: string;
+};
+
+export type ReviewEntryType = "daily" | "weekly" | "custom" | "quick";
 export type ReviewSentiment = "positive" | "negative" | "mixed" | "neutral";
 export type ReviewSignal = "win" | "challenge" | "next_step" | "note";
 export type ReviewEntrySource = "journal" | "today_tab" | "week_tab" | "migrated";
@@ -57,6 +64,7 @@ export type ReviewEntry = {
     updatedAt: string; // ISO datetime
     title?: string;
     content?: string;
+    contextId?: string;
     good?: string;
     bad?: string;
     change?: string;

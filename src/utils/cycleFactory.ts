@@ -1,6 +1,7 @@
 import { Cycle, Week } from "../types";
 import { uid } from "./id";
 import { addDays } from "./date";
+import { DEFAULT_JOURNAL_CONTEXTS } from "./journalContexts";
 
 export function buildCycle(title: string, startDateInput: string): Cycle {
     const startDate = startDateInput;
@@ -27,6 +28,8 @@ export function buildCycle(title: string, startDateInput: string): Cycle {
         reviewEntries: [],
         finalReview: undefined,
         journalEntries: [],
+        journalContexts: [...DEFAULT_JOURNAL_CONTEXTS],
+        defaultJournalContextId: DEFAULT_JOURNAL_CONTEXTS[0]?.id,
         reminder: { enabled: true, dayOffset: 6, time: "08:00" },
         habits: [],
         habitLog: {}

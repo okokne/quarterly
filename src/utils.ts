@@ -13,11 +13,13 @@ export {
 } from "./utils/date";
 
 export { clamp, getCurrentWeekIndex, getDatesInWeek, getWeekIndexForDate } from "./utils/cycleMath";
+export { DEFAULT_JOURNAL_CONTEXTS, normalizeJournalContexts, resolveDefaultJournalContextId } from "./utils/journalContexts";
 
 export {
     buildReviewEntriesFromLegacy,
     createJournalCustomReviewEntry,
     createJournalDailyReviewEntry,
+    createJournalQuickReviewEntry,
     createJournalWeeklyReviewEntry,
     getReviewEntrySearchText,
     getReviewEntrySentiment,

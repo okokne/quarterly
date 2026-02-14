@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
     buildCycle,
+    createJournalQuickReviewEntry,
     getReviewEntrySignals,
     getReviewEntrySentiment,
     matchesSignalFilter,
@@ -142,6 +143,21 @@ test("getReviewEntrySignals maps entries to practical feed signals", () => {
     assert.deepEqual(getReviewEntrySignals(weeklyWithNextStep), ["next_step"]);
     assert.deepEqual(getReviewEntrySignals(customDefault), ["note"]);
     assert.deepEqual(getReviewEntrySignals(customTagged), ["win", "challenge"]);
+});
+
+test("createJournalQuickReviewEntry creates quick entries with optional context", () => {
+    const quickEntry = createJournalQuickReviewEntry({
+        title: "",
+        content: "Idea for a better opener script",
+        date: "2026-02-14",
+        weekIndex: 2,
+        contextId: "sales"
+    });
+    assert.ok(quickEntry, "quick entry should be created when content exists");
+    assert.equal(quickEntry?.type, "quick");
+    assert.equal(quickEntry?.contextId, "sales");
+    assert.deepEqual(getReviewEntrySignals(quickEntry!), ["note"]);
+    assert.equal(getReviewEntrySentiment(quickEntry!), "neutral");
 });
 
 test("matchesSignalFilter uses OR logic for multi-select", () => {

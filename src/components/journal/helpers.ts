@@ -13,7 +13,7 @@ export function monthLabel(monthKey: string, language: AppLanguage): string {
 }
 
 export function previewText(entry: ReviewEntry): string {
-    if (entry.type === "custom") {
+    if (entry.type === "custom" || entry.type === "quick") {
         const title = entry.title?.trim() ?? "";
         const body = entry.content?.trim() ?? "";
         return [title, body].filter(Boolean).join(" · ");

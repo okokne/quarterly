@@ -34,3 +34,21 @@ test("migrateCycle coerces legacy boolean strings and clamps counter values", ()
     assert.equal(block.amount, 4);
     assert.equal(block.actual, 4, "actual must be clamped to planned amount");
 });
+
+test("migrateCycle seeds journal contexts when missing", () => {
+    const cycle = buildCycle("Legacy contexts", "2026-02-09");
+    const legacyLike = {
+        ...cycle,
+        journalContexts: undefined,
+        defaultJournalContextId: undefined
+    };
+
+    const migratedCycle = migrateCycle(legacyLike);
+    assert.ok(migratedCycle, "migrated cycle should exist");
+    if (!migratedCycle) {
+        throw new Error("Expected migrated cycle to be present");
+    }
+
+    assert.ok((migratedCycle.journalContexts ?? []).length >= 1, "contexts should be initialized");
+    assert.ok(migratedCycle.defaultJournalContextId, "default context should be set");
+});

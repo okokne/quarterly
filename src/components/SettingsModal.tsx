@@ -13,6 +13,7 @@ import { SettingsFormatSection } from "./settings/SettingsFormatSection";
 import { SettingsSyncSection } from "./settings/SettingsSyncSection";
 import { SettingsGoogleCalendarSection } from "./settings/SettingsGoogleCalendarSection";
 import { SettingsNotificationsSection } from "./settings/SettingsNotificationsSection";
+import { SettingsJournalContextsSection } from "./settings/SettingsJournalContextsSection";
 
 export interface SettingsModalProps {
     activeCycle: Cycle | null;
@@ -25,6 +26,7 @@ export interface SettingsModalProps {
     googleConnected: boolean;
     calendarList: GoogleCalendar[];
     selectedCalendarId: string;
+    updateCycle: ((updater: (prev: Cycle) => Cycle) => void) | null;
     // Setters
     setDarkMode: (val: boolean) => void;
     setLanguage: (val: AppLanguage) => void;
@@ -66,6 +68,7 @@ export function SettingsModal({
     googleConnected,
     calendarList,
     selectedCalendarId,
+    updateCycle,
     setDarkMode,
     setLanguage,
     setDateFormat,
@@ -156,6 +159,16 @@ export function SettingsModal({
                     readOnly={readOnly}
                     onRequestNotifications={handleRequestNotifications}
                 />
+
+                {activeCycle && updateCycle && (
+                    <SettingsJournalContextsSection
+                        cycle={activeCycle}
+                        language={language}
+                        readOnly={readOnly}
+                        updateCycle={updateCycle}
+                    />
+                )}
+
                 <div className="settings-section">
                     <h3>{tr(language, "cycle.drawerTitle")}</h3>
                     <p className="muted">{tr(language, "settings.cycleDrawerHint")}</p>

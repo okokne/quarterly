@@ -17,6 +17,10 @@ type JournalFeedToolbarProps = {
     rangeFilter: FeedRangeFilter;
     setRangeFilter: Dispatch<SetStateAction<FeedRangeFilter>>;
     rangeOptions: Array<FilterOption<FeedRangeFilter>>;
+    contextFilter: string[];
+    setContextFilter: Dispatch<SetStateAction<string[]>>;
+    contextOptions: Array<FilterOption<string>>;
+    toggleContextSelection: (contextId: string) => void;
 };
 
 export function JournalFeedToolbar({
@@ -32,7 +36,11 @@ export function JournalFeedToolbar({
     toggleSignalSelection,
     rangeFilter,
     setRangeFilter,
-    rangeOptions
+    rangeOptions,
+    contextFilter,
+    setContextFilter,
+    contextOptions,
+    toggleContextSelection
 }: JournalFeedToolbarProps) {
     return (
         <div className="subcard journal-feed-toolbar">
@@ -91,6 +99,27 @@ export function JournalFeedToolbar({
                             onClick={() => setRangeFilter(option.id)}
                         >
                             {tr(language, option.labelKey)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="journal-filter-row">
+                <span className="journal-filter-label">{tr(language, "journal.filterContext")}</span>
+                <div className="journal-filter-chip-row">
+                    <button
+                        className={`journal-filter-chip ${contextFilter.length === 0 ? "active" : ""}`}
+                        onClick={() => setContextFilter([])}
+                    >
+                        {tr(language, "journal.contextAll")}
+                    </button>
+                    {contextOptions.map((option) => (
+                        <button
+                            key={option.id}
+                            className={`journal-filter-chip ${contextFilter.includes(option.id) ? "active" : ""}`}
+                            onClick={() => toggleContextSelection(option.id)}
+                        >
+                            {option.labelKey}
                         </button>
                     ))}
                 </div>

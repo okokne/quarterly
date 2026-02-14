@@ -18,6 +18,7 @@ type JournalFeedListProps = {
     currentMonthKey: string;
     openMonths: Record<string, boolean>;
     setOpenMonths: Dispatch<SetStateAction<Record<string, boolean>>>;
+    contextLabelById: Map<string, string>;
     handleNavigateEntry: (entry: ReviewEntry) => void;
     handleDeleteEntry: (entryId: string) => void;
 };
@@ -33,6 +34,7 @@ export function JournalFeedList({
     currentMonthKey,
     openMonths,
     setOpenMonths,
+    contextLabelById,
     handleNavigateEntry,
     handleDeleteEntry
 }: JournalFeedListProps) {
@@ -62,6 +64,7 @@ export function JournalFeedList({
                                     const signals = getReviewEntrySignals(entry);
                                     const isClickable = entry.type === "daily" || entry.type === "weekly";
                                     const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
+                                    const contextLabel = entry.contextId ? contextLabelById.get(entry.contextId) : undefined;
                                     return (
                                         <article
                                             key={entry.id}
@@ -86,6 +89,9 @@ export function JournalFeedList({
 
                                             <div className="journal-entry-meta-row">
                                                 <span className={`journal-entry-type ${entry.type}`}>{tr(language, `journal.filterType${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}`)}</span>
+                                                {contextLabel && (
+                                                    <span className="journal-entry-context">{contextLabel}</span>
+                                                )}
                                                 <div className="journal-entry-signal-row">
                                                     {signals.map((signal) => (
                                                         <span key={`${entry.id}-${signal}`} className={`journal-entry-signal ${signal}`}>
@@ -100,8 +106,11 @@ export function JournalFeedList({
                                                 </span>
                                             </div>
 
-                                            {entry.type === "custom" && entry.title && <h4>{entry.title}</h4>}
-                                            {entry.type !== "custom" && (
+                                            {(entry.type === "custom" || entry.type === "quick") && entry.title && <h4>{entry.title}</h4>}
+                                            {entry.type === "quick" && !entry.title && (
+                                                <h4>{tr(language, "journal.quickSummary")}</h4>
+                                            )}
+                                            {entry.type !== "custom" && entry.type !== "quick" && (
                                                 <h4>
                                                     {entry.type === "daily"
                                                         ? tr(language, "journal.dailySummary")

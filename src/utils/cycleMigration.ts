@@ -3,6 +3,7 @@ import { uid } from "./id";
 import { toIsoDate } from "./date";
 import { buildReviewEntriesFromLegacy, normalizeReviewEntries } from "./reviewEntries";
 import { clamp, getDatesInWeek } from "./cycleMath";
+import { normalizeJournalContexts, resolveDefaultJournalContextId } from "./journalContexts";
 
 export function migrateCycle(raw: any): Cycle | null {
     if (!raw) return null;
@@ -30,6 +31,8 @@ export function migrateCycle(raw: any): Cycle | null {
         if (!cycle.habitLog) cycle.habitLog = {};
         if (!cycle.dailyPlans) cycle.dailyPlans = {};
         if (!Array.isArray(cycle.journalEntries)) cycle.journalEntries = [];
+        cycle.journalContexts = normalizeJournalContexts(cycle.journalContexts);
+        cycle.defaultJournalContextId = resolveDefaultJournalContextId(cycle);
 
         cycle.habits = cycle.habits.map((habit) => ({
             ...habit,

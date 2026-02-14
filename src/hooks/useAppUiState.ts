@@ -25,6 +25,7 @@ export function useAppUiState() {
     const [showHabitsManager, setShowHabitsManager] = useState(false);
     const [showCycleDrawer, setShowCycleDrawer] = useState(false);
     const [showSyncStatusSheet, setShowSyncStatusSheet] = useState(false);
+    const [showQuickCapture, setShowQuickCapture] = useState(false);
     const openSettings = useCallback(() => {
         setShowSettings(true);
     }, []);
@@ -77,6 +78,8 @@ export function useAppUiState() {
         setShowCycleDrawer,
         showSyncStatusSheet,
         setShowSyncStatusSheet,
+        showQuickCapture,
+        setShowQuickCapture,
         openSettings,
         goalDraft,
         setGoalDraft,

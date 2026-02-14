@@ -2816,6 +2816,26 @@ button.ghost-danger:hover {
   color: var(--text-secondary);
 }
 
+.journal-entry-type.quick {
+  background: color-mix(in srgb, var(--accent-bg) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  color: var(--accent-hover);
+}
+
+.journal-entry-context {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 .journal-entry-signal-row {
   display: inline-flex;
   flex-wrap: wrap;
@@ -2907,6 +2927,49 @@ button.ghost-danger:hover {
   border-color: color-mix(in srgb, var(--danger) 28%, transparent);
   background: color-mix(in srgb, var(--danger-bg) 72%, transparent);
   color: var(--danger);
+}
+
+.quick-note-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--shadow-lg);
+  z-index: 900;
+}
+
+.quick-note-fab:hover {
+  background: var(--accent-hover);
+  border-color: color-mix(in srgb, var(--accent) 65%, var(--border));
+}
+
+.quick-note-fab:disabled {
+  opacity: 0.35;
+}
+
+.quick-note-backdrop {
+  z-index: 1200;
+}
+
+.quick-note-modal {
+  max-width: 560px;
+  width: min(560px, 100%);
+  gap: 12px;
+}
+
+.quick-note-subtitle {
+  margin-top: -4px;
+}
+
+.quick-note-meta {
+  margin-top: -2px;
+  font-size: 0.8rem;
 }
 
 .warning-text {
@@ -4568,6 +4631,42 @@ textarea:focus-visible {
   width: 100%;
 }
 
+.settings-journal-context-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.settings-journal-context-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.settings-journal-context-item input {
+  width: 100%;
+}
+
+.settings-journal-context-default-row {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.settings-journal-context-default-row label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.settings-journal-context-add-row {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
 .sync-conflict-box {
   margin-top: 8px;
   padding: 10px 12px;
@@ -4793,6 +4892,13 @@ body.dark-mode .archive-banner {
 
   .week-target-edit-fields input:first-child {
     grid-column: auto;
+  }
+
+  .quick-note-fab {
+    right: 14px;
+    bottom: 14px;
+    width: 48px;
+    height: 48px;
   }
 }
 

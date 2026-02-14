@@ -31,6 +31,7 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
     const [typeFilter, setTypeFilter] = useState<FeedTypeFilter>("all");
     const [signalFilter, setSignalFilter] = useState<ReviewSignal[]>([]);
     const [rangeFilter, setRangeFilter] = useState<FeedRangeFilter>("all");
+    const [contextFilter, setContextFilter] = useState<string[]>([]);
     const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({});
 
     const toggleSignalSelection = (signal: ReviewSignal) => {
@@ -46,6 +47,14 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
             prev.includes(signal)
                 ? prev.filter((item) => item !== signal)
                 : [...prev, signal]
+        ));
+    };
+
+    const toggleContextSelection = (contextId: string) => {
+        setContextFilter((prev) => (
+            prev.includes(contextId)
+                ? prev.filter((item) => item !== contextId)
+                : [...prev, contextId]
         ));
     };
 
@@ -76,7 +85,8 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
         { id: "all", labelKey: "journal.filterTypeAll" },
         { id: "daily", labelKey: "journal.filterTypeDaily" },
         { id: "weekly", labelKey: "journal.filterTypeWeekly" },
-        { id: "custom", labelKey: "journal.filterTypeCustom" }
+        { id: "custom", labelKey: "journal.filterTypeCustom" },
+        { id: "quick", labelKey: "journal.filterTypeQuick" }
     ];
 
     const signalOptions: Array<FilterOption<ReviewSignal>> = [
@@ -129,9 +139,12 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
         setSignalFilter,
         rangeFilter,
         setRangeFilter,
+        contextFilter,
+        setContextFilter,
         openMonths,
         setOpenMonths,
         toggleSignalSelection,
+        toggleContextSelection,
         resetComposerFields,
         composerSubmitDisabled,
         typeOptions,

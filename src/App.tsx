@@ -11,6 +11,7 @@ import { SearchOverlay } from "./components/SearchOverlay";
 import { HabitsManagerSheet } from "./components/HabitsManagerSheet";
 import { CycleDrawer } from "./components/CycleDrawer";
 import { SyncStatusSheet } from "./components/SyncStatusSheet";
+import { QuickNoteCapture } from "./components/QuickNoteCapture";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
 import { useHabitsStore } from "./hooks/useHabitsStore";
 import { useDailyBlocks } from "./hooks/useDailyBlocks";
@@ -94,6 +95,8 @@ export default function App() {
     setShowCycleDrawer,
     showSyncStatusSheet,
     setShowSyncStatusSheet,
+    showQuickCapture,
+    setShowQuickCapture,
     openSettings,
     goalDraft,
     setGoalDraft,
@@ -387,7 +390,8 @@ export default function App() {
       darkMode,
       language,
       dateFormat,
-      timeFormat
+      timeFormat,
+      updateCycle
     },
     google: {
       googleLoading,
@@ -644,6 +648,18 @@ export default function App() {
       <SettingsModalHost show={showSettings} props={settingsModalProps} />
 
       <AppDashboardContent {...dashboardContentProps} />
+
+      {step >= 4 && (
+        <QuickNoteCapture
+          cycle={cycle}
+          language={language}
+          readOnly={isArchiveView}
+          currentWeekIndex={todayWeekIndex}
+          open={showQuickCapture}
+          setOpen={setShowQuickCapture}
+          updateCycle={updateCycle}
+        />
+      )}
 
       <ConfirmModals {...confirmModalsProps} />
     </div >

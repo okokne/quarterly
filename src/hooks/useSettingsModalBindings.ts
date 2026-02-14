@@ -8,7 +8,8 @@ type SettingsModalBindingInput = {
         "darkMode" |
         "language" |
         "dateFormat" |
-        "timeFormat"
+        "timeFormat" |
+        "updateCycle"
     >;
     google: Pick<
         SettingsModalProps,

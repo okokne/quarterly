@@ -13,7 +13,7 @@ import { uid } from "./id";
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 function isValidReviewType(value: unknown): value is ReviewEntry["type"] {
-    return value === "daily" || value === "weekly" || value === "custom";
+    return value === "daily" || value === "weekly" || value === "custom" || value === "quick";
 }
 
 function isValidReviewSource(value: unknown): value is ReviewEntrySource {
@@ -40,6 +40,13 @@ function trimToUndefined(value: unknown): string | undefined {
     return trimmed ? trimmed : undefined;
 }
 
+function normalizeContextId(value: unknown, cycle: Cycle): string | undefined {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    return cycle.journalContexts?.some((context) => context.id === trimmed) ? trimmed : undefined;
+}
+
 function getWeekStartDate(cycle: Cycle, weekIndex: number): string {
     const fromWeeks = cycle.weeks.find((week) => week.index === weekIndex)?.startDate;
     return fromWeeks ?? cycle.startDate;
@@ -59,11 +66,11 @@ export function normalizeReviewEntries(entries: unknown[], cycle: Cycle): Review
 
             const weekIndex = typeof raw.weekIndex === "number" && Number.isInteger(raw.weekIndex)
                 ? clamp(raw.weekIndex, 1, 12)
-                : raw.type === "weekly"
+                : raw.type === "weekly" || raw.type === "quick"
                     ? getWeekIndexFromDate(cycle, typeof raw.date === "string" ? raw.date : cycle.startDate)
                     : undefined;
 
-            const fallbackDate = raw.type === "weekly" && weekIndex
+            const fallbackDate = (raw.type === "weekly" || raw.type === "quick") && weekIndex
                 ? getWeekStartDate(cycle, weekIndex)
                 : cycle.startDate;
             const date = typeof raw.date === "string" && ISO_DATE_REGEX.test(raw.date)
@@ -86,6 +93,7 @@ export function normalizeReviewEntries(entries: unknown[], cycle: Cycle): Review
                 updatedAt,
                 title: trimToUndefined(raw.title),
                 content: trimToUndefined(raw.content),
+                contextId: normalizeContextId(raw.contextId, cycle),
                 good: trimToUndefined(raw.good),
                 bad: trimToUndefined(raw.bad),
                 change: trimToUndefined(raw.change),
@@ -186,7 +194,7 @@ export function getWritableReviewEntries(cycle: Cycle): ReviewEntry[] {
 }
 
 export function getReviewEntrySentiment(entry: ReviewEntry): ReviewSentiment {
-    if (entry.type === "custom") return "neutral";
+    if (entry.type === "custom" || entry.type === "quick") return "neutral";
     const hasGood = Boolean(entry.good?.trim());
     const hasBad = Boolean(entry.bad?.trim());
     if (hasGood && hasBad) return "mixed";
@@ -209,7 +217,7 @@ export function getReviewEntrySearchText(entry: ReviewEntry): string {
 }
 
 export function getReviewEntrySignals(entry: ReviewEntry): ReviewSignal[] {
-    if (entry.type === "custom") {
+    if (entry.type === "custom" || entry.type === "quick") {
         const normalized = normalizeReviewSignals(entry.signals);
         return normalized && normalized.length > 0 ? normalized : ["note"];
     }
@@ -334,6 +342,7 @@ export function createJournalCustomReviewEntry(input: {
     content: string;
     date: string;
     signals?: ReviewSignal[];
+    contextId?: string;
 }): ReviewEntry | null {
     const title = input.title.trim();
     const content = input.content.trim();
@@ -348,7 +357,34 @@ export function createJournalCustomReviewEntry(input: {
         updatedAt: now,
         title: title || undefined,
         content: content || undefined,
+        contextId: input.contextId?.trim() || undefined,
         signals: normalizedSignals,
+        source: "journal"
+    };
+}
+
+export function createJournalQuickReviewEntry(input: {
+    title: string;
+    content: string;
+    date: string;
+    weekIndex: number;
+    contextId?: string;
+}): ReviewEntry | null {
+    const title = input.title.trim();
+    const content = input.content.trim();
+    if (!title && !content) return null;
+    const now = new Date().toISOString();
+    return {
+        id: uid(),
+        type: "quick",
+        date: input.date,
+        weekIndex: clamp(input.weekIndex, 1, 12),
+        createdAt: now,
+        updatedAt: now,
+        title: title || undefined,
+        content: content || undefined,
+        contextId: input.contextId?.trim() || undefined,
+        signals: ["note"],
         source: "journal"
     };
 }
