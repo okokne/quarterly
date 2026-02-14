@@ -298,7 +298,7 @@ export function StatsView({
                                             }}
                                         >
                                             <div className="habit-tracker-info">
-                                                <span className="habit-tracker-emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /></span>
+                                                <span className="habit-tracker-emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={18} /></span>
                                                 <span className="habit-tracker-title">{habit.title}</span>
                                             </div>
                                             <div className="habit-tracker-meta">
@@ -400,7 +400,7 @@ export function StatsView({
                                         <div className="habit-heatmap-panel">
                                             <div className="habit-heatmap-scroll">
                                                 <div className="habit-heatmap-panel-meta">
-                                                    <span className="habit-heatmap-panel-title"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /> {habit.title}</span>
+                                                    <span className="habit-heatmap-panel-title"><Icon icon={resolveHabitIcon(habit.emoji)} size={18} /> {habit.title}</span>
                                                     <span className="habit-heatmap-panel-range">{tr(language, "stats.last4Weeks")}</span>
                                                 </div>
                                                 <div className="habit-heatmap-dayrow">

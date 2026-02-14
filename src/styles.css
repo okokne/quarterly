@@ -1060,7 +1060,9 @@ p {
 }
 
 .habit-chip-emoji {
-  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .habit-chip-label {
@@ -1203,7 +1205,9 @@ p {
 }
 
 .habit-tracker-emoji {
-  font-size: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .habit-tracker-title {
@@ -1531,12 +1535,34 @@ p {
   gap: 12px;
 }
 
+.habit-settings-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .habit-settings-item-info {
   display: flex;
   align-items: center;
   gap: 8px;
   flex: 1;
   min-width: 0;
+}
+
+.habit-settings-item-info-edit {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.habit-settings-item-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
 }
 
 .habit-settings-item-info .emoji {
@@ -1589,6 +1615,10 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.habit-emoji-picker-compact {
+  gap: 6px;
 }
 
 .habit-emoji-btn {

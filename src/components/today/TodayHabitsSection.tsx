@@ -56,7 +56,7 @@ export function TodayHabitsSection({
                             }}
                             title={tr(language, "today.deleteOnRightClick", { title: habit.title })}
                         >
-                            <span className="habit-chip-emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /></span>
+                            <span className="habit-chip-emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={18} /></span>
                             <span className="habit-chip-label">{habit.title}</span>
                             <span className="habit-chip-check">
                                 <Icon icon={done ? CheckSquare : Square} size={14} />

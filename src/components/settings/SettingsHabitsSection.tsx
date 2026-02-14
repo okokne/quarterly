@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Trash2 } from "lucide-react";
+import { Check, Pencil, Sparkles, Trash2, X } from "lucide-react";
 import { AppLanguage, Cycle, Habit } from "../../types";
 import { t as tr } from "../../i18n";
 import { toIsoDate, uid } from "../../utils";
@@ -34,6 +34,9 @@ export function SettingsHabitsSection({
     const [habitGoalTarget, setHabitGoalTarget] = useState<string>("30");
     const [habitGoalUnit, setHabitGoalUnit] = useState<string>("");
     const [habitIconKey, setHabitIconKey] = useState<string>(DEFAULT_HABIT_ICON_KEY);
+    const [editingHabitId, setEditingHabitId] = useState<Habit["id"] | null>(null);
+    const [habitEditTitle, setHabitEditTitle] = useState("");
+    const [habitEditIconKey, setHabitEditIconKey] = useState<string>(DEFAULT_HABIT_ICON_KEY);
 
     if (!cycle) return null;
 
@@ -90,6 +93,9 @@ export function SettingsHabitsSection({
         if (readOnly) return;
         if (window.confirm(tr(language, "settings.confirmDeleteHabit"))) {
             setHabits(habits.filter((habit) => habit.id !== id));
+            if (editingHabitId === id) {
+                setEditingHabitId(null);
+            }
             const nextLog: Record<string, string[]> = {};
             Object.entries(habitLog).forEach(([date, ids]) => {
                 const filtered = ids.filter((habitId) => habitId !== id);
@@ -97,6 +103,33 @@ export function SettingsHabitsSection({
             });
             setHabitLog(nextLog);
         }
+    };
+
+    const startHabitEdit = (habit: Habit) => {
+        if (readOnly) return;
+        setEditingHabitId(habit.id);
+        setHabitEditTitle(habit.title);
+        setHabitEditIconKey(normalizeHabitIconKey(habit.emoji));
+    };
+
+    const cancelHabitEdit = () => {
+        setEditingHabitId(null);
+        setHabitEditTitle("");
+        setHabitEditIconKey(DEFAULT_HABIT_ICON_KEY);
+    };
+
+    const saveHabitEdit = () => {
+        if (readOnly || !editingHabitId || !habitEditTitle.trim()) return;
+        const nextHabits = habits.map((habit) => {
+            if (habit.id !== editingHabitId) return habit;
+            return {
+                ...habit,
+                title: habitEditTitle.trim(),
+                emoji: normalizeHabitIconKey(habitEditIconKey)
+            };
+        });
+        setHabits(nextHabits);
+        cancelHabitEdit();
     };
 
     return (
@@ -107,23 +140,76 @@ export function SettingsHabitsSection({
             </h3>
             {habits.length > 0 ? (
                 <div className="habit-settings-list">
-                    {habits.map((habit) => (
-                        <div key={habit.id} className="habit-settings-item">
-                            <div className="habit-settings-item-info">
-                                <span className="emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /></span>
-                                <div>
-                                    <div className="title">{habit.title}</div>
-                                    <div className="meta">
-                                        {getFreqLabel(habit.frequency)}
-                                        {habit.goal?.type === "target" && ` · ${tr(language, "settings.goal")}: ${habit.goal.target} ${habit.goal.unit || ""}`}
-                                    </div>
+                    {habits.map((habit) => {
+                        const isEditing = editingHabitId === habit.id;
+                        return (
+                            <div key={habit.id} className="habit-settings-item">
+                                <div className={`habit-settings-item-info ${isEditing ? "habit-settings-item-info-edit" : ""}`}>
+                                    {isEditing ? (
+                                        <>
+                                            <input
+                                                className="habit-settings-item-input"
+                                                value={habitEditTitle}
+                                                onChange={(event) => setHabitEditTitle(event.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter") saveHabitEdit();
+                                                    if (event.key === "Escape") cancelHabitEdit();
+                                                }}
+                                                placeholder={tr(language, "settings.habitNamePlaceholder")}
+                                                disabled={readOnly}
+                                                autoFocus
+                                            />
+                                            <div className="habit-emoji-picker habit-emoji-picker-compact">
+                                                {HABIT_ICON_OPTIONS.map((option) => (
+                                                    <button
+                                                        key={`edit-${habit.id}-${option.key}`}
+                                                        type="button"
+                                                        className={`habit-emoji-btn ${habitEditIconKey === option.key ? "selected" : ""}`}
+                                                        disabled={readOnly}
+                                                        onClick={() => setHabitEditIconKey(option.key)}
+                                                        title={tr(language, option.labelKey)}
+                                                        aria-label={tr(language, option.labelKey)}
+                                                    >
+                                                        <Icon icon={option.icon} size={16} />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={18} /></span>
+                                            <div>
+                                                <div className="title">{habit.title}</div>
+                                                <div className="meta">
+                                                    {getFreqLabel(habit.frequency)}
+                                                    {habit.goal?.type === "target" && ` · ${tr(language, "settings.goal")}: ${habit.goal.target} ${habit.goal.unit || ""}`}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="habit-settings-item-actions">
+                                    {isEditing ? (
+                                        <>
+                                            <button className="icon-btn" disabled={readOnly || !habitEditTitle.trim()} onClick={saveHabitEdit} aria-label={tr(language, "common.save")} title={tr(language, "common.save")}>
+                                                <Icon icon={Check} size={16} />
+                                            </button>
+                                            <button className="icon-btn" onClick={cancelHabitEdit} aria-label={tr(language, "common.cancel")} title={tr(language, "common.cancel")}>
+                                                <Icon icon={X} size={16} />
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button className="icon-btn" disabled={readOnly} onClick={() => startHabitEdit(habit)} aria-label={tr(language, "common.edit")} title={tr(language, "common.edit")}>
+                                            <Icon icon={Pencil} size={16} />
+                                        </button>
+                                    )}
+                                    <button className="button ghost-danger" disabled={readOnly} onClick={() => handleDeleteHabit(habit.id)} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
+                                        <Icon icon={Trash2} size={16} />
+                                    </button>
                                 </div>
                             </div>
-                            <button className="button ghost-danger" disabled={readOnly} onClick={() => handleDeleteHabit(habit.id)} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
-                                <Icon icon={Trash2} size={16} />
-                            </button>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
                 <p className="muted" style={{ padding: "0 8px" }}>{tr(language, "settings.noHabits")}</p>

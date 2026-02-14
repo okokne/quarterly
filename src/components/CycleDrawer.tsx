@@ -264,7 +264,7 @@ export function CycleDrawer({
                     <div className="chip-wrap">
                         {activeHabits.map((habit) => (
                             <span key={habit.id} className="week-chip neutral">
-                                <Icon icon={resolveHabitIcon(habit.emoji)} size={14} /> {habit.title}
+                                <Icon icon={resolveHabitIcon(habit.emoji)} size={18} /> {habit.title}
                             </span>
                         ))}
                     </div>
