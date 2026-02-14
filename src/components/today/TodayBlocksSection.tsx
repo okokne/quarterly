@@ -1,5 +1,5 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
-import { Trash2, X } from "lucide-react";
+import { Check, Trash2, X } from "lucide-react";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -24,7 +24,7 @@ type TodayBlocksSectionProps = {
     draggingBlockId: Id | null;
     setDraggingBlockId: Dispatch<SetStateAction<Id | null>>;
     onReorderBlocks: (date: string, fromIndex: number, toIndex: number) => void;
-    onAddBlock: (date: string) => void | Promise<void>;
+    onAddBlock: (date: string) => boolean | Promise<boolean>;
     onOpenTemplateModal: () => void;
     onLoadTemplate: (template: DailyTemplate) => void;
     onDeleteTemplate: (templateId: Id) => void;
@@ -106,11 +106,21 @@ export function TodayBlocksSection({
     });
 
     const [timelineNow, setTimelineNow] = useState(() => new Date());
+    const [isTimelineComposerOpen, setIsTimelineComposerOpen] = useState(false);
+    const showBlockComposer = dayPlanViewMode === "list" || isTimelineComposerOpen;
 
     const timelineHours = useMemo(
         () => Array.from({ length: TIMELINE_END_HOUR - TIMELINE_START_HOUR + 1 }, (_, index) => TIMELINE_START_HOUR + index),
         []
     );
+
+    const targetTitleById = useMemo(() => {
+        const byId = new Map<string, string>();
+        selectedWeekTargets.forEach((target) => {
+            byId.set(String(target.id), target.title);
+        });
+        return byId;
+    }, [selectedWeekTargets]);
 
     const timelineBlocks = useMemo<TimelineBlock[]>(() => {
         return dayBlocks
@@ -158,6 +168,12 @@ export function TodayBlocksSection({
         return () => window.clearInterval(intervalId);
     }, [dayPlanViewMode, selectedDate]);
 
+    useEffect(() => {
+        if (dayPlanViewMode !== "timeline") {
+            setIsTimelineComposerOpen(false);
+        }
+    }, [dayPlanViewMode]);
+
     const handleToggleCompletion = useCallback((block: DailyBlock, checked: boolean) => {
         const { plannedAmount, usesCounter } = getBlockCompletionState({
             amount: block.amount,
@@ -179,6 +195,13 @@ export function TodayBlocksSection({
         });
     }, [onUpdateBlock, selectedDate]);
 
+    const handleAddBlockSubmit = useCallback(async () => {
+        const didAdd = await onAddBlock(selectedDate);
+        if (didAdd && dayPlanViewMode === "timeline") {
+            setIsTimelineComposerOpen(false);
+        }
+    }, [dayPlanViewMode, onAddBlock, selectedDate]);
+
     const openBlockInList = useCallback((blockId: Id) => {
         setDayPlanViewMode("list");
         window.setTimeout(() => {
@@ -197,50 +220,73 @@ export function TodayBlocksSection({
 
     return (
         <div className="subcard">
-            <h3>{tr(language, "today.dayPlan")}</h3>
-            <div className="grid">
-                <label>
-                    {tr(language, "common.start")}
-                    <input type="time" value={blockDraft.startTime} onChange={(e) => setBlockDraft({ ...blockDraft, startTime: e.target.value })} />
-                </label>
-                <label>
-                    {tr(language, "common.end")}
-                    <input type="time" value={blockDraft.endTime} onChange={(e) => setBlockDraft({ ...blockDraft, endTime: e.target.value })} />
-                </label>
-                <label>
-                    {tr(language, "common.title")}
-                    <input value={blockDraft.title} onChange={(e) => setBlockDraft({ ...blockDraft, title: e.target.value })} placeholder={tr(language, "today.blockPlaceholder")} />
-                </label>
-                <label>
-                    {tr(language, "today.weeklyTargetOptional")}
-                    <select
-                        value={blockDraft.linkedTargetId}
-                        onChange={(e) => setBlockDraft({ ...blockDraft, linkedTargetId: e.target.value })}
+            <div className="today-dayplan-header">
+                <h3>{tr(language, "today.dayPlan")}</h3>
+                {dayPlanViewMode === "timeline" && (
+                    <button
+                        type="button"
+                        className={`today-dayplan-plus-btn ${isTimelineComposerOpen ? "active" : ""}`}
+                        onClick={() => setIsTimelineComposerOpen((prev) => !prev)}
+                        title={tr(language, "today.blockAdd")}
+                        aria-label={tr(language, "today.blockAdd")}
                     >
-                        <option value="">{tr(language, "common.none")}</option>
-                        {selectedWeekTargets.map((target) => (
-                            <option key={target.id} value={target.id}>{target.title}</option>
-                        ))}
-                    </select>
-                </label>
-                <label>
-                    {tr(language, "today.plannedAmountOptional")}
-                    <input
-                        type="number"
-                        min={1}
-                        value={blockDraft.amount}
-                        onChange={(e) => setBlockDraft({ ...blockDraft, amount: Number(e.target.value) })}
-                    />
-                </label>
-            </div>
-            <div className="button-row">
-                <button className="primary" onClick={() => onAddBlock(selectedDate)}>{tr(language, "today.blockAdd")}</button>
-                {dayBlocks.length > 0 && (
-                    <button onClick={onOpenTemplateModal}>{tr(language, "today.saveAsTemplate")}</button>
+                        +
+                    </button>
                 )}
             </div>
 
-            {templates.length > 0 && (
+            {showBlockComposer && (
+                <>
+                    <div className="grid">
+                        <label>
+                            {tr(language, "common.start")}
+                            <input type="time" value={blockDraft.startTime} onChange={(e) => setBlockDraft({ ...blockDraft, startTime: e.target.value })} />
+                        </label>
+                        <label>
+                            {tr(language, "common.end")}
+                            <input type="time" value={blockDraft.endTime} onChange={(e) => setBlockDraft({ ...blockDraft, endTime: e.target.value })} />
+                        </label>
+                        <label>
+                            {tr(language, "common.title")}
+                            <input value={blockDraft.title} onChange={(e) => setBlockDraft({ ...blockDraft, title: e.target.value })} placeholder={tr(language, "today.blockPlaceholder")} />
+                        </label>
+                        <label>
+                            {tr(language, "today.weeklyTargetOptional")}
+                            <select
+                                value={blockDraft.linkedTargetId}
+                                onChange={(e) => setBlockDraft({ ...blockDraft, linkedTargetId: e.target.value })}
+                            >
+                                <option value="">{tr(language, "common.none")}</option>
+                                {selectedWeekTargets.map((target) => (
+                                    <option key={target.id} value={target.id}>{target.title}</option>
+                                ))}
+                            </select>
+                        </label>
+                        <label>
+                            {tr(language, "today.plannedAmountOptional")}
+                            <input
+                                type="number"
+                                min={1}
+                                value={blockDraft.amount}
+                                onChange={(e) => setBlockDraft({ ...blockDraft, amount: Number(e.target.value) })}
+                            />
+                        </label>
+                    </div>
+                    <div className={`button-row ${dayPlanViewMode === "timeline" ? "today-dayplan-composer-actions" : ""}`}>
+                        <button className="primary" onClick={handleAddBlockSubmit}>{tr(language, "today.blockAdd")}</button>
+                        {dayPlanViewMode === "timeline" && (
+                            <button type="button" onClick={() => setIsTimelineComposerOpen(false)}>
+                                {tr(language, "common.cancel")}
+                            </button>
+                        )}
+                        {dayPlanViewMode === "list" && dayBlocks.length > 0 && (
+                            <button onClick={onOpenTemplateModal}>{tr(language, "today.saveAsTemplate")}</button>
+                        )}
+                    </div>
+                </>
+            )}
+
+            {templates.length > 0 && dayPlanViewMode === "list" && (
                 <div className="subcard template-section">
                     <h4>{tr(language, "today.templates")}</h4>
                     <div className="template-list">
@@ -481,11 +527,14 @@ export function TodayBlocksSection({
                                                     actual: entry.block.actual,
                                                     done: entry.block.done
                                                 });
+                                                const linkedTargetTitle = entry.block.linkedTargetId
+                                                    ? targetTitleById.get(String(entry.block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
+                                                    : null;
                                                 return (
                                                     <button
                                                         key={entry.block.id}
                                                         type="button"
-                                                        className={`today-timeline-block ${isDone ? "done" : ""}`}
+                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
                                                         style={{ top: `${entry.top}px`, height: `${entry.height}px` } as CSSProperties}
                                                         onClick={() => openBlockInList(entry.block.id)}
                                                     >
@@ -493,23 +542,21 @@ export function TodayBlocksSection({
                                                             <strong>{entry.block.title}</strong>
                                                             <span>{formatTime(entry.displayStart, timeFormat)}–{formatTime(entry.displayEnd, timeFormat)}</span>
                                                         </div>
-                                                        <div
-                                                            className="today-timeline-block-toggle"
-                                                            onClick={(event) => event.stopPropagation()}
-                                                            onPointerDown={(event) => event.stopPropagation()}
-                                                            onMouseDown={(event) => event.stopPropagation()}
-                                                            onTouchStart={(event) => event.stopPropagation()}
-                                                        >
-                                                            <span className={`toggle-status ${isDone ? "done" : "pending"}`}>
-                                                                {isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus")}
-                                                            </span>
-                                                            <ToggleSwitch
-                                                                checked={isDone}
-                                                                ariaLabel={tr(language, "today.markLabel")}
-                                                                onChange={(checked) => handleToggleCompletion(entry.block, checked)}
-                                                            />
+                                                        <div className="today-timeline-block-meta">
+                                                            {linkedTargetTitle && (
+                                                                <span className="today-timeline-badge">{linkedTargetTitle}</span>
+                                                            )}
                                                             {usesCounter && (
-                                                                <span className="muted today-timeline-counter">{actualValue}/{plannedAmount}</span>
+                                                                <span className="today-timeline-badge">{actualValue}/{plannedAmount}</span>
+                                                            )}
+                                                            {isDone && (
+                                                                <span
+                                                                    className="today-timeline-done-indicator"
+                                                                    title={tr(language, "today.completedStatus")}
+                                                                    aria-label={tr(language, "today.completedStatus")}
+                                                                >
+                                                                    <Icon icon={Check} size={12} />
+                                                                </span>
                                                             )}
                                                         </div>
                                                     </button>
@@ -539,35 +586,36 @@ export function TodayBlocksSection({
                                                 actual: block.actual,
                                                 done: block.done
                                             });
+                                            const linkedTargetTitle = block.linkedTargetId
+                                                ? targetTitleById.get(String(block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
+                                                : null;
                                             return (
                                                 <button
                                                     key={block.id}
                                                     type="button"
-                                                    className={`today-untimed-item ${isDone ? "done" : ""}`}
+                                                    className={`today-untimed-item ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
                                                     onClick={() => openBlockInList(block.id)}
                                                 >
                                                     <div className="today-untimed-content">
                                                         <strong>{block.title}</strong>
                                                         <span className="muted">{tr(language, "today.untimedHint")}</span>
-                                                    </div>
-                                                    <div
-                                                        className="today-untimed-toggle"
-                                                        onClick={(event) => event.stopPropagation()}
-                                                        onPointerDown={(event) => event.stopPropagation()}
-                                                        onMouseDown={(event) => event.stopPropagation()}
-                                                        onTouchStart={(event) => event.stopPropagation()}
-                                                    >
-                                                        <span className={`toggle-status ${isDone ? "done" : "pending"}`}>
-                                                            {isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus")}
-                                                        </span>
-                                                        <ToggleSwitch
-                                                            checked={isDone}
-                                                            ariaLabel={tr(language, "today.markLabel")}
-                                                            onChange={(checked) => handleToggleCompletion(block, checked)}
-                                                        />
-                                                        {usesCounter && (
-                                                            <span className="muted today-timeline-counter">{actualValue}/{plannedAmount}</span>
-                                                        )}
+                                                        <div className="today-timeline-block-meta">
+                                                            {linkedTargetTitle && (
+                                                                <span className="today-timeline-badge">{linkedTargetTitle}</span>
+                                                            )}
+                                                            {usesCounter && (
+                                                                <span className="today-timeline-badge">{actualValue}/{plannedAmount}</span>
+                                                            )}
+                                                            {isDone && (
+                                                                <span
+                                                                    className="today-timeline-done-indicator"
+                                                                    title={tr(language, "today.completedStatus")}
+                                                                    aria-label={tr(language, "today.completedStatus")}
+                                                                >
+                                                                    <Icon icon={Check} size={12} />
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </button>
                                             );

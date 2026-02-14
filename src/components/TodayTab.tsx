@@ -43,7 +43,7 @@ type TodayTabProps = {
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
     dayBlocks: DailyBlock[];
     templates: DailyTemplate[];
-    onAddBlock: (date: string) => void | Promise<void>;
+    onAddBlock: (date: string) => boolean | Promise<boolean>;
     onOpenTemplateModal: () => void;
     onLoadTemplate: (template: DailyTemplate) => void;
     onDeleteTemplate: (templateId: Id) => void;

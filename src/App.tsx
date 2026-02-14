@@ -230,6 +230,7 @@ export default function App() {
     if (didAdd) {
       setBlockDraft({ startTime: "09:00", endTime: "10:00", title: "", linkedTargetId: "", amount: 1, actual: 0 });
     }
+    return didAdd;
   };
   const {
     addWeeklyTarget,
