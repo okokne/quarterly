@@ -1,5 +1,5 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PencilLine, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, PencilLine, Trash2, X } from "lucide-react";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -549,7 +549,72 @@ export function TodayBlocksSection({
                                             });
                                         }}
                                     />
-                                    <span className="block-counter-value">{actualValue}/{plannedAmount}</span>
+                                    <div className="block-counter-value-editor">
+                                        <input
+                                            className="block-counter-inline-input"
+                                            type="number"
+                                            min={0}
+                                            max={plannedAmount}
+                                            step={1}
+                                            inputMode="numeric"
+                                            value={actualValue}
+                                            draggable={false}
+                                            onMouseDown={(e) => e.stopPropagation()}
+                                            onTouchStart={(e) => e.stopPropagation()}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onKeyDown={(e) => e.stopPropagation()}
+                                            onFocus={(e) => e.currentTarget.select()}
+                                            onChange={(e) => {
+                                                const raw = e.target.value.trim();
+                                                if (raw === "") {
+                                                    onUpdateBlock(selectedDate, block.id, { actual: 0, done: false });
+                                                    return;
+                                                }
+
+                                                const parsed = Number.parseInt(raw, 10);
+                                                if (Number.isNaN(parsed)) return;
+                                                const nextActual = Math.min(Math.max(0, parsed), plannedAmount);
+
+                                                onUpdateBlock(selectedDate, block.id, {
+                                                    actual: nextActual,
+                                                    done: nextActual >= plannedAmount
+                                                });
+                                            }}
+                                        />
+                                        <span className="block-counter-target">/{plannedAmount}</span>
+                                        <div className="block-counter-stepper">
+                                            <button
+                                                type="button"
+                                                title={tr(language, "today.increaseActual")}
+                                                aria-label={tr(language, "today.increaseActual")}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const nextActual = Math.min(plannedAmount, actualValue + 1);
+                                                    onUpdateBlock(selectedDate, block.id, {
+                                                        actual: nextActual,
+                                                        done: nextActual >= plannedAmount
+                                                    });
+                                                }}
+                                            >
+                                                <Icon icon={ChevronUp} size={12} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                title={tr(language, "today.decreaseActual")}
+                                                aria-label={tr(language, "today.decreaseActual")}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const nextActual = Math.max(0, actualValue - 1);
+                                                    onUpdateBlock(selectedDate, block.id, {
+                                                        actual: nextActual,
+                                                        done: nextActual >= plannedAmount
+                                                    });
+                                                }}
+                                            >
+                                                <Icon icon={ChevronDown} size={12} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}

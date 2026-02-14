@@ -2237,13 +2237,13 @@ button.ghost-danger:hover {
 .block-counter-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 0;
+  height: 0;
   border-radius: 50%;
-  border: 1px solid var(--bg-card);
-  background: var(--accent);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
-  margin-top: -4px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  margin-top: 0;
 }
 
 .block-counter-range::-moz-range-track {
@@ -2253,18 +2253,86 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 0;
+  height: 0;
   border-radius: 50%;
-  border: 1px solid var(--bg-card);
-  background: var(--accent);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .block-counter-placeholder {
   width: min(320px, 100%);
   margin-left: auto;
   min-height: 32px;
+}
+
+.block-counter-value-editor {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
+.block-counter-inline-input {
+  width: 52px;
+  min-width: 52px;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.block-counter-inline-input:focus {
+  outline: none;
+}
+
+.block-counter-inline-input::-webkit-outer-spin-button,
+.block-counter-inline-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.block-counter-inline-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.block-counter-target {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.block-counter-stepper {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+
+.block-counter-stepper button {
+  width: 18px;
+  min-width: 18px;
+  height: 14px;
+  padding: 0;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-subtle));
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-counter-stepper button:hover {
+  border-color: var(--accent-muted);
+  color: var(--accent);
 }
 
 .block-content {
@@ -4863,6 +4931,27 @@ button.ghost-danger:hover {
   .block-counter-value {
     min-width: 60px;
     padding: 3px 6px;
+  }
+
+  .block-counter-value-editor {
+    padding: 2px 5px;
+    gap: 4px;
+  }
+
+  .block-counter-inline-input {
+    width: 42px;
+    min-width: 42px;
+    font-size: 0.74rem;
+  }
+
+  .block-counter-target {
+    font-size: 0.7rem;
+  }
+
+  .block-counter-stepper button {
+    width: 16px;
+    min-width: 16px;
+    height: 13px;
   }
 
   .planner-block-heading {
