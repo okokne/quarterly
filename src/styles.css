@@ -574,7 +574,7 @@ p {
   height: 100%;
   background: linear-gradient(90deg, var(--accent) 0%, var(--accent-soft) 100%);
   border-radius: 4px;
-  transition: width 0.4s ease;
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .progress-bar-label {
@@ -1020,12 +1020,12 @@ p {
   line-height: 1;
   align-self: center;
   margin-right: 8px;
-  opacity: 0.72;
+  opacity: 0.52;
   transition: opacity 0.2s, background-color 0.2s, color 0.2s;
   padding: 4px;
   border-radius: 4px;
-  background: color-mix(in srgb, var(--bg-subtle) 70%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--bg-subtle) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
 }
 
 .drag-handle:hover {
@@ -1033,6 +1033,10 @@ p {
   background-color: var(--bg-hover);
   color: var(--text-primary);
   border-color: var(--border);
+}
+
+.list-item:hover .drag-handle {
+  opacity: 0.9;
 }
 
 .drag-handle:active {
@@ -2182,7 +2186,7 @@ button.ghost-danger:hover {
 .block-counter {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   width: 100%;
 }
 
@@ -2198,15 +2202,13 @@ button.ghost-danger:hover {
 }
 
 .block-counter-value {
-  min-width: 68px;
+  min-width: 62px;
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-secondary);
-  text-align: center;
-  padding: 3px 7px;
-  border-radius: 999px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  text-align: right;
+  line-height: 1.2;
+  white-space: nowrap;
   flex: 0 0 auto;
 }
 
@@ -2219,15 +2221,15 @@ button.ghost-danger:hover {
 .block-counter-range {
   flex: 1 1 auto;
   appearance: none;
-  height: 4px;
+  height: 3px;
   border-radius: 999px;
-  background: var(--border);
+  background: color-mix(in srgb, var(--border) 86%, var(--bg-subtle));
   outline: none;
   width: 100%;
 }
 
 .block-counter-range::-webkit-slider-runnable-track {
-  height: 4px;
+  height: 3px;
   border-radius: 999px;
   background: transparent;
 }
@@ -2247,7 +2249,7 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range::-moz-range-track {
-  height: 4px;
+  height: 3px;
   border-radius: 999px;
   background: transparent;
 }
@@ -2259,82 +2261,6 @@ button.ghost-danger:hover {
   border: 0;
   background: transparent;
   box-shadow: none;
-}
-
-.block-counter-placeholder {
-  width: min(320px, 100%);
-  margin-left: auto;
-  min-height: 32px;
-}
-
-.block-counter-value-editor {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--bg-subtle);
-}
-
-.block-counter-inline-input {
-  width: 48px;
-  min-width: 48px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 0.76rem;
-  font-weight: 600;
-  line-height: 1.1;
-  text-align: right;
-}
-
-.block-counter-inline-input:focus {
-  outline: none;
-}
-
-.block-counter-inline-input::-webkit-outer-spin-button,
-.block-counter-inline-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.block-counter-inline-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.block-counter-target {
-  font-size: 0.76rem;
-  font-weight: 600;
-  line-height: 1.1;
-  color: var(--text-secondary);
-}
-
-.block-counter-stepper {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  gap: 3px;
-}
-
-.block-counter-stepper button {
-  width: 18px;
-  min-width: 18px;
-  height: 15px;
-  padding: 0;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-subtle));
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.block-counter-stepper button:hover {
-  border-color: var(--accent-muted);
-  color: var(--accent);
 }
 
 .block-content {
@@ -2382,6 +2308,40 @@ button.ghost-danger:hover {
 
 .planner-block-card {
   align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.planner-block-card::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 6px;
+  width: 2px;
+  border-radius: 999px;
+  background: transparent;
+  opacity: 0;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast);
+}
+
+.planner-block-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 86% 48%, color-mix(in srgb, var(--success) 28%, transparent) 0%, transparent 62%);
+  opacity: 0;
+}
+
+.planner-block-card.has-target-accent {
+  border-color: color-mix(in srgb, var(--planner-target-accent, var(--accent)) 24%, var(--border-light));
+}
+
+.planner-block-card.has-target-accent::before {
+  background: color-mix(in srgb, var(--planner-target-accent, var(--accent)) 64%, transparent);
+  opacity: 0.92;
 }
 
 .planner-block-header {
@@ -2404,23 +2364,245 @@ button.ghost-danger:hover {
 .planner-block-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
-.planner-block-meta {
+.planner-completion-track {
+  --completion-progress: 0;
+  width: 50px;
+  min-width: 50px;
+  height: 24px;
+  border-radius: 999px;
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  background: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
+  overflow: hidden;
+}
+
+.planner-completion-track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: calc(var(--completion-progress) * 100%);
+  background: color-mix(in srgb, var(--success-bg) 88%, var(--bg-card));
+  transition: width 180ms ease;
+}
+
+.planner-completion-track.is-interactive {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+}
+
+.planner-completion-track.is-dragging::before {
+  transition: none;
+}
+
+.planner-completion-track.is-done {
+  border-color: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.planner-completion-handle {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-card) 96%, white);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(calc(var(--completion-progress) * 26px));
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+  padding: 0;
+  z-index: 1;
+}
+
+.planner-completion-track.is-interactive .planner-completion-handle {
+  cursor: ew-resize;
+}
+
+.planner-completion-track.is-interactive:hover .planner-completion-handle {
+  color: var(--accent);
+}
+
+.planner-completion-track.is-done .planner-completion-handle {
+  background: color-mix(in srgb, var(--success) 90%, white);
+  color: #fff;
+}
+
+.planner-completion-track.is-dragging .planner-completion-handle {
+  transition: none;
+}
+
+.planner-completion-track.is-animating .planner-completion-handle {
+  animation: planner-check-pop 260ms ease;
+}
+
+.planner-completion-track.is-animating .planner-completion-handle svg path {
+  stroke-dasharray: 22;
+  stroke-dashoffset: 22;
+  animation: planner-check-draw 220ms ease forwards;
+}
+
+.planner-meta-row {
   min-height: 24px;
+  width: 100%;
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.planner-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.planner-target-chip {
+  max-width: min(68%, 320px);
+  border-color: color-mix(in srgb, var(--planner-target-accent, var(--accent-muted)) 36%, var(--border));
+}
+
+.planner-target-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--planner-target-accent, var(--accent)) 74%, var(--text-secondary));
+}
+
+.planner-target-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planner-meta-spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.planner-status-chip {
+  margin-left: auto;
+}
+
+.planner-status-chip.done {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--border));
+  background: color-mix(in srgb, var(--success-bg) 88%, var(--bg-card));
+}
+
+.planner-status-chip.pending {
+  color: var(--text-secondary);
+}
+
+.planner-status-chip.is-interactive {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.planner-status-chip.is-interactive:hover {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  background: color-mix(in srgb, var(--bg-hover) 70%, var(--bg-subtle));
+  color: var(--text-primary);
+}
+
+.planner-status-chip.is-interactive:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  outline-offset: 1px;
+}
+
+.planner-block-card.done {
+  opacity: 0.94;
+}
+
+.planner-block-card.done strong {
+  text-decoration: none;
+}
+
+.planner-block-card.done .planner-block-heading {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--text-muted) 60%, transparent);
+}
+
+.planner-block-card.is-completing {
+  animation: planner-card-pop 260ms ease;
+}
+
+.planner-block-card.is-completing::after {
+  animation: planner-card-glow 240ms ease;
 }
 
 .planner-block-progress {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
-.planner-block-progress .toggle-status {
-  justify-self: start;
-  min-width: 0;
+@keyframes planner-card-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes planner-card-glow {
+  0% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 0.92;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes planner-check-pop {
+  0% {
+    transform: translateX(calc(var(--completion-progress) * 26px)) scale(1);
+  }
+
+  45% {
+    transform: translateX(calc(var(--completion-progress) * 26px)) scale(1.12);
+  }
+
+  100% {
+    transform: translateX(calc(var(--completion-progress) * 26px)) scale(1);
+  }
+}
+
+@keyframes planner-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .today-block-editor-sheet {
@@ -4891,10 +5073,19 @@ button.ghost-danger:hover {
     align-items: flex-start;
   }
 
-  .planner-block-meta {
+  .planner-meta-row {
     width: 100%;
-    align-items: stretch;
     gap: 6px;
+  }
+
+  .planner-meta-chip {
+    font-size: 0.74rem;
+    min-height: 21px;
+    padding: 2px 7px;
+  }
+
+  .planner-target-chip {
+    max-width: min(64%, 260px);
   }
 
   .block-progress-row {
@@ -4919,8 +5110,7 @@ button.ghost-danger:hover {
     font-size: 0.72rem;
   }
 
-  .block-counter-shell,
-  .block-counter-placeholder {
+  .block-counter-shell {
     width: 100%;
     margin-left: 0;
   }
@@ -4931,29 +5121,8 @@ button.ghost-danger:hover {
   }
 
   .block-counter-value {
-    min-width: 60px;
-    padding: 3px 6px;
-  }
-
-  .block-counter-value-editor {
-    padding: 2px 6px;
-    gap: 5px;
-  }
-
-  .block-counter-inline-input {
-    width: 40px;
-    min-width: 40px;
+    min-width: 56px;
     font-size: 0.74rem;
-  }
-
-  .block-counter-target {
-    font-size: 0.74rem;
-  }
-
-  .block-counter-stepper button {
-    width: 16px;
-    min-width: 16px;
-    height: 14px;
   }
 
   .planner-block-heading {

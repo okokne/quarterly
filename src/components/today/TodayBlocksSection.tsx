@@ -1,5 +1,6 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, PencilLine, Trash2, X } from "lucide-react";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import { Check, PencilLine, Trash2, X } from "lucide-react";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -63,6 +64,16 @@ type BlockWithIndex = {
 const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 22;
 const TIMELINE_DEFAULT_DURATION_MINUTES = 60;
+const COMPLETION_DRAG_THRESHOLD = 0.6;
+const COMPLETION_FX_DURATION_MS = 280;
+const TARGET_ACCENT_PALETTE = [
+    "#4a7cf7",
+    "#2f9f7f",
+    "#d5a322",
+    "#8b6bd9",
+    "#e07a3f",
+    "#7a8a9a"
+];
 const TIMELINE_PIXELS_PER_HOUR_BY_ZOOM: Record<TimelineZoomLevel, number> = {
     compact: 28,
     normal: 56,
@@ -149,8 +160,20 @@ export function TodayBlocksSection({
     const [editingBlockId, setEditingBlockId] = useState<Id | null>(null);
     const [editingDraft, setEditingDraft] = useState<BlockEditDraft | null>(null);
     const [timelineZoomLevel, setTimelineZoomLevel] = useState<TimelineZoomLevel>("normal");
+    const [completionDragState, setCompletionDragState] = useState<{ blockId: Id; progress: number } | null>(null);
+    const [completionFxById, setCompletionFxById] = useState<Record<string, true>>({});
     const timelineScrollRef = useRef<HTMLDivElement | null>(null);
     const timelineAutoScrollKeyRef = useRef("");
+    const completionDragSessionRef = useRef<{
+        blockId: Id;
+        pointerId: number;
+        startX: number;
+        travelPx: number;
+        progress: number;
+        didDrag: boolean;
+        completed: boolean;
+    } | null>(null);
+    const completionFxTimeoutRef = useRef<Map<string, number>>(new Map());
 
     const timelineStartAndEnd = useMemo(() => {
         let minStartMinutes = TIMELINE_START_HOUR * 60;
@@ -193,10 +216,13 @@ export function TodayBlocksSection({
         [timelineStartAndEnd.endHour, timelineStartAndEnd.startHour]
     );
 
-    const targetTitleById = useMemo(() => {
-        const byId = new Map<string, string>();
-        selectedWeekTargets.forEach((target) => {
-            byId.set(String(target.id), target.title);
+    const targetMetaById = useMemo(() => {
+        const byId = new Map<string, { title: string; accent: string }>();
+        selectedWeekTargets.forEach((target, index) => {
+            byId.set(String(target.id), {
+                title: target.title,
+                accent: TARGET_ACCENT_PALETTE[index % TARGET_ACCENT_PALETTE.length]
+            });
         });
         return byId;
     }, [selectedWeekTargets]);
@@ -275,6 +301,35 @@ export function TodayBlocksSection({
         }
     }, [dayPlanViewMode, selectedDate]);
 
+    const triggerCompletionFx = useCallback((blockId: Id) => {
+        const key = String(blockId);
+        setCompletionFxById((prev) => ({ ...prev, [key]: true }));
+
+        const existingTimeout = completionFxTimeoutRef.current.get(key);
+        if (existingTimeout) {
+            window.clearTimeout(existingTimeout);
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setCompletionFxById((prev) => {
+                if (!prev[key]) return prev;
+                const next = { ...prev };
+                delete next[key];
+                return next;
+            });
+            completionFxTimeoutRef.current.delete(key);
+        }, COMPLETION_FX_DURATION_MS);
+
+        completionFxTimeoutRef.current.set(key, timeoutId);
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            completionFxTimeoutRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+            completionFxTimeoutRef.current.clear();
+        };
+    }, []);
+
     const handleToggleCompletion = useCallback((block: DailyBlock, checked: boolean) => {
         const { plannedAmount, usesCounter } = getBlockCompletionState({
             amount: block.amount,
@@ -295,6 +350,119 @@ export function TodayBlocksSection({
             actual: nextActual
         });
     }, [onUpdateBlock, selectedDate]);
+
+    const startCompletionInteraction = useCallback(
+        (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
+            if (isArchiveView || options.usesCounter || options.isDone) return;
+            if (event.button !== 0) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const track = event.currentTarget.parentElement;
+            if (!track) return;
+
+            const travelPx = Math.max(18, track.getBoundingClientRect().width - event.currentTarget.getBoundingClientRect().width - 4);
+            completionDragSessionRef.current = {
+                blockId: block.id,
+                pointerId: event.pointerId,
+                startX: event.clientX,
+                travelPx,
+                progress: 0,
+                didDrag: false,
+                completed: false
+            };
+            setCompletionDragState({ blockId: block.id, progress: 0 });
+
+            try {
+                event.currentTarget.setPointerCapture(event.pointerId);
+            } catch {
+                // Pointer capture is optional and can fail on some browsers.
+            }
+        },
+        [isArchiveView]
+    );
+
+    const moveCompletionInteraction = useCallback(
+        (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
+            if (isArchiveView || options.usesCounter || options.isDone) return;
+            const session = completionDragSessionRef.current;
+            if (!session) return;
+            if (session.blockId !== block.id || session.pointerId !== event.pointerId) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const deltaX = Math.max(0, event.clientX - session.startX);
+            const nextProgress = Math.max(0, Math.min(1, deltaX / session.travelPx));
+            if (nextProgress > 0.03) {
+                session.didDrag = true;
+            }
+            session.progress = nextProgress;
+            setCompletionDragState({ blockId: block.id, progress: nextProgress });
+
+            if (!session.completed && nextProgress >= COMPLETION_DRAG_THRESHOLD) {
+                session.completed = true;
+                session.progress = 1;
+                setCompletionDragState({ blockId: block.id, progress: 1 });
+                handleToggleCompletion(block, true);
+                triggerCompletionFx(block.id);
+            }
+        },
+        [handleToggleCompletion, isArchiveView, triggerCompletionFx]
+    );
+
+    const endCompletionInteraction = useCallback(
+        (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
+            if (isArchiveView || options.usesCounter || options.isDone) return;
+            const session = completionDragSessionRef.current;
+            if (!session) return;
+            if (session.blockId !== block.id || session.pointerId !== event.pointerId) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const shouldCompleteOnRelease = !session.completed
+                && (!session.didDrag || session.progress >= COMPLETION_DRAG_THRESHOLD);
+
+            if (shouldCompleteOnRelease) {
+                handleToggleCompletion(block, true);
+                triggerCompletionFx(block.id);
+            }
+
+            completionDragSessionRef.current = null;
+            setCompletionDragState(null);
+
+            try {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+            } catch {
+                // Ignore release errors when capture is not active.
+            }
+        },
+        [handleToggleCompletion, isArchiveView, triggerCompletionFx]
+    );
+
+    const cancelCompletionInteraction = useCallback(
+        (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
+            if (isArchiveView || options.usesCounter || options.isDone) return;
+            const session = completionDragSessionRef.current;
+            if (!session) return;
+            if (session.blockId !== block.id || session.pointerId !== event.pointerId) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            completionDragSessionRef.current = null;
+            setCompletionDragState(null);
+
+            try {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+            } catch {
+                // Ignore release errors when capture is not active.
+            }
+        },
+        [isArchiveView]
+    );
 
     const handleAddBlockSubmit = useCallback(async () => {
         const didAdd = await onAddBlock(selectedDate);
@@ -421,17 +589,24 @@ export function TodayBlocksSection({
         const isTouchDragActive = allowReorder && touchDraggingBlockId === block.id;
         const isTouchDragOver = allowReorder && touchDragOverBlockId === block.id && !isTouchDragActive;
         const hasFixedTime = !isFlexibleBlock(block) && Boolean(block.startTime) && Boolean(block.endTime);
-        const linkedTargetTitle = block.linkedTargetId
-            ? targetTitleById.get(String(block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
+        const linkedTargetMeta = block.linkedTargetId
+            ? targetMetaById.get(String(block.linkedTargetId))
             : null;
+        const linkedTargetTitle = linkedTargetMeta?.title ?? null;
+        const targetAccent = linkedTargetMeta?.accent ?? null;
         const statusLabel = isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus");
+        const isCompleting = Boolean(completionFxById[String(block.id)]);
+        const completionDragProgress = completionDragState?.blockId === block.id ? completionDragState.progress : 0;
+        const completionProgress = isDone ? 1 : completionDragProgress;
+        const canUndoFromBadge = isDone;
 
         return (
             <div
                 key={block.id}
-                className={`list-item planner-block-card ${isDone ? "done" : ""} ${draggingBlockId === block.id ? "dragging" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
+                className={`list-item planner-block-card ${targetAccent ? "has-target-accent" : ""} ${isDone ? "done" : ""} ${isCompleting ? "is-completing" : ""} ${draggingBlockId === block.id ? "dragging" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
                 data-block-id={String(block.id)}
                 data-block-index={allowReorder ? originalIndex : undefined}
+                style={targetAccent ? ({ "--planner-target-accent": targetAccent } as CSSProperties) : undefined}
                 onDragOver={(e) => {
                     if (isArchiveView || !allowReorder) return;
                     e.preventDefault();
@@ -481,6 +656,29 @@ export function TodayBlocksSection({
                             {block.title}
                         </strong>
                         <div className="planner-block-actions">
+                            <div
+                                className={`planner-completion-track ${!usesCounter && !isDone && !isArchiveView ? "is-interactive" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
+                                style={{ "--completion-progress": `${completionProgress}` } as CSSProperties}
+                            >
+                                <button
+                                    type="button"
+                                    className="planner-completion-handle"
+                                    title={tr(language, "today.markLabel")}
+                                    aria-label={tr(language, "today.markLabel")}
+                                    onPointerDown={(event) => startCompletionInteraction(event, block, { usesCounter, isDone })}
+                                    onPointerMove={(event) => moveCompletionInteraction(event, block, { usesCounter, isDone })}
+                                    onPointerUp={(event) => endCompletionInteraction(event, block, { usesCounter, isDone })}
+                                    onPointerCancel={(event) => {
+                                        cancelCompletionInteraction(event, block, { usesCounter, isDone });
+                                    }}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }}
+                                >
+                                    <Icon icon={Check} size={12} />
+                                </button>
+                            </div>
                             <button
                                 data-no-drag="true"
                                 className="block-edit-btn"
@@ -506,18 +704,54 @@ export function TodayBlocksSection({
                         </div>
                     </div>
 
-                    <div className="planner-block-meta">
+                    <div className="planner-meta-row">
                         {linkedTargetTitle ? (
-                            <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
-                                {tr(language, "today.linked", { target: linkedTargetTitle })}
+                            <span className="planner-meta-chip planner-target-chip" title={linkedTargetTitle}>
+                                <span className="planner-target-dot" aria-hidden="true" />
+                                <span className="planner-target-label">{linkedTargetTitle}</span>
                             </span>
                         ) : (
-                            <span className="muted block-link">{tr(language, "today.noLinkedTarget")}</span>
+                            <span className="planner-meta-spacer" aria-hidden="true" />
+                        )}
+
+                        {(!usesCounter || canUndoFromBadge) ? (
+                            <button
+                                type="button"
+                                className={`planner-meta-chip planner-status-chip is-interactive ${isDone ? "done" : "pending"}`}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isDone) {
+                                        if (usesCounter) {
+                                            const nextActual = Math.max(0, plannedAmount - 1);
+                                            onUpdateBlock(selectedDate, block.id, {
+                                                done: false,
+                                                actual: nextActual
+                                            });
+                                            return;
+                                        }
+                                        handleToggleCompletion(block, false);
+                                        return;
+                                    }
+
+                                    handleToggleCompletion(block, true);
+                                    triggerCompletionFx(block.id);
+                                }}
+                                title={tr(language, "today.markLabel")}
+                                aria-label={tr(language, "today.markLabel")}
+                            >
+                                {statusLabel}
+                            </button>
+                        ) : (
+                            <span className={`planner-meta-chip planner-status-chip ${isDone ? "done" : "pending"}`}>
+                                {statusLabel}
+                            </span>
                         )}
                     </div>
 
                     <div className="planner-block-progress">
-                        <span className={`toggle-status ${isDone ? "done" : "pending"}`}>{statusLabel}</span>
                         {usesCounter && (
                             <div
                                 className="block-progress-row"
@@ -543,78 +777,17 @@ export function TodayBlocksSection({
                                         onKeyDown={(e) => e.stopPropagation()}
                                         onChange={(e) => {
                                             const nextActual = Math.min(Math.max(Number(e.target.value), 0), plannedAmount);
+                                            const nextDone = nextActual >= plannedAmount;
+                                            if (!isDone && nextDone) {
+                                                triggerCompletionFx(block.id);
+                                            }
                                             onUpdateBlock(selectedDate, block.id, {
                                                 actual: nextActual,
-                                                done: nextActual >= plannedAmount
+                                                done: nextDone
                                             });
                                         }}
                                     />
-                                    <div className="block-counter-value-editor">
-                                        <input
-                                            className="block-counter-inline-input"
-                                            type="number"
-                                            min={0}
-                                            max={plannedAmount}
-                                            step={1}
-                                            inputMode="numeric"
-                                            value={actualValue}
-                                            draggable={false}
-                                            onMouseDown={(e) => e.stopPropagation()}
-                                            onTouchStart={(e) => e.stopPropagation()}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onKeyDown={(e) => e.stopPropagation()}
-                                            onFocus={(e) => e.currentTarget.select()}
-                                            onChange={(e) => {
-                                                const raw = e.target.value.trim();
-                                                if (raw === "") {
-                                                    onUpdateBlock(selectedDate, block.id, { actual: 0, done: false });
-                                                    return;
-                                                }
-
-                                                const parsed = Number.parseInt(raw, 10);
-                                                if (Number.isNaN(parsed)) return;
-                                                const nextActual = Math.min(Math.max(0, parsed), plannedAmount);
-
-                                                onUpdateBlock(selectedDate, block.id, {
-                                                    actual: nextActual,
-                                                    done: nextActual >= plannedAmount
-                                                });
-                                            }}
-                                        />
-                                        <span className="block-counter-target">/{plannedAmount}</span>
-                                        <div className="block-counter-stepper">
-                                            <button
-                                                type="button"
-                                                title={tr(language, "today.increaseActual")}
-                                                aria-label={tr(language, "today.increaseActual")}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const nextActual = Math.min(plannedAmount, actualValue + 1);
-                                                    onUpdateBlock(selectedDate, block.id, {
-                                                        actual: nextActual,
-                                                        done: nextActual >= plannedAmount
-                                                    });
-                                                }}
-                                            >
-                                                <Icon icon={ChevronUp} size={12} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                title={tr(language, "today.decreaseActual")}
-                                                aria-label={tr(language, "today.decreaseActual")}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    const nextActual = Math.max(0, actualValue - 1);
-                                                    onUpdateBlock(selectedDate, block.id, {
-                                                        actual: nextActual,
-                                                        done: nextActual >= plannedAmount
-                                                    });
-                                                }}
-                                            >
-                                                <Icon icon={ChevronDown} size={12} />
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <span className="block-counter-value">{actualValue} / {plannedAmount}</span>
                                 </div>
                             </div>
                         )}
@@ -634,8 +807,16 @@ export function TodayBlocksSection({
         selectedDate,
         setDraggingBlockId,
         startTouchReorder,
-        targetTitleById,
+        targetMetaById,
         timeFormat,
+        triggerCompletionFx,
+        handleToggleCompletion,
+        completionDragState,
+        completionFxById,
+        cancelCompletionInteraction,
+        endCompletionInteraction,
+        moveCompletionInteraction,
+        startCompletionInteraction,
         touchDragOverBlockId,
         touchDraggingBlockId
     ]);
@@ -801,7 +982,7 @@ export function TodayBlocksSection({
                                                 done: block.done
                                             });
                                             const linkedTargetTitle = block.linkedTargetId
-                                                ? targetTitleById.get(String(block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
+                                                ? targetMetaById.get(String(block.linkedTargetId))?.title ?? tr(language, "week.weeklyTarget")
                                                 : null;
                                             const untimedTooltip = [
                                                 block.title,
@@ -879,7 +1060,7 @@ export function TodayBlocksSection({
                                                     done: entry.block.done
                                                 });
                                                 const linkedTargetTitle = entry.block.linkedTargetId
-                                                    ? targetTitleById.get(String(entry.block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
+                                                    ? targetMetaById.get(String(entry.block.linkedTargetId))?.title ?? tr(language, "week.weeklyTarget")
                                                     : null;
                                                 const startLabel = formatTime(entry.displayStart, timeFormat);
                                                 const endLabel = formatTime(entry.displayEnd, timeFormat);
