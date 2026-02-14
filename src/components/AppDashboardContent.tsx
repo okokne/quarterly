@@ -52,6 +52,7 @@ type AppDashboardContentProps = {
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
     selectedDate: string;
     setSelectedDate: Dispatch<SetStateAction<string>>;
+    currentWeekIndex: number;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
     selectedWeekTargets: WeeklyTarget[];
@@ -111,6 +112,7 @@ export function AppDashboardContent({
     setBlockDraft,
     selectedDate,
     setSelectedDate,
+    currentWeekIndex,
     selectedWeek,
     setSelectedWeek,
     selectedWeekTargets,
@@ -232,6 +234,7 @@ export function AppDashboardContent({
                     language={language}
                     dateFormat={dateFormat}
                     isArchiveView={isArchiveView}
+                    currentWeekIndex={currentWeekIndex}
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
                     updateCycle={updateCycle}

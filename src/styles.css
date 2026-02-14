@@ -2457,6 +2457,26 @@ button.ghost-danger:hover {
   gap: 18px;
 }
 
+.week-selected-week-note {
+  margin: -6px 0 0;
+  font-size: 0.84rem;
+}
+
+.week-selected-week-note p {
+  margin: 0;
+}
+
+.week-selected-week-note.planning {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: color-mix(in srgb, var(--bg-subtle) 72%, transparent);
+  color: var(--text-secondary);
+}
+
 .week-goals-context-card {
   gap: 12px;
 }

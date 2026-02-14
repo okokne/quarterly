@@ -468,6 +468,7 @@ export default function App() {
     setBlockDraft,
     selectedDate,
     setSelectedDate,
+    currentWeekIndex: todayWeekIndex,
     selectedWeek,
     setSelectedWeek,
     selectedWeekTargets,

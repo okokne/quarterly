@@ -20,6 +20,7 @@ type WeekTabProps = {
     language: AppLanguage;
     dateFormat: DateFormat;
     isArchiveView: boolean;
+    currentWeekIndex: number;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
@@ -44,6 +45,7 @@ export function WeekTab({
     language,
     dateFormat,
     isArchiveView,
+    currentWeekIndex,
     selectedWeek,
     setSelectedWeek,
     updateCycle,
@@ -76,6 +78,7 @@ export function WeekTab({
     });
     const weekCompletionPercent = getWeekProgressPercent(cycle, selectedWeek);
     const [showTargetComposer, setShowTargetComposer] = useState(false);
+    const isCurrentWeekSelected = selectedWeek === currentWeekIndex;
 
     return (
         <section className="card week-tab-card">
@@ -97,6 +100,14 @@ export function WeekTab({
                     </select>
                 </label>
             </div>
+            {isCurrentWeekSelected ? (
+                <p className="week-selected-week-note muted">{tr(language, "week.currentWeekSelected")}</p>
+            ) : (
+                <div className="week-selected-week-note planning">
+                    <p>{tr(language, "week.planningWeekNotice", { week: selectedWeek })}</p>
+                    <p className="muted">{tr(language, "week.currentWeekNotice", { week: currentWeekIndex })}</p>
+                </div>
+            )}
 
             <WeekGoalsSection
                 language={language}
