@@ -2271,22 +2271,23 @@ button.ghost-danger:hover {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 6px;
+  gap: 8px;
+  padding: 3px 8px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg-subtle);
 }
 
 .block-counter-inline-input {
-  width: 52px;
-  min-width: 52px;
-  padding: 2px 4px;
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--text-primary);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
+  line-height: 1.1;
   text-align: right;
 }
 
@@ -2305,21 +2306,22 @@ button.ghost-danger:hover {
 }
 
 .block-counter-target {
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 600;
+  line-height: 1.1;
   color: var(--text-secondary);
 }
 
 .block-counter-stepper {
   display: grid;
   grid-template-rows: 1fr 1fr;
-  gap: 2px;
+  gap: 3px;
 }
 
 .block-counter-stepper button {
   width: 18px;
   min-width: 18px;
-  height: 14px;
+  height: 15px;
   padding: 0;
   border-radius: 4px;
   border: 1px solid var(--border);
@@ -4934,24 +4936,24 @@ button.ghost-danger:hover {
   }
 
   .block-counter-value-editor {
-    padding: 2px 5px;
-    gap: 4px;
+    padding: 2px 6px;
+    gap: 5px;
   }
 
   .block-counter-inline-input {
-    width: 42px;
-    min-width: 42px;
+    width: 40px;
+    min-width: 40px;
     font-size: 0.74rem;
   }
 
   .block-counter-target {
-    font-size: 0.7rem;
+    font-size: 0.74rem;
   }
 
   .block-counter-stepper button {
     width: 16px;
     min-width: 16px;
-    height: 13px;
+    height: 14px;
   }
 
   .planner-block-heading {
