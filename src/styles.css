@@ -2793,9 +2793,8 @@ button.ghost-danger:hover {
 }
 
 .journal-label-chip-swatch.selected {
-  --journal-label-color-selected: color-mix(in srgb, var(--journal-label-color, var(--accent)) 78%, black);
-  background: var(--journal-label-color-selected);
-  border-color: var(--journal-label-color-selected);
+  background: var(--journal-label-color-selected, var(--journal-label-color, var(--accent)));
+  border-color: var(--journal-label-color-selected, var(--journal-label-color, var(--accent)));
 }
 
 .journal-feed-root {

@@ -4,6 +4,19 @@ import { AppLanguage, Cycle, ReviewSignal } from "../../types";
 import { getWeekLabel } from "../../utils";
 import { ComposerType, FilterOption } from "./types";
 
+function darkenHexColor(hex: string, factor = 0.28): string {
+    const value = hex.trim();
+    const match = /^#([0-9a-fA-F]{6})$/.exec(value);
+    if (!match) return hex;
+    const int = Number.parseInt(match[1], 16);
+    const r = (int >> 16) & 255;
+    const g = (int >> 8) & 255;
+    const b = int & 255;
+    const clamp = (channel: number) => Math.max(0, Math.min(255, Math.round(channel * (1 - factor))));
+    const next = (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
+    return `#${next.toString(16).padStart(6, "0")}`;
+}
+
 type JournalComposerProps = {
     cycle: Cycle;
     language: AppLanguage;
@@ -129,7 +142,10 @@ export function JournalComposer({
                                 >
                                     <span
                                         className={`journal-label-chip-swatch ${customContextId === context.id ? "selected" : ""}`}
-                                        style={{ "--journal-label-color": context.color } as CSSProperties}
+                                        style={{
+                                            "--journal-label-color": context.color,
+                                            "--journal-label-color-selected": darkenHexColor(context.color)
+                                        } as CSSProperties}
                                         aria-hidden="true"
                                     />
                                     {context.label}
