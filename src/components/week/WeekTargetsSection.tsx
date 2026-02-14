@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Pencil } from "lucide-react";
 import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
@@ -12,6 +12,8 @@ type WeekTargetsSectionProps = {
     cycle: Cycle;
     isArchiveView: boolean;
     selectedWeek: number;
+    showComposer: boolean;
+    setShowComposer: Dispatch<SetStateAction<boolean>>;
     targetDraft: TargetDraft;
     setTargetDraft: Dispatch<SetStateAction<TargetDraft>>;
     onAddWeeklyTarget: () => boolean;
@@ -37,6 +39,8 @@ export function WeekTargetsSection({
     cycle,
     isArchiveView,
     selectedWeek,
+    showComposer,
+    setShowComposer,
     targetDraft,
     setTargetDraft,
     onAddWeeklyTarget,
@@ -56,8 +60,6 @@ export function WeekTargetsSection({
     saveTargetEdit,
     setEditingTargetId
 }: WeekTargetsSectionProps) {
-    const [showComposer, setShowComposer] = useState(false);
-    const [expandedTargetDetails, setExpandedTargetDetails] = useState<Record<Id, boolean>>({});
     const {
         touchDraggingTargetId,
         touchDragOverTargetId,
@@ -71,13 +73,6 @@ export function WeekTargetsSection({
         onReorderTargets
     });
 
-    const toggleTargetDetails = (targetId: Id) => {
-        setExpandedTargetDetails((prev) => ({
-            ...prev,
-            [targetId]: !prev[targetId]
-        }));
-    };
-
     const handleAddTarget = () => {
         const didAdd = onAddWeeklyTarget();
         if (!didAdd) return;
@@ -87,11 +82,6 @@ export function WeekTargetsSection({
     return (
         <>
             <div className="button-row week-target-composer-toggle-row">
-                {!showComposer && !isArchiveView && (
-                    <button className="primary" type="button" onClick={() => setShowComposer(true)}>
-                        {tr(language, "week.openTargetComposer")}
-                    </button>
-                )}
                 {selectedWeek > 1 && (cycle.weeklyTargets[selectedWeek - 1] ?? []).length > 0 && (
                     <button type="button" onClick={onCopyFromPreviousWeek}>
                         {tr(language, "week.copyFromWeek", { week: selectedWeek - 1 })}
@@ -154,8 +144,6 @@ export function WeekTargetsSection({
                     const autoDone = totalWeeklyDone(selectedWeek, target.id);
                     const manualAdjust = target.manualAdjust ?? 0;
                     const effectiveDone = Math.min(target.target, Math.max(0, autoDone + manualAdjust));
-                    const remaining = Math.max(0, target.target - effectiveDone);
-                    const detailsOpen = !!expandedTargetDetails[target.id];
 
                     return (
                         <div
@@ -287,24 +275,6 @@ export function WeekTargetsSection({
                                     unit: target.unit ?? ""
                                 })}
                             </div>
-                            <button
-                                type="button"
-                                className="week-target-meta-toggle"
-                                onClick={() => toggleTargetDetails(target.id)}
-                            >
-                                {detailsOpen ? tr(language, "week.hideDetails") : tr(language, "week.showDetails")}
-                            </button>
-                            {detailsOpen && (
-                                <div className="muted week-target-meta-line">
-                                    {tr(language, "week.targetSotSummary", {
-                                        auto: autoDone,
-                                        adjust: manualAdjust >= 0 ? `+${manualAdjust}` : `${manualAdjust}`,
-                                        total: effectiveDone,
-                                        unit: target.unit ?? "",
-                                        remaining
-                                    })}
-                                </div>
-                            )}
                         </div>
                     );
                 })}

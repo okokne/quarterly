@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { t as tr } from "../i18n";
 import {
     AppLanguage,
@@ -75,6 +75,7 @@ export function WeekTab({
         onUpdateWeeklyTarget
     });
     const weekCompletionPercent = getWeekProgressPercent(cycle, selectedWeek);
+    const [showTargetComposer, setShowTargetComposer] = useState(false);
 
     return (
         <section className="card week-tab-card">
@@ -105,7 +106,20 @@ export function WeekTab({
 
             <div className="subcard week-targets-main-card">
                 <div className="week-targets-main-header">
-                    <h3>{tr(language, "week.targets")}</h3>
+                    <div className="week-targets-main-title">
+                        <h3>{tr(language, "week.targets")}</h3>
+                        {!isArchiveView && (
+                            <button
+                                type="button"
+                                className="week-target-plus-btn"
+                                title={tr(language, "week.addWeeklyTarget")}
+                                aria-label={tr(language, "week.addWeeklyTarget")}
+                                onClick={() => setShowTargetComposer(true)}
+                            >
+                                +
+                            </button>
+                        )}
+                    </div>
                     <span className="muted">{tr(language, "week.weekSummary", { week: selectedWeek, percent: weekCompletionPercent })}</span>
                 </div>
                 <fieldset className="readonly-fieldset" disabled={isArchiveView}>
@@ -114,6 +128,8 @@ export function WeekTab({
                         cycle={cycle}
                         isArchiveView={isArchiveView}
                         selectedWeek={selectedWeek}
+                        showComposer={showTargetComposer}
+                        setShowComposer={setShowTargetComposer}
                         targetDraft={targetDraft}
                         setTargetDraft={setTargetDraft}
                         onAddWeeklyTarget={onAddWeeklyTarget}

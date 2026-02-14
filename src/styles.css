@@ -2489,8 +2489,35 @@ button.ghost-danger:hover {
   flex-wrap: wrap;
 }
 
+.week-targets-main-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .week-targets-main-header h3 {
   margin: 0;
+}
+
+.week-target-plus-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.4rem;
+  line-height: 1;
+  font-weight: 700;
+  padding: 0 2px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color var(--transition-fast), background var(--transition-fast), text-decoration-color var(--transition-fast);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+}
+
+.week-target-plus-btn:hover {
+  color: color-mix(in srgb, var(--accent) 70%, #fff);
+  text-decoration-color: currentColor;
 }
 
 .week-target-composer-toggle-row {
@@ -2509,25 +2536,6 @@ button.ghost-danger:hover {
 .week-target-progress-simple {
   font-size: 0.85rem;
   font-weight: 600;
-}
-
-.week-target-meta-toggle {
-  align-self: flex-start;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  padding: 0;
-}
-
-.week-target-meta-toggle:hover {
-  color: var(--text-primary);
-}
-
-.week-target-meta-line {
-  font-size: 0.78rem;
 }
 
 .week-review-main-card {
@@ -3979,10 +3987,6 @@ button.ghost-danger:hover {
 
   .week-target-actions .ghost-danger {
     margin-left: auto;
-  }
-
-  .week-target-meta-toggle {
-    font-size: 0.78rem;
   }
 
   .journal-header {
