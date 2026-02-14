@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { readStateWriteTs } from "../persistence/localSnapshots";
 import { safeSerialize } from "../persistence/stateSerializer";
 import { clearOfflineDirty, markOfflineDirty } from "../sync/offlineOutbox";
-import { PlannerStateRecord, syncPlannerState } from "../sync/plannerSync";
+import { PlannerStateRecord, pushPlannerStateToCloud, syncPlannerState } from "../sync/plannerSync";
 import { PersistedPlannerState, StorageScope, SyncStatus } from "../types";
 import { SupabaseAuthSession } from "../sync/supabaseClient";
 
@@ -98,6 +98,28 @@ export function usePlannerSyncRequestNow({
         }
 
         if (result.action === "conflict" && result.record) {
+            if (localHasUnsyncedChanges) {
+                const forcedLocalPush = await pushPlannerStateToCloud({
+                    session,
+                    state,
+                    previousVersion: result.record.version
+                });
+                if (!forcedLocalPush.error) {
+                    if (forcedLocalPush.record?.version) {
+                        cloudVersionRef.current = forcedLocalPush.record.version;
+                    }
+                    if (serialized.ok) {
+                        lastSyncedSerializedRef.current = serialized.json;
+                    }
+                    setPendingConflict(false);
+                    setConflictCloudState(null);
+                    setHasPendingLocalChanges(false);
+                    clearOfflineDirty(storageScope);
+                    setSyncStatus("synced");
+                    return true;
+                }
+            }
+
             const resolved = await attemptAutoConflictResolution(session, result.record, storageScope);
             if (!resolved) {
                 setPendingConflict(true);
