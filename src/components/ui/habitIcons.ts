@@ -2,6 +2,7 @@ import {
     Activity,
     AlarmClock,
     Apple,
+    Ban,
     BedDouble,
     Bike,
     BookOpen,
@@ -9,7 +10,10 @@ import {
     Briefcase,
     Brush,
     CalendarCheck2,
+    CannabisOff,
+    CigaretteOff,
     ChefHat,
+    CircleStop,
     Clock3,
     Coffee,
     Droplets,
@@ -41,7 +45,8 @@ import {
     Timer,
     Sunrise,
     Utensils,
-    Wallet
+    Wallet,
+    WineOff
 } from "lucide-react";
 
 export type HabitIconOption = {
@@ -55,10 +60,14 @@ export const HABIT_ICON_OPTIONS: HabitIconOption[] = [
     { key: "activity", labelKey: "settings.habitIconActivity", icon: Activity },
     { key: "alarmClock", labelKey: "settings.habitIconAlarmClock", icon: AlarmClock },
     { key: "bedDouble", labelKey: "settings.habitIconBedDouble", icon: BedDouble },
+    { key: "ban", labelKey: "settings.habitIconBan", icon: Ban },
     { key: "bike", labelKey: "settings.habitIconBike", icon: Bike },
     { key: "brush", labelKey: "settings.habitIconBrush", icon: Brush },
     { key: "calendarCheck", labelKey: "settings.habitIconCalendarCheck", icon: CalendarCheck2 },
+    { key: "cannabisOff", labelKey: "settings.habitIconCannabisOff", icon: CannabisOff },
+    { key: "cigaretteOff", labelKey: "settings.habitIconCigaretteOff", icon: CigaretteOff },
     { key: "chefHat", labelKey: "settings.habitIconChefHat", icon: ChefHat },
+    { key: "circleStop", labelKey: "settings.habitIconCircleStop", icon: CircleStop },
     { key: "clock3", labelKey: "settings.habitIconClock3", icon: Clock3 },
     { key: "coffee", labelKey: "settings.habitIconCoffee", icon: Coffee },
     { key: "droplets", labelKey: "settings.habitIconDroplets", icon: Droplets },
@@ -92,7 +101,8 @@ export const HABIT_ICON_OPTIONS: HabitIconOption[] = [
     { key: "smile", labelKey: "settings.habitIconSmile", icon: Smile },
     { key: "target", labelKey: "settings.habitIconTarget", icon: Target },
     { key: "timer", labelKey: "settings.habitIconTimer", icon: Timer },
-    { key: "wallet", labelKey: "settings.habitIconWallet", icon: Wallet }
+    { key: "wallet", labelKey: "settings.habitIconWallet", icon: Wallet },
+    { key: "wineOff", labelKey: "settings.habitIconWineOff", icon: WineOff }
 ];
 
 const LEGACY_EMOJI_TO_ICON_KEY: Record<string, string> = {
@@ -104,15 +114,21 @@ const LEGACY_EMOJI_TO_ICON_KEY: Record<string, string> = {
     "⏰": "alarmClock",
     "🛏️": "bedDouble",
     "🛌": "bedDouble",
+    "🚫": "ban",
+    "⛔": "ban",
     "🚴": "bike",
     "🚴‍♂️": "bike",
     "🚴‍♀️": "bike",
     "🎨": "brush",
     "🗓️": "calendarCheck",
     "📅": "calendarCheck",
+    "🍃": "cannabisOff",
+    "🌿🚫": "cannabisOff",
+    "🚭": "cigaretteOff",
     "👨‍🍳": "chefHat",
     "👩‍🍳": "chefHat",
     "🍳": "chefHat",
+    "🛑": "circleStop",
     "🕒": "clock3",
     "☕": "coffee",
     "💧": "droplets",
@@ -163,7 +179,8 @@ const LEGACY_EMOJI_TO_ICON_KEY: Record<string, string> = {
     "🎯": "target",
     "⏱️": "timer",
     "💰": "wallet",
-    "👛": "wallet"
+    "👛": "wallet",
+    "🍷🚫": "wineOff"
 };
 
 const ICON_BY_KEY = new Map<string, LucideIcon>(
