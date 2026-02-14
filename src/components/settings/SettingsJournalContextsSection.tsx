@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Pencil, Trash2, X } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle } from "../../types";
-import { pickNextJournalContextColor, uid } from "../../utils";
+import { JOURNAL_LABEL_COLOR_PALETTE, pickNextJournalContextColor, uid } from "../../utils";
 import { Icon } from "../ui/Icon";
 
 type SettingsJournalContextsSectionProps = {
@@ -27,8 +27,10 @@ export function SettingsJournalContextsSection({
 }: SettingsJournalContextsSectionProps) {
     const contexts = cycle.journalContexts ?? [];
     const [newContext, setNewContext] = useState("");
+    const [newContextColor, setNewContextColor] = useState(() => pickNextJournalContextColor(contexts));
     const [editingContextId, setEditingContextId] = useState<string | null>(null);
     const [editDraft, setEditDraft] = useState("");
+    const [editColorDraft, setEditColorDraft] = useState(JOURNAL_LABEL_COLOR_PALETTE[0]);
     const [highlightedContextId, setHighlightedContextId] = useState<string | null>(null);
     const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -41,6 +43,12 @@ export function SettingsJournalContextsSection({
         const timeout = window.setTimeout(() => setHighlightedContextId(null), 2200);
         return () => window.clearTimeout(timeout);
     }, [focusedContextId, contexts]);
+
+    useEffect(() => {
+        if (!newContextColor || !JOURNAL_LABEL_COLOR_PALETTE.includes(newContextColor)) {
+            setNewContextColor(pickNextJournalContextColor(contexts));
+        }
+    }, [contexts, newContextColor]);
 
     const normalizedLabels = useMemo(
         () => new Set(contexts.map((context) => context.label.trim().toLowerCase())),
@@ -58,12 +66,15 @@ export function SettingsJournalContextsSection({
             const generatedId = slugifyContextId(trimmed) || `ctx-${uid().slice(0, 8)}`;
             const idTaken = new Set(existingContexts.map((context) => context.id));
             const nextId = idTaken.has(generatedId) ? `${generatedId}-${uid().slice(0, 6)}` : generatedId;
+            const selectedColor = JOURNAL_LABEL_COLOR_PALETTE.includes(newContextColor)
+                ? newContextColor
+                : pickNextJournalContextColor(existingContexts);
             const nextContexts = [
                 ...existingContexts,
                 {
                     id: nextId,
                     label: trimmed,
-                    color: pickNextJournalContextColor(existingContexts)
+                    color: selectedColor
                 }
             ];
             return {
@@ -73,16 +84,31 @@ export function SettingsJournalContextsSection({
             };
         });
         setNewContext("");
+        const nextColorSeed = JOURNAL_LABEL_COLOR_PALETTE.includes(newContextColor)
+            ? newContextColor
+            : pickNextJournalContextColor(contexts);
+        setNewContextColor(
+            pickNextJournalContextColor([
+                ...contexts,
+                { id: "temp-next", label: trimmed, color: nextColorSeed }
+            ])
+        );
     };
 
-    const startRename = (contextId: string, currentLabel: string) => {
+    const startRename = (contextId: string, currentLabel: string, currentColor: string) => {
         setEditingContextId(contextId);
         setEditDraft(currentLabel);
+        setEditColorDraft(
+            JOURNAL_LABEL_COLOR_PALETTE.includes(currentColor)
+                ? currentColor
+                : JOURNAL_LABEL_COLOR_PALETTE[0]
+        );
     };
 
     const cancelRename = () => {
         setEditingContextId(null);
         setEditDraft("");
+        setEditColorDraft(JOURNAL_LABEL_COLOR_PALETTE[0]);
     };
 
     const saveRename = (contextId: string) => {
@@ -96,7 +122,15 @@ export function SettingsJournalContextsSection({
         updateCycle((prev) => ({
             ...prev,
             journalContexts: (prev.journalContexts ?? []).map((context) => (
-                context.id === contextId ? { ...context, label: nextLabel } : context
+                context.id === contextId
+                    ? {
+                        ...context,
+                        label: nextLabel,
+                        color: JOURNAL_LABEL_COLOR_PALETTE.includes(editColorDraft)
+                            ? editColorDraft
+                            : context.color
+                    }
+                    : context
             ))
         }));
         cancelRename();
@@ -141,16 +175,32 @@ export function SettingsJournalContextsSection({
                         >
                             <span className="settings-context-swatch" style={{ backgroundColor: context.color }} aria-hidden="true" />
                             {isEditing ? (
-                                <input
-                                    value={editDraft}
-                                    onChange={(event) => setEditDraft(event.target.value)}
-                                    onKeyDown={(event) => {
-                                        if (event.key === "Enter") saveRename(context.id);
-                                        if (event.key === "Escape") cancelRename();
-                                    }}
-                                    autoFocus
-                                    disabled={readOnly}
-                                />
+                                <div className="settings-context-edit-group">
+                                    <input
+                                        value={editDraft}
+                                        onChange={(event) => setEditDraft(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === "Enter") saveRename(context.id);
+                                            if (event.key === "Escape") cancelRename();
+                                        }}
+                                        autoFocus
+                                        disabled={readOnly}
+                                    />
+                                    <div className="settings-label-color-grid">
+                                        {JOURNAL_LABEL_COLOR_PALETTE.map((color) => (
+                                            <button
+                                                key={`${context.id}-${color}`}
+                                                type="button"
+                                                className={`settings-label-color-dot ${editColorDraft === color ? "selected" : ""}`}
+                                                style={{ backgroundColor: color }}
+                                                onClick={() => setEditColorDraft(color)}
+                                                aria-label={`${tr(language, "settings.journalLabelColor")} ${color}`}
+                                                title={color}
+                                                disabled={readOnly}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             ) : (
                                 <span className="settings-context-name">{context.label}</span>
                             )}
@@ -165,7 +215,7 @@ export function SettingsJournalContextsSection({
                                         </button>
                                     </>
                                 ) : (
-                                    <button type="button" className="icon-btn" onClick={() => startRename(context.id, context.label)} disabled={readOnly} aria-label={tr(language, "common.edit")} title={tr(language, "common.edit")}>
+                                    <button type="button" className="icon-btn" onClick={() => startRename(context.id, context.label, context.color)} disabled={readOnly} aria-label={tr(language, "common.edit")} title={tr(language, "common.edit")}>
                                         <Icon icon={Pencil} size={14} />
                                     </button>
                                 )}
@@ -202,6 +252,20 @@ export function SettingsJournalContextsSection({
                     placeholder={tr(language, "settings.journalContextPlaceholder")}
                     disabled={readOnly}
                 />
+                <div className="settings-label-color-grid">
+                    {JOURNAL_LABEL_COLOR_PALETTE.map((color) => (
+                        <button
+                            key={`new-${color}`}
+                            type="button"
+                            className={`settings-label-color-dot ${newContextColor === color ? "selected" : ""}`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => setNewContextColor(color)}
+                            aria-label={`${tr(language, "settings.journalLabelColor")} ${color}`}
+                            title={color}
+                            disabled={readOnly}
+                        />
+                    ))}
+                </div>
                 <button type="button" onClick={handleAddContext} disabled={readOnly || !newContext.trim()}>
                     {tr(language, "settings.journalContextAdd")}
                 </button>
@@ -209,4 +273,3 @@ export function SettingsJournalContextsSection({
         </div>
     );
 }
-

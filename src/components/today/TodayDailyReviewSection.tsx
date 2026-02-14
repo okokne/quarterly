@@ -40,7 +40,7 @@ export function TodayDailyReviewSection({
     }, [dailyReview.bad, dailyReview.good]);
 
     return (
-        <div className="subcard">
+        <div className="subcard" id="today-daily-review">
             <div className="section-header">
                 <h3>{tr(language, "review.daily", { date: formatDate(selectedDate, dateFormat, language) })}</h3>
                 <div className="button-row compact">

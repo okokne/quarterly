@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Filter } from "lucide-react";
 import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../types";
 import { t as tr } from "../i18n";
@@ -29,7 +29,6 @@ interface JournalViewProps {
     setSelectedDate: (date: string) => void;
     setActiveTab: (tab: Tab) => void;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
-    onOpenContextSettings: (contextId: string) => void;
 }
 
 export function JournalView({
@@ -40,8 +39,7 @@ export function JournalView({
     setSelectedWeek,
     setSelectedDate,
     setActiveTab,
-    updateCycle,
-    onOpenContextSettings
+    updateCycle
 }: JournalViewProps) {
     const {
         today,
@@ -129,10 +127,20 @@ export function JournalView({
         }));
     }, [cycle.journalContexts]);
 
+    const [editingNote, setEditingNote] = useState<ReviewEntry | null>(null);
+    const [noteTitle, setNoteTitle] = useState("");
+    const [noteContent, setNoteContent] = useState("");
+    const [noteContextId, setNoteContextId] = useState("");
+    const [noteDate, setNoteDate] = useState(today);
+
     const filteredEntries = useMemo(() => {
         const activeContextFilter = contextFilter.filter((id) => contextLabelById.has(id));
         return allEntries.filter((entry) => {
-            if (typeFilter !== "all" && entry.type !== typeFilter) return false;
+            if (typeFilter === "note") {
+                if (entry.type !== "custom" && entry.type !== "quick") return false;
+            } else if (typeFilter !== "all" && entry.type !== typeFilter) {
+                return false;
+            }
             if (!matchesSignalFilter(entry, signalFilter)) return false;
             if (activeContextFilter.length > 0) {
                 if (!entry.contextId || !activeContextFilter.includes(entry.contextId)) return false;
@@ -191,16 +199,38 @@ export function JournalView({
         });
     }, [groupedEntries, currentMonthKey, setOpenMonths]);
 
-    const handleNavigateEntry = (entry: ReviewEntry) => {
+    const highlightAndScroll = (selector: string) => {
+        window.setTimeout(() => {
+            const target = document.querySelector<HTMLElement>(selector);
+            if (!target) return;
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+            target.classList.add("journal-nav-focus");
+            window.setTimeout(() => target.classList.remove("journal-nav-focus"), 900);
+        }, 120);
+    };
+
+    const handleOpenEntry = (entry: ReviewEntry) => {
+        if (entry.type === "custom" || entry.type === "quick") {
+            setEditingNote(entry);
+            setNoteTitle(entry.title ?? "");
+            setNoteContent(entry.content ?? "");
+            setNoteContextId(entry.contextId ?? "");
+            setNoteDate(entry.date);
+            return;
+        }
+
         if (entry.type === "daily") {
             setSelectedDate(entry.date);
             setActiveTab("today");
+            highlightAndScroll("#today-daily-review");
             return;
         }
+
         if (entry.type === "weekly") {
             const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
             setSelectedWeek(weekIndex);
             setActiveTab("week");
+            highlightAndScroll("#week-review");
         }
     };
 
@@ -322,6 +352,55 @@ export function JournalView({
         setShowComposer(false);
     };
 
+    const noteSaveDisabled = !noteTitle.trim() && !noteContent.trim();
+
+    const handleSaveNote = () => {
+        if (readOnly || !editingNote || noteSaveDisabled) return;
+
+        const nextTitle = noteTitle.trim() || undefined;
+        const nextContent = noteContent.trim() || undefined;
+        const nextContextId = noteContextId.trim() || undefined;
+        const nextDate = noteDate.trim() || editingNote.date;
+        const now = new Date().toISOString();
+
+        updateCycle((prev) => {
+            const nextReviewEntries = getWritableReviewEntries(prev).map((entry) => {
+                if (entry.id !== editingNote.id) return entry;
+                return {
+                    ...entry,
+                    date: nextDate,
+                    weekIndex: entry.type === "quick" ? getWeekIndexForDate(prev, nextDate) : undefined,
+                    title: nextTitle,
+                    content: nextContent,
+                    contextId: nextContextId,
+                    updatedAt: now
+                };
+            });
+
+            const nextCycle: Cycle = {
+                ...prev,
+                reviewEntries: nextReviewEntries
+            };
+
+            if (editingNote.type === "custom") {
+                nextCycle.journalEntries = (prev.journalEntries ?? []).map((entry) => (
+                    entry.id === editingNote.id
+                        ? {
+                            ...entry,
+                            title: nextTitle ?? "",
+                            content: nextContent ?? "",
+                            date: nextDate
+                        }
+                        : entry
+                ));
+            }
+
+            return nextCycle;
+        });
+
+        setEditingNote(null);
+    };
+
     return (
         <section className="card journal-view">
             <div className="journal-header">
@@ -422,10 +501,55 @@ export function JournalView({
                 openMonths={openMonths}
                 setOpenMonths={setOpenMonths}
                 contextById={contextById}
-                handleNavigateEntry={handleNavigateEntry}
+                handleOpenEntry={handleOpenEntry}
                 handleDeleteEntry={handleDeleteEntry}
-                onOpenContextSettings={onOpenContextSettings}
             />
+
+            {editingNote && (
+                <div className="modal-backdrop quick-note-backdrop" onClick={() => setEditingNote(null)}>
+                    <div className="modal quick-note-modal" onClick={(event) => event.stopPropagation()}>
+                        <h3>{tr(language, "journal.editNoteTitle")}</h3>
+                        <label>
+                            {tr(language, "common.title")} ({tr(language, "common.optional")})
+                            <input
+                                value={noteTitle}
+                                onChange={(event) => setNoteTitle(event.target.value)}
+                                placeholder={tr(language, "quickNote.titlePlaceholder")}
+                            />
+                        </label>
+                        <label>
+                            {tr(language, "quickNote.text")}
+                            <textarea
+                                value={noteContent}
+                                onChange={(event) => setNoteContent(event.target.value)}
+                                placeholder={tr(language, "quickNote.textPlaceholder")}
+                                autoFocus
+                            />
+                        </label>
+                        <div className="grid grid-two">
+                            <label>
+                                {tr(language, "journal.filterContext")}
+                                <select value={noteContextId} onChange={(event) => setNoteContextId(event.target.value)}>
+                                    <option value="">{tr(language, "journal.contextNone")}</option>
+                                    {(cycle.journalContexts ?? []).map((context) => (
+                                        <option key={context.id} value={context.id}>{context.label}</option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label>
+                                {tr(language, "journal.entryDate")}
+                                <input type="date" value={noteDate} onChange={(event) => setNoteDate(event.target.value)} />
+                            </label>
+                        </div>
+                        <div className="modal-actions">
+                            <button className="primary" onClick={handleSaveNote} disabled={readOnly || noteSaveDisabled}>
+                                {tr(language, "common.save")}
+                            </button>
+                            <button onClick={() => setEditingNote(null)}>{tr(language, "common.cancel")}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

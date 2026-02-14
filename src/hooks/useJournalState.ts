@@ -84,10 +84,9 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
 
     const typeOptions: Array<FilterOption<FeedTypeFilter>> = [
         { id: "all", labelKey: "journal.filterTypeAll" },
+        { id: "note", labelKey: "journal.filterTypeNote" },
         { id: "daily", labelKey: "journal.filterTypeDaily" },
-        { id: "weekly", labelKey: "journal.filterTypeWeekly" },
-        { id: "custom", labelKey: "journal.filterTypeCustom" },
-        { id: "quick", labelKey: "journal.filterTypeQuick" }
+        { id: "weekly", labelKey: "journal.filterTypeWeekly" }
     ];
 
     const signalOptions: Array<FilterOption<ReviewSignal>> = [

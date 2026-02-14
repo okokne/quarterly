@@ -1,5 +1,5 @@
 import { CSSProperties, Dispatch, SetStateAction } from "react";
-import { ArrowRight, Pencil, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Pencil, X } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../../types";
 import { formatDate, getReviewEntrySignals, getWeekIndexForDate, getWeekLabel } from "../../utils";
@@ -19,9 +19,8 @@ type JournalFeedListProps = {
     openMonths: Record<string, boolean>;
     setOpenMonths: Dispatch<SetStateAction<Record<string, boolean>>>;
     contextById: Map<string, JournalContext>;
-    handleNavigateEntry: (entry: ReviewEntry) => void;
+    handleOpenEntry: (entry: ReviewEntry) => void;
     handleDeleteEntry: (entryId: string) => void;
-    onOpenContextSettings: (contextId: string) => void;
 };
 
 export function JournalFeedList({
@@ -36,9 +35,8 @@ export function JournalFeedList({
     openMonths,
     setOpenMonths,
     contextById,
-    handleNavigateEntry,
-    handleDeleteEntry,
-    onOpenContextSettings
+    handleOpenEntry,
+    handleDeleteEntry
 }: JournalFeedListProps) {
     return (
         <div className="subcard journal-feed-root">
@@ -64,19 +62,27 @@ export function JournalFeedList({
                             <div className="journal-card-list">
                                 {entries.map((entry) => {
                                     const signals = getReviewEntrySignals(entry);
-                                    const isClickable = entry.type === "daily" || entry.type === "weekly";
+                                    const isNoteEntry = entry.type === "custom" || entry.type === "quick";
+                                    const isReviewEntry = entry.type === "daily" || entry.type === "weekly";
+                                    const isClickable = isNoteEntry || isReviewEntry;
                                     const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
                                     const context = entry.contextId ? contextById.get(entry.contextId) : undefined;
-                                    const isQuickNote = entry.type === "quick";
+                                    const typeLabelKey = isNoteEntry
+                                        ? "journal.filterTypeQuick"
+                                        : `journal.filterType${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}`;
+                                    const typeClassName = isNoteEntry ? "note" : entry.type;
                                     return (
                                         <article
                                             key={entry.id}
                                             className={`journal-entry-card ${isClickable ? "clickable" : ""}`}
                                             onClick={() => {
                                                 if (!isClickable) return;
-                                                handleNavigateEntry(entry);
+                                                handleOpenEntry(entry);
                                             }}
                                         >
+                                            <span className={`journal-entry-mode-icon ${isNoteEntry ? "note" : "review"}`} aria-hidden="true">
+                                                <Icon icon={isNoteEntry ? Pencil : ChevronRight} size={12} />
+                                            </span>
                                             <button
                                                 className="journal-delete-x"
                                                 disabled={readOnly}
@@ -91,29 +97,14 @@ export function JournalFeedList({
                                             </button>
 
                                             <div className="journal-entry-meta-row">
-                                                <span className={`journal-entry-type ${entry.type}`}>{tr(language, `journal.filterType${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}`)}</span>
+                                                <span className={`journal-entry-type ${typeClassName}`}>{tr(language, typeLabelKey)}</span>
                                                 {context && (
-                                                    <>
-                                                        <span
-                                                            className="journal-entry-context"
-                                                            style={{ "--journal-context-bg": context.color } as CSSProperties}
-                                                        >
-                                                            {context.label}
-                                                        </span>
-                                                        <button
-                                                            type="button"
-                                                            className="journal-context-edit-btn"
-                                                            title={tr(language, "journal.editContext")}
-                                                            aria-label={tr(language, "journal.editContext")}
-                                                            disabled={readOnly}
-                                                            onClick={(event) => {
-                                                                event.stopPropagation();
-                                                                onOpenContextSettings(context.id);
-                                                            }}
-                                                        >
-                                                            <Icon icon={Pencil} size={12} />
-                                                        </button>
-                                                    </>
+                                                    <span
+                                                        className="journal-entry-context"
+                                                        style={{ "--journal-context-bg": context.color } as CSSProperties}
+                                                    >
+                                                        {context.label}
+                                                    </span>
                                                 )}
                                                 <span className="journal-entry-meta-dot">·</span>
                                                 <span className="journal-entry-date">
@@ -121,7 +112,7 @@ export function JournalFeedList({
                                                         ? `${getWeekLabel(cycle, weekIndex, language)} · ${formatDate(entry.date, dateFormat, language)}`
                                                         : formatDate(entry.date, dateFormat, language)}
                                                 </span>
-                                                {!isQuickNote && (
+                                                {!isNoteEntry && (
                                                     <div className="journal-entry-signal-row">
                                                         {signals.map((signal) => (
                                                             <span key={`${entry.id}-${signal}`} className={`journal-entry-signal ${signal}`}>

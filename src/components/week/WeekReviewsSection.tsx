@@ -18,7 +18,7 @@ export function WeekReviewsSection({
     updateCycle
 }: WeekReviewsSectionProps) {
     return (
-        <div className="week-review-content">
+        <div className="week-review-content" id="week-review">
             <h3>{tr(language, "week.reviewTitle", { weekLabel: getWeekLabel(cycle, selectedWeek, language) })}</h3>
             <p className="muted week-review-hint">{tr(language, "week.reviewHint")}</p>
             <div className="grid week-review-grid">

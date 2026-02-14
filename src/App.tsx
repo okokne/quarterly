@@ -513,11 +513,7 @@ export default function App() {
     onToggleHabit: toggleHabit,
     onDeleteHabit: deleteHabit,
     onOpenHabitsManager: () => setShowHabitsManager(true),
-    onOpenCycleDrawer: openQuarterDashboard,
-    onOpenContextSettings: (contextId) => {
-      setSettingsContextFocusId(contextId);
-      setShowSettings(true);
-    }
+    onOpenCycleDrawer: openQuarterDashboard
   });
   const entryStateProps = useAppEntryStateProps({
     language,

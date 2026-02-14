@@ -54,14 +54,6 @@ export function JournalFeedToolbar({
                     <Icon icon={X} size={14} />
                 </button>
             </div>
-            <label>
-                {tr(language, "journal.search")}
-                <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={tr(language, "journal.searchPlaceholder")}
-                />
-            </label>
 
             <div className="journal-filter-row">
                 <span className="journal-filter-label">{tr(language, "journal.filterType")}</span>
@@ -73,6 +65,27 @@ export function JournalFeedToolbar({
                             onClick={() => setTypeFilter(option.id)}
                         >
                             {tr(language, option.labelKey)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="journal-filter-row">
+                <span className="journal-filter-label">{tr(language, "journal.filterContext")}</span>
+                <div className="journal-filter-chip-row">
+                    <button
+                        className={`journal-filter-chip ${contextFilter.length === 0 ? "active" : ""}`}
+                        onClick={() => setContextFilter([])}
+                    >
+                        {tr(language, "journal.contextAll")}
+                    </button>
+                    {contextOptions.map((option) => (
+                        <button
+                            key={option.id}
+                            className={`journal-filter-chip ${contextFilter.includes(option.id) ? "active" : ""}`}
+                            onClick={() => toggleContextSelection(option.id)}
+                        >
+                            {option.labelKey}
                         </button>
                     ))}
                 </div>
@@ -114,26 +127,14 @@ export function JournalFeedToolbar({
                 </div>
             </div>
 
-            <div className="journal-filter-row">
-                <span className="journal-filter-label">{tr(language, "journal.filterContext")}</span>
-                <div className="journal-filter-chip-row">
-                    <button
-                        className={`journal-filter-chip ${contextFilter.length === 0 ? "active" : ""}`}
-                        onClick={() => setContextFilter([])}
-                    >
-                        {tr(language, "journal.contextAll")}
-                    </button>
-                    {contextOptions.map((option) => (
-                        <button
-                            key={option.id}
-                            className={`journal-filter-chip ${contextFilter.includes(option.id) ? "active" : ""}`}
-                            onClick={() => toggleContextSelection(option.id)}
-                        >
-                            {option.labelKey}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            <label>
+                {tr(language, "journal.search")}
+                <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={tr(language, "journal.searchPlaceholder")}
+                />
+            </label>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { ReviewEntryType, ReviewSignal } from "../../types";
 
-export type FeedTypeFilter = "all" | ReviewEntryType;
+export type FeedTypeFilter = "all" | "note" | ReviewEntryType;
 export type FeedRangeFilter = "all" | "current_week" | "current_month" | "quarter";
 export type ComposerType = "daily" | "weekly" | "custom";
 

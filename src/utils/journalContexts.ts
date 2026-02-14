@@ -1,23 +1,25 @@
 import { Cycle, JournalContext } from "../types";
 
-const CONTEXT_COLOR_PALETTE = [
-    "#E8EEF6",
-    "#E9F2EC",
-    "#F2ECE5",
-    "#ECE9F6",
-    "#F5E9EE",
-    "#E8F3F4",
-    "#F3F2E8",
-    "#EDEDED"
+export const JOURNAL_LABEL_COLOR_PALETTE = [
+    "#DDEBFF", // soft blue
+    "#DDF2E4", // soft green
+    "#E7E0FF", // soft purple
+    "#F7E5D2", // soft orange
+    "#F7DFE6", // soft red
+    "#D8EEF0", // teal
+    "#E1E6FB", // indigo
+    "#E3E9F2", // slate
+    "#F6E8C8", // amber
+    "#F5DDEA" // rose
 ];
 
 export const DEFAULT_JOURNAL_CONTEXTS: JournalContext[] = [
-    { id: "private", label: "Privat", color: CONTEXT_COLOR_PALETTE[0] },
-    { id: "business", label: "Business", color: CONTEXT_COLOR_PALETTE[1] },
-    { id: "health", label: "Health", color: CONTEXT_COLOR_PALETTE[2] },
-    { id: "sales", label: "Sales", color: CONTEXT_COLOR_PALETTE[3] },
-    { id: "content", label: "Content", color: CONTEXT_COLOR_PALETTE[4] },
-    { id: "mindset", label: "Mindset", color: CONTEXT_COLOR_PALETTE[5] }
+    { id: "private", label: "Privat", color: JOURNAL_LABEL_COLOR_PALETTE[0] },
+    { id: "business", label: "Business", color: JOURNAL_LABEL_COLOR_PALETTE[1] },
+    { id: "health", label: "Health", color: JOURNAL_LABEL_COLOR_PALETTE[2] },
+    { id: "sales", label: "Sales", color: JOURNAL_LABEL_COLOR_PALETTE[3] },
+    { id: "content", label: "Content", color: JOURNAL_LABEL_COLOR_PALETTE[4] },
+    { id: "mindset", label: "Mindset", color: JOURNAL_LABEL_COLOR_PALETTE[5] }
 ];
 
 function normalizeContextId(value: unknown): string | null {
@@ -40,13 +42,13 @@ function normalizeContextColor(value: unknown): string | null {
 }
 
 function colorForIndex(index: number): string {
-    return CONTEXT_COLOR_PALETTE[index % CONTEXT_COLOR_PALETTE.length];
+    return JOURNAL_LABEL_COLOR_PALETTE[index % JOURNAL_LABEL_COLOR_PALETTE.length];
 }
 
 export function pickNextJournalContextColor(existingContexts: JournalContext[]): string {
     if (existingContexts.length === 0) return colorForIndex(0);
     const used = new Set(existingContexts.map((context) => context.color));
-    const nextUnused = CONTEXT_COLOR_PALETTE.find((color) => !used.has(color));
+    const nextUnused = JOURNAL_LABEL_COLOR_PALETTE.find((color) => !used.has(color));
     if (nextUnused) return nextUnused;
     return colorForIndex(existingContexts.length);
 }

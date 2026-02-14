@@ -1865,6 +1865,10 @@ p {
   gap: 18px;
 }
 
+.grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 /* ─── Form Elements ─── */
 label {
   display: flex;
@@ -2890,7 +2894,8 @@ button.ghost-danger:hover {
   color: var(--text-secondary);
 }
 
-.journal-entry-type.quick {
+.journal-entry-type.quick,
+.journal-entry-type.note {
   background: color-mix(in srgb, var(--accent-bg) 82%, var(--bg-card));
   border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
   color: var(--accent-hover);
@@ -2908,22 +2913,6 @@ button.ghost-danger:hover {
   font-size: 0.71rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-}
-
-.journal-context-edit-btn {
-  width: 22px;
-  min-width: 22px;
-  height: 22px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-}
-
-.journal-context-edit-btn:hover {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
-  color: var(--accent-hover);
 }
 
 .journal-entry-meta-dot {
@@ -3029,6 +3018,33 @@ button.ghost-danger:hover {
   border-color: color-mix(in srgb, var(--danger) 28%, transparent);
   background: color-mix(in srgb, var(--danger-bg) 72%, transparent);
   color: var(--danger);
+}
+
+.journal-entry-mode-icon {
+  position: absolute;
+  right: 38px;
+  top: 9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.journal-entry-mode-icon.note {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 80%, var(--bg-card));
+  color: var(--accent-hover);
+}
+
+.journal-entry-mode-icon.review {
+  border-color: var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
 }
 
 .quick-note-fab {
@@ -4748,7 +4764,7 @@ textarea:focus-visible {
 .settings-journal-context-add-row {
   margin-top: 10px;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
@@ -4793,6 +4809,36 @@ textarea:focus-visible {
 
 .settings-context-row input {
   width: 100%;
+}
+
+.settings-context-edit-group {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-label-color-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.settings-label-color-dot {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 35%, transparent);
+}
+
+.settings-label-color-dot.selected {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 52%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.journal-nav-focus {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 32%, transparent);
+  transition: box-shadow 0.3s ease;
 }
 
 .sync-conflict-box {
@@ -5027,6 +5073,16 @@ body.dark-mode .archive-banner {
     bottom: 14px;
     width: 48px;
     height: 48px;
+  }
+}
+
+@media (max-width: 680px) {
+  .grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-label-color-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
