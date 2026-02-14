@@ -1540,7 +1540,12 @@ p {
 }
 
 .habit-settings-item-info .emoji {
-  font-size: 1.2rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
 }
 
 .habit-settings-item-info .title {
@@ -1593,7 +1598,6 @@ p {
   border: 1.5px solid var(--border);
   background: var(--bg-subtle);
   cursor: pointer;
-  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;

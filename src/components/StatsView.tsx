@@ -1,10 +1,11 @@
 import { AppLanguage, Cycle, Habit } from "../types";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import { BarChart3, Sparkles } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { t as tr } from "../i18n";
 import { addDays, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
 import { ProgressBar } from "./ProgressBar";
 import { Icon } from "./ui/Icon";
+import { resolveHabitIcon } from "./ui/habitIcons";
 import { useStatsMetrics } from "../hooks/useStatsMetrics";
 import {
     canToggleHabitCell,
@@ -297,7 +298,7 @@ export function StatsView({
                                             }}
                                         >
                                             <div className="habit-tracker-info">
-                                                <span className="habit-tracker-emoji"><Icon icon={Sparkles} size={14} /></span>
+                                                <span className="habit-tracker-emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /></span>
                                                 <span className="habit-tracker-title">{habit.title}</span>
                                             </div>
                                             <div className="habit-tracker-meta">
@@ -399,7 +400,7 @@ export function StatsView({
                                         <div className="habit-heatmap-panel">
                                             <div className="habit-heatmap-scroll">
                                                 <div className="habit-heatmap-panel-meta">
-                                                    <span className="habit-heatmap-panel-title"><Icon icon={Sparkles} size={14} /> {habit.title}</span>
+                                                    <span className="habit-heatmap-panel-title"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /> {habit.title}</span>
                                                     <span className="habit-heatmap-panel-range">{tr(language, "stats.last4Weeks")}</span>
                                                 </div>
                                                 <div className="habit-heatmap-dayrow">

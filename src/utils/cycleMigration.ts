@@ -33,6 +33,7 @@ export function migrateCycle(raw: any): Cycle | null {
 
         cycle.habits = cycle.habits.map((habit) => ({
             ...habit,
+            emoji: typeof habit.emoji === "string" && habit.emoji.trim() ? habit.emoji.trim() : "sparkles",
             startedAt: habit.startedAt ?? habit.createdAt ?? cycle.startDate
         }));
 

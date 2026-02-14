@@ -1,7 +1,8 @@
-import { CheckSquare, Plus, Sparkles, Square } from "lucide-react";
+import { CheckSquare, Plus, Square } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Id } from "../../types";
 import { Icon } from "../ui/Icon";
+import { resolveHabitIcon } from "../ui/habitIcons";
 
 type TodayHabitsSectionProps = {
     language: AppLanguage;
@@ -55,7 +56,7 @@ export function TodayHabitsSection({
                             }}
                             title={tr(language, "today.deleteOnRightClick", { title: habit.title })}
                         >
-                            <span className="habit-chip-emoji"><Icon icon={Sparkles} size={14} /></span>
+                            <span className="habit-chip-emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /></span>
                             <span className="habit-chip-label">{habit.title}</span>
                             <span className="habit-chip-check">
                                 <Icon icon={done ? CheckSquare : Square} size={14} />

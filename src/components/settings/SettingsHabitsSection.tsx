@@ -4,6 +4,7 @@ import { AppLanguage, Cycle, Habit } from "../../types";
 import { t as tr } from "../../i18n";
 import { toIsoDate, uid } from "../../utils";
 import { Icon } from "../ui/Icon";
+import { DEFAULT_HABIT_ICON_KEY, HABIT_ICON_OPTIONS, normalizeHabitIconKey, resolveHabitIcon } from "../ui/habitIcons";
 
 type SettingsHabitsSectionProps = {
     cycle: Cycle | null;
@@ -32,6 +33,7 @@ export function SettingsHabitsSection({
     const [habitGoalType, setHabitGoalType] = useState<"open" | "target">("open");
     const [habitGoalTarget, setHabitGoalTarget] = useState<string>("30");
     const [habitGoalUnit, setHabitGoalUnit] = useState<string>("");
+    const [habitIconKey, setHabitIconKey] = useState<string>(DEFAULT_HABIT_ICON_KEY);
 
     if (!cycle) return null;
 
@@ -65,7 +67,7 @@ export function SettingsHabitsSection({
         const newHabit: Habit = {
             id: uid(),
             title: habitTitle.trim(),
-            emoji: "",
+            emoji: normalizeHabitIconKey(habitIconKey),
             frequency: habitFreq === "custom" ? habitCustomDays : habitFreq,
             activeFrom: 1,
             activeTo: 12,
@@ -80,6 +82,7 @@ export function SettingsHabitsSection({
         setHabitFreq("daily");
         setHabitCustomDays([]);
         setHabitStartDate(toIsoDate(new Date()));
+        setHabitIconKey(DEFAULT_HABIT_ICON_KEY);
         setShowHabitForm(false);
     };
 
@@ -107,7 +110,7 @@ export function SettingsHabitsSection({
                     {habits.map((habit) => (
                         <div key={habit.id} className="habit-settings-item">
                             <div className="habit-settings-item-info">
-                                <span className="emoji"><Icon icon={Sparkles} size={14} /></span>
+                                <span className="emoji"><Icon icon={resolveHabitIcon(habit.emoji)} size={14} /></span>
                                 <div>
                                     <div className="title">{habit.title}</div>
                                     <div className="meta">
@@ -175,6 +178,26 @@ export function SettingsHabitsSection({
                             ))}
                         </div>
                     )}
+                    <div className="habit-settings-form-row" style={{ marginTop: "8px", flexDirection: "column", alignItems: "stretch" }}>
+                        <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)" }}>
+                            {tr(language, "settings.habitIcon")}
+                        </label>
+                        <div className="habit-emoji-picker">
+                            {HABIT_ICON_OPTIONS.map((option) => (
+                                <button
+                                    key={option.key}
+                                    type="button"
+                                    className={`habit-emoji-btn ${habitIconKey === option.key ? "selected" : ""}`}
+                                    disabled={readOnly}
+                                    onClick={() => setHabitIconKey(option.key)}
+                                    title={tr(language, option.labelKey)}
+                                    aria-label={tr(language, option.labelKey)}
+                                >
+                                    <Icon icon={option.icon} size={16} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     <div className="habit-settings-form-row" style={{ marginTop: "12px" }}>
                         <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)" }}>

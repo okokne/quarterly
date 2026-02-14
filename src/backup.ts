@@ -112,7 +112,7 @@ function normalizeHabit(value: unknown): Habit | null {
     if (!isRecord(value)) return null;
     if (!isString(value.id) || !value.id) return null;
     if (!isString(value.title) || !value.title.trim()) return null;
-    if (!isString(value.emoji) || !value.emoji) return null;
+    const iconValue = isString(value.emoji) ? value.emoji.trim() : "";
     if (!isString(value.startedAt) || !ISO_DATE_REGEX.test(value.startedAt)) return null;
     if (!isString(value.createdAt) || !ISO_DATE_REGEX.test(value.createdAt)) return null;
 
@@ -136,7 +136,7 @@ function normalizeHabit(value: unknown): Habit | null {
     return {
         id: value.id,
         title: value.title.trim(),
-        emoji: value.emoji,
+        emoji: iconValue || "sparkles",
         frequency,
         activeFrom: Math.max(1, Math.floor(activeFrom)),
         activeTo: Math.max(1, Math.floor(activeTo)),

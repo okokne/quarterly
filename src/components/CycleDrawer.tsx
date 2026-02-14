@@ -1,5 +1,5 @@
 import { DragEvent, useMemo, useRef, useState } from "react";
-import { Pencil, Sparkles, X } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import { AppLanguage, Cycle, DateFormat, Habit, Id } from "../types";
 import { t as tr } from "../i18n";
 import { CycleVisionSection } from "./cycle/CycleVisionSection";
@@ -7,6 +7,7 @@ import { CycleArchiveSection } from "./cycle/CycleArchiveSection";
 import { ProgressRing } from "./ProgressRing";
 import { addDays, formatDate, getWeekIndexForDate, toIsoDate, uid } from "../utils";
 import { Icon } from "./ui/Icon";
+import { resolveHabitIcon } from "./ui/habitIcons";
 
 type CycleDrawerProps = {
     open: boolean;
@@ -263,7 +264,7 @@ export function CycleDrawer({
                     <div className="chip-wrap">
                         {activeHabits.map((habit) => (
                             <span key={habit.id} className="week-chip neutral">
-                                <Icon icon={Sparkles} size={14} /> {habit.title}
+                                <Icon icon={resolveHabitIcon(habit.emoji)} size={14} /> {habit.title}
                             </span>
                         ))}
                     </div>
