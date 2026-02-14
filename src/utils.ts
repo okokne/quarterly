@@ -13,6 +13,7 @@ export {
 } from "./utils/date";
 
 export { clamp, getCurrentWeekIndex, getDatesInWeek, getWeekIndexForDate } from "./utils/cycleMath";
+export { MAX_WEEK_NAME_LENGTH, normalizeWeekName, buildWeekLabel, getWeekLabel } from "./utils/weekNames";
 export { DEFAULT_JOURNAL_CONTEXTS, normalizeJournalContexts, resolveDefaultJournalContextId } from "./utils/journalContexts";
 
 export {

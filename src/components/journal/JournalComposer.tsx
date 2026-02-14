@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, ReviewSignal } from "../../types";
+import { getWeekLabel } from "../../utils";
 import { ComposerType, FilterOption } from "./types";
 
 type JournalComposerProps = {
@@ -166,7 +167,7 @@ export function JournalComposer({
                         <select value={weeklyWeek} onChange={(e) => setWeeklyWeek(e.target.value)}>
                             {cycle.weeks.map((week) => (
                                 <option key={week.index} value={week.index}>
-                                    {tr(language, "app.headerWeekShort", { week: week.index })}
+                                    {getWeekLabel(cycle, week.index, language)}
                                 </option>
                             ))}
                         </select>

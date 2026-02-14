@@ -96,6 +96,7 @@ export type Week = {
     index: number; // 1..12
     startDate: string; // ISO
     endDate: string; // ISO
+    weekName?: string;
 };
 
 export type Goal = {

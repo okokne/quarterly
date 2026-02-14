@@ -2,7 +2,7 @@ import { Search, Target, BarChart3, Clock3, X } from "lucide-react";
 import { AppLanguage, DateFormat } from "../types";
 import { SearchResultItem } from "../types/search";
 import { t as tr } from "../i18n";
-import { formatDate } from "../utils";
+import { buildWeekLabel, formatDate } from "../utils";
 import { Icon } from "./ui/Icon";
 
 type SearchOverlayProps = {
@@ -80,7 +80,7 @@ export function SearchOverlay({
                             </span>
                             <span className="search-type-label">{result.type}</span>
                             <span>{result.text}</span>
-                            {result.week && <span className="muted">{tr(language, "app.headerWeekShort", { week: result.week })}</span>}
+                            {result.week && <span className="muted">{buildWeekLabel(language, result.week, result.weekName)}</span>}
                             {result.date && <span className="muted">{formatDate(result.date, dateFormat, language)}</span>}
                         </button>
                     ))}

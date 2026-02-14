@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Pencil } from "lucide-react";
 import { t as tr } from "../i18n";
 import {
     AppLanguage,
@@ -8,12 +9,13 @@ import {
     WeeklyReview,
     WeeklyTarget
 } from "../types";
-import { formatRange, getWeekProgressPercent } from "../utils";
+import { formatRange, getWeekLabel, getWeekProgressPercent, normalizeWeekName } from "../utils";
 import { useWeekTabEditing } from "../hooks/useWeekTabEditing";
 import { WeekGoalsSection } from "./week/WeekGoalsSection";
 import { WeekReviewsSection } from "./week/WeekReviewsSection";
 import { WeekTargetsSection } from "./week/WeekTargetsSection";
 import { TargetDraft } from "./week/types";
+import { Icon } from "./ui/Icon";
 
 type WeekTabProps = {
     cycle: Cycle;
@@ -78,13 +80,89 @@ export function WeekTab({
     });
     const weekCompletionPercent = getWeekProgressPercent(cycle, selectedWeek);
     const [showTargetComposer, setShowTargetComposer] = useState(false);
+    const [showWeekNameEditor, setShowWeekNameEditor] = useState(false);
+    const [weekNameDraft, setWeekNameDraft] = useState("");
     const isCurrentWeekSelected = selectedWeek === currentWeekIndex;
+    const selectedWeekData = useMemo(
+        () => cycle.weeks.find((week) => week.index === selectedWeek),
+        [cycle.weeks, selectedWeek]
+    );
+    const selectedWeekName = selectedWeekData?.weekName ?? "";
+    const selectedWeekLabel = getWeekLabel(cycle, selectedWeek, language);
+    const currentWeekLabel = getWeekLabel(cycle, currentWeekIndex, language);
+
+    useEffect(() => {
+        setShowWeekNameEditor(false);
+        setWeekNameDraft(selectedWeekName);
+    }, [selectedWeek, selectedWeekName]);
+
+    const saveWeekName = () => {
+        const normalized = normalizeWeekName(weekNameDraft);
+        updateCycle((prev) => ({
+            ...prev,
+            weeks: prev.weeks.map((week) => (
+                week.index === selectedWeek
+                    ? { ...week, weekName: normalized }
+                    : week
+            ))
+        }));
+        setShowWeekNameEditor(false);
+    };
 
     return (
         <section className="card week-tab-card">
             <div className="section-title">
                 <h2>{tr(language, "week.title")}</h2>
                 <span className="muted">{tr(language, "week.targets")}</span>
+            </div>
+            <div className="week-name-row">
+                {!showWeekNameEditor && (
+                    <>
+                        <strong className="week-name-label">{selectedWeekLabel}</strong>
+                        {!isArchiveView && (
+                            <button
+                                type="button"
+                                className={`week-name-edit-btn ${selectedWeekName ? "icon-only" : ""}`}
+                                onClick={() => {
+                                    setWeekNameDraft(selectedWeekName);
+                                    setShowWeekNameEditor(true);
+                                }}
+                                title={selectedWeekName ? tr(language, "week.editName") : tr(language, "week.addName")}
+                                aria-label={selectedWeekName ? tr(language, "week.editName") : tr(language, "week.addName")}
+                            >
+                                {selectedWeekName ? <Icon icon={Pencil} size={14} /> : tr(language, "week.addName")}
+                            </button>
+                        )}
+                    </>
+                )}
+                {showWeekNameEditor && !isArchiveView && (
+                    <div className="week-name-editor">
+                        <input
+                            value={weekNameDraft}
+                            onChange={(event) => setWeekNameDraft(event.target.value)}
+                            placeholder={tr(language, "week.namePlaceholder")}
+                            maxLength={60}
+                        />
+                        <div className="button-row">
+                            <button
+                                type="button"
+                                className="primary"
+                                onClick={saveWeekName}
+                            >
+                                {tr(language, "common.save")}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowWeekNameEditor(false);
+                                    setWeekNameDraft(selectedWeekName);
+                                }}
+                            >
+                                {tr(language, "common.cancel")}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
             {isArchiveView && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
@@ -94,7 +172,7 @@ export function WeekTab({
                     <select value={selectedWeek} onChange={(e) => setSelectedWeek(Number(e.target.value))}>
                         {cycle.weeks.map((week) => (
                             <option key={week.index} value={week.index}>
-                                {tr(language, "app.headerWeekShort", { week: week.index })} · {formatRange(week.startDate, week.endDate, dateFormat, language)}
+                                {getWeekLabel(cycle, week.index, language)} · {formatRange(week.startDate, week.endDate, dateFormat, language)}
                             </option>
                         ))}
                     </select>
@@ -104,8 +182,8 @@ export function WeekTab({
                 <p className="week-selected-week-note muted">{tr(language, "week.currentWeekSelected")}</p>
             ) : (
                 <div className="week-selected-week-note planning">
-                    <p>{tr(language, "week.planningWeekNotice", { week: selectedWeek })}</p>
-                    <p className="muted">{tr(language, "week.currentWeekNotice", { week: currentWeekIndex })}</p>
+                    <p>{tr(language, "week.planningWeekNotice", { weekLabel: selectedWeekLabel })}</p>
+                    <p className="muted">{tr(language, "week.currentWeekNotice", { weekLabel: currentWeekLabel })}</p>
                 </div>
             )}
 
@@ -131,7 +209,7 @@ export function WeekTab({
                             </button>
                         )}
                     </div>
-                    <span className="muted">{tr(language, "week.weekSummary", { week: selectedWeek, percent: weekCompletionPercent })}</span>
+                    <span className="muted">{tr(language, "week.weekSummary", { weekLabel: selectedWeekLabel, percent: weekCompletionPercent })}</span>
                 </div>
                 <fieldset className="readonly-fieldset" disabled={isArchiveView}>
                     <WeekTargetsSection
@@ -167,6 +245,7 @@ export function WeekTab({
                 <fieldset className="readonly-fieldset" disabled={isArchiveView}>
                     <WeekReviewsSection
                         language={language}
+                        cycle={cycle}
                         selectedWeek={selectedWeek}
                         weeklyReview={weeklyReview}
                         updateCycle={updateCycle}

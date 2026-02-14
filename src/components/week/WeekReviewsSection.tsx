@@ -1,9 +1,10 @@
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, WeeklyReview } from "../../types";
-import { getWritableReviewEntries, upsertCurrentWeeklyReviewEntry } from "../../utils";
+import { getWeekLabel, getWritableReviewEntries, upsertCurrentWeeklyReviewEntry } from "../../utils";
 
 type WeekReviewsSectionProps = {
     language: AppLanguage;
+    cycle: Cycle;
     selectedWeek: number;
     weeklyReview: WeeklyReview;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
@@ -11,13 +12,14 @@ type WeekReviewsSectionProps = {
 
 export function WeekReviewsSection({
     language,
+    cycle,
     selectedWeek,
     weeklyReview,
     updateCycle
 }: WeekReviewsSectionProps) {
     return (
         <div className="week-review-content">
-            <h3>{tr(language, "week.reviewTitle", { week: selectedWeek })}</h3>
+            <h3>{tr(language, "week.reviewTitle", { weekLabel: getWeekLabel(cycle, selectedWeek, language) })}</h3>
             <p className="muted week-review-hint">{tr(language, "week.reviewHint")}</p>
             <div className="grid week-review-grid">
                 <label>

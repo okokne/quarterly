@@ -2479,6 +2479,48 @@ button.ghost-danger:hover {
   gap: 18px;
 }
 
+.week-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: -6px;
+}
+
+.week-name-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.week-name-edit-btn {
+  border: 1px dashed var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.week-name-edit-btn.icon-only {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0;
+  border-style: solid;
+}
+
+.week-name-editor {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.week-name-editor input {
+  max-width: 460px;
+}
+
 .week-selected-week-note {
   margin: -6px 0 0;
   font-size: 0.84rem;

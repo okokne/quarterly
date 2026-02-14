@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { ArrowRight, X } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat, ReviewEntry } from "../../types";
-import { formatDate, getReviewEntrySignals, getWeekIndexForDate } from "../../utils";
+import { formatDate, getReviewEntrySignals, getWeekIndexForDate, getWeekLabel } from "../../utils";
 import { monthLabel, previewText } from "./helpers";
 import { SIGNAL_LABEL_SUFFIX } from "./types";
 import { Icon } from "../ui/Icon";
@@ -101,7 +101,7 @@ export function JournalFeedList({
                                                 </div>
                                                 <span className="journal-card-date">
                                                     {entry.type === "weekly"
-                                                        ? `${tr(language, "app.headerWeekShort", { week: weekIndex })} · ${formatDate(entry.date, dateFormat, language)}`
+                                                        ? `${getWeekLabel(cycle, weekIndex, language)} · ${formatDate(entry.date, dateFormat, language)}`
                                                         : formatDate(entry.date, dateFormat, language)}
                                                 </span>
                                             </div>

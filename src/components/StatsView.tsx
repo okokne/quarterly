@@ -2,7 +2,7 @@ import { AppLanguage, Cycle, Habit } from "../types";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3 } from "lucide-react";
 import { t as tr } from "../i18n";
-import { addDays, getWeekIndexForDate, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
+import { addDays, getWeekIndexForDate, getWeekLabel, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
 import { ProgressBar } from "./ProgressBar";
 import { Icon } from "./ui/Icon";
 import { resolveHabitIcon } from "./ui/habitIcons";
@@ -570,14 +570,15 @@ export function StatsView({
                     <h3>{tr(language, "stats.currentWeekComparison")}</h3>
                     <div className="stats-comparison">
                         <div className="stats-current">
-                            <span className="stats-week-label">{tr(language, "app.headerWeekShort", { week: todayWeekIndex })}</span>
+                            <span className="stats-week-label">{getWeekLabel(cycle, todayWeekIndex, language)}</span>
                             <span className="stats-week-value">{currentPercent}%</span>
                         </div>
                         <div className={`stats-trend ${diff > 0 ? "up" : diff < 0 ? "down" : "neutral"}`}>
                             {tr(language, "stats.vsPreviousWeek", {
                                 arrow: diff > 0 ? "↑" : diff < 0 ? "↓" : "→",
                                 diff: Math.abs(diff),
-                                week: todayWeekIndex - 1
+                                week: todayWeekIndex - 1,
+                                weekLabel: getWeekLabel(cycle, todayWeekIndex - 1, language)
                             })}
                         </div>
                     </div>

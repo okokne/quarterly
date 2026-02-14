@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CloudAlert, CloudCheck, CloudOff, FolderKanban, Search, Settings } from "lucide-react";
 import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
-import { formatDate, formatRange } from "../utils";
+import { buildWeekLabel, formatDate, formatRange } from "../utils";
 import { ProgressRing } from "./ProgressRing";
 import { Icon } from "./ui/Icon";
 
@@ -92,6 +92,7 @@ export function AppHeader({
                     <p className="muted">{tr(language, "app.headerStartWeek", {
                         date: formatDate(startDate, dateFormat, language),
                         week: currentWeekIndex,
+                        weekLabel: buildWeekLabel(language, currentWeekIndex, currentWeek.weekName),
                         range: formatRange(currentWeek.startDate, currentWeek.endDate, dateFormat, language)
                     })}</p>
                 </div>
@@ -101,7 +102,7 @@ export function AppHeader({
                         <ProgressRing value={weekCompletion.percent} max={100} size={92} strokeWidth={8} />
                         <div className="header-week-progress-meta">
                             <div className="header-week-progress-meta-top">
-                                <strong>{tr(language, "app.headerWeekShort", { week: currentWeekIndex })}</strong>
+                                <strong>{buildWeekLabel(language, currentWeekIndex, currentWeek.weekName)}</strong>
                                 <button
                                     type="button"
                                     className="header-week-progress-info-btn"

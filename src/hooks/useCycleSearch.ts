@@ -23,9 +23,16 @@ export function useCycleSearch({ cycle, searchQuery, language }: UseCycleSearchP
         });
 
         Object.entries(cycle.weeklyTargets).forEach(([weekStr, targets]) => {
+            const weekIndex = Number(weekStr);
+            const weekName = cycle.weeks.find((week) => week.index === weekIndex)?.weekName;
             targets.forEach((target) => {
                 if (target.title.toLowerCase().includes(q) || target.notes?.toLowerCase().includes(q)) {
-                    results.push({ type: tr(language, "app.searchTypeTarget"), text: target.title, week: Number(weekStr) });
+                    results.push({
+                        type: tr(language, "app.searchTypeTarget"),
+                        text: target.title,
+                        week: weekIndex,
+                        weekName
+                    });
                 }
             });
         });

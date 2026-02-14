@@ -4,6 +4,7 @@ import { toIsoDate } from "./date";
 import { buildReviewEntriesFromLegacy, normalizeReviewEntries } from "./reviewEntries";
 import { clamp, getDatesInWeek } from "./cycleMath";
 import { normalizeJournalContexts, resolveDefaultJournalContextId } from "./journalContexts";
+import { normalizeWeekName } from "./weekNames";
 
 export function migrateCycle(raw: any): Cycle | null {
     if (!raw) return null;
@@ -33,6 +34,11 @@ export function migrateCycle(raw: any): Cycle | null {
         if (!Array.isArray(cycle.journalEntries)) cycle.journalEntries = [];
         cycle.journalContexts = normalizeJournalContexts(cycle.journalContexts);
         cycle.defaultJournalContextId = resolveDefaultJournalContextId(cycle);
+        cycle.weeks = (cycle.weeks ?? []).map((week, index) => ({
+            ...week,
+            index: week.index ?? index + 1,
+            weekName: normalizeWeekName(week.weekName)
+        }));
 
         cycle.habits = cycle.habits.map((habit) => ({
             ...habit,
