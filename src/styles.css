@@ -2180,16 +2180,15 @@ button.ghost-danger:hover {
 }
 
 .block-counter {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  grid-template-areas: "range value input";
+  display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
 }
 
 .block-counter-shell {
-  width: min(380px, 100%);
-  margin-left: auto;
+  width: 100%;
+  margin-left: 0;
 }
 
 .block-progress-row {
@@ -2199,17 +2198,16 @@ button.ghost-danger:hover {
 }
 
 .block-counter-value {
-  grid-area: value;
-  min-width: 76px;
+  min-width: 68px;
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-secondary);
   text-align: center;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 999px;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  justify-self: end;
+  flex: 0 0 auto;
 }
 
 .block-counter input[type="range"] {
@@ -2219,9 +2217,9 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range {
-  grid-area: range;
+  flex: 1 1 auto;
   appearance: none;
-  height: 6px;
+  height: 4px;
   border-radius: 999px;
   background: var(--border);
   outline: none;
@@ -2229,7 +2227,7 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range::-webkit-slider-runnable-track {
-  height: 6px;
+  height: 4px;
   border-radius: 999px;
   background: transparent;
 }
@@ -2239,39 +2237,28 @@ button.ghost-danger:hover {
 .block-counter-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 2px solid var(--bg-card);
+  border: 1px solid var(--bg-card);
   background: var(--accent);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
   margin-top: -4px;
 }
 
 .block-counter-range::-moz-range-track {
-  height: 6px;
+  height: 4px;
   border-radius: 999px;
   background: transparent;
 }
 
 .block-counter-range::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 2px solid var(--bg-card);
+  border: 1px solid var(--bg-card);
   background: var(--accent);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
-}
-
-.block-counter input[type="number"] {
-  width: 68px;
-}
-
-.block-counter-input {
-  grid-area: input;
-  width: 72px;
-  text-align: center;
-  justify-self: end;
 }
 
 .block-counter-placeholder {
@@ -2323,39 +2310,92 @@ button.ghost-danger:hover {
   background: color-mix(in srgb, var(--bg-subtle) 78%, var(--bg-card));
 }
 
-.block-title-actions {
+.planner-block-card {
+  align-items: flex-start;
+}
+
+.planner-block-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+}
+
+.planner-block-heading {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planner-block-actions {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.block-title {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.today-block-edit-grid {
-  gap: 10px;
-}
-
-.today-block-edit-grid input,
-.today-block-edit-grid select {
-  padding: 10px 12px;
-}
-
-.today-block-edit-actions {
-  justify-content: flex-end;
-}
-
-.today-block-plan-shortcut {
+.planner-block-meta {
+  min-height: 24px;
   display: flex;
   align-items: center;
 }
 
-.today-block-plan-shortcut button {
-  padding: 8px 11px;
-  font-size: 0.76rem;
-  border-radius: var(--radius-sm);
+.planner-block-progress {
+  display: grid;
+  gap: 8px;
+}
+
+.planner-block-progress .toggle-status {
+  justify-self: start;
+  min-width: 0;
+}
+
+.today-block-editor-sheet {
+  width: min(560px, 100%);
+}
+
+.today-block-editor-fields {
+  display: grid;
+  gap: 10px;
+}
+
+.today-block-editor-time-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--bg-subtle) 74%, var(--bg-card));
+}
+
+.today-block-editor-time-cta p {
+  margin: 0;
+}
+
+.today-block-time-grid {
+  gap: 10px;
+}
+
+.today-block-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.today-block-sheet-close {
+  flex: 0 0 auto;
+}
+
+.today-block-sheet-close:hover {
+  border-color: var(--border);
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .block-meta-row {
@@ -4775,13 +4815,13 @@ button.ghost-danger:hover {
     align-items: flex-start;
   }
 
-  .block-title-row {
+  .planner-block-header {
     width: 100%;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: flex-start;
   }
 
-  .block-meta-row {
+  .planner-block-meta {
     width: 100%;
     align-items: stretch;
     gap: 6px;
@@ -4817,29 +4857,31 @@ button.ghost-danger:hover {
 
   .block-counter {
     width: 100%;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "range range"
-      "value input";
     gap: 8px;
   }
 
-  .block-counter input[type="range"] {
-    width: 100%;
-    min-width: 0;
-  }
-
   .block-counter-value {
-    min-width: 0;
-    text-align: left;
+    min-width: 60px;
     padding: 3px 6px;
-    justify-self: start;
   }
 
-  .block-counter input[type="number"],
-  .block-counter-input {
-    width: 72px;
-    justify-self: end;
+  .planner-block-heading {
+    font-size: 0.86rem;
+  }
+
+  .today-block-editor-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .today-block-editor-footer .button-row {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .today-block-editor-time-cta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .list-row {
