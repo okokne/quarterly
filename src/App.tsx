@@ -194,6 +194,7 @@ export default function App() {
 
   const {
     currentWeek,
+    todayWeekIndex,
     selectedWeekTargets,
     totalWeeklyTargets,
     dayBlocks,
@@ -205,7 +206,7 @@ export default function App() {
   });
   const { weekCompletion, totalWeeklyDone, getWeeklyRemaining } = useWeekMetrics({
     cycle,
-    selectedWeek
+    selectedWeek: todayWeekIndex
   });
   const {
     addBlock,
@@ -561,7 +562,7 @@ export default function App() {
       <AppHeader
         title={cycle.title}
         startDate={cycle.startDate}
-        selectedWeek={selectedWeek}
+        currentWeekIndex={todayWeekIndex}
         currentWeek={currentWeek}
         language={language}
         dateFormat={dateFormat}

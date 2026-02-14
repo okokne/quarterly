@@ -1,14 +1,31 @@
 import { Cycle, Week } from "../types";
 import { addDays, parseIso } from "./date";
 
+type DateInput = string | Date;
+
+function toStartOfLocalDay(input: DateInput): Date {
+    if (typeof input === "string") {
+        return parseIso(input);
+    }
+    return new Date(input.getFullYear(), input.getMonth(), input.getDate());
+}
+
+export function getCurrentWeekIndex(
+    cycleStartDate: string,
+    todayDate: DateInput,
+    totalWeeks = 12
+): number {
+    const start = toStartOfLocalDay(cycleStartDate);
+    const today = toStartOfLocalDay(todayDate);
+    const dayDiff = Math.floor((today.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+    const rawIndex = Math.floor(dayDiff / 7) + 1;
+    return clamp(rawIndex, 1, Math.max(1, totalWeeks));
+}
+
 export function getWeekIndexForDate(cycle: Cycle, dateStr: string): number {
-    const date = parseIso(dateStr);
-    const start = parseIso(cycle.weeks[0].startDate);
-    const diffDays = Math.floor((date.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
-    const rawIndex = Math.floor(diffDays / 7) + 1;
-    if (rawIndex < 1) return 1;
-    if (rawIndex > 12) return 12;
-    return rawIndex;
+    const totalWeeks = cycle.weeks.length || 12;
+    const cycleStartDate = cycle.weeks[0]?.startDate ?? cycle.startDate;
+    return getCurrentWeekIndex(cycleStartDate, dateStr, totalWeeks);
 }
 
 export function getDatesInWeek(week: Week): string[] {

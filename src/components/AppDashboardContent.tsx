@@ -261,7 +261,6 @@ export function AppDashboardContent({
                     onDeleteHabit={onDeleteHabit}
                     readOnly={isArchiveView}
                     language={language}
-                    selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
                     setActiveTab={setActiveTab}
                     onOpenHabitsManager={onOpenHabitsManager}

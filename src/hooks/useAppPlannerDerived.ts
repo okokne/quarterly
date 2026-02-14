@@ -1,5 +1,5 @@
 import { Cycle } from "../types";
-import { addDays, getWeekIndexForDate, toIsoDate } from "../utils";
+import { addDays, getCurrentWeekIndex, toIsoDate } from "../utils";
 
 type WeekSlice = {
     index: number;
@@ -15,14 +15,14 @@ type UseAppPlannerDerivedParams = {
 
 export function useAppPlannerDerived({ cycle, selectedWeek, selectedDate }: UseAppPlannerDerivedParams) {
     const today = toIsoDate(new Date());
+    const todayWeekIndex = cycle ? getCurrentWeekIndex(cycle.startDate, today, cycle.weeks.length || 12) : selectedWeek;
     const fallbackWeek: WeekSlice = {
-        index: selectedWeek,
+        index: todayWeekIndex,
         startDate: today,
         endDate: today
     };
 
-    const currentWeek = cycle?.weeks.find((week) => week.index === selectedWeek) ?? fallbackWeek;
-    const todayWeekIndex = cycle ? getWeekIndexForDate(cycle, today) : selectedWeek;
+    const currentWeek = cycle?.weeks.find((week) => week.index === todayWeekIndex) ?? fallbackWeek;
     const todayWeek = cycle?.weeks.find((week) => week.index === todayWeekIndex) ?? fallbackWeek;
     const selectedWeekTargets = cycle?.weeklyTargets[selectedWeek] ?? [];
     const totalWeeklyTargets = selectedWeekTargets;

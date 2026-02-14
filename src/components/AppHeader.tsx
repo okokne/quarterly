@@ -9,7 +9,7 @@ import { Icon } from "./ui/Icon";
 type AppHeaderProps = {
     title?: string;
     startDate: string;
-    selectedWeek: number;
+    currentWeekIndex: number;
     currentWeek: Week;
     language: AppLanguage;
     dateFormat: DateFormat;
@@ -24,7 +24,7 @@ type AppHeaderProps = {
 export function AppHeader({
     title,
     startDate,
-    selectedWeek,
+    currentWeekIndex,
     currentWeek,
     language,
     dateFormat,
@@ -91,7 +91,7 @@ export function AppHeader({
                     <p className="muted">{tr(language, "app.brandTagline")}</p>
                     <p className="muted">{tr(language, "app.headerStartWeek", {
                         date: formatDate(startDate, dateFormat, language),
-                        week: selectedWeek,
+                        week: currentWeekIndex,
                         range: formatRange(currentWeek.startDate, currentWeek.endDate, dateFormat, language)
                     })}</p>
                 </div>
@@ -101,7 +101,7 @@ export function AppHeader({
                         <ProgressRing value={weekCompletion.percent} max={100} size={92} strokeWidth={8} />
                         <div className="header-week-progress-meta">
                             <div className="header-week-progress-meta-top">
-                                <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
+                                <strong>{tr(language, "app.headerWeekShort", { week: currentWeekIndex })}</strong>
                                 <button
                                     type="button"
                                     className="header-week-progress-info-btn"
@@ -128,7 +128,7 @@ export function AppHeader({
                         <Icon icon={FolderKanban} />
                         <span className="header-cycle-btn-text">
                             <strong>{tr(language, "app.cycleLabel")}</strong>
-                            <em>{tr(language, "app.myQuarterContext", { week: selectedWeek, remaining: Math.max(0, 12 - selectedWeek) })}</em>
+                            <em>{tr(language, "app.myQuarterContext", { week: currentWeekIndex, remaining: Math.max(0, 12 - currentWeekIndex) })}</em>
                         </span>
                     </button>
                     <button

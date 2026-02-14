@@ -12,7 +12,7 @@ export {
     weekdayLabelLong
 } from "./utils/date";
 
-export { clamp, getDatesInWeek, getWeekIndexForDate } from "./utils/cycleMath";
+export { clamp, getCurrentWeekIndex, getDatesInWeek, getWeekIndexForDate } from "./utils/cycleMath";
 
 export {
     buildReviewEntriesFromLegacy,

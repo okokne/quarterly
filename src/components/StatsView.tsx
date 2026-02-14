@@ -24,7 +24,6 @@ interface StatsViewProps {
     onDeleteHabit: (habitId: string) => void;
     readOnly: boolean;
     language: AppLanguage;
-    selectedWeek: number;
     setSelectedWeek: (week: number) => void;
     setActiveTab: (tab: Tab) => void;
     onOpenHabitsManager: () => void;
@@ -43,7 +42,6 @@ export function StatsView({
     onDeleteHabit,
     readOnly,
     language,
-    selectedWeek,
     setSelectedWeek,
     setActiveTab,
     onOpenHabitsManager,
@@ -152,7 +150,7 @@ export function StatsView({
                     <div className="stats-chart">
                         {cycle.weeks.map((week) => {
                             const percent = getWeekPercent(week.index);
-                            const isCurrent = week.index === selectedWeek;
+                            const isCurrent = week.index === todayWeekIndex;
                             const isFuture = week.index > todayWeekIndex;
 
                             return (
