@@ -78,6 +78,7 @@ export function JournalComposer({
     handleCreateEntry
 }: JournalComposerProps) {
     if (!showComposer) return null;
+    const composerSignalOptions = signalOptions.filter((option) => option.id !== "note");
 
     return (
         <div className="subcard journal-entry-form">
@@ -126,7 +127,11 @@ export function JournalComposer({
                                     style={{ "--journal-context-bg": context.color } as CSSProperties}
                                     onClick={() => setCustomContextId(context.id)}
                                 >
-                                    <span className="journal-label-chip-swatch" style={{ backgroundColor: context.color }} aria-hidden="true" />
+                                    <span
+                                        className={`journal-label-chip-swatch ${customContextId === context.id ? "selected" : ""}`}
+                                        style={{ backgroundColor: context.color }}
+                                        aria-hidden="true"
+                                    />
                                     {context.label}
                                 </button>
                             ))}
@@ -135,7 +140,7 @@ export function JournalComposer({
                     <div className="journal-filter-row">
                         <span className="journal-filter-label">{tr(language, "journal.filterSignals")}</span>
                         <div className="journal-filter-chip-row">
-                            {signalOptions.map((option) => (
+                            {composerSignalOptions.map((option) => (
                                 <button
                                     key={option.id}
                                     className={`journal-filter-chip ${customSignals.includes(option.id) ? "active" : ""}`}

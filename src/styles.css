@@ -2785,6 +2785,15 @@ button.ghost-danger:hover {
   height: 8px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--text-muted) 35%, transparent);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.journal-label-chip-swatch.selected {
+  transform: scale(1.18);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--bg-card) 88%, transparent);
 }
 
 .journal-feed-root {
