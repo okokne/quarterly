@@ -2780,12 +2780,15 @@ button.ghost-danger:hover {
 }
 
 .journal-label-chip-swatch {
+  display: inline-block;
   width: 8px;
   min-width: 8px;
   height: 8px;
+  box-sizing: border-box;
+  vertical-align: middle;
   border-radius: 999px;
   background: transparent;
-  border: 1px solid var(--journal-label-color, color-mix(in srgb, var(--text-muted) 35%, transparent));
+  border: 1px solid color-mix(in srgb, var(--text-muted) 52%, transparent);
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
