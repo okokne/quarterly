@@ -129,7 +129,7 @@ export function JournalComposer({
                                 >
                                     <span
                                         className={`journal-label-chip-swatch ${customContextId === context.id ? "selected" : ""}`}
-                                        style={{ backgroundColor: context.color }}
+                                        style={{ "--journal-label-color": context.color } as CSSProperties}
                                         aria-hidden="true"
                                     />
                                     {context.label}
