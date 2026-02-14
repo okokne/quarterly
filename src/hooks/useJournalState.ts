@@ -11,6 +11,7 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
     const today = toIsoDate(new Date());
 
     const [showComposer, setShowComposer] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
     const [composerType, setComposerType] = useState<ComposerType>("custom");
 
     const [customDate, setCustomDate] = useState(() => toIsoDate(new Date()));
@@ -107,6 +108,8 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
         today,
         showComposer,
         setShowComposer,
+        showFilters,
+        setShowFilters,
         composerType,
         setComposerType,
         customDate,

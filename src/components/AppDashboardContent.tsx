@@ -91,6 +91,7 @@ type AppDashboardContentProps = {
     onDeleteHabit: (habitId: Id) => void;
     onOpenHabitsManager: () => void;
     onOpenCycleDrawer: () => void;
+    onOpenContextSettings: (contextId: string) => void;
 };
 
 export function AppDashboardContent({
@@ -150,7 +151,8 @@ export function AppDashboardContent({
     onToggleHabit,
     onDeleteHabit,
     onOpenHabitsManager,
-    onOpenCycleDrawer
+    onOpenCycleDrawer,
+    onOpenContextSettings
 }: AppDashboardContentProps) {
     const onboardingDone = step >= 4;
 
@@ -281,6 +283,7 @@ export function AppDashboardContent({
                     setSelectedDate={setSelectedDate}
                     setActiveTab={setActiveTab}
                     updateCycle={updateCycle}
+                    onOpenContextSettings={onOpenContextSettings}
                 />
             )}
         </>

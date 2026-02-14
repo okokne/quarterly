@@ -9,7 +9,8 @@ type SettingsModalBindingInput = {
         "language" |
         "dateFormat" |
         "timeFormat" |
-        "updateCycle"
+        "updateCycle" |
+        "settingsContextFocusId"
     >;
     google: Pick<
         SettingsModalProps,

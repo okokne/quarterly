@@ -1,13 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, Pencil, Trash2, X } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle } from "../../types";
-import { uid } from "../../utils";
+import { pickNextJournalContextColor, uid } from "../../utils";
+import { Icon } from "../ui/Icon";
 
 type SettingsJournalContextsSectionProps = {
     cycle: Cycle;
     language: AppLanguage;
     readOnly: boolean;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
+    focusedContextId?: string | null;
 };
 
 function slugifyContextId(input: string): string {
@@ -19,19 +22,25 @@ export function SettingsJournalContextsSection({
     cycle,
     language,
     readOnly,
-    updateCycle
+    updateCycle,
+    focusedContextId
 }: SettingsJournalContextsSectionProps) {
     const contexts = cycle.journalContexts ?? [];
     const [newContext, setNewContext] = useState("");
-    const [draftLabels, setDraftLabels] = useState<Record<string, string>>({});
+    const [editingContextId, setEditingContextId] = useState<string | null>(null);
+    const [editDraft, setEditDraft] = useState("");
+    const [highlightedContextId, setHighlightedContextId] = useState<string | null>(null);
+    const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     useEffect(() => {
-        const nextDrafts: Record<string, string> = {};
-        contexts.forEach((context) => {
-            nextDrafts[context.id] = context.label;
-        });
-        setDraftLabels(nextDrafts);
-    }, [contexts]);
+        if (!focusedContextId) return;
+        const targetRow = rowRefs.current[focusedContextId];
+        if (!targetRow) return;
+        targetRow.scrollIntoView({ block: "center", behavior: "smooth" });
+        setHighlightedContextId(focusedContextId);
+        const timeout = window.setTimeout(() => setHighlightedContextId(null), 2200);
+        return () => window.clearTimeout(timeout);
+    }, [focusedContextId, contexts]);
 
     const normalizedLabels = useMemo(
         () => new Set(contexts.map((context) => context.label.trim().toLowerCase())),
@@ -49,7 +58,14 @@ export function SettingsJournalContextsSection({
             const generatedId = slugifyContextId(trimmed) || `ctx-${uid().slice(0, 8)}`;
             const idTaken = new Set(existingContexts.map((context) => context.id));
             const nextId = idTaken.has(generatedId) ? `${generatedId}-${uid().slice(0, 6)}` : generatedId;
-            const nextContexts = [...existingContexts, { id: nextId, label: trimmed }];
+            const nextContexts = [
+                ...existingContexts,
+                {
+                    id: nextId,
+                    label: trimmed,
+                    color: pickNextJournalContextColor(existingContexts)
+                }
+            ];
             return {
                 ...prev,
                 journalContexts: nextContexts,
@@ -59,26 +75,31 @@ export function SettingsJournalContextsSection({
         setNewContext("");
     };
 
-    const commitRename = (contextId: string) => {
+    const startRename = (contextId: string, currentLabel: string) => {
+        setEditingContextId(contextId);
+        setEditDraft(currentLabel);
+    };
+
+    const cancelRename = () => {
+        setEditingContextId(null);
+        setEditDraft("");
+    };
+
+    const saveRename = (contextId: string) => {
         if (readOnly) return;
-        const nextLabel = (draftLabels[contextId] ?? "").trim();
+        const nextLabel = editDraft.trim();
         if (!nextLabel) {
-            setDraftLabels((prev) => ({
-                ...prev,
-                [contextId]: contexts.find((context) => context.id === contextId)?.label ?? ""
-            }));
+            cancelRename();
             return;
         }
 
-        updateCycle((prev) => {
-            const nextContexts = (prev.journalContexts ?? []).map((context) => (
+        updateCycle((prev) => ({
+            ...prev,
+            journalContexts: (prev.journalContexts ?? []).map((context) => (
                 context.id === contextId ? { ...context, label: nextLabel } : context
-            ));
-            return {
-                ...prev,
-                journalContexts: nextContexts
-            };
-        });
+            ))
+        }));
+        cancelRename();
     };
 
     const handleDeleteContext = (contextId: string) => {
@@ -91,9 +112,7 @@ export function SettingsJournalContextsSection({
                 ? prev.defaultJournalContextId
                 : nextContexts[0]?.id;
             const nextEntries = (prev.reviewEntries ?? []).map((entry) => (
-                entry.contextId === contextId
-                    ? { ...entry, contextId: undefined }
-                    : entry
+                entry.contextId === contextId ? { ...entry, contextId: undefined } : entry
             ));
             return {
                 ...prev,
@@ -107,32 +126,56 @@ export function SettingsJournalContextsSection({
     return (
         <div className="settings-section">
             <h3>{tr(language, "settings.journalContextsTitle")}</h3>
-            <p className="muted">{tr(language, "settings.journalContextsHint")}</p>
 
-            <div className="settings-journal-context-list">
-                {contexts.map((context) => (
-                    <div key={context.id} className="settings-journal-context-item">
-                        <input
-                            value={draftLabels[context.id] ?? context.label}
-                            onChange={(event) => setDraftLabels((prev) => ({ ...prev, [context.id]: event.target.value }))}
-                            onBlur={() => commitRename(context.id)}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter") {
-                                    event.currentTarget.blur();
-                                }
+            <div className="settings-context-list">
+                {contexts.map((context) => {
+                    const isEditing = editingContextId === context.id;
+                    const isHighlighted = highlightedContextId === context.id;
+                    return (
+                        <div
+                            key={context.id}
+                            ref={(node) => {
+                                rowRefs.current[context.id] = node;
                             }}
-                            disabled={readOnly}
-                        />
-                        <button
-                            type="button"
-                            className="ghost-danger"
-                            onClick={() => handleDeleteContext(context.id)}
-                            disabled={readOnly}
+                            className={`settings-context-row ${isHighlighted ? "highlighted" : ""}`}
                         >
-                            {tr(language, "common.delete")}
-                        </button>
-                    </div>
-                ))}
+                            <span className="settings-context-swatch" style={{ backgroundColor: context.color }} aria-hidden="true" />
+                            {isEditing ? (
+                                <input
+                                    value={editDraft}
+                                    onChange={(event) => setEditDraft(event.target.value)}
+                                    onKeyDown={(event) => {
+                                        if (event.key === "Enter") saveRename(context.id);
+                                        if (event.key === "Escape") cancelRename();
+                                    }}
+                                    autoFocus
+                                    disabled={readOnly}
+                                />
+                            ) : (
+                                <span className="settings-context-name">{context.label}</span>
+                            )}
+                            <div className="settings-context-actions">
+                                {isEditing ? (
+                                    <>
+                                        <button type="button" className="icon-btn" onClick={() => saveRename(context.id)} disabled={readOnly || !editDraft.trim()} aria-label={tr(language, "common.save")} title={tr(language, "common.save")}>
+                                            <Icon icon={Check} size={14} />
+                                        </button>
+                                        <button type="button" className="icon-btn" onClick={cancelRename} aria-label={tr(language, "common.cancel")} title={tr(language, "common.cancel")}>
+                                            <Icon icon={X} size={14} />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button type="button" className="icon-btn" onClick={() => startRename(context.id, context.label)} disabled={readOnly} aria-label={tr(language, "common.edit")} title={tr(language, "common.edit")}>
+                                        <Icon icon={Pencil} size={14} />
+                                    </button>
+                                )}
+                                <button type="button" className="icon-btn ghost-danger" onClick={() => handleDeleteContext(context.id)} disabled={readOnly} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
+                                    <Icon icon={Trash2} size={14} />
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             <div className="settings-journal-context-default-row">
@@ -159,11 +202,7 @@ export function SettingsJournalContextsSection({
                     placeholder={tr(language, "settings.journalContextPlaceholder")}
                     disabled={readOnly}
                 />
-                <button
-                    type="button"
-                    onClick={handleAddContext}
-                    disabled={readOnly || !newContext.trim()}
-                >
+                <button type="button" onClick={handleAddContext} disabled={readOnly || !newContext.trim()}>
                     {tr(language, "settings.journalContextAdd")}
                 </button>
             </div>

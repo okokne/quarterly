@@ -87,6 +87,8 @@ export default function App() {
     setSelectedWeek,
     showSettings,
     setShowSettings,
+    settingsContextFocusId,
+    setSettingsContextFocusId,
     showSearchOverlay,
     setShowSearchOverlay,
     showHabitsManager,
@@ -391,7 +393,8 @@ export default function App() {
       language,
       dateFormat,
       timeFormat,
-      updateCycle
+      updateCycle,
+      settingsContextFocusId
     },
     google: {
       googleLoading,
@@ -510,7 +513,11 @@ export default function App() {
     onToggleHabit: toggleHabit,
     onDeleteHabit: deleteHabit,
     onOpenHabitsManager: () => setShowHabitsManager(true),
-    onOpenCycleDrawer: openQuarterDashboard
+    onOpenCycleDrawer: openQuarterDashboard,
+    onOpenContextSettings: (contextId) => {
+      setSettingsContextFocusId(contextId);
+      setShowSettings(true);
+    }
   });
   const entryStateProps = useAppEntryStateProps({
     language,
@@ -573,7 +580,10 @@ export default function App() {
         dateFormat={dateFormat}
         onOpenCycleDrawer={openQuarterDashboard}
         onOpenSearch={() => setShowSearchOverlay(true)}
-        onOpenSettings={openSettings}
+        onOpenSettings={() => {
+          setSettingsContextFocusId(null);
+          openSettings();
+        }}
         onOpenSyncStatus={() => setShowSyncStatusSheet(true)}
         weekCompletion={weekCompletion}
         syncStatus={syncEnabled ? syncStatus : undefined}

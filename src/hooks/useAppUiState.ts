@@ -21,12 +21,14 @@ export function useAppUiState() {
     const [selectedDate, setSelectedDate] = useState(() => toIsoDate(new Date()));
     const [selectedWeek, setSelectedWeek] = useState(1);
     const [showSettings, setShowSettings] = useState(false);
+    const [settingsContextFocusId, setSettingsContextFocusId] = useState<string | null>(null);
     const [showSearchOverlay, setShowSearchOverlay] = useState(false);
     const [showHabitsManager, setShowHabitsManager] = useState(false);
     const [showCycleDrawer, setShowCycleDrawer] = useState(false);
     const [showSyncStatusSheet, setShowSyncStatusSheet] = useState(false);
     const [showQuickCapture, setShowQuickCapture] = useState(false);
     const openSettings = useCallback(() => {
+        setSettingsContextFocusId(null);
         setShowSettings(true);
     }, []);
 
@@ -70,6 +72,8 @@ export function useAppUiState() {
         setSelectedWeek,
         showSettings,
         setShowSettings,
+        settingsContextFocusId,
+        setSettingsContextFocusId,
         showSearchOverlay,
         setShowSearchOverlay,
         showHabitsManager,

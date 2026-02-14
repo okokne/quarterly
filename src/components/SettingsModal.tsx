@@ -27,6 +27,7 @@ export interface SettingsModalProps {
     calendarList: GoogleCalendar[];
     selectedCalendarId: string;
     updateCycle: ((updater: (prev: Cycle) => Cycle) => void) | null;
+    settingsContextFocusId: string | null;
     // Setters
     setDarkMode: (val: boolean) => void;
     setLanguage: (val: AppLanguage) => void;
@@ -69,6 +70,7 @@ export function SettingsModal({
     calendarList,
     selectedCalendarId,
     updateCycle,
+    settingsContextFocusId,
     setDarkMode,
     setLanguage,
     setDateFormat,
@@ -166,6 +168,7 @@ export function SettingsModal({
                         language={language}
                         readOnly={readOnly}
                         updateCycle={updateCycle}
+                        focusedContextId={settingsContextFocusId}
                     />
                 )}
 

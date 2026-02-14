@@ -1,7 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
+import { X } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, ReviewSignal } from "../../types";
 import { FeedRangeFilter, FeedTypeFilter, FilterOption } from "./types";
+import { Icon } from "../ui/Icon";
 
 type JournalFeedToolbarProps = {
     language: AppLanguage;
@@ -21,6 +23,7 @@ type JournalFeedToolbarProps = {
     setContextFilter: Dispatch<SetStateAction<string[]>>;
     contextOptions: Array<FilterOption<string>>;
     toggleContextSelection: (contextId: string) => void;
+    onClose: () => void;
 };
 
 export function JournalFeedToolbar({
@@ -40,10 +43,17 @@ export function JournalFeedToolbar({
     contextFilter,
     setContextFilter,
     contextOptions,
-    toggleContextSelection
+    toggleContextSelection,
+    onClose
 }: JournalFeedToolbarProps) {
     return (
         <div className="subcard journal-feed-toolbar">
+            <div className="journal-filter-panel-header">
+                <strong>{tr(language, "journal.toggleFilters")}</strong>
+                <button type="button" className="icon-btn" onClick={onClose} title={tr(language, "common.close")} aria-label={tr(language, "common.close")}>
+                    <Icon icon={X} size={14} />
+                </button>
+            </div>
             <label>
                 {tr(language, "journal.search")}
                 <input

@@ -2657,8 +2657,26 @@ button.ghost-danger:hover {
   margin-top: 4px;
 }
 
+.journal-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .journal-add-btn {
   min-height: 36px;
+}
+
+.journal-filter-toggle-btn {
+  min-height: 36px;
+  padding: 8px 12px;
+}
+
+.journal-filter-toggle-btn.active {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 60%, var(--bg-card));
+  color: var(--accent-hover);
 }
 
 .journal-entry-form {
@@ -2674,6 +2692,20 @@ button.ghost-danger:hover {
 .journal-feed-toolbar {
   display: grid;
   gap: 12px;
+}
+
+.journal-filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.journal-filter-panel-header strong {
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .journal-filter-row {
@@ -2871,11 +2903,39 @@ button.ghost-danger:hover {
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: var(--bg-subtle);
+  background: var(--journal-context-bg, var(--bg-subtle));
   color: var(--text-secondary);
   font-size: 0.71rem;
   font-weight: 700;
   letter-spacing: 0.01em;
+}
+
+.journal-context-edit-btn {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+.journal-context-edit-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  color: var(--accent-hover);
+}
+
+.journal-entry-meta-dot {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.journal-entry-date {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .journal-entry-signal-row {
@@ -4673,23 +4733,6 @@ textarea:focus-visible {
   width: 100%;
 }
 
-.settings-journal-context-list {
-  display: grid;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.settings-journal-context-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.settings-journal-context-item input {
-  width: 100%;
-}
-
 .settings-journal-context-default-row {
   margin-top: 12px;
   display: grid;
@@ -4707,6 +4750,49 @@ textarea:focus-visible {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
+}
+
+.settings-context-list {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-context-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 0;
+}
+
+.settings-context-row.highlighted {
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent-bg) 72%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent);
+  padding: 6px 8px;
+}
+
+.settings-context-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 40%, transparent);
+}
+
+.settings-context-name {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.settings-context-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-context-row input {
+  width: 100%;
 }
 
 .sync-conflict-box {

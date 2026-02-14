@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
-import { ArrowRight, X } from "lucide-react";
+import { CSSProperties, Dispatch, SetStateAction } from "react";
+import { ArrowRight, Pencil, X } from "lucide-react";
 import { t as tr } from "../../i18n";
-import { AppLanguage, Cycle, DateFormat, ReviewEntry } from "../../types";
+import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../../types";
 import { formatDate, getReviewEntrySignals, getWeekIndexForDate, getWeekLabel } from "../../utils";
 import { monthLabel, previewText } from "./helpers";
 import { SIGNAL_LABEL_SUFFIX } from "./types";
@@ -18,9 +18,10 @@ type JournalFeedListProps = {
     currentMonthKey: string;
     openMonths: Record<string, boolean>;
     setOpenMonths: Dispatch<SetStateAction<Record<string, boolean>>>;
-    contextLabelById: Map<string, string>;
+    contextById: Map<string, JournalContext>;
     handleNavigateEntry: (entry: ReviewEntry) => void;
     handleDeleteEntry: (entryId: string) => void;
+    onOpenContextSettings: (contextId: string) => void;
 };
 
 export function JournalFeedList({
@@ -34,9 +35,10 @@ export function JournalFeedList({
     currentMonthKey,
     openMonths,
     setOpenMonths,
-    contextLabelById,
+    contextById,
     handleNavigateEntry,
-    handleDeleteEntry
+    handleDeleteEntry,
+    onOpenContextSettings
 }: JournalFeedListProps) {
     return (
         <div className="subcard journal-feed-root">
@@ -64,7 +66,8 @@ export function JournalFeedList({
                                     const signals = getReviewEntrySignals(entry);
                                     const isClickable = entry.type === "daily" || entry.type === "weekly";
                                     const weekIndex = entry.weekIndex ?? getWeekIndexForDate(cycle, entry.date);
-                                    const contextLabel = entry.contextId ? contextLabelById.get(entry.contextId) : undefined;
+                                    const context = entry.contextId ? contextById.get(entry.contextId) : undefined;
+                                    const isQuickNote = entry.type === "quick";
                                     return (
                                         <article
                                             key={entry.id}
@@ -89,27 +92,47 @@ export function JournalFeedList({
 
                                             <div className="journal-entry-meta-row">
                                                 <span className={`journal-entry-type ${entry.type}`}>{tr(language, `journal.filterType${entry.type.charAt(0).toUpperCase()}${entry.type.slice(1)}`)}</span>
-                                                {contextLabel && (
-                                                    <span className="journal-entry-context">{contextLabel}</span>
-                                                )}
-                                                <div className="journal-entry-signal-row">
-                                                    {signals.map((signal) => (
-                                                        <span key={`${entry.id}-${signal}`} className={`journal-entry-signal ${signal}`}>
-                                                            {tr(language, `journal.signal${SIGNAL_LABEL_SUFFIX[signal]}`)}
+                                                {context && (
+                                                    <>
+                                                        <span
+                                                            className="journal-entry-context"
+                                                            style={{ "--journal-context-bg": context.color } as CSSProperties}
+                                                        >
+                                                            {context.label}
                                                         </span>
-                                                    ))}
-                                                </div>
-                                                <span className="journal-card-date">
+                                                        <button
+                                                            type="button"
+                                                            className="journal-context-edit-btn"
+                                                            title={tr(language, "journal.editContext")}
+                                                            aria-label={tr(language, "journal.editContext")}
+                                                            disabled={readOnly}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                onOpenContextSettings(context.id);
+                                                            }}
+                                                        >
+                                                            <Icon icon={Pencil} size={12} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                                <span className="journal-entry-meta-dot">·</span>
+                                                <span className="journal-entry-date">
                                                     {entry.type === "weekly"
                                                         ? `${getWeekLabel(cycle, weekIndex, language)} · ${formatDate(entry.date, dateFormat, language)}`
                                                         : formatDate(entry.date, dateFormat, language)}
                                                 </span>
+                                                {!isQuickNote && (
+                                                    <div className="journal-entry-signal-row">
+                                                        {signals.map((signal) => (
+                                                            <span key={`${entry.id}-${signal}`} className={`journal-entry-signal ${signal}`}>
+                                                                {tr(language, `journal.signal${SIGNAL_LABEL_SUFFIX[signal]}`)}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {(entry.type === "custom" || entry.type === "quick") && entry.title && <h4>{entry.title}</h4>}
-                                            {entry.type === "quick" && !entry.title && (
-                                                <h4>{tr(language, "journal.quickSummary")}</h4>
-                                            )}
                                             {entry.type !== "custom" && entry.type !== "quick" && (
                                                 <h4>
                                                     {entry.type === "daily"

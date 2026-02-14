@@ -85,6 +85,7 @@ type UseAppDashboardContentPropsParams = {
     onDeleteHabit: (habitId: Id) => void;
     onOpenHabitsManager: () => void;
     onOpenCycleDrawer: () => void;
+    onOpenContextSettings: (contextId: string) => void;
 };
 
 export function useAppDashboardContentProps(params: UseAppDashboardContentPropsParams) {

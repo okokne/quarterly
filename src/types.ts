@@ -48,6 +48,7 @@ export type Cycle = {
 export type JournalContext = {
     id: Id;
     label: string;
+    color: string;
 };
 
 export type ReviewEntryType = "daily" | "weekly" | "custom" | "quick";

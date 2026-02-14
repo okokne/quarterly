@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
-import { AppLanguage, Cycle, DateFormat, ReviewEntry } from "../types";
+import { Filter } from "lucide-react";
+import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../types";
 import { t as tr } from "../i18n";
 import {
     createJournalCustomReviewEntry,
@@ -15,6 +16,7 @@ import { JournalFeedList } from "./journal/JournalFeedList";
 import { JournalFeedToolbar } from "./journal/JournalFeedToolbar";
 import { FilterOption } from "./journal/types";
 import { useJournalState } from "../hooks/useJournalState";
+import { Icon } from "./ui/Icon";
 
 type Tab = "today" | "week" | "stats" | "journal";
 
@@ -27,13 +29,26 @@ interface JournalViewProps {
     setSelectedDate: (date: string) => void;
     setActiveTab: (tab: Tab) => void;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
+    onOpenContextSettings: (contextId: string) => void;
 }
 
-export function JournalView({ cycle, language, dateFormat, readOnly, setSelectedWeek, setSelectedDate, setActiveTab, updateCycle }: JournalViewProps) {
+export function JournalView({
+    cycle,
+    language,
+    dateFormat,
+    readOnly,
+    setSelectedWeek,
+    setSelectedDate,
+    setActiveTab,
+    updateCycle,
+    onOpenContextSettings
+}: JournalViewProps) {
     const {
         today,
         showComposer,
         setShowComposer,
+        showFilters,
+        setShowFilters,
         composerType,
         setComposerType,
         customDate,
@@ -95,13 +110,18 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
     ]);
 
     const normalizedSearch = searchQuery.trim().toLowerCase();
-    const contextLabelById = useMemo(() => {
-        const map = new Map<string, string>();
+    const contextById = useMemo(() => {
+        const map = new Map<string, JournalContext>();
         (cycle.journalContexts ?? []).forEach((context) => {
-            map.set(context.id, context.label);
+            map.set(context.id, context);
         });
         return map;
     }, [cycle.journalContexts]);
+    const contextLabelById = useMemo(() => {
+        const map = new Map<string, string>();
+        contextById.forEach((context, id) => map.set(id, context.label));
+        return map;
+    }, [contextById]);
     const contextOptions = useMemo<Array<FilterOption<string>>>(() => {
         return (cycle.journalContexts ?? []).map((context) => ({
             id: context.id,
@@ -309,14 +329,25 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                     <h2>{tr(language, "journal.title")}</h2>
                     <p className="muted journal-subtitle">{tr(language, "journal.subtitle")}</p>
                 </div>
-                <button
-                    className="primary journal-add-btn"
-                    disabled={readOnly}
-                    onClick={() => setShowComposer((prev) => !prev)}
-                    title={tr(language, "journal.addEntry")}
-                >
-                    + {tr(language, "journal.addEntry")}
-                </button>
+                <div className="journal-header-actions">
+                    <button
+                        className="primary journal-add-btn"
+                        disabled={readOnly}
+                        onClick={() => setShowComposer((prev) => !prev)}
+                        title={tr(language, "journal.addEntry")}
+                    >
+                        + {tr(language, "journal.addEntry")}
+                    </button>
+                    <button
+                        type="button"
+                        className={`journal-filter-toggle-btn ${showFilters ? "active" : ""}`}
+                        onClick={() => setShowFilters((prev) => !prev)}
+                        title={tr(language, "journal.toggleFilters")}
+                    >
+                        <Icon icon={Filter} size={15} />
+                        {tr(language, "journal.toggleFilters")}
+                    </button>
+                </div>
             </div>
 
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
@@ -356,25 +387,28 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 handleCreateEntry={handleCreateEntry}
             />
 
-            <JournalFeedToolbar
-                language={language}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                typeFilter={typeFilter}
-                setTypeFilter={setTypeFilter}
-                typeOptions={typeOptions}
-                signalFilter={signalFilter}
-                setSignalFilter={setSignalFilter}
-                signalOptions={signalOptions}
-                toggleSignalSelection={toggleSignalSelection}
-                rangeFilter={rangeFilter}
-                setRangeFilter={setRangeFilter}
-                rangeOptions={rangeOptions}
-                contextFilter={contextFilter}
-                setContextFilter={setContextFilter}
-                contextOptions={contextOptions}
-                toggleContextSelection={toggleContextSelection}
-            />
+            {showFilters && (
+                <JournalFeedToolbar
+                    language={language}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    typeFilter={typeFilter}
+                    setTypeFilter={setTypeFilter}
+                    typeOptions={typeOptions}
+                    signalFilter={signalFilter}
+                    setSignalFilter={setSignalFilter}
+                    signalOptions={signalOptions}
+                    toggleSignalSelection={toggleSignalSelection}
+                    rangeFilter={rangeFilter}
+                    setRangeFilter={setRangeFilter}
+                    rangeOptions={rangeOptions}
+                    contextFilter={contextFilter}
+                    setContextFilter={setContextFilter}
+                    contextOptions={contextOptions}
+                    toggleContextSelection={toggleContextSelection}
+                    onClose={() => setShowFilters(false)}
+                />
+            )}
 
             <JournalFeedList
                 cycle={cycle}
@@ -387,9 +421,10 @@ export function JournalView({ cycle, language, dateFormat, readOnly, setSelected
                 currentMonthKey={currentMonthKey}
                 openMonths={openMonths}
                 setOpenMonths={setOpenMonths}
-                contextLabelById={contextLabelById}
+                contextById={contextById}
                 handleNavigateEntry={handleNavigateEntry}
                 handleDeleteEntry={handleDeleteEntry}
+                onOpenContextSettings={onOpenContextSettings}
             />
         </section>
     );
