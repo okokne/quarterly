@@ -265,6 +265,7 @@ export function AppDashboardContent({
                     setSelectedWeek={setSelectedWeek}
                     setActiveTab={setActiveTab}
                     onOpenHabitsManager={onOpenHabitsManager}
+                    onOpenCycleDrawer={onOpenCycleDrawer}
                 />
             )}
 

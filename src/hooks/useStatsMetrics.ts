@@ -32,7 +32,7 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
         return percents;
     }, [cycle]);
 
-    const cyclePercent = useMemo(() => {
+    const cyclePercentValue = useMemo(() => {
         let cycleTotal = 0;
         let cycleDone = 0;
 
@@ -45,8 +45,10 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
             });
         });
 
-        return cycleTotal > 0 ? `${Math.round((cycleDone / cycleTotal) * 100)}%` : "0%";
+        return cycleTotal > 0 ? Math.round((cycleDone / cycleTotal) * 100) : 0;
     }, [cycle]);
+
+    const cyclePercent = `${cyclePercentValue}%`;
 
     const currentPercent = weekPercents[selectedWeek] ?? 0;
     const prevPercent = selectedWeek > 1 ? (weekPercents[selectedWeek - 1] ?? 0) : null;
@@ -95,6 +97,7 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
 
     return {
         getWeekPercent,
+        cyclePercentValue,
         cyclePercent,
         currentPercent,
         prevPercent,

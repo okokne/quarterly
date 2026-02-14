@@ -662,11 +662,25 @@ p {
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
   transition: transform var(--transition-fast);
 }
 
 .stats-bar-container:hover {
   transform: translateY(-2px);
+}
+
+.stats-bar-container:disabled {
+  opacity: 1;
+}
+
+.stats-bar-container.future,
+.stats-bar-container.future:hover {
+  cursor: default;
+  transform: none;
 }
 
 .stats-bar-container.current .stats-bar {
@@ -688,11 +702,18 @@ p {
   width: 100%;
   height: 120px;
   background: var(--bg-card);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
+}
+
+.stats-bar.future {
+  border-color: var(--border);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--bg-subtle) 72%, transparent);
 }
 
 .stats-bar-fill {
@@ -708,6 +729,10 @@ p {
   font-size: 0.65rem;
   font-weight: 600;
   color: var(--text-secondary);
+}
+
+.stats-bar-value.placeholder {
+  color: transparent;
 }
 
 .stats-grid {
@@ -732,6 +757,12 @@ p {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+}
+
+.stats-goals-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .stats-goals-count {
@@ -816,6 +847,19 @@ p {
   color: var(--accent);
   line-height: 1;
   margin: 12px 0;
+}
+
+.stats-progress-status {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.stats-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .stats-comparison {
@@ -907,6 +951,12 @@ p {
   font-size: 0.8rem;
 }
 
+.goal-tracking-actual {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 .goal-tracking-badge {
   flex-shrink: 0;
   font-size: 0.8rem;
@@ -950,7 +1000,7 @@ p {
   justify-content: center;
   font-size: 0.8rem;
   font-weight: 700;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: filter var(--transition-fast), border-color var(--transition-fast);
   cursor: default;
   border: 1px solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
@@ -991,8 +1041,7 @@ p {
 
 
 .goal-week-chip:hover {
-  transform: scale(1.15);
-  box-shadow: var(--shadow-md);
+  filter: brightness(0.97);
 }
 
 .goal-week-chip.high {
@@ -3675,6 +3724,7 @@ button.ghost-danger:hover {
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    justify-content: flex-start;
   }
 
   .stats-bar-label {
@@ -3734,6 +3784,16 @@ button.ghost-danger:hover {
     grid-template-columns: 30px 1fr;
     gap: 10px;
     padding: 10px 12px;
+  }
+
+  .stats-card .stats-goals-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stats-card .stats-goals-header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .stats-card .stats-goal-index {
