@@ -619,12 +619,7 @@ export function TodayBlocksSection({
                                             )}
 
                                             {timelineBlocks.map((entry) => {
-                                                const {
-                                                    plannedAmount,
-                                                    usesCounter,
-                                                    actualValue,
-                                                    isDone
-                                                } = getBlockCompletionState({
+                                                const { isDone } = getBlockCompletionState({
                                                     amount: entry.block.amount,
                                                     actual: entry.block.actual,
                                                     done: entry.block.done
@@ -632,39 +627,44 @@ export function TodayBlocksSection({
                                                 const linkedTargetTitle = entry.block.linkedTargetId
                                                     ? targetTitleById.get(String(entry.block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
                                                     : null;
+                                                const hideTargetByHeight = entry.height < 52;
+                                                const hideTimeByHeight = entry.height < 40;
+                                                const minimalByHeight = entry.height < 30;
+                                                const timelineTooltip = [
+                                                    entry.block.title,
+                                                    `${formatTime(entry.displayStart, timeFormat)}–${formatTime(entry.displayEnd, timeFormat)}`,
+                                                    linkedTargetTitle ? tr(language, "today.linked", { target: linkedTargetTitle }) : null
+                                                ]
+                                                    .filter((part): part is string => Boolean(part))
+                                                    .join(" · ");
                                                 return (
                                                     <button
                                                         key={entry.block.id}
                                                         type="button"
-                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
+                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""} ${hideTargetByHeight ? "height-tight" : ""} ${hideTimeByHeight ? "height-very-tight" : ""} ${minimalByHeight ? "height-ultra-tight" : ""}`}
                                                         style={{ top: `${entry.top}px`, height: `${entry.height}px` } as CSSProperties}
                                                         onClick={() => openBlockInList(entry.block.id)}
+                                                        title={timelineTooltip}
                                                     >
-                                                        <div className="today-timeline-block-head">
-                                                            <strong>{entry.block.title}</strong>
-                                                            <span>{formatTime(entry.displayStart, timeFormat)}–{formatTime(entry.displayEnd, timeFormat)}</span>
+                                                        <div className="today-timeline-mainline">
+                                                            <span className="today-timeline-title-indicator" aria-hidden="true" />
+                                                            <strong className="today-timeline-title">{entry.block.title}</strong>
+                                                            <span className="today-timeline-inline-time">· {formatTime(entry.displayStart, timeFormat)}–{formatTime(entry.displayEnd, timeFormat)}</span>
                                                         </div>
-                                                        <div className="today-timeline-block-meta">
-                                                            {linkedTargetTitle && (
-                                                                <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
-                                                                    {linkedTargetTitle}
-                                                                </span>
-                                                            )}
-                                                            {usesCounter && (
-                                                                <span className="today-timeline-badge today-timeline-badge-count" title={`${actualValue}/${plannedAmount}`}>
-                                                                    {actualValue}/{plannedAmount}
-                                                                </span>
-                                                            )}
-                                                            {isDone && (
-                                                                <span
-                                                                    className="today-timeline-done-indicator"
-                                                                    title={tr(language, "today.completedStatus")}
-                                                                    aria-label={tr(language, "today.completedStatus")}
-                                                                >
-                                                                    <Icon icon={Check} size={12} />
-                                                                </span>
-                                                            )}
-                                                        </div>
+                                                        {linkedTargetTitle && (
+                                                            <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                {linkedTargetTitle}
+                                                            </span>
+                                                        )}
+                                                        {isDone && (
+                                                            <span
+                                                                className="today-timeline-done-indicator"
+                                                                title={tr(language, "today.completedStatus")}
+                                                                aria-label={tr(language, "today.completedStatus")}
+                                                            >
+                                                                <Icon icon={Check} size={12} />
+                                                            </span>
+                                                        )}
                                                     </button>
                                                 );
                                             })}
@@ -682,12 +682,7 @@ export function TodayBlocksSection({
                                     <h4>{tr(language, "today.untimedBlocks")}</h4>
                                     <div className="today-untimed-list">
                                         {untimedBlocks.map((block) => {
-                                            const {
-                                                plannedAmount,
-                                                usesCounter,
-                                                actualValue,
-                                                isDone
-                                            } = getBlockCompletionState({
+                                            const { isDone } = getBlockCompletionState({
                                                 amount: block.amount,
                                                 actual: block.actual,
                                                 done: block.done
@@ -695,38 +690,40 @@ export function TodayBlocksSection({
                                             const linkedTargetTitle = block.linkedTargetId
                                                 ? targetTitleById.get(String(block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
                                                 : null;
+                                            const untimedTooltip = [
+                                                block.title,
+                                                tr(language, "today.untimedHint"),
+                                                linkedTargetTitle ? tr(language, "today.linked", { target: linkedTargetTitle }) : null
+                                            ]
+                                                .filter((part): part is string => Boolean(part))
+                                                .join(" · ");
                                             return (
                                                 <button
                                                     key={block.id}
                                                     type="button"
                                                     className={`today-untimed-item ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
                                                     onClick={() => openBlockInList(block.id)}
+                                                    title={untimedTooltip}
                                                 >
-                                                    <div className="today-untimed-content">
-                                                        <strong>{block.title}</strong>
-                                                        <span className="muted">{tr(language, "today.untimedHint")}</span>
-                                                        <div className="today-timeline-block-meta">
-                                                            {linkedTargetTitle && (
-                                                                <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
-                                                                    {linkedTargetTitle}
-                                                                </span>
-                                                            )}
-                                                            {usesCounter && (
-                                                                <span className="today-timeline-badge today-timeline-badge-count" title={`${actualValue}/${plannedAmount}`}>
-                                                                    {actualValue}/{plannedAmount}
-                                                                </span>
-                                                            )}
-                                                            {isDone && (
-                                                                <span
-                                                                    className="today-timeline-done-indicator"
-                                                                    title={tr(language, "today.completedStatus")}
-                                                                    aria-label={tr(language, "today.completedStatus")}
-                                                                >
-                                                                    <Icon icon={Check} size={12} />
-                                                                </span>
-                                                            )}
-                                                        </div>
+                                                    <div className="today-timeline-mainline today-untimed-mainline">
+                                                        <span className="today-timeline-title-indicator" aria-hidden="true" />
+                                                        <strong className="today-timeline-title">{block.title}</strong>
+                                                        <span className="today-timeline-inline-time muted">· {tr(language, "today.untimedHint")}</span>
                                                     </div>
+                                                    {linkedTargetTitle && (
+                                                        <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                            {linkedTargetTitle}
+                                                        </span>
+                                                    )}
+                                                    {isDone && (
+                                                        <span
+                                                            className="today-timeline-done-indicator"
+                                                            title={tr(language, "today.completedStatus")}
+                                                            aria-label={tr(language, "today.completedStatus")}
+                                                        >
+                                                            <Icon icon={Check} size={12} />
+                                                        </span>
+                                                    )}
                                                 </button>
                                             );
                                         })}
