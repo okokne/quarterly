@@ -247,6 +247,8 @@ export async function syncPlannerState(input: {
     session: SupabaseAuthSession;
     state: PersistedPlannerState;
     localUpdatedAt?: string | null;
+    previousCloudVersion?: number;
+    preferLocalOnDiff?: boolean;
 }): Promise<SyncPlannerResult> {
     const cloud = await fetchCloudPlannerState(input.session);
     if (cloud.error) {
@@ -259,16 +261,24 @@ export async function syncPlannerState(input: {
         };
     }
 
-    const decision = resolveInitialSyncAction({
+    const resolvedDecision = resolveInitialSyncAction({
         local: input.state,
         cloud: cloud.record,
         localUpdatedAt: input.localUpdatedAt
     });
+    const shouldPreferLocal = Boolean(
+        input.preferLocalOnDiff
+        && cloud.record
+        && !areStatesEquivalent(input.state, cloud.record.state)
+    );
+    const decision = shouldPreferLocal ? "push_local" : resolvedDecision;
     if (decision === "push_local") {
         const pushed = await pushPlannerStateToCloud({
             session: input.session,
             state: input.state,
-            previousVersion: cloud.record?.version
+            previousVersion: Number.isFinite(input.previousCloudVersion)
+                ? input.previousCloudVersion
+                : cloud.record?.version
         });
         if (pushed.error === CLOUD_VERSION_CONFLICT_ERROR) {
             const latest = await fetchCloudPlannerState(input.session);

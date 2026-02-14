@@ -62,11 +62,17 @@ export function usePlannerSyncRequestNow({
 
         setSyncStatus("syncing");
         setSyncError(null);
+        const serialized = safeSerialize(state);
+        const localHasUnsyncedChanges = serialized.ok
+            ? serialized.json !== lastSyncedSerializedRef.current
+            : true;
         const localWriteTs = readStateWriteTs(storageScope);
         const result = await syncPlannerState({
             session,
             state,
-            localUpdatedAt: localWriteTs > 0 ? new Date(localWriteTs).toISOString() : null
+            localUpdatedAt: localWriteTs > 0 ? new Date(localWriteTs).toISOString() : null,
+            previousCloudVersion: cloudVersionRef.current > 0 ? cloudVersionRef.current : undefined,
+            preferLocalOnDiff: localHasUnsyncedChanges
         });
 
         if (!result.ok) {
@@ -104,7 +110,6 @@ export function usePlannerSyncRequestNow({
             return true;
         }
 
-        const serialized = safeSerialize(state);
         if (serialized.ok) {
             lastSyncedSerializedRef.current = serialized.json;
         }
