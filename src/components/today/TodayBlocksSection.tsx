@@ -49,12 +49,15 @@ type TimelineBlock = {
 const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 22;
 const TIMELINE_DEFAULT_DURATION_MINUTES = 60;
-const TIMELINE_BASE_MIN_VISIBLE_BLOCK_HEIGHT = 36;
-const TIMELINE_BASE_PIXELS_PER_MINUTE = 1;
-const TIMELINE_ZOOM_FACTOR: Record<TimelineZoomLevel, number> = {
-    compact: 0.78,
-    normal: 1,
-    large: 1.24
+const TIMELINE_PIXELS_PER_HOUR_BY_ZOOM: Record<TimelineZoomLevel, number> = {
+    compact: 28,
+    normal: 56,
+    large: 96
+};
+const TIMELINE_MIN_VISIBLE_BLOCK_HEIGHT_BY_ZOOM: Record<TimelineZoomLevel, number> = {
+    compact: 18,
+    normal: 30,
+    large: 44
 };
 const TIMELINE_ZOOM_LEVELS: TimelineZoomLevel[] = ["compact", "normal", "large"];
 
@@ -144,8 +147,8 @@ export function TodayBlocksSection({
         };
     }, [dayBlocks]);
 
-    const timelinePixelsPerMinute = TIMELINE_BASE_PIXELS_PER_MINUTE * TIMELINE_ZOOM_FACTOR[timelineZoomLevel];
-    const timelineMinVisibleBlockHeight = TIMELINE_BASE_MIN_VISIBLE_BLOCK_HEIGHT * TIMELINE_ZOOM_FACTOR[timelineZoomLevel];
+    const timelinePixelsPerMinute = TIMELINE_PIXELS_PER_HOUR_BY_ZOOM[timelineZoomLevel] / 60;
+    const timelineMinVisibleBlockHeight = TIMELINE_MIN_VISIBLE_BLOCK_HEIGHT_BY_ZOOM[timelineZoomLevel];
     const timelineHeight = (timelineStartAndEnd.endMinutes - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute;
 
     const timelineHours = useMemo(
@@ -624,15 +627,16 @@ export function TodayBlocksSection({
                                                     actual: entry.block.actual,
                                                     done: entry.block.done
                                                 });
+                                                const isCompactZoom = timelineZoomLevel === "compact";
+                                                const isLargeZoom = timelineZoomLevel === "large";
                                                 const linkedTargetTitle = entry.block.linkedTargetId
                                                     ? targetTitleById.get(String(entry.block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
                                                     : null;
-                                                const hideTargetByHeight = entry.height < 52;
-                                                const hideTimeByHeight = entry.height < 40;
-                                                const minimalByHeight = entry.height < 30;
+                                                const startLabel = formatTime(entry.displayStart, timeFormat);
+                                                const endLabel = formatTime(entry.displayEnd, timeFormat);
                                                 const timelineTooltip = [
                                                     entry.block.title,
-                                                    `${formatTime(entry.displayStart, timeFormat)}–${formatTime(entry.displayEnd, timeFormat)}`,
+                                                    `${startLabel}–${endLabel}`,
                                                     linkedTargetTitle ? tr(language, "today.linked", { target: linkedTargetTitle }) : null
                                                 ]
                                                     .filter((part): part is string => Boolean(part))
@@ -641,29 +645,32 @@ export function TodayBlocksSection({
                                                     <button
                                                         key={entry.block.id}
                                                         type="button"
-                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""} ${hideTargetByHeight ? "height-tight" : ""} ${hideTimeByHeight ? "height-very-tight" : ""} ${minimalByHeight ? "height-ultra-tight" : ""}`}
+                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle && !isCompactZoom ? "has-target" : ""}`}
                                                         style={{ top: `${entry.top}px`, height: `${entry.height}px` } as CSSProperties}
                                                         onClick={() => openBlockInList(entry.block.id)}
                                                         title={timelineTooltip}
                                                     >
-                                                        <div className="today-timeline-mainline">
-                                                            <span className="today-timeline-title-indicator" aria-hidden="true" />
-                                                            <strong className="today-timeline-title">{entry.block.title}</strong>
-                                                            <span className="today-timeline-inline-time">· {formatTime(entry.displayStart, timeFormat)}–{formatTime(entry.displayEnd, timeFormat)}</span>
-                                                        </div>
-                                                        {linkedTargetTitle && (
-                                                            <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
-                                                                {linkedTargetTitle}
-                                                            </span>
-                                                        )}
-                                                        {isDone && (
-                                                            <span
-                                                                className="today-timeline-done-indicator"
-                                                                title={tr(language, "today.completedStatus")}
-                                                                aria-label={tr(language, "today.completedStatus")}
-                                                            >
-                                                                <Icon icon={Check} size={12} />
-                                                            </span>
+                                                        <span className="today-timeline-time-start">{startLabel}</span>
+                                                        <strong className="today-timeline-title">{entry.block.title}</strong>
+                                                        {!isCompactZoom && <span className="today-timeline-time-end">{endLabel}</span>}
+                                                        {!isCompactZoom && (
+                                                            <div className="today-timeline-slot">
+                                                                {linkedTargetTitle ? (
+                                                                    <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                        {linkedTargetTitle}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="today-timeline-slot-empty" aria-hidden="true" />
+                                                                )}
+                                                                <span
+                                                                    className={`today-timeline-done-indicator ${(isDone && isLargeZoom) || (isDone && !linkedTargetTitle) ? "is-visible" : "is-hidden"}`}
+                                                                    title={(isDone && isLargeZoom) || (isDone && !linkedTargetTitle) ? tr(language, "today.completedStatus") : undefined}
+                                                                    aria-label={(isDone && isLargeZoom) || (isDone && !linkedTargetTitle) ? tr(language, "today.completedStatus") : undefined}
+                                                                    aria-hidden={!((isDone && isLargeZoom) || (isDone && !linkedTargetTitle))}
+                                                                >
+                                                                    <Icon icon={Check} size={12} />
+                                                                </span>
+                                                            </div>
                                                         )}
                                                     </button>
                                                 );
@@ -705,25 +712,27 @@ export function TodayBlocksSection({
                                                     onClick={() => openBlockInList(block.id)}
                                                     title={untimedTooltip}
                                                 >
-                                                    <div className="today-timeline-mainline today-untimed-mainline">
-                                                        <span className="today-timeline-title-indicator" aria-hidden="true" />
+                                                    <div className="today-untimed-mainline">
                                                         <strong className="today-timeline-title">{block.title}</strong>
-                                                        <span className="today-timeline-inline-time muted">· {tr(language, "today.untimedHint")}</span>
+                                                        <span className="today-untimed-hint muted">{tr(language, "today.untimedHint")}</span>
                                                     </div>
-                                                    {linkedTargetTitle && (
-                                                        <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
-                                                            {linkedTargetTitle}
-                                                        </span>
-                                                    )}
-                                                    {isDone && (
+                                                    <div className="today-timeline-slot">
+                                                        {linkedTargetTitle ? (
+                                                            <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                {linkedTargetTitle}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="today-timeline-slot-empty" aria-hidden="true" />
+                                                        )}
                                                         <span
-                                                            className="today-timeline-done-indicator"
-                                                            title={tr(language, "today.completedStatus")}
-                                                            aria-label={tr(language, "today.completedStatus")}
+                                                            className={`today-timeline-done-indicator ${isDone ? "is-visible" : "is-hidden"}`}
+                                                            title={isDone ? tr(language, "today.completedStatus") : undefined}
+                                                            aria-label={isDone ? tr(language, "today.completedStatus") : undefined}
+                                                            aria-hidden={!isDone}
                                                         >
                                                             <Icon icon={Check} size={12} />
                                                         </span>
-                                                    )}
+                                                    </div>
                                                 </button>
                                             );
                                         })}

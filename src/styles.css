@@ -3984,7 +3984,8 @@ button.ghost-danger:hover {
   border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
   background: color-mix(in srgb, var(--bg-subtle) 84%, var(--bg-card));
   padding: 6px 9px;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
   text-align: left;
@@ -4007,32 +4008,8 @@ button.ghost-danger:hover {
   filter: saturate(0.82);
 }
 
-.today-timeline-mainline {
-  min-width: 0;
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.today-untimed-mainline {
-  flex: 1 1 auto;
-}
-
-.today-timeline-title-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 72%, var(--text-secondary));
-  display: none;
-  flex: 0 0 auto;
-}
-
 .today-timeline-title {
   min-width: 0;
-  flex: 1 1 auto;
   font-size: 0.82rem;
   line-height: 1.2;
   overflow: hidden;
@@ -4040,18 +4017,27 @@ button.ghost-danger:hover {
   white-space: nowrap;
 }
 
-.today-timeline-inline-time {
+.today-timeline-time-start,
+.today-timeline-time-end {
   flex: 0 0 auto;
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+  font-size: 0.69rem;
+  font-weight: 600;
   white-space: nowrap;
+}
+
+.today-timeline-time-start {
+  color: var(--text-muted);
+}
+
+.today-timeline-time-end {
+  color: var(--text-secondary);
 }
 
 .today-timeline-badge {
   display: inline-flex;
   align-items: center;
   min-width: 0;
-  max-width: 40%;
+  max-width: 100%;
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
@@ -4065,7 +4051,22 @@ button.ghost-danger:hover {
 }
 
 .today-timeline-badge-target {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+}
+
+.today-timeline-slot {
+  width: clamp(96px, 34%, 220px);
+  min-width: 96px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.today-timeline-slot-empty {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .today-timeline-done-indicator {
@@ -4081,33 +4082,23 @@ button.ghost-danger:hover {
   justify-content: center;
 }
 
-.today-timeline-block.height-tight .today-timeline-badge-target {
-  display: none;
-}
-
-.today-timeline-block.height-very-tight .today-timeline-inline-time {
-  display: none;
-}
-
-.today-timeline-block.height-ultra-tight .today-timeline-title {
-  max-width: 12ch;
-}
-
-.today-timeline-block.height-ultra-tight .today-timeline-title-indicator {
-  display: inline-flex;
+.today-timeline-done-indicator.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .today-timeline-layout.zoom-compact .today-timeline-block {
-  padding: 5px 8px;
+  padding: 4px 6px;
   gap: 6px;
 }
 
 .today-timeline-layout.zoom-compact .today-timeline-title {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
 }
 
-.today-timeline-layout.zoom-compact .today-timeline-inline-time {
-  font-size: 0.66rem;
+.today-timeline-layout.zoom-compact .today-timeline-time-start,
+.today-timeline-layout.zoom-compact .today-timeline-time-end {
+  font-size: 0.61rem;
 }
 
 .today-timeline-layout.zoom-compact .today-timeline-badge {
@@ -4115,50 +4106,43 @@ button.ghost-danger:hover {
   padding: 2px 7px;
 }
 
+.today-timeline-layout.zoom-compact .today-timeline-slot {
+  width: clamp(88px, 30%, 180px);
+}
+
 .today-timeline-layout.zoom-compact .today-timeline-done-indicator {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
 }
 
 .today-timeline-layout.zoom-large .today-timeline-block {
-  padding: 7px 10px;
-  gap: 9px;
+  padding: 10px 12px;
+  gap: 11px;
 }
 
 .today-timeline-layout.zoom-large .today-timeline-title {
-  font-size: 0.86rem;
+  font-size: 0.94rem;
 }
 
-.today-timeline-layout.zoom-large .today-timeline-inline-time {
-  font-size: 0.74rem;
+.today-timeline-layout.zoom-large .today-timeline-time-start,
+.today-timeline-layout.zoom-large .today-timeline-time-end {
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .today-timeline-layout.zoom-large .today-timeline-badge {
-  font-size: 0.69rem;
+  font-size: 0.74rem;
+  padding: 3px 9px;
 }
 
-@media (max-width: 760px) {
-  .today-timeline-block .today-timeline-badge-target,
-  .today-untimed-item .today-timeline-badge-target {
-    display: none;
-  }
+.today-timeline-layout.zoom-large .today-timeline-slot {
+  width: clamp(112px, 38%, 280px);
+  min-width: 112px;
 }
 
-@media (max-width: 560px) {
-  .today-timeline-block .today-timeline-inline-time,
-  .today-untimed-item .today-timeline-inline-time {
-    display: none;
-  }
-}
-
-@media (max-width: 420px) {
-  .today-timeline-title-indicator {
-    display: inline-flex;
-  }
-
-  .today-timeline-title {
-    max-width: 10ch;
-  }
+.today-timeline-layout.zoom-large .today-timeline-done-indicator {
+  width: 20px;
+  height: 20px;
 }
 
 .today-timeline-empty {
@@ -4212,6 +4196,20 @@ button.ghost-danger:hover {
 
 .today-untimed-item.done {
   opacity: 0.58;
+}
+
+.today-untimed-mainline {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.today-untimed-hint {
+  font-size: 0.72rem;
+  white-space: nowrap;
 }
 
 .today-week-shift-btn {
@@ -4472,8 +4470,14 @@ button.ghost-danger:hover {
     font-size: 0.76rem;
   }
 
-  .today-timeline-mainline {
-    gap: 3px;
+  .today-timeline-time-start,
+  .today-timeline-time-end {
+    font-size: 0.62rem;
+  }
+
+  .today-timeline-slot {
+    width: clamp(80px, 33%, 150px);
+    min-width: 80px;
   }
 
   .today-timeline-badge {
