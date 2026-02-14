@@ -55,6 +55,8 @@ export function JournalView({
         setCustomTitle,
         customContent,
         setCustomContent,
+        customContextId,
+        setCustomContextId,
         customSignals,
         toggleCustomSignal,
         dailyDate,
@@ -280,6 +282,7 @@ export function JournalView({
                     title: customTitle,
                     content: customContent,
                     date: customDate,
+                    contextId: customContextId || undefined,
                     signals: customSignals
                 });
                 if (!created) return prev;
@@ -446,6 +449,8 @@ export function JournalView({
                 setCustomTitle={setCustomTitle}
                 customContent={customContent}
                 setCustomContent={setCustomContent}
+                customContextId={customContextId}
+                setCustomContextId={setCustomContextId}
                 customSignals={customSignals}
                 toggleCustomSignal={toggleCustomSignal}
                 dailyDate={dailyDate}

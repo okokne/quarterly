@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Cycle, ReviewSignal } from "../types";
 import { getWeekIndexForDate, toIsoDate } from "../utils";
 import { ComposerType, FeedRangeFilter, FeedTypeFilter, FilterOption } from "../components/journal/types";
@@ -17,6 +17,15 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
     const [customDate, setCustomDate] = useState(() => toIsoDate(new Date()));
     const [customTitle, setCustomTitle] = useState("");
     const [customContent, setCustomContent] = useState("");
+    const defaultContextId = useMemo(() => {
+        const contexts = cycle.journalContexts ?? [];
+        const configuredDefault = cycle.defaultJournalContextId?.trim();
+        if (configuredDefault && contexts.some((context) => context.id === configuredDefault)) {
+            return configuredDefault;
+        }
+        return contexts[0]?.id ?? "";
+    }, [cycle.defaultJournalContextId, cycle.journalContexts]);
+    const [customContextId, setCustomContextId] = useState(defaultContextId);
     const [customSignals, setCustomSignals] = useState<ReviewSignal[]>([]);
 
     const [dailyDate, setDailyDate] = useState(() => toIsoDate(new Date()));
@@ -59,10 +68,20 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
         ));
     };
 
+    useEffect(() => {
+        setCustomContextId((prev) => {
+            if (!prev) return defaultContextId;
+            return (cycle.journalContexts ?? []).some((context) => context.id === prev)
+                ? prev
+                : defaultContextId;
+        });
+    }, [cycle.journalContexts, defaultContextId]);
+
     const resetComposerFields = () => {
         setCustomDate(toIsoDate(new Date()));
         setCustomTitle("");
         setCustomContent("");
+        setCustomContextId(defaultContextId);
         setCustomSignals([]);
         setDailyDate(toIsoDate(new Date()));
         setDailyGood("");
@@ -117,6 +136,8 @@ export function useJournalState({ cycle }: UseJournalStateParams) {
         setCustomTitle,
         customContent,
         setCustomContent,
+        customContextId,
+        setCustomContextId,
         customSignals,
         toggleCustomSignal,
         dailyDate,

@@ -2754,6 +2754,39 @@ button.ghost-danger:hover {
   color: white;
 }
 
+.journal-filter-chip.journal-label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--journal-context-bg, var(--bg-subtle));
+  border-color: color-mix(in srgb, var(--text-muted) 24%, var(--border));
+  color: var(--text-primary);
+}
+
+.journal-filter-chip.journal-label-chip:hover {
+  background: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 86%, var(--bg-card));
+}
+
+.journal-filter-chip.journal-label-chip.active {
+  background: var(--journal-context-bg, var(--bg-subtle));
+  border-color: color-mix(in srgb, var(--accent) 44%, var(--border));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--text-primary);
+}
+
+.journal-filter-chip.journal-label-chip-none.active {
+  background: color-mix(in srgb, var(--accent-bg) 74%, var(--bg-card));
+  color: var(--accent-hover);
+}
+
+.journal-label-chip-swatch {
+  width: 8px;
+  min-width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 35%, transparent);
+}
+
 .journal-feed-root {
   display: grid;
   gap: 12px;

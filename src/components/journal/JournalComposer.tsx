@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { CSSProperties, Dispatch, SetStateAction } from "react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, ReviewSignal } from "../../types";
 import { getWeekLabel } from "../../utils";
@@ -19,6 +19,8 @@ type JournalComposerProps = {
     setCustomTitle: Dispatch<SetStateAction<string>>;
     customContent: string;
     setCustomContent: Dispatch<SetStateAction<string>>;
+    customContextId: string;
+    setCustomContextId: Dispatch<SetStateAction<string>>;
     customSignals: ReviewSignal[];
     toggleCustomSignal: (signal: ReviewSignal) => void;
     dailyDate: string;
@@ -54,6 +56,8 @@ export function JournalComposer({
     setCustomTitle,
     customContent,
     setCustomContent,
+    customContextId,
+    setCustomContextId,
     customSignals,
     toggleCustomSignal,
     dailyDate,
@@ -79,7 +83,7 @@ export function JournalComposer({
         <div className="subcard journal-entry-form">
             <h3>{tr(language, "journal.newEntry")}</h3>
             <div className="journal-composer-type-row">
-                <button className={`journal-filter-chip ${composerType === "custom" ? "active" : ""}`} onClick={() => setComposerType("custom")}>{tr(language, "journal.filterTypeCustom")}</button>
+                <button className={`journal-filter-chip ${composerType === "custom" ? "active" : ""}`} onClick={() => setComposerType("custom")}>{tr(language, "journal.filterTypeNote")}</button>
                 <button className={`journal-filter-chip ${composerType === "daily" ? "active" : ""}`} onClick={() => setComposerType("daily")}>{tr(language, "journal.filterTypeDaily")}</button>
                 <button className={`journal-filter-chip ${composerType === "weekly" ? "active" : ""}`} onClick={() => setComposerType("weekly")}>{tr(language, "journal.filterTypeWeekly")}</button>
             </div>
@@ -103,6 +107,30 @@ export function JournalComposer({
                                 onChange={(e) => setCustomDate(e.target.value)}
                             />
                         </label>
+                    </div>
+                    <div className="journal-filter-row">
+                        <span className="journal-filter-label">{tr(language, "journal.filterContext")}</span>
+                        <div className="journal-filter-chip-row">
+                            <button
+                                type="button"
+                                className={`journal-filter-chip journal-label-chip journal-label-chip-none ${customContextId === "" ? "active" : ""}`}
+                                onClick={() => setCustomContextId("")}
+                            >
+                                {tr(language, "journal.contextNone")}
+                            </button>
+                            {(cycle.journalContexts ?? []).map((context) => (
+                                <button
+                                    key={context.id}
+                                    type="button"
+                                    className={`journal-filter-chip journal-label-chip ${customContextId === context.id ? "active" : ""}`}
+                                    style={{ "--journal-context-bg": context.color } as CSSProperties}
+                                    onClick={() => setCustomContextId(context.id)}
+                                >
+                                    <span className="journal-label-chip-swatch" style={{ backgroundColor: context.color }} aria-hidden="true" />
+                                    {context.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                     <div className="journal-filter-row">
                         <span className="journal-filter-label">{tr(language, "journal.filterSignals")}</span>
