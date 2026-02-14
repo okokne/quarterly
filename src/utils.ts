@@ -40,5 +40,7 @@ export {
     getAutoDoneForTargetInWeek,
     getBlockContribution,
     getEffectiveWeeklyDone,
-    getRemainingFromEffectiveDone
+    getRemainingFromEffectiveDone,
+    getTargetProgressRatio,
+    getWeekProgressPercent
 } from "./utils/weeklyTargetMetrics";

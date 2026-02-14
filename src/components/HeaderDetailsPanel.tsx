@@ -7,7 +7,7 @@ type HeaderDetailsPanelProps = {
     language: AppLanguage;
     onboardingDone: boolean;
     selectedWeek: number;
-    weekCompletion: { done: number; total: number };
+    weekCompletion: { percent: number; targetCount: number };
     onClose: () => void;
 };
 
@@ -29,9 +29,9 @@ export function HeaderDetailsPanel({
                     <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>✕</button>
                 </div>
 
-                {onboardingDone && weekCompletion.total > 0 && (
+                {onboardingDone && (
                     <div className="details-progress-block">
-                        <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={92} strokeWidth={8} />
+                        <ProgressRing value={weekCompletion.percent} max={100} size={92} strokeWidth={8} />
                         <div>
                             <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
                         </div>

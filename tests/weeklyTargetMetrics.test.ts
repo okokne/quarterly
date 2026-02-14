@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildCycle, getEffectiveWeeklyDone, migrateCycle } from "../src/utils";
+import { buildCycle, getEffectiveWeeklyDone, getWeekProgressPercent, migrateCycle } from "../src/utils";
 
 test("effective weekly done combines auto progress and manual adjustment", () => {
     const cycle = buildCycle("Target Test", "2026-01-05");
@@ -69,4 +69,43 @@ test("migrateCycle converts legacy done field to manualAdjust offset", () => {
     const migrated = migrateCycle(raw);
     assert.ok(migrated);
     assert.equal(migrated!.weeklyTargets[1][0].manualAdjust, 4);
+});
+
+test("week progress is equal-weighted across targets and capped at 100% per target", () => {
+    const cycle = buildCycle("Week Progress Fairness", "2026-01-05");
+    cycle.weeklyTargets[1] = [
+        { id: "calls", title: "Calls", target: 50, manualAdjust: 0 },
+        { id: "steps", title: "Steps", target: 70000, manualAdjust: 0 }
+    ];
+
+    const week = cycle.weeks[0];
+    cycle.dailyPlans[week.startDate] = [
+        {
+            id: "calls-block",
+            title: "Calls",
+            startTime: "09:00",
+            endTime: "10:00",
+            linkedTargetId: "calls",
+            done: true,
+            actual: 100
+        },
+        {
+            id: "steps-block",
+            title: "Walk",
+            startTime: "18:00",
+            endTime: "19:00",
+            linkedTargetId: "steps",
+            done: true,
+            actual: 35000
+        }
+    ];
+
+    const percent = getWeekProgressPercent(cycle, 1);
+    assert.equal(percent, 75, "100% for calls and 50% for steps should average to 75%");
+});
+
+test("week progress is zero when no weekly targets exist", () => {
+    const cycle = buildCycle("No Targets", "2026-01-05");
+    const percent = getWeekProgressPercent(cycle, 1);
+    assert.equal(percent, 0);
 });

@@ -31,3 +31,21 @@ export function getRemainingFromEffectiveDone(cycle: Cycle, weekIndex: number, t
     const effectiveDone = getEffectiveWeeklyDone(cycle, weekIndex, target);
     return Math.max(0, target.target - effectiveDone);
 }
+
+export function getTargetProgressRatio(cycle: Cycle, weekIndex: number, target: WeeklyTarget): number {
+    const safeTarget = Number.isFinite(target.target) ? target.target : 0;
+    if (safeTarget <= 0) return 0;
+    const effectiveDone = getEffectiveWeeklyDone(cycle, weekIndex, target);
+    return Math.min(1, Math.max(0, effectiveDone / safeTarget));
+}
+
+export function getWeekProgressPercent(cycle: Cycle, weekIndex: number): number {
+    const targets = cycle.weeklyTargets[weekIndex] ?? [];
+    if (targets.length === 0) return 0;
+
+    const totalRatio = targets.reduce((sum, target) => {
+        return sum + getTargetProgressRatio(cycle, weekIndex, target);
+    }, 0);
+
+    return Math.round((totalRatio / targets.length) * 100);
+}

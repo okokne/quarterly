@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
 import { formatDate, formatRange } from "../utils";
@@ -14,7 +15,7 @@ type AppHeaderProps = {
     onOpenSearch: () => void;
     onOpenSettings: () => void;
     onOpenSyncStatus: () => void;
-    weekCompletion: { done: number; total: number };
+    weekCompletion: { percent: number; targetCount: number };
     syncStatus?: SyncStatus;
 };
 
@@ -32,6 +33,29 @@ export function AppHeader({
     weekCompletion,
     syncStatus
 }: AppHeaderProps) {
+    const [showWeekProgressInfo, setShowWeekProgressInfo] = useState(false);
+    const weekProgressRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!showWeekProgressInfo) return;
+        const onPointerDown = (event: MouseEvent) => {
+            if (!weekProgressRef.current?.contains(event.target as Node)) {
+                setShowWeekProgressInfo(false);
+            }
+        };
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setShowWeekProgressInfo(false);
+            }
+        };
+        document.addEventListener("mousedown", onPointerDown);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", onPointerDown);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [showWeekProgressInfo]);
+
     const syncLabel = syncStatus === "syncing"
         ? tr(language, "app.syncBadgeSyncing")
         : syncStatus === "synced"
@@ -41,6 +65,9 @@ export function AppHeader({
                 : syncStatus === "offline"
                     ? tr(language, "app.syncBadgeOffline")
                     : tr(language, "app.syncBadgeSaved");
+    const weekProgressTitle = weekCompletion.targetCount > 0
+        ? tr(language, "today.weekProgress")
+        : tr(language, "week.noWeeklyTargets");
 
     return (
         <header className="header">
@@ -59,14 +86,28 @@ export function AppHeader({
                 </div>
             </div>
             <div className="header-side">
-                {weekCompletion.total > 0 && (
-                    <div className="header-week-progress" title={tr(language, "today.weekProgress")}>
-                        <ProgressRing value={weekCompletion.done} max={weekCompletion.total} size={92} strokeWidth={8} />
+                <div className="header-week-progress" title={weekProgressTitle} ref={weekProgressRef}>
+                        <ProgressRing value={weekCompletion.percent} max={100} size={92} strokeWidth={8} />
                         <div className="header-week-progress-meta">
-                            <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
+                            <div className="header-week-progress-meta-top">
+                                <strong>{tr(language, "app.headerWeekShort", { week: selectedWeek })}</strong>
+                                <button
+                                    type="button"
+                                    className="header-week-progress-info-btn"
+                                    aria-label={tr(language, "app.weekProgressInfoLabel")}
+                                    title={tr(language, "app.weekProgressInfoLabel")}
+                                    onClick={() => setShowWeekProgressInfo((prev) => !prev)}
+                                >
+                                    i
+                                </button>
+                            </div>
+                            {showWeekProgressInfo && (
+                                <div className="header-week-progress-popover" role="dialog">
+                                    {tr(language, "app.weekProgressInfoText")}
+                                </div>
+                            )}
                         </div>
                     </div>
-                )}
                 <div className="header-actions">
                     <button
                         onClick={onOpenCycleDrawer}

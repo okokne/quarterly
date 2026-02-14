@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Cycle } from "../types";
-import { getEffectiveWeeklyDone } from "../utils";
+import { getEffectiveWeeklyDone, getWeekProgressPercent } from "../utils";
 
 export type GoalTrackingWeek = {
     weekIndex: number;
@@ -27,17 +27,7 @@ export function useStatsMetrics({ cycle, selectedWeek }: UseStatsMetricsParams) 
     const weekPercents = useMemo(() => {
         const percents: Record<number, number> = {};
         cycle.weeks.forEach((week) => {
-            const targets = cycle.weeklyTargets[week.index] ?? [];
-            let totalDone = 0;
-            let totalTarget = 0;
-
-            targets.forEach((target) => {
-                const done = getEffectiveWeeklyDone(cycle, week.index, target);
-                totalDone += Math.min(done, target.target);
-                totalTarget += target.target;
-            });
-
-            percents[week.index] = totalTarget > 0 ? Math.round((totalDone / totalTarget) * 100) : 0;
+            percents[week.index] = getWeekProgressPercent(cycle, week.index);
         });
         return percents;
     }, [cycle]);

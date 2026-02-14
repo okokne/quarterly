@@ -1,11 +1,15 @@
 import { useCallback, useMemo } from "react";
 import { Cycle, Id, WeeklyTarget } from "../types";
-import { getAutoDoneForTargetInWeek, getEffectiveWeeklyDone, getRemainingFromEffectiveDone } from "../utils";
+import {
+    getAutoDoneForTargetInWeek,
+    getEffectiveWeeklyDone,
+    getRemainingFromEffectiveDone,
+    getWeekProgressPercent
+} from "../utils";
 
 type WeekCompletion = {
-    done: number;
-    total: number;
     percent: number;
+    targetCount: number;
 };
 
 type UseWeekMetricsParams = {
@@ -33,23 +37,12 @@ export function useWeekMetrics({ cycle, selectedWeek }: UseWeekMetricsParams) {
     }, [cycle]);
 
     const weekCompletion = useMemo<WeekCompletion>(() => {
-        if (!cycle) return { done: 0, total: 0, percent: 0 };
-
-        const targets = cycle.weeklyTargets[selectedWeek] ?? [];
-        if (targets.length === 0) return { done: 0, total: 0, percent: 0 };
-
-        let totalDone = 0;
-        let totalTarget = 0;
-
-        targets.forEach((target) => {
-            const done = getEffectiveDone(selectedWeek, target);
-            totalDone += Math.min(done, target.target);
-            totalTarget += target.target;
-        });
-
-        const percent = totalTarget > 0 ? Math.round((totalDone / totalTarget) * 100) : 0;
-        return { done: totalDone, total: totalTarget, percent };
-    }, [cycle, getEffectiveDone, selectedWeek]);
+        if (!cycle) return { percent: 0, targetCount: 0 };
+        return {
+            percent: getWeekProgressPercent(cycle, selectedWeek),
+            targetCount: (cycle.weeklyTargets[selectedWeek] ?? []).length
+        };
+    }, [cycle, selectedWeek]);
 
     return {
         weekCompletion,
