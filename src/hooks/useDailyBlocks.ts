@@ -6,6 +6,7 @@ import { canReorderIndices } from "../regressionLogic";
 export type DailyBlockDraft = {
     startTime: string;
     endTime: string;
+    isFlexible: boolean;
     title: string;
     linkedTargetId: string;
     amount: number;
@@ -27,11 +28,15 @@ export function useDailyBlocks({
 }: UseDailyBlocksParams) {
     const addBlock = async (date: string, draft: DailyBlockDraft): Promise<boolean> => {
         if (!draft.title.trim()) return false;
+        if (!draft.isFlexible && (!draft.startTime || !draft.endTime)) return false;
+
+        const isFlexible = draft.isFlexible;
 
         const newBlock: DailyBlock = {
             id: uid(),
-            startTime: draft.startTime,
-            endTime: draft.endTime,
+            startTime: isFlexible ? null : draft.startTime,
+            endTime: isFlexible ? null : draft.endTime,
+            isFlexible: isFlexible ? true : undefined,
             title: draft.title.trim(),
             linkedTargetId: draft.linkedTargetId || undefined,
             done: false,
@@ -39,7 +44,7 @@ export function useDailyBlocks({
             actual: draft.actual ? clamp(draft.actual, 0, 9999) : 0
         };
 
-        if (googleConnected) {
+        if (googleConnected && !isFlexible && newBlock.startTime && newBlock.endTime) {
             try {
                 const eventId = await createCalendarEvent(
                     newBlock.title,
@@ -68,20 +73,55 @@ export function useDailyBlocks({
     const updateBlock = async (date: string, blockId: Id, changes: Partial<DailyBlock>) => {
         const currentBlocks = cycle?.dailyPlans[date] ?? [];
         const block = currentBlocks.find((item) => item.id === blockId);
+        if (!block) return;
 
-        if (googleConnected && block?.googleEventId && (changes.startTime || changes.endTime || changes.title)) {
-            try {
-                await updateCalendarEvent(
-                    block.googleEventId,
-                    changes.title ?? block.title,
-                    date,
-                    changes.startTime ?? block.startTime,
-                    changes.endTime ?? block.endTime,
-                    "Quarterly Plan Block",
-                    selectedCalendarId
-                );
-            } catch (err) {
-                console.error("Failed to update calendar event:", err);
+        const merged = { ...block, ...changes };
+        const nextIsFlexible = merged.isFlexible === true || !merged.startTime || !merged.endTime;
+        const nextStartTime = nextIsFlexible ? null : merged.startTime;
+        const nextEndTime = nextIsFlexible ? null : merged.endTime;
+        const nextTitle = merged.title;
+        let nextGoogleEventId = nextIsFlexible ? undefined : block.googleEventId;
+
+        if (googleConnected) {
+            if (nextIsFlexible || !nextStartTime || !nextEndTime) {
+                if (block.googleEventId) {
+                    try {
+                        await deleteCalendarEvent(block.googleEventId, selectedCalendarId);
+                    } catch (err) {
+                        console.error("Failed to delete calendar event:", err);
+                    }
+                    nextGoogleEventId = undefined;
+                }
+            } else if (block.googleEventId) {
+                try {
+                    await updateCalendarEvent(
+                        block.googleEventId,
+                        nextTitle,
+                        date,
+                        nextStartTime,
+                        nextEndTime,
+                        "Quarterly Plan Block",
+                        selectedCalendarId
+                    );
+                } catch (err) {
+                    console.error("Failed to update calendar event:", err);
+                }
+            } else {
+                try {
+                    const createdEventId = await createCalendarEvent(
+                        nextTitle,
+                        date,
+                        nextStartTime,
+                        nextEndTime,
+                        "Quarterly Plan Block",
+                        selectedCalendarId
+                    );
+                    if (createdEventId) {
+                        nextGoogleEventId = createdEventId;
+                    }
+                } catch (err) {
+                    console.error("Failed to create calendar event:", err);
+                }
             }
         }
 
@@ -91,7 +131,18 @@ export function useDailyBlocks({
                 ...prev,
                 dailyPlans: {
                     ...prev.dailyPlans,
-                    [date]: blocks.map((item) => (item.id === blockId ? { ...item, ...changes } : item))
+                    [date]: blocks.map((item) => (
+                        item.id === blockId
+                            ? {
+                                ...item,
+                                ...changes,
+                                startTime: nextStartTime,
+                                endTime: nextEndTime,
+                                isFlexible: nextIsFlexible ? true : undefined,
+                                googleEventId: nextGoogleEventId
+                            }
+                            : item
+                    ))
                 }
             };
         });

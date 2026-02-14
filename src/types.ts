@@ -117,8 +117,9 @@ export type WeeklyTarget = {
 
 export type DailyBlock = {
     id: Id;
-    startTime: string; // HH:MM
-    endTime: string; // HH:MM
+    startTime: string | null; // HH:MM or null for flexible blocks
+    endTime: string | null; // HH:MM or null for flexible blocks
+    isFlexible?: boolean;
     title: string;
     linkedTargetId?: Id;
     done: boolean;

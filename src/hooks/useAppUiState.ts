@@ -37,6 +37,7 @@ export function useAppUiState() {
     const [blockDraft, setBlockDraft] = useState<DailyBlockDraft>({
         startTime: "09:00",
         endTime: "10:00",
+        isFlexible: false,
         title: "",
         linkedTargetId: "",
         amount: 1,

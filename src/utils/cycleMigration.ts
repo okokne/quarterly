@@ -59,11 +59,25 @@ export function migrateCycle(raw: any): Cycle | null {
                 const rawActual = Math.max(0, Math.floor(asSafeNumber(rawBlock.actual, 0)));
                 const actual = amount ? clamp(rawActual, 0, amount) : rawActual;
                 const done = amount ? actual >= amount : asBool(rawBlock.done);
+                const hasValidStartTime = typeof rawBlock.startTime === "string" && rawBlock.startTime.trim().length > 0;
+                const hasValidEndTime = typeof rawBlock.endTime === "string" && rawBlock.endTime.trim().length > 0;
+                const inferredFlexible = rawBlock.isFlexible === true || (!hasValidStartTime && !hasValidEndTime);
+                const startTime = inferredFlexible
+                    ? null
+                    : hasValidStartTime
+                        ? rawBlock.startTime!.trim()
+                        : "09:00";
+                const endTime = inferredFlexible
+                    ? null
+                    : hasValidEndTime
+                        ? rawBlock.endTime!.trim()
+                        : "10:00";
 
                 normalizedBlocks.push({
                     id: typeof rawBlock.id === "string" && rawBlock.id.trim() ? rawBlock.id : uid(),
-                    startTime: typeof rawBlock.startTime === "string" && rawBlock.startTime ? rawBlock.startTime : "09:00",
-                    endTime: typeof rawBlock.endTime === "string" && rawBlock.endTime ? rawBlock.endTime : "10:00",
+                    startTime,
+                    endTime,
+                    isFlexible: inferredFlexible ? true : undefined,
                     title: typeof rawBlock.title === "string" && rawBlock.title.trim() ? rawBlock.title : `Block ${index + 1}`,
                     linkedTargetId: typeof rawBlock.linkedTargetId === "string" && rawBlock.linkedTargetId ? rawBlock.linkedTargetId : undefined,
                     done,

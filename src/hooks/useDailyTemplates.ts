@@ -36,6 +36,7 @@ export function useDailyTemplates({ selectedDate, updateCycle, storageScope }: U
         const blocks = dayBlocks.map((block) => ({
             startTime: block.startTime,
             endTime: block.endTime,
+            isFlexible: block.isFlexible,
             title: block.title,
             amount: block.amount
         }));
@@ -57,6 +58,7 @@ export function useDailyTemplates({ selectedDate, updateCycle, storageScope }: U
                 id: crypto.randomUUID(),
                 startTime: block.startTime,
                 endTime: block.endTime,
+                isFlexible: block.isFlexible,
                 title: block.title,
                 amount: block.amount,
                 done: false,

@@ -228,7 +228,7 @@ export default function App() {
   const handleAddBlock = async (date: string) => {
     const didAdd = await addBlock(date, blockDraft);
     if (didAdd) {
-      setBlockDraft({ startTime: "09:00", endTime: "10:00", title: "", linkedTargetId: "", amount: 1, actual: 0 });
+      setBlockDraft({ startTime: "09:00", endTime: "10:00", isFlexible: false, title: "", linkedTargetId: "", amount: 1, actual: 0 });
     }
     return didAdd;
   };

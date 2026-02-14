@@ -58,17 +58,25 @@ function normalizeHistory(value: unknown): Cycle[] | undefined {
 
 function normalizeTemplateBlock(value: unknown): DailyTemplate["blocks"][number] | null {
     if (!isRecord(value)) return null;
-    if (!isString(value.startTime) || !TIME_REGEX.test(value.startTime)) return null;
-    if (!isString(value.endTime) || !TIME_REGEX.test(value.endTime)) return null;
     if (!isString(value.title) || !value.title.trim()) return null;
+
+    const parsedStartTime = isString(value.startTime) && TIME_REGEX.test(value.startTime)
+        ? value.startTime
+        : null;
+    const parsedEndTime = isString(value.endTime) && TIME_REGEX.test(value.endTime)
+        ? value.endTime
+        : null;
+    const isFlexible = value.isFlexible === true || (parsedStartTime === null && parsedEndTime === null);
+    if (!isFlexible && (parsedStartTime === null || parsedEndTime === null)) return null;
 
     const amount = typeof value.amount === "number" && Number.isFinite(value.amount)
         ? Math.max(1, Math.floor(value.amount))
         : undefined;
 
     return {
-        startTime: value.startTime,
-        endTime: value.endTime,
+        startTime: isFlexible ? null : parsedStartTime,
+        endTime: isFlexible ? null : parsedEndTime,
+        isFlexible: isFlexible ? true : undefined,
         title: value.title.trim(),
         amount
     };
