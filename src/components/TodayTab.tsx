@@ -1,6 +1,7 @@
 import {
     Dispatch,
-    SetStateAction
+    SetStateAction,
+    useState
 } from "react";
 import { DailyBlockDraft } from "../hooks/useDailyBlocks";
 import { t as tr } from "../i18n";
@@ -24,6 +25,8 @@ import { TodayHabitsSection } from "./today/TodayHabitsSection";
 import { TodayDailyReviewSection } from "./today/TodayDailyReviewSection";
 import { TodayDatePickerSection } from "./today/TodayDatePickerSection";
 import { TodayBlocksSection } from "./today/TodayBlocksSection";
+
+type DayPlanViewMode = "list" | "timeline";
 
 type TodayTabProps = {
     cycle: Cycle;
@@ -95,6 +98,7 @@ export function TodayTab({
     const cycleEndDate = cycle.weeks[cycle.weeks.length - 1]?.endDate ?? cycle.startDate;
     const isDateWithinCycle = selectedDate >= cycle.startDate && selectedDate <= cycleEndDate;
     const activeWeekTargets = isDateWithinCycle ? selectedWeekTargets : [];
+    const [dayPlanViewMode, setDayPlanViewMode] = useState<DayPlanViewMode>("list");
 
     return (
         <section className="card">
@@ -112,6 +116,28 @@ export function TodayTab({
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
             />
+            <div className="today-view-toggle-row">
+                <div className="today-view-toggle" role="tablist" aria-label={tr(language, "today.viewToggleAria")}>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={dayPlanViewMode === "list"}
+                        className={dayPlanViewMode === "list" ? "active" : ""}
+                        onClick={() => setDayPlanViewMode("list")}
+                    >
+                        {tr(language, "today.viewList")}
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={dayPlanViewMode === "timeline"}
+                        className={dayPlanViewMode === "timeline" ? "active" : ""}
+                        onClick={() => setDayPlanViewMode("timeline")}
+                    >
+                        {tr(language, "today.viewTimeline")}
+                    </button>
+                </div>
+            </div>
 
             <fieldset className="readonly-fieldset" disabled={isArchiveView}>
                 <TodayBlocksSection
@@ -133,6 +159,8 @@ export function TodayTab({
                     onDeleteTemplate={onDeleteTemplate}
                     onUpdateBlock={onUpdateBlock}
                     onDeleteBlock={onDeleteBlock}
+                    dayPlanViewMode={dayPlanViewMode}
+                    setDayPlanViewMode={setDayPlanViewMode}
                 />
 
                 <TodayOpenTargetsSection
