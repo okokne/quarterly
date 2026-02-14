@@ -1,5 +1,5 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Trash2, X } from "lucide-react";
+import { Check, PencilLine, Trash2, X } from "lucide-react";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -46,6 +46,14 @@ type TimelineBlock = {
     originalIndex: number;
 };
 
+type BlockEditDraft = {
+    startTime: string;
+    endTime: string;
+    title: string;
+    linkedTargetId: string;
+    amount: string;
+};
+
 const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 22;
 const TIMELINE_DEFAULT_DURATION_MINUTES = 60;
@@ -77,6 +85,18 @@ function minutesToTimeString(totalMinutes: number): string {
     const hours = Math.floor(normalized / 60);
     const minutes = normalized % 60;
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+function createBlockEditDraft(block: DailyBlock): BlockEditDraft {
+    return {
+        startTime: block.startTime,
+        endTime: block.endTime,
+        title: block.title,
+        linkedTargetId: block.linkedTargetId ? String(block.linkedTargetId) : "",
+        amount: typeof block.amount === "number" && Number.isFinite(block.amount) && block.amount > 0
+            ? String(Math.floor(block.amount))
+            : ""
+    };
 }
 
 export function TodayBlocksSection({
@@ -114,6 +134,8 @@ export function TodayBlocksSection({
 
     const [timelineNow, setTimelineNow] = useState(() => new Date());
     const [isComposerOpen, setIsComposerOpen] = useState(false);
+    const [editingBlockId, setEditingBlockId] = useState<Id | null>(null);
+    const [editingDraft, setEditingDraft] = useState<BlockEditDraft | null>(null);
     const [timelineZoomLevel, setTimelineZoomLevel] = useState<TimelineZoomLevel>("normal");
     const timelineScrollRef = useRef<HTMLDivElement | null>(null);
     const timelineAutoScrollKeyRef = useRef("");
@@ -254,6 +276,41 @@ export function TodayBlocksSection({
         }
     }, [onAddBlock, selectedDate]);
 
+    const startBlockEdit = useCallback((block: DailyBlock) => {
+        setEditingBlockId(block.id);
+        setEditingDraft(createBlockEditDraft(block));
+    }, []);
+
+    const cancelBlockEdit = useCallback(() => {
+        setEditingBlockId(null);
+        setEditingDraft(null);
+    }, []);
+
+    const handleSaveBlockEdit = useCallback(async (block: DailyBlock) => {
+        if (editingBlockId !== block.id || !editingDraft) return;
+        const trimmedTitle = editingDraft.title.trim();
+        if (!trimmedTitle) return;
+
+        const amountRaw = editingDraft.amount.trim();
+        let nextAmount: number | undefined;
+        if (amountRaw) {
+            const parsed = Number.parseInt(amountRaw, 10);
+            if (Number.isNaN(parsed)) return;
+            nextAmount = Math.min(9999, Math.max(1, parsed));
+        }
+
+        await onUpdateBlock(selectedDate, block.id, {
+            startTime: editingDraft.startTime || block.startTime,
+            endTime: editingDraft.endTime || block.endTime,
+            title: trimmedTitle,
+            linkedTargetId: editingDraft.linkedTargetId ? editingDraft.linkedTargetId : undefined,
+            amount: nextAmount
+        });
+
+        setEditingBlockId(null);
+        setEditingDraft(null);
+    }, [editingBlockId, editingDraft, onUpdateBlock, selectedDate]);
+
     const formatTimelineMarker = useCallback((hour: number) => {
         if (hour === 24) {
             return timeFormat === "24h" ? "24:00" : "12:00 AM";
@@ -261,16 +318,25 @@ export function TodayBlocksSection({
         return formatTime(`${String(hour).padStart(2, "0")}:00`, timeFormat);
     }, [timeFormat]);
 
-    const openBlockInList = useCallback((blockId: Id) => {
+    useEffect(() => {
+        if (editingBlockId === null) return;
+        const stillExists = dayBlocks.some((block) => block.id === editingBlockId);
+        if (stillExists) return;
+        setEditingBlockId(null);
+        setEditingDraft(null);
+    }, [dayBlocks, editingBlockId]);
+
+    const openBlockInList = useCallback((block: DailyBlock) => {
         setDayPlanViewMode("list");
+        startBlockEdit(block);
         window.setTimeout(() => {
-            const target = document.querySelector<HTMLElement>(`[data-block-id="${String(blockId)}"]`);
+            const target = document.querySelector<HTMLElement>(`[data-block-id="${String(block.id)}"]`);
             if (!target) return;
             target.scrollIntoView({ behavior: "smooth", block: "center" });
             target.classList.add("today-block-focus");
             window.setTimeout(() => target.classList.remove("today-block-focus"), 1200);
         }, 120);
-    }, [setDayPlanViewMode]);
+    }, [setDayPlanViewMode, startBlockEdit]);
 
     const isTodaySelected = selectedDate === toIsoDate(timelineNow);
     const currentMinutes = timelineNow.getHours() * 60 + timelineNow.getMinutes();
@@ -432,6 +498,8 @@ export function TodayBlocksSection({
                         const sliderPercent = plannedAmount > 0 ? (sliderValue / plannedAmount) * 100 : 0;
                         const isTouchDragActive = touchDraggingBlockId === block.id;
                         const isTouchDragOver = touchDragOverBlockId === block.id && !isTouchDragActive;
+                        const isEditingBlock = editingBlockId === block.id;
+                        const blockEditDraft = isEditingBlock ? editingDraft : null;
 
                         return (
                             <div
@@ -479,110 +547,192 @@ export function TodayBlocksSection({
                                 <div className="block-content">
                                     <div className="block-title-row">
                                         <strong className="block-title">{formatTime(block.startTime, timeFormat)}–{formatTime(block.endTime, timeFormat)} · {block.title}</strong>
-                                        <button
-                                            data-no-drag="true"
-                                            className="block-delete-x"
-                                            title={tr(language, "common.delete")}
-                                            aria-label={tr(language, "common.delete")}
-                                            onPointerDown={(e) => e.stopPropagation()}
-                                            onMouseDown={(e) => e.stopPropagation()}
-                                            onClick={() => onDeleteBlock(selectedDate, block.id)}
-                                        >
-                                            <Icon icon={X} size={14} />
-                                        </button>
-                                    </div>
-
-                                    <div
-                                        className="toggle-row"
-                                        data-no-drag="true"
-                                        onPointerDown={(e) => e.stopPropagation()}
-                                        onMouseDown={(e) => e.stopPropagation()}
-                                        onTouchStart={(e) => e.stopPropagation()}
-                                    >
-                                        <span className="toggle-label">{tr(language, "today.markLabel")}</span>
-                                        <span className={`toggle-status ${isDone ? "done" : "pending"}`}>
-                                            {isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus")}
-                                        </span>
-                                        <ToggleSwitch
-                                            checked={isDone}
-                                            ariaLabel={tr(language, "today.markLabel")}
-                                            onChange={(checked) => handleToggleCompletion(block, checked)}
-                                        />
-                                    </div>
-
-                                    {block.linkedTargetId && (
-                                        <div className="block-meta-row">
-                                            <div className="muted block-link">
-                                                {tr(language, "today.linked", { target: selectedWeekTargets.find((target) => target.id === block.linkedTargetId)?.title ?? tr(language, "week.weeklyTarget") })}
-                                            </div>
+                                        <div className="block-title-actions">
+                                            <button
+                                                data-no-drag="true"
+                                                className={`block-edit-btn ${isEditingBlock ? "active" : ""}`}
+                                                title={isEditingBlock ? tr(language, "common.close") : tr(language, "common.edit")}
+                                                aria-label={isEditingBlock ? tr(language, "common.close") : tr(language, "common.edit")}
+                                                onPointerDown={(e) => e.stopPropagation()}
+                                                onMouseDown={(e) => e.stopPropagation()}
+                                                onClick={() => {
+                                                    if (isEditingBlock) {
+                                                        cancelBlockEdit();
+                                                        return;
+                                                    }
+                                                    startBlockEdit(block);
+                                                }}
+                                            >
+                                                <Icon icon={isEditingBlock ? X : PencilLine} size={14} />
+                                            </button>
+                                            <button
+                                                data-no-drag="true"
+                                                className="block-delete-x"
+                                                title={tr(language, "common.delete")}
+                                                aria-label={tr(language, "common.delete")}
+                                                onPointerDown={(e) => e.stopPropagation()}
+                                                onMouseDown={(e) => e.stopPropagation()}
+                                                onClick={() => onDeleteBlock(selectedDate, block.id)}
+                                            >
+                                                <Icon icon={X} size={14} />
+                                            </button>
                                         </div>
-                                    )}
+                                    </div>
 
-                                    {usesCounter && (
-                                        <div className="block-progress-row">
+                                    {isEditingBlock && blockEditDraft ? (
+                                        <>
+                                            <div className="grid today-block-edit-grid">
+                                                <label>
+                                                    {tr(language, "common.start")}
+                                                    <input
+                                                        type="time"
+                                                        value={blockEditDraft.startTime}
+                                                        onChange={(e) => setEditingDraft((prev) => prev ? { ...prev, startTime: e.target.value } : prev)}
+                                                    />
+                                                </label>
+                                                <label>
+                                                    {tr(language, "common.end")}
+                                                    <input
+                                                        type="time"
+                                                        value={blockEditDraft.endTime}
+                                                        onChange={(e) => setEditingDraft((prev) => prev ? { ...prev, endTime: e.target.value } : prev)}
+                                                    />
+                                                </label>
+                                                <label>
+                                                    {tr(language, "common.title")}
+                                                    <input
+                                                        value={blockEditDraft.title}
+                                                        onChange={(e) => setEditingDraft((prev) => prev ? { ...prev, title: e.target.value } : prev)}
+                                                        placeholder={tr(language, "today.blockPlaceholder")}
+                                                    />
+                                                </label>
+                                                <label>
+                                                    {tr(language, "today.weeklyTargetOptional")}
+                                                    <select
+                                                        value={blockEditDraft.linkedTargetId}
+                                                        onChange={(e) => setEditingDraft((prev) => prev ? { ...prev, linkedTargetId: e.target.value } : prev)}
+                                                    >
+                                                        <option value="">{tr(language, "common.none")}</option>
+                                                        {selectedWeekTargets.map((target) => (
+                                                            <option key={target.id} value={target.id}>{target.title}</option>
+                                                        ))}
+                                                    </select>
+                                                </label>
+                                                <label>
+                                                    {tr(language, "today.plannedAmountOptional")}
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        step={1}
+                                                        value={blockEditDraft.amount}
+                                                        onChange={(e) => setEditingDraft((prev) => prev ? { ...prev, amount: e.target.value } : prev)}
+                                                    />
+                                                </label>
+                                            </div>
+                                            <div className="button-row compact today-block-edit-actions">
+                                                <button className="primary" onClick={() => void handleSaveBlockEdit(block)}>
+                                                    {tr(language, "common.save")}
+                                                </button>
+                                                <button type="button" onClick={cancelBlockEdit}>
+                                                    {tr(language, "common.cancel")}
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
                                             <div
-                                                className="block-counter block-counter-shell"
+                                                className="toggle-row"
                                                 data-no-drag="true"
                                                 onPointerDown={(e) => e.stopPropagation()}
                                                 onMouseDown={(e) => e.stopPropagation()}
                                                 onTouchStart={(e) => e.stopPropagation()}
                                             >
-                                                <input
-                                                    className="block-counter-range"
-                                                    type="range"
-                                                    min={0}
-                                                    max={plannedAmount}
-                                                    value={sliderValue}
-                                                    style={{
-                                                        background: `linear-gradient(to right, var(--accent) ${sliderPercent}%, var(--border) ${sliderPercent}%)`
-                                                    }}
-                                                    draggable={false}
-                                                    onMouseDown={(e) => e.stopPropagation()}
-                                                    onTouchStart={(e) => e.stopPropagation()}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                    onChange={(e) => {
-                                                        const nextActual = Math.min(Math.max(Number(e.target.value), 0), plannedAmount);
-                                                        onUpdateBlock(selectedDate, block.id, {
-                                                            actual: nextActual,
-                                                            done: nextActual >= plannedAmount
-                                                        });
-                                                    }}
-                                                />
-                                                <span className="block-counter-value">{actualValue}/{plannedAmount}</span>
-                                                <input
-                                                    className="block-counter-input"
-                                                    type="number"
-                                                    min={0}
-                                                    max={plannedAmount}
-                                                    step={1}
-                                                    inputMode="numeric"
-                                                    value={actualValue}
-                                                    draggable={false}
-                                                    onMouseDown={(e) => e.stopPropagation()}
-                                                    onTouchStart={(e) => e.stopPropagation()}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                    onFocus={(e) => e.currentTarget.select()}
-                                                    onChange={(e) => {
-                                                        const raw = e.target.value.trim();
-                                                        if (raw === "") {
-                                                            onUpdateBlock(selectedDate, block.id, { actual: 0, done: false });
-                                                            return;
-                                                        }
-
-                                                        const parsed = Number.parseInt(raw, 10);
-                                                        if (Number.isNaN(parsed)) return;
-                                                        const nextActual = Math.min(Math.max(0, parsed), plannedAmount);
-
-                                                        onUpdateBlock(selectedDate, block.id, {
-                                                            actual: nextActual,
-                                                            done: nextActual >= plannedAmount
-                                                        });
-                                                    }}
+                                                <span className="toggle-label">{tr(language, "today.markLabel")}</span>
+                                                <span className={`toggle-status ${isDone ? "done" : "pending"}`}>
+                                                    {isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus")}
+                                                </span>
+                                                <ToggleSwitch
+                                                    checked={isDone}
+                                                    ariaLabel={tr(language, "today.markLabel")}
+                                                    onChange={(checked) => handleToggleCompletion(block, checked)}
                                                 />
                                             </div>
-                                        </div>
+
+                                            {block.linkedTargetId && (
+                                                <div className="block-meta-row">
+                                                    <div className="muted block-link">
+                                                        {tr(language, "today.linked", { target: selectedWeekTargets.find((target) => target.id === block.linkedTargetId)?.title ?? tr(language, "week.weeklyTarget") })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {usesCounter && (
+                                                <div className="block-progress-row">
+                                                    <div
+                                                        className="block-counter block-counter-shell"
+                                                        data-no-drag="true"
+                                                        onPointerDown={(e) => e.stopPropagation()}
+                                                        onMouseDown={(e) => e.stopPropagation()}
+                                                        onTouchStart={(e) => e.stopPropagation()}
+                                                    >
+                                                        <input
+                                                            className="block-counter-range"
+                                                            type="range"
+                                                            min={0}
+                                                            max={plannedAmount}
+                                                            value={sliderValue}
+                                                            style={{
+                                                                background: `linear-gradient(to right, var(--accent) ${sliderPercent}%, var(--border) ${sliderPercent}%)`
+                                                            }}
+                                                            draggable={false}
+                                                            onMouseDown={(e) => e.stopPropagation()}
+                                                            onTouchStart={(e) => e.stopPropagation()}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                            onChange={(e) => {
+                                                                const nextActual = Math.min(Math.max(Number(e.target.value), 0), plannedAmount);
+                                                                onUpdateBlock(selectedDate, block.id, {
+                                                                    actual: nextActual,
+                                                                    done: nextActual >= plannedAmount
+                                                                });
+                                                            }}
+                                                        />
+                                                        <span className="block-counter-value">{actualValue}/{plannedAmount}</span>
+                                                        <input
+                                                            className="block-counter-input"
+                                                            type="number"
+                                                            min={0}
+                                                            max={plannedAmount}
+                                                            step={1}
+                                                            inputMode="numeric"
+                                                            value={actualValue}
+                                                            draggable={false}
+                                                            onMouseDown={(e) => e.stopPropagation()}
+                                                            onTouchStart={(e) => e.stopPropagation()}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                            onFocus={(e) => e.currentTarget.select()}
+                                                            onChange={(e) => {
+                                                                const raw = e.target.value.trim();
+                                                                if (raw === "") {
+                                                                    onUpdateBlock(selectedDate, block.id, { actual: 0, done: false });
+                                                                    return;
+                                                                }
+
+                                                                const parsed = Number.parseInt(raw, 10);
+                                                                if (Number.isNaN(parsed)) return;
+                                                                const nextActual = Math.min(Math.max(0, parsed), plannedAmount);
+
+                                                                onUpdateBlock(selectedDate, block.id, {
+                                                                    actual: nextActual,
+                                                                    done: nextActual >= plannedAmount
+                                                                });
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -627,8 +777,6 @@ export function TodayBlocksSection({
                                                     actual: entry.block.actual,
                                                     done: entry.block.done
                                                 });
-                                                const isCompactZoom = timelineZoomLevel === "compact";
-                                                const isLargeZoom = timelineZoomLevel === "large";
                                                 const linkedTargetTitle = entry.block.linkedTargetId
                                                     ? targetTitleById.get(String(entry.block.linkedTargetId)) ?? tr(language, "week.weeklyTarget")
                                                     : null;
@@ -645,30 +793,19 @@ export function TodayBlocksSection({
                                                     <button
                                                         key={entry.block.id}
                                                         type="button"
-                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle && !isCompactZoom ? "has-target" : ""}`}
+                                                        className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
                                                         style={{ top: `${entry.top}px`, height: `${entry.height}px` } as CSSProperties}
-                                                        onClick={() => openBlockInList(entry.block.id)}
+                                                        onClick={() => openBlockInList(entry.block)}
                                                         title={timelineTooltip}
                                                     >
-                                                        <span className="today-timeline-time-start">{startLabel}</span>
-                                                        <strong className="today-timeline-title">{entry.block.title}</strong>
-                                                        {!isCompactZoom && <span className="today-timeline-time-end">{endLabel}</span>}
-                                                        {!isCompactZoom && (
-                                                            <div className="today-timeline-slot">
-                                                                {linkedTargetTitle ? (
-                                                                    <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
-                                                                        {linkedTargetTitle}
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="today-timeline-slot-empty" aria-hidden="true" />
-                                                                )}
-                                                                <span
-                                                                    className={`today-timeline-done-indicator ${(isDone && isLargeZoom) || (isDone && !linkedTargetTitle) ? "is-visible" : "is-hidden"}`}
-                                                                    title={(isDone && isLargeZoom) || (isDone && !linkedTargetTitle) ? tr(language, "today.completedStatus") : undefined}
-                                                                    aria-label={(isDone && isLargeZoom) || (isDone && !linkedTargetTitle) ? tr(language, "today.completedStatus") : undefined}
-                                                                    aria-hidden={!((isDone && isLargeZoom) || (isDone && !linkedTargetTitle))}
-                                                                >
-                                                                    <Icon icon={Check} size={12} />
+                                                        <div className="today-timeline-mainline">
+                                                            <span className="today-timeline-time-range">{`${startLabel}–${endLabel}`}</span>
+                                                            <strong className="today-timeline-title">{entry.block.title}</strong>
+                                                        </div>
+                                                        {linkedTargetTitle && (
+                                                            <div className="today-timeline-chip-wrap">
+                                                                <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                    {linkedTargetTitle}
                                                                 </span>
                                                             </div>
                                                         )}
@@ -709,7 +846,7 @@ export function TodayBlocksSection({
                                                     key={block.id}
                                                     type="button"
                                                     className={`today-untimed-item ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
-                                                    onClick={() => openBlockInList(block.id)}
+                                                    onClick={() => openBlockInList(block)}
                                                     title={untimedTooltip}
                                                 >
                                                     <div className="today-untimed-mainline">
