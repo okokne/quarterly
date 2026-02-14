@@ -3839,30 +3839,68 @@ button.ghost-danger:hover {
   margin: 0;
 }
 
-.today-dayplan-plus-btn {
-  border: none;
-  background: transparent;
-  color: var(--accent);
-  font-size: 1.4rem;
-  line-height: 1;
-  font-weight: 700;
-  padding: 0 2px;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: color var(--transition-fast), background var(--transition-fast), text-decoration-color var(--transition-fast);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 2px;
+.today-dayplan-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.today-dayplan-plus-btn:hover,
-.today-dayplan-plus-btn.active {
-  color: color-mix(in srgb, var(--accent) 70%, #fff);
-  text-decoration-color: currentColor;
+.today-dayplan-add-btn {
+  min-width: 42px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 9px;
+}
+
+.today-dayplan-add-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  font-weight: 700;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.today-dayplan-add-btn.open .today-dayplan-add-icon {
+  transform: rotate(45deg);
 }
 
 .today-dayplan-composer-actions {
   justify-content: flex-start;
+}
+
+.today-timeline-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
+.today-timeline-zoom-controls button {
+  border: none;
+  background: transparent;
+  min-height: 26px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.today-timeline-zoom-controls button:hover {
+  color: var(--text-primary);
+  border-color: transparent;
+  background: transparent;
+}
+
+.today-timeline-zoom-controls button.active {
+  background: var(--bg-card);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
 }
 
 .today-timeline-layout {
@@ -3951,6 +3989,7 @@ button.ghost-danger:hover {
   text-align: left;
   box-shadow: var(--shadow-sm);
   transition: border-color var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+  overflow: hidden;
 }
 
 .today-timeline-block:hover {
@@ -3987,13 +4026,16 @@ button.ghost-danger:hover {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .today-timeline-badge {
   display: inline-flex;
   align-items: center;
-  max-width: 100%;
+  min-width: 0;
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
@@ -4006,8 +4048,16 @@ button.ghost-danger:hover {
   white-space: nowrap;
 }
 
+.today-timeline-badge-target {
+  flex: 1 1 auto;
+}
+
+.today-timeline-badge-count {
+  flex: 0 0 auto;
+}
+
 .today-timeline-done-indicator {
-  margin-left: auto;
+  flex: 0 0 auto;
   width: 18px;
   height: 18px;
   border-radius: 999px;
@@ -4017,6 +4067,46 @@ button.ghost-danger:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.today-timeline-layout.zoom-compact .today-timeline-block {
+  padding: 6px 8px;
+  gap: 4px;
+}
+
+.today-timeline-layout.zoom-compact .today-timeline-block-head strong {
+  font-size: 0.76rem;
+}
+
+.today-timeline-layout.zoom-compact .today-timeline-block-head span {
+  font-size: 0.68rem;
+}
+
+.today-timeline-layout.zoom-compact .today-timeline-badge {
+  font-size: 0.62rem;
+  padding: 2px 7px;
+}
+
+.today-timeline-layout.zoom-compact .today-timeline-done-indicator {
+  width: 16px;
+  height: 16px;
+}
+
+.today-timeline-layout.zoom-large .today-timeline-block {
+  padding: 8px 10px;
+  gap: 7px;
+}
+
+.today-timeline-layout.zoom-large .today-timeline-block-head strong {
+  font-size: 0.86rem;
+}
+
+.today-timeline-layout.zoom-large .today-timeline-block-head span {
+  font-size: 0.74rem;
+}
+
+.today-timeline-layout.zoom-large .today-timeline-badge {
+  font-size: 0.69rem;
 }
 
 .today-timeline-empty {
@@ -4274,8 +4364,29 @@ button.ghost-danger:hover {
     margin-bottom: 10px;
   }
 
-  .today-dayplan-plus-btn {
-    font-size: 1.28rem;
+  .today-dayplan-header {
+    align-items: flex-start;
+  }
+
+  .today-dayplan-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .today-dayplan-add-btn {
+    min-width: 38px;
+    min-height: 32px;
+    padding: 0 10px;
+  }
+
+  .today-timeline-zoom-controls {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .today-timeline-zoom-controls::-webkit-scrollbar {
+    display: none;
   }
 
   .today-week-shift-btn {

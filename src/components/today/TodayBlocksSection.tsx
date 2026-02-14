@@ -1,4 +1,4 @@
-import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
+import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Trash2, X } from "lucide-react";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
@@ -10,6 +10,7 @@ import { ToggleSwitch } from "../ToggleSwitch";
 import { Icon } from "../ui/Icon";
 
 type DayPlanViewMode = "list" | "timeline";
+type TimelineZoomLevel = "compact" | "normal" | "large";
 
 type TodayBlocksSectionProps = {
     language: AppLanguage;
@@ -48,11 +49,14 @@ type TimelineBlock = {
 const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 22;
 const TIMELINE_DEFAULT_DURATION_MINUTES = 60;
-const TIMELINE_MIN_VISIBLE_BLOCK_HEIGHT = 36;
-const TIMELINE_PIXELS_PER_MINUTE = 1;
-const TIMELINE_START_MINUTES = TIMELINE_START_HOUR * 60;
-const TIMELINE_END_MINUTES = TIMELINE_END_HOUR * 60;
-const TIMELINE_HEIGHT = (TIMELINE_END_MINUTES - TIMELINE_START_MINUTES) * TIMELINE_PIXELS_PER_MINUTE;
+const TIMELINE_BASE_MIN_VISIBLE_BLOCK_HEIGHT = 36;
+const TIMELINE_BASE_PIXELS_PER_MINUTE = 1;
+const TIMELINE_ZOOM_FACTOR: Record<TimelineZoomLevel, number> = {
+    compact: 0.78,
+    normal: 1,
+    large: 1.24
+};
+const TIMELINE_ZOOM_LEVELS: TimelineZoomLevel[] = ["compact", "normal", "large"];
 
 function parseTimeToMinutes(timeValue?: string): number | null {
     if (!timeValue) return null;
@@ -106,12 +110,50 @@ export function TodayBlocksSection({
     });
 
     const [timelineNow, setTimelineNow] = useState(() => new Date());
-    const [isTimelineComposerOpen, setIsTimelineComposerOpen] = useState(false);
-    const showBlockComposer = dayPlanViewMode === "list" || isTimelineComposerOpen;
+    const [isComposerOpen, setIsComposerOpen] = useState(false);
+    const [timelineZoomLevel, setTimelineZoomLevel] = useState<TimelineZoomLevel>("normal");
+    const timelineScrollRef = useRef<HTMLDivElement | null>(null);
+    const timelineAutoScrollKeyRef = useRef("");
+
+    const timelineStartAndEnd = useMemo(() => {
+        let minStartMinutes = TIMELINE_START_HOUR * 60;
+        let maxEndMinutes = TIMELINE_END_HOUR * 60;
+
+        dayBlocks.forEach((block) => {
+            const startMinutes = parseTimeToMinutes(block.startTime);
+            if (startMinutes === null) return;
+
+            const endMinutes = parseTimeToMinutes(block.endTime);
+            const resolvedEnd = endMinutes !== null && endMinutes > startMinutes
+                ? endMinutes
+                : startMinutes + TIMELINE_DEFAULT_DURATION_MINUTES;
+
+            minStartMinutes = Math.min(minStartMinutes, startMinutes);
+            maxEndMinutes = Math.max(maxEndMinutes, resolvedEnd);
+        });
+
+        const startHour = Math.max(0, Math.floor(minStartMinutes / 60));
+        const endHour = Math.min(24, Math.ceil(maxEndMinutes / 60));
+        const safeEndHour = Math.max(endHour, startHour + 1);
+
+        return {
+            startHour,
+            endHour: safeEndHour,
+            startMinutes: startHour * 60,
+            endMinutes: safeEndHour * 60
+        };
+    }, [dayBlocks]);
+
+    const timelinePixelsPerMinute = TIMELINE_BASE_PIXELS_PER_MINUTE * TIMELINE_ZOOM_FACTOR[timelineZoomLevel];
+    const timelineMinVisibleBlockHeight = TIMELINE_BASE_MIN_VISIBLE_BLOCK_HEIGHT * TIMELINE_ZOOM_FACTOR[timelineZoomLevel];
+    const timelineHeight = (timelineStartAndEnd.endMinutes - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute;
 
     const timelineHours = useMemo(
-        () => Array.from({ length: TIMELINE_END_HOUR - TIMELINE_START_HOUR + 1 }, (_, index) => TIMELINE_START_HOUR + index),
-        []
+        () => Array.from(
+            { length: timelineStartAndEnd.endHour - timelineStartAndEnd.startHour + 1 },
+            (_, index) => timelineStartAndEnd.startHour + index
+        ),
+        [timelineStartAndEnd.endHour, timelineStartAndEnd.startHour]
     );
 
     const targetTitleById = useMemo(() => {
@@ -134,16 +176,16 @@ export function TodayBlocksSection({
                     ? resolvedEnd - startMinutes
                     : TIMELINE_DEFAULT_DURATION_MINUTES;
 
-                const clippedStart = Math.max(startMinutes, TIMELINE_START_MINUTES);
-                const clippedEnd = Math.min(startMinutes + resolvedDuration, TIMELINE_END_MINUTES);
+                const clippedStart = Math.max(startMinutes, timelineStartAndEnd.startMinutes);
+                const clippedEnd = Math.min(startMinutes + resolvedDuration, timelineStartAndEnd.endMinutes);
                 const clippedDuration = Math.max(20, clippedEnd - clippedStart);
 
                 return {
                     block,
                     startMinutes,
                     endMinutes: startMinutes + resolvedDuration,
-                    top: (clippedStart - TIMELINE_START_MINUTES) * TIMELINE_PIXELS_PER_MINUTE,
-                    height: Math.max(TIMELINE_MIN_VISIBLE_BLOCK_HEIGHT, clippedDuration * TIMELINE_PIXELS_PER_MINUTE),
+                    top: (clippedStart - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute,
+                    height: Math.max(timelineMinVisibleBlockHeight, clippedDuration * timelinePixelsPerMinute),
                     displayStart: minutesToTimeString(startMinutes),
                     displayEnd: minutesToTimeString(startMinutes + resolvedDuration),
                     originalIndex
@@ -151,7 +193,13 @@ export function TodayBlocksSection({
             })
             .filter((item): item is TimelineBlock => item !== null)
             .sort((a, b) => a.startMinutes - b.startMinutes || a.originalIndex - b.originalIndex);
-    }, [dayBlocks]);
+    }, [
+        dayBlocks,
+        timelineMinVisibleBlockHeight,
+        timelinePixelsPerMinute,
+        timelineStartAndEnd.endMinutes,
+        timelineStartAndEnd.startMinutes
+    ]);
 
     const untimedBlocks = useMemo(
         () => dayBlocks.filter((block) => parseTimeToMinutes(block.startTime) === null),
@@ -169,10 +217,11 @@ export function TodayBlocksSection({
     }, [dayPlanViewMode, selectedDate]);
 
     useEffect(() => {
+        setIsComposerOpen(false);
         if (dayPlanViewMode !== "timeline") {
-            setIsTimelineComposerOpen(false);
+            timelineAutoScrollKeyRef.current = "";
         }
-    }, [dayPlanViewMode]);
+    }, [dayPlanViewMode, selectedDate]);
 
     const handleToggleCompletion = useCallback((block: DailyBlock, checked: boolean) => {
         const { plannedAmount, usesCounter } = getBlockCompletionState({
@@ -197,10 +246,17 @@ export function TodayBlocksSection({
 
     const handleAddBlockSubmit = useCallback(async () => {
         const didAdd = await onAddBlock(selectedDate);
-        if (didAdd && dayPlanViewMode === "timeline") {
-            setIsTimelineComposerOpen(false);
+        if (didAdd) {
+            setIsComposerOpen(false);
         }
-    }, [dayPlanViewMode, onAddBlock, selectedDate]);
+    }, [onAddBlock, selectedDate]);
+
+    const formatTimelineMarker = useCallback((hour: number) => {
+        if (hour === 24) {
+            return timeFormat === "24h" ? "24:00" : "12:00 AM";
+        }
+        return formatTime(`${String(hour).padStart(2, "0")}:00`, timeFormat);
+    }, [timeFormat]);
 
     const openBlockInList = useCallback((blockId: Id) => {
         setDayPlanViewMode("list");
@@ -215,27 +271,76 @@ export function TodayBlocksSection({
 
     const isTodaySelected = selectedDate === toIsoDate(timelineNow);
     const currentMinutes = timelineNow.getHours() * 60 + timelineNow.getMinutes();
-    const showCurrentTimeLine = dayPlanViewMode === "timeline" && isTodaySelected && currentMinutes >= TIMELINE_START_MINUTES && currentMinutes <= TIMELINE_END_MINUTES;
-    const currentTimeLineTop = (currentMinutes - TIMELINE_START_MINUTES) * TIMELINE_PIXELS_PER_MINUTE;
+    const showCurrentTimeLine = dayPlanViewMode === "timeline"
+        && isTodaySelected
+        && currentMinutes >= timelineStartAndEnd.startMinutes
+        && currentMinutes <= timelineStartAndEnd.endMinutes;
+    const currentTimeLineTop = (currentMinutes - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute;
+
+    useEffect(() => {
+        if (dayPlanViewMode !== "timeline") return;
+
+        const scrollContainer = timelineScrollRef.current;
+        if (!scrollContainer) return;
+
+        const firstTimedStartMinutes = timelineBlocks[0]?.startMinutes ?? null;
+        const autoScrollKey = `${selectedDate}|${timelineZoomLevel}|${timelineStartAndEnd.startMinutes}|${timelineStartAndEnd.endMinutes}|${firstTimedStartMinutes ?? "none"}`;
+        if (timelineAutoScrollKeyRef.current === autoScrollKey) return;
+        timelineAutoScrollKeyRef.current = autoScrollKey;
+
+        const now = new Date();
+        const isCurrentDay = selectedDate === toIsoDate(now);
+        const targetMinutes = isCurrentDay
+            ? now.getHours() * 60 + now.getMinutes()
+            : firstTimedStartMinutes ?? timelineStartAndEnd.startMinutes;
+        const clampedTarget = Math.min(Math.max(targetMinutes, timelineStartAndEnd.startMinutes), timelineStartAndEnd.endMinutes);
+        const targetTop = Math.max(0, (clampedTarget - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute - 120);
+
+        window.requestAnimationFrame(() => {
+            scrollContainer.scrollTo({ top: targetTop, behavior: "smooth" });
+        });
+    }, [
+        dayPlanViewMode,
+        selectedDate,
+        timelineBlocks,
+        timelinePixelsPerMinute,
+        timelineStartAndEnd.endMinutes,
+        timelineStartAndEnd.startMinutes,
+        timelineZoomLevel
+    ]);
 
     return (
         <div className="subcard">
             <div className="today-dayplan-header">
                 <h3>{tr(language, "today.dayPlan")}</h3>
-                {dayPlanViewMode === "timeline" && (
+                <div className="today-dayplan-header-actions">
+                    {dayPlanViewMode === "timeline" && (
+                        <div className="today-timeline-zoom-controls" role="group" aria-label={tr(language, "today.timelineZoom")}>
+                            {TIMELINE_ZOOM_LEVELS.map((zoomLevel) => (
+                                <button
+                                    key={zoomLevel}
+                                    type="button"
+                                    className={timelineZoomLevel === zoomLevel ? "active" : ""}
+                                    onClick={() => setTimelineZoomLevel(zoomLevel)}
+                                >
+                                    {tr(language, `today.timelineZoom.${zoomLevel}`)}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                     <button
                         type="button"
-                        className={`today-dayplan-plus-btn ${isTimelineComposerOpen ? "active" : ""}`}
-                        onClick={() => setIsTimelineComposerOpen((prev) => !prev)}
-                        title={tr(language, "today.blockAdd")}
-                        aria-label={tr(language, "today.blockAdd")}
+                        className={`primary today-dayplan-add-btn ${isComposerOpen ? "open" : ""}`}
+                        onClick={() => setIsComposerOpen((prev) => !prev)}
+                        title={isComposerOpen ? tr(language, "common.close") : tr(language, "today.blockAdd")}
+                        aria-label={isComposerOpen ? tr(language, "common.close") : tr(language, "today.blockAdd")}
                     >
-                        +
+                        <span className="today-dayplan-add-icon" aria-hidden="true">+</span>
                     </button>
-                )}
+                </div>
             </div>
 
-            {showBlockComposer && (
+            {isComposerOpen && (
                 <>
                     <div className="grid">
                         <label>
@@ -272,13 +377,11 @@ export function TodayBlocksSection({
                             />
                         </label>
                     </div>
-                    <div className={`button-row ${dayPlanViewMode === "timeline" ? "today-dayplan-composer-actions" : ""}`}>
+                    <div className="button-row today-dayplan-composer-actions">
                         <button className="primary" onClick={handleAddBlockSubmit}>{tr(language, "today.blockAdd")}</button>
-                        {dayPlanViewMode === "timeline" && (
-                            <button type="button" onClick={() => setIsTimelineComposerOpen(false)}>
-                                {tr(language, "common.cancel")}
-                            </button>
-                        )}
+                        <button type="button" onClick={() => setIsComposerOpen(false)}>
+                            {tr(language, "common.cancel")}
+                        </button>
                         {dayPlanViewMode === "list" && dayBlocks.length > 0 && (
                             <button onClick={onOpenTemplateModal}>{tr(language, "today.saveAsTemplate")}</button>
                         )}
@@ -486,21 +589,20 @@ export function TodayBlocksSection({
             )}
 
             {dayPlanViewMode === "timeline" && (
-                <div className="today-timeline-layout">
+                <div className={`today-timeline-layout zoom-${timelineZoomLevel}`}>
                     {dayBlocks.length === 0 ? (
                         <p className="empty">{tr(language, "today.noBlocks")}</p>
                     ) : (
                         <>
                             <div className="today-timeline-shell">
-                                <div className="today-timeline-scroll">
-                                    <div className="today-timeline-grid" style={{ height: `${TIMELINE_HEIGHT}px` }}>
+                                <div ref={timelineScrollRef} className="today-timeline-scroll">
+                                    <div className="today-timeline-grid" style={{ height: `${timelineHeight}px` }}>
                                         <div className="today-timeline-scale">
                                             {timelineHours.map((hour) => {
-                                                const top = (hour * 60 - TIMELINE_START_MINUTES) * TIMELINE_PIXELS_PER_MINUTE;
-                                                const marker = `${String(hour).padStart(2, "0")}:00`;
+                                                const top = (hour * 60 - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute;
                                                 return (
                                                     <div key={`scale-${hour}`} className="today-timeline-hour-marker" style={{ top: `${top}px` } as CSSProperties}>
-                                                        {formatTime(marker, timeFormat)}
+                                                        {formatTimelineMarker(hour)}
                                                     </div>
                                                 );
                                             })}
@@ -508,7 +610,7 @@ export function TodayBlocksSection({
 
                                         <div className="today-timeline-lane">
                                             {timelineHours.map((hour) => {
-                                                const top = (hour * 60 - TIMELINE_START_MINUTES) * TIMELINE_PIXELS_PER_MINUTE;
+                                                const top = (hour * 60 - timelineStartAndEnd.startMinutes) * timelinePixelsPerMinute;
                                                 return <div key={`line-${hour}`} className="today-timeline-hour-line" style={{ top: `${top}px` } as CSSProperties} />;
                                             })}
 
@@ -544,10 +646,14 @@ export function TodayBlocksSection({
                                                         </div>
                                                         <div className="today-timeline-block-meta">
                                                             {linkedTargetTitle && (
-                                                                <span className="today-timeline-badge">{linkedTargetTitle}</span>
+                                                                <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                    {linkedTargetTitle}
+                                                                </span>
                                                             )}
                                                             {usesCounter && (
-                                                                <span className="today-timeline-badge">{actualValue}/{plannedAmount}</span>
+                                                                <span className="today-timeline-badge today-timeline-badge-count" title={`${actualValue}/${plannedAmount}`}>
+                                                                    {actualValue}/{plannedAmount}
+                                                                </span>
                                                             )}
                                                             {isDone && (
                                                                 <span
@@ -601,10 +707,14 @@ export function TodayBlocksSection({
                                                         <span className="muted">{tr(language, "today.untimedHint")}</span>
                                                         <div className="today-timeline-block-meta">
                                                             {linkedTargetTitle && (
-                                                                <span className="today-timeline-badge">{linkedTargetTitle}</span>
+                                                                <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                    {linkedTargetTitle}
+                                                                </span>
                                                             )}
                                                             {usesCounter && (
-                                                                <span className="today-timeline-badge">{actualValue}/{plannedAmount}</span>
+                                                                <span className="today-timeline-badge today-timeline-badge-count" title={`${actualValue}/${plannedAmount}`}>
+                                                                    {actualValue}/{plannedAmount}
+                                                                </span>
                                                             )}
                                                             {isDone && (
                                                                 <span
