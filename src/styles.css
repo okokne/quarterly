@@ -2757,7 +2757,8 @@ button.ghost-danger:hover {
 .journal-filter-chip.journal-label-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  text-align: center;
   background: var(--journal-context-bg, var(--bg-subtle));
   border-color: color-mix(in srgb, var(--text-muted) 24%, var(--border));
   color: var(--text-primary);
@@ -2777,24 +2778,6 @@ button.ghost-danger:hover {
 .journal-filter-chip.journal-label-chip-none.active {
   background: color-mix(in srgb, var(--accent-bg) 74%, var(--bg-card));
   color: var(--accent-hover);
-}
-
-.journal-label-chip-swatch {
-  display: inline-block;
-  width: 8px;
-  min-width: 8px;
-  height: 8px;
-  box-sizing: border-box;
-  vertical-align: middle;
-  border-radius: 999px;
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--text-muted) 52%, transparent);
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.journal-label-chip-swatch.selected {
-  background: var(--journal-label-color-selected, var(--journal-label-color, var(--accent)));
-  border-color: var(--journal-label-color-selected, var(--journal-label-color, var(--accent)));
 }
 
 .journal-feed-root {
