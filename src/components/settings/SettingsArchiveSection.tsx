@@ -1,6 +1,8 @@
 import { AppLanguage, Cycle, DateFormat, Id } from "../../types";
+import { Trash2 } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { formatDate } from "../../utils";
+import { Icon } from "../ui/Icon";
 
 type SettingsArchiveSectionProps = {
     language: AppLanguage;
@@ -43,7 +45,9 @@ export function SettingsArchiveSection({
                                 }}>{tr(language, "common.view")}</button>
                                 <button className="button ghost-danger" disabled={readOnly} onClick={() => {
                                     setShowArchiveDeleteConfirm(cycle.id);
-                                }}>🗑️</button>
+                                }} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
+                                    <Icon icon={Trash2} size={16} />
+                                </button>
                             </div>
                         </div>
                     ))}

@@ -1,6 +1,8 @@
+import { X } from "lucide-react";
 import { AppLanguage } from "../types";
 import { t as tr } from "../i18n";
 import { ProgressRing } from "./ProgressRing";
+import { Icon } from "./ui/Icon";
 
 type HeaderDetailsPanelProps = {
     open: boolean;
@@ -26,7 +28,9 @@ export function HeaderDetailsPanel({
             <div className="overlay-card details-overlay-card" onClick={(event) => event.stopPropagation()}>
                 <div className="overlay-header">
                     <h3>{tr(language, "app.detailsTitle")}</h3>
-                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>✕</button>
+                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>
+                        <Icon icon={X} />
+                    </button>
                 </div>
 
                 {onboardingDone && (

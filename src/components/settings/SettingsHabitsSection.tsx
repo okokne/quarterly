@@ -1,15 +1,9 @@
 import { useState } from "react";
+import { Sparkles, Trash2 } from "lucide-react";
 import { AppLanguage, Cycle, Habit } from "../../types";
 import { t as tr } from "../../i18n";
 import { toIsoDate, uid } from "../../utils";
-
-const HABIT_EMOJI_OPTIONS = [
-    "🌅", "💧", "📝", "🧘", "🏋️", "📚", "🍎", "😴", "☕", "🚀",
-    "🎯", "🎨", "🎵", "📵", "🧠", "🏃", "🚴", "🥗", "📖", "💻",
-    "🧹", "🧽", "🧺", "🪴", "🐶", "🐱", "🧗", "🧘‍♂️", "🧘‍♀️", "🧊",
-    "🥤", "🥛", "🥑", "🍳", "🥦", "🫧", "🪥", "🛏️", "🪞", "🧴",
-    "🧩", "🎹", "🎸", "🎻", "🪕", "🎤", "🧪", "📈", "✅", "📌"
-];
+import { Icon } from "../ui/Icon";
 
 type SettingsHabitsSectionProps = {
     cycle: Cycle | null;
@@ -31,7 +25,6 @@ export function SettingsHabitsSection({
     setHabitLog
 }: SettingsHabitsSectionProps) {
     const [showHabitForm, setShowHabitForm] = useState(false);
-    const [habitEmoji, setHabitEmoji] = useState(HABIT_EMOJI_OPTIONS[0]);
     const [habitTitle, setHabitTitle] = useState("");
     const [habitFreq, setHabitFreq] = useState<"daily" | "custom">("daily");
     const [habitCustomDays, setHabitCustomDays] = useState<number[]>([]);
@@ -72,7 +65,7 @@ export function SettingsHabitsSection({
         const newHabit: Habit = {
             id: uid(),
             title: habitTitle.trim(),
-            emoji: habitEmoji,
+            emoji: "",
             frequency: habitFreq === "custom" ? habitCustomDays : habitFreq,
             activeFrom: 1,
             activeTo: 12,
@@ -84,7 +77,6 @@ export function SettingsHabitsSection({
         setHabits([...habits, newHabit]);
 
         setHabitTitle("");
-        setHabitEmoji(HABIT_EMOJI_OPTIONS[0]);
         setHabitFreq("daily");
         setHabitCustomDays([]);
         setHabitStartDate(toIsoDate(new Date()));
@@ -106,13 +98,16 @@ export function SettingsHabitsSection({
 
     return (
         <div className="settings-section">
-            <h3>🔁 {tr(language, "common.habits")}</h3>
+            <h3 className="settings-section-title-with-icon">
+                <Icon icon={Sparkles} size={16} />
+                {tr(language, "common.habits")}
+            </h3>
             {habits.length > 0 ? (
                 <div className="habit-settings-list">
                     {habits.map((habit) => (
                         <div key={habit.id} className="habit-settings-item">
                             <div className="habit-settings-item-info">
-                                <span className="emoji">{habit.emoji}</span>
+                                <span className="emoji"><Icon icon={Sparkles} size={14} /></span>
                                 <div>
                                     <div className="title">{habit.title}</div>
                                     <div className="meta">
@@ -121,7 +116,9 @@ export function SettingsHabitsSection({
                                     </div>
                                 </div>
                             </div>
-                            <button className="button ghost-danger" disabled={readOnly} onClick={() => handleDeleteHabit(habit.id)}>🗑️</button>
+                            <button className="button ghost-danger" disabled={readOnly} onClick={() => handleDeleteHabit(habit.id)} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
+                                <Icon icon={Trash2} size={16} />
+                            </button>
                         </div>
                     ))}
                 </div>
@@ -130,16 +127,6 @@ export function SettingsHabitsSection({
             )}
             {showHabitForm ? (
                 <div className="habit-settings-form">
-                    <div className="habit-emoji-picker">
-                        {HABIT_EMOJI_OPTIONS.map((emoji) => (
-                            <button
-                                key={emoji}
-                                className={`habit-emoji-btn ${habitEmoji === emoji ? "selected" : ""}`}
-                                disabled={readOnly}
-                                onClick={() => setHabitEmoji(emoji)}
-                            >{emoji}</button>
-                        ))}
-                    </div>
                     <div className="habit-settings-form-row">
                         <input
                             type="text"

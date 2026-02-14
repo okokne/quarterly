@@ -1,8 +1,10 @@
 import { AppLanguage, Cycle, Habit } from "../types";
 import { CSSProperties, useEffect, useRef, useState } from "react";
+import { BarChart3, Sparkles } from "lucide-react";
 import { t as tr } from "../i18n";
 import { addDays, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
 import { ProgressBar } from "./ProgressBar";
+import { Icon } from "./ui/Icon";
 import { useStatsMetrics } from "../hooks/useStatsMetrics";
 import {
     canToggleHabitCell,
@@ -63,7 +65,10 @@ export function StatsView({
 
     return (
         <section className="card stats-card">
-            <h2>📊 {tr(language, "common.stats")}</h2>
+            <h2 className="section-title-with-icon">
+                <Icon icon={BarChart3} />
+                {tr(language, "common.stats")}
+            </h2>
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
             {/* ═══ Weekly Progress Bar Chart ═══ */}
@@ -292,7 +297,7 @@ export function StatsView({
                                             }}
                                         >
                                             <div className="habit-tracker-info">
-                                                <span className="habit-tracker-emoji">{habit.emoji}</span>
+                                                <span className="habit-tracker-emoji"><Icon icon={Sparkles} size={14} /></span>
                                                 <span className="habit-tracker-title">{habit.title}</span>
                                             </div>
                                             <div className="habit-tracker-meta">
@@ -394,7 +399,7 @@ export function StatsView({
                                         <div className="habit-heatmap-panel">
                                             <div className="habit-heatmap-scroll">
                                                 <div className="habit-heatmap-panel-meta">
-                                                    <span className="habit-heatmap-panel-title">{habit.emoji} {habit.title}</span>
+                                                    <span className="habit-heatmap-panel-title"><Icon icon={Sparkles} size={14} /> {habit.title}</span>
                                                     <span className="habit-heatmap-panel-range">{tr(language, "stats.last4Weeks")}</span>
                                                 </div>
                                                 <div className="habit-heatmap-dayrow">

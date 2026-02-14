@@ -1,5 +1,7 @@
+import { RefreshCcw, X } from "lucide-react";
 import { t as tr } from "../i18n";
 import { AppLanguage, SyncStatus } from "../types";
+import { Icon } from "./ui/Icon";
 
 type SyncStatusSheetProps = {
     open: boolean;
@@ -45,7 +47,9 @@ export function SyncStatusSheet({
             <div className="overlay-card sync-status-sheet" onClick={(event) => event.stopPropagation()}>
                 <div className="overlay-header">
                     <h3>{tr(language, "syncSheet.title")}</h3>
-                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>✕</button>
+                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>
+                        <Icon icon={X} />
+                    </button>
                 </div>
 
                 {!syncEnabled ? (
@@ -78,6 +82,7 @@ export function SyncStatusSheet({
                         </div>
                         <div className="button-row">
                             <button className="button" onClick={() => { void onSyncNow(); }}>
+                                <Icon icon={RefreshCcw} size={16} />
                                 {tr(language, "settings.syncNow")}
                             </button>
                         </div>

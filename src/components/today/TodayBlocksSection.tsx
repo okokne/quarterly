@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+import { Trash2, X } from "lucide-react";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -6,6 +7,7 @@ import { getBlockCompletionState } from "../../regressionLogic";
 import { AppLanguage, DailyBlock, DailyTemplate, Id, TimeFormat, WeeklyTarget } from "../../types";
 import { formatTime } from "../../utils";
 import { ToggleSwitch } from "../ToggleSwitch";
+import { Icon } from "../ui/Icon";
 
 type TodayBlocksSectionProps = {
     language: AppLanguage;
@@ -116,7 +118,9 @@ export function TodayBlocksSection({
                                 </div>
                                 <div className="button-row compact">
                                     <button onClick={() => onLoadTemplate(template)}>{tr(language, "common.load")}</button>
-                                    <button onClick={() => onDeleteTemplate(template.id)}>🗑</button>
+                                    <button onClick={() => onDeleteTemplate(template.id)} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
+                                        <Icon icon={Trash2} size={16} />
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -197,7 +201,7 @@ export function TodayBlocksSection({
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onClick={() => onDeleteBlock(selectedDate, block.id)}
                                     >
-                                        ✕
+                                        <Icon icon={X} size={14} />
                                     </button>
                                 </div>
 

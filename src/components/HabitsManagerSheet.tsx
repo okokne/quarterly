@@ -1,6 +1,8 @@
+import { X } from "lucide-react";
 import { AppLanguage, Cycle, Habit } from "../types";
 import { t as tr } from "../i18n";
 import { SettingsHabitsSection } from "./settings/SettingsHabitsSection";
+import { Icon } from "./ui/Icon";
 
 type HabitsManagerSheetProps = {
     open: boolean;
@@ -32,7 +34,9 @@ export function HabitsManagerSheet({
             <div className="overlay-card habits-manager-card" onClick={(event) => event.stopPropagation()}>
                 <div className="overlay-header">
                     <h3>{tr(language, "common.habits")}</h3>
-                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>✕</button>
+                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>
+                        <Icon icon={X} />
+                    </button>
                 </div>
                 <SettingsHabitsSection
                     cycle={cycle}

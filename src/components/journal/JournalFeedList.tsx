@@ -1,9 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
+import { ArrowRight, X } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat, ReviewEntry } from "../../types";
 import { formatDate, getReviewEntrySignals, getWeekIndexForDate } from "../../utils";
 import { monthLabel, previewText } from "./helpers";
 import { SIGNAL_LABEL_SUFFIX } from "./types";
+import { Icon } from "../ui/Icon";
 
 type JournalFeedListProps = {
     cycle: Cycle;
@@ -79,7 +81,7 @@ export function JournalFeedList({
                                                     handleDeleteEntry(entry.id);
                                                 }}
                                             >
-                                                ✕
+                                                <Icon icon={X} size={14} />
                                             </button>
 
                                             <div className="journal-entry-meta-row">
@@ -111,7 +113,11 @@ export function JournalFeedList({
                                                 <div className="journal-entry-lines">
                                                     {entry.good && <p className="journal-entry-line positive">+ {entry.good}</p>}
                                                     {entry.bad && <p className="journal-entry-line negative">- {entry.bad}</p>}
-                                                    {entry.change && <p className="journal-entry-line neutral">→ {entry.change}</p>}
+                                                    {entry.change && (
+                                                        <p className="journal-entry-line neutral">
+                                                            <Icon icon={ArrowRight} size={13} /> {entry.change}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <p className="journal-entry-preview">{previewText(entry)}</p>

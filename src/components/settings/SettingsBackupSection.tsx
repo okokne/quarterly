@@ -9,10 +9,12 @@ import {
     PersistedPlannerState,
     TimeFormat
 } from "../../types";
+import { Download } from "lucide-react";
 import { t as tr } from "../../i18n";
 import { formatDate, toIsoDate } from "../../utils";
 import { createBackupSnapshot, parseBackupPayload } from "../../backup";
 import { ImportMode, mergeImportedPlannerState, summarizeImportSections } from "../../persistence/stateSerializer";
+import { Icon } from "../ui/Icon";
 
 type SettingsBackupSectionProps = {
     activeCycle: Cycle | null;
@@ -106,7 +108,8 @@ export function SettingsBackupSection({
                         URL.revokeObjectURL(url);
                     }}
                 >
-                    📤 Export
+                    <Icon icon={Download} size={16} />
+                    Export
                 </button>
             </div>
             <div className="settings-row">

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { CloudAlert, CloudCheck, CloudOff, FolderKanban, Search, Settings } from "lucide-react";
 import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
 import { formatDate, formatRange } from "../utils";
 import { ProgressRing } from "./ProgressRing";
+import { Icon } from "./ui/Icon";
 
 type AppHeaderProps = {
     title?: string;
@@ -68,6 +70,15 @@ export function AppHeader({
     const weekProgressTitle = weekCompletion.targetCount > 0
         ? tr(language, "today.weekProgress")
         : tr(language, "week.noWeeklyTargets");
+    const syncIcon = syncStatus === "syncing"
+        ? CloudCheck
+        : syncStatus === "synced"
+            ? CloudCheck
+            : syncStatus === "error"
+                ? CloudAlert
+                : syncStatus === "offline"
+                    ? CloudOff
+                    : CloudCheck;
 
     return (
         <header className="header">
@@ -114,7 +125,7 @@ export function AppHeader({
                         title={tr(language, "app.openCycleDrawer")}
                         className="icon-btn header-cycle-btn"
                     >
-                        🗂
+                        <Icon icon={FolderKanban} />
                         <span className="header-cycle-btn-text">
                             <strong>{tr(language, "app.cycleLabel")}</strong>
                             <em>{tr(language, "app.myQuarterContext", { week: selectedWeek, remaining: Math.max(0, 12 - selectedWeek) })}</em>
@@ -125,7 +136,7 @@ export function AppHeader({
                         title={tr(language, "app.searchTitle")}
                         className="icon-btn"
                     >
-                        🔍
+                        <Icon icon={Search} />
                     </button>
                     {syncStatus && (
                         <button
@@ -134,6 +145,7 @@ export function AppHeader({
                             onClick={onOpenSyncStatus}
                             title={tr(language, "app.openSyncStatus")}
                         >
+                            <Icon icon={syncIcon} size={14} className="sync-status-icon" />
                             {syncLabel}
                         </button>
                     )}
@@ -142,7 +154,7 @@ export function AppHeader({
                         title={tr(language, "common.settings")}
                         className="icon-btn"
                     >
-                        ⚙️
+                        <Icon icon={Settings} />
                     </button>
                 </div>
             </div>

@@ -28,8 +28,8 @@ export function SettingsFormatSection({
                     onChange={(event) => setLanguage(event.target.value as AppLanguage)}
                     className="settings-select"
                 >
-                    <option value="de">🇩🇪 {tr(language, "common.german")}</option>
-                    <option value="en">🇬🇧 {tr(language, "common.english")}</option>
+                    <option value="de">{tr(language, "common.german")}</option>
+                    <option value="en">{tr(language, "common.english")}</option>
                 </select>
             </div>
             <div className="settings-row">

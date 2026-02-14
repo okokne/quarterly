@@ -1,8 +1,10 @@
 import { Dispatch, SetStateAction, useState } from "react";
+import { Pencil } from "lucide-react";
 import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, Id, WeeklyTarget } from "../../types";
 import { ProgressBar } from "../ProgressBar";
+import { Icon } from "../ui/Icon";
 import { TargetDraft } from "./types";
 
 type WeekTargetsSectionProps = {
@@ -258,7 +260,7 @@ export function WeekTargetsSection({
                                                 title={tr(language, "common.edit")}
                                                 aria-label={tr(language, "common.edit")}
                                             >
-                                                ✎
+                                                <Icon icon={Pencil} size={16} />
                                             </button>
                                         )}
                                         <button

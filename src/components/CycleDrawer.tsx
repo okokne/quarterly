@@ -1,10 +1,12 @@
 import { DragEvent, useMemo, useRef, useState } from "react";
+import { Pencil, Sparkles, X } from "lucide-react";
 import { AppLanguage, Cycle, DateFormat, Habit, Id } from "../types";
 import { t as tr } from "../i18n";
 import { CycleVisionSection } from "./cycle/CycleVisionSection";
 import { CycleArchiveSection } from "./cycle/CycleArchiveSection";
 import { ProgressRing } from "./ProgressRing";
 import { addDays, formatDate, getWeekIndexForDate, toIsoDate, uid } from "../utils";
+import { Icon } from "./ui/Icon";
 
 type CycleDrawerProps = {
     open: boolean;
@@ -151,7 +153,9 @@ export function CycleDrawer({
             <aside className="overlay-card cycle-drawer" onClick={(event) => event.stopPropagation()}>
                 <div className="overlay-header">
                     <h3>{tr(language, "cycle.drawerTitle")}</h3>
-                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>✕</button>
+                    <button className="icon-btn" onClick={onClose} aria-label={tr(language, "common.close")}>
+                        <Icon icon={X} />
+                    </button>
                 </div>
 
                 <section className="cycle-section cycle-status-section">
@@ -220,7 +224,9 @@ export function CycleDrawer({
                                             </>
                                         ) : (
                                             <>
-                                                <button className="icon-btn cycle-goal-edit-btn" onClick={() => startGoalEdit(goal.id, goal.title, goal.metric)} title={tr(language, "common.edit")} aria-label={tr(language, "common.edit")}>✎</button>
+                                                <button className="icon-btn cycle-goal-edit-btn" onClick={() => startGoalEdit(goal.id, goal.title, goal.metric)} title={tr(language, "common.edit")} aria-label={tr(language, "common.edit")}>
+                                                    <Icon icon={Pencil} size={16} />
+                                                </button>
                                                 <span className="drag-handle cycle-goal-drag-handle" aria-label={tr(language, "common.reorder")} title={tr(language, "common.reorder")}>⋮⋮</span>
                                             </>
                                         )}
@@ -257,7 +263,7 @@ export function CycleDrawer({
                     <div className="chip-wrap">
                         {activeHabits.map((habit) => (
                             <span key={habit.id} className="week-chip neutral">
-                                {habit.emoji} {habit.title}
+                                <Icon icon={Sparkles} size={14} /> {habit.title}
                             </span>
                         ))}
                     </div>
