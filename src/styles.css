@@ -2672,8 +2672,22 @@ button.ghost-danger:hover {
   background: color-mix(in srgb, var(--bg-subtle) 74%, var(--bg-card));
 }
 
+.today-block-editor-time-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.today-block-editor-time-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .today-block-editor-time-cta p {
   margin: 0;
+  font-size: 0.82rem;
 }
 
 .today-block-time-grid {
@@ -4151,21 +4165,6 @@ button.ghost-danger:hover {
   margin-bottom: 10px;
 }
 
-.today-date-selected {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-subtle);
-}
-
-.today-date-selected strong {
-  font-size: 0.9rem;
-}
-
 .today-nav-actions {
   display: flex;
   align-items: center;
@@ -4299,20 +4298,12 @@ button.ghost-danger:hover {
   justify-content: flex-start;
 }
 
-.today-flexible-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
-  background: color-mix(in srgb, var(--bg-subtle) 62%, var(--bg-card));
+.today-dayplan-composer-grid {
+  gap: 12px;
 }
 
-.today-flexible-toggle > span {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+.today-dayplan-timing-panel {
+  margin-top: -2px;
 }
 
 .today-timeline-zoom-controls {
@@ -4864,10 +4855,6 @@ button.ghost-danger:hover {
   .today-nav-header {
     align-items: stretch;
     gap: 8px;
-  }
-
-  .today-date-selected {
-    width: 100%;
   }
 
   .today-nav-actions {

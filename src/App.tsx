@@ -14,7 +14,7 @@ import { SyncStatusSheet } from "./components/SyncStatusSheet";
 import { QuickNoteCapture } from "./components/QuickNoteCapture";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
 import { useHabitsStore } from "./hooks/useHabitsStore";
-import { useDailyBlocks } from "./hooks/useDailyBlocks";
+import { createDefaultDailyBlockDraft, useDailyBlocks } from "./hooks/useDailyBlocks";
 import { useWeeklyTargets } from "./hooks/useWeeklyTargets";
 import { useDailyTemplates } from "./hooks/useDailyTemplates";
 import { useWeekMetrics } from "./hooks/useWeekMetrics";
@@ -228,7 +228,7 @@ export default function App() {
   const handleAddBlock = async (date: string) => {
     const didAdd = await addBlock(date, blockDraft);
     if (didAdd) {
-      setBlockDraft({ startTime: "09:00", endTime: "10:00", isFlexible: false, title: "", linkedTargetId: "", amount: 1, actual: 0 });
+      setBlockDraft(createDefaultDailyBlockDraft());
     }
     return didAdd;
   };

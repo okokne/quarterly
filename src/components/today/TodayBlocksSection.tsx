@@ -108,6 +108,16 @@ function minutesToTimeString(totalMinutes: number): string {
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 }
 
+function getNextRoundedTimeRange(): { startTime: string; endTime: string } {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const nextQuarterHour = (Math.floor(currentMinutes / 15) + 1) * 15;
+    return {
+        startTime: minutesToTimeString(nextQuarterHour),
+        endTime: minutesToTimeString(nextQuarterHour + TIMELINE_DEFAULT_DURATION_MINUTES)
+    };
+}
+
 function createBlockEditDraft(block: DailyBlock): BlockEditDraft {
     const flexible = isFlexibleBlock(block);
     return {
@@ -486,6 +496,27 @@ export function TodayBlocksSection({
         }
     }, [onAddBlock, selectedDate]);
 
+    const applyDraftTimedDefaults = useCallback(() => {
+        setBlockDraft((prev) => {
+            const fallbackTimes = getNextRoundedTimeRange();
+            return {
+                ...prev,
+                isFlexible: false,
+                startTime: prev.startTime || fallbackTimes.startTime,
+                endTime: prev.endTime || fallbackTimes.endTime
+            };
+        });
+    }, [setBlockDraft]);
+
+    const clearDraftTime = useCallback(() => {
+        setBlockDraft((prev) => ({
+            ...prev,
+            isFlexible: true,
+            startTime: "",
+            endTime: ""
+        }));
+    }, [setBlockDraft]);
+
     const startBlockEdit = useCallback((block: DailyBlock) => {
         setEditingBlockId(block.id);
         setEditingDraft(createBlockEditDraft(block));
@@ -494,6 +525,32 @@ export function TodayBlocksSection({
     const cancelBlockEdit = useCallback(() => {
         setEditingBlockId(null);
         setEditingDraft(null);
+    }, []);
+
+    const applyEditingTimedDefaults = useCallback(() => {
+        setEditingDraft((prev) => {
+            if (!prev) return prev;
+            const fallbackTimes = getNextRoundedTimeRange();
+            return {
+                ...prev,
+                isFlexible: false,
+                startTime: prev.startTime || fallbackTimes.startTime,
+                endTime: prev.endTime || fallbackTimes.endTime
+            };
+        });
+    }, []);
+
+    const clearEditingTime = useCallback(() => {
+        setEditingDraft((prev) => (
+            prev
+                ? {
+                    ...prev,
+                    isFlexible: true,
+                    startTime: "",
+                    endTime: ""
+                }
+                : prev
+        ));
     }, []);
 
     const handleSaveBlockEdit = useCallback(async (block: DailyBlock) => {
@@ -923,27 +980,7 @@ export function TodayBlocksSection({
 
             {isComposerOpen && (
                 <>
-                    <div className="grid">
-                        <label className="today-flexible-toggle">
-                            <span>{tr(language, "today.flexibleToggle")}</span>
-                            <ToggleSwitch
-                                checked={blockDraft.isFlexible}
-                                ariaLabel={tr(language, "today.flexibleToggle")}
-                                onChange={(checked) => setBlockDraft({ ...blockDraft, isFlexible: checked })}
-                            />
-                        </label>
-                        {!blockDraft.isFlexible && (
-                            <>
-                                <label>
-                                    {tr(language, "common.start")}
-                                    <input type="time" value={blockDraft.startTime} onChange={(e) => setBlockDraft({ ...blockDraft, startTime: e.target.value })} />
-                                </label>
-                                <label>
-                                    {tr(language, "common.end")}
-                                    <input type="time" value={blockDraft.endTime} onChange={(e) => setBlockDraft({ ...blockDraft, endTime: e.target.value })} />
-                                </label>
-                            </>
-                        )}
+                    <div className="grid today-dayplan-composer-grid">
                         <label>
                             {tr(language, "common.title")}
                             <input value={blockDraft.title} onChange={(e) => setBlockDraft({ ...blockDraft, title: e.target.value })} placeholder={tr(language, "today.blockPlaceholder")} />
@@ -970,6 +1007,31 @@ export function TodayBlocksSection({
                             />
                         </label>
                     </div>
+                    <div className="today-block-editor-time-cta today-dayplan-timing-panel">
+                        <div className="today-block-editor-time-copy">
+                            <span className="today-block-editor-time-label">{tr(language, "today.timing")}</span>
+                            <strong>{blockDraft.isFlexible ? tr(language, "today.flexibleBlocks") : tr(language, "today.plannedBlocks")}</strong>
+                            {blockDraft.isFlexible && <p className="muted">{tr(language, "today.noFixedTimeHint")}</p>}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={blockDraft.isFlexible ? applyDraftTimedDefaults : clearDraftTime}
+                        >
+                            {tr(language, blockDraft.isFlexible ? "today.setTime" : "today.removeTime")}
+                        </button>
+                    </div>
+                    {!blockDraft.isFlexible && (
+                        <div className="grid grid-two today-block-time-grid">
+                            <label>
+                                {tr(language, "common.start")}
+                                <input type="time" value={blockDraft.startTime} onChange={(e) => setBlockDraft({ ...blockDraft, startTime: e.target.value })} />
+                            </label>
+                            <label>
+                                {tr(language, "common.end")}
+                                <input type="time" value={blockDraft.endTime} onChange={(e) => setBlockDraft({ ...blockDraft, endTime: e.target.value })} />
+                            </label>
+                        </div>
+                    )}
                     <div className="button-row today-dayplan-composer-actions">
                         <button className="primary" onClick={handleAddBlockSubmit}>{tr(language, "today.blockAdd")}</button>
                         <button type="button" onClick={() => setIsComposerOpen(false)}>
@@ -1215,22 +1277,20 @@ export function TodayBlocksSection({
                                 </select>
                             </label>
 
-                            {editingDraft.isFlexible ? (
-                                <div className="today-block-editor-time-cta">
-                                    <p className="muted">{tr(language, "today.untimedHint")}</p>
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditingDraft((prev) => prev ? {
-                                            ...prev,
-                                            isFlexible: false,
-                                            startTime: prev.startTime || "09:00",
-                                            endTime: prev.endTime || "10:00"
-                                        } : prev)}
-                                    >
-                                        {tr(language, "today.setTime")}
-                                    </button>
+                            <div className="today-block-editor-time-cta">
+                                <div className="today-block-editor-time-copy">
+                                    <span className="today-block-editor-time-label">{tr(language, "today.timing")}</span>
+                                    <strong>{editingDraft.isFlexible ? tr(language, "today.flexibleBlocks") : tr(language, "today.plannedBlocks")}</strong>
+                                    {editingDraft.isFlexible && <p className="muted">{tr(language, "today.noFixedTimeHint")}</p>}
                                 </div>
-                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={editingDraft.isFlexible ? applyEditingTimedDefaults : clearEditingTime}
+                                >
+                                    {tr(language, editingDraft.isFlexible ? "today.setTime" : "today.removeTime")}
+                                </button>
+                            </div>
+                            {!editingDraft.isFlexible && (
                                 <div className="grid grid-two today-block-time-grid">
                                     <label>
                                         {tr(language, "common.start")}

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { DailyBlockDraft } from "./useDailyBlocks";
+import { createDefaultDailyBlockDraft, DailyBlockDraft } from "./useDailyBlocks";
 import { Id } from "../types";
 import { toIsoDate } from "../utils";
 
@@ -34,15 +34,7 @@ export function useAppUiState() {
 
     const [goalDraft, setGoalDraft] = useState<GoalDraft>({ title: "", metric: "" });
     const [targetDraft, setTargetDraft] = useState<TargetDraft>({ title: "", target: 1, unit: "" });
-    const [blockDraft, setBlockDraft] = useState<DailyBlockDraft>({
-        startTime: "09:00",
-        endTime: "10:00",
-        isFlexible: false,
-        title: "",
-        linkedTargetId: "",
-        amount: 1,
-        actual: 0
-    });
+    const [blockDraft, setBlockDraft] = useState<DailyBlockDraft>(() => createDefaultDailyBlockDraft());
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showArchiveDeleteConfirm, setShowArchiveDeleteConfirm] = useState<Id | null>(null);

@@ -58,10 +58,6 @@ export function TodayDatePickerSection({
     return (
         <>
             <div className="today-nav-header">
-                <div className="today-date-selected">
-                    <strong>{weekdayLabelLong(selectedDate, language)}</strong>
-                    <span className="muted">{formatDate(selectedDate, dateFormat, language)}</span>
-                </div>
                 <div className="today-nav-actions">
                     <button className="button" type="button" onClick={() => selectDate(todayIso)}>
                         {tr(language, "common.today")}

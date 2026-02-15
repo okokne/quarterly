@@ -13,6 +13,18 @@ export type DailyBlockDraft = {
     actual: number;
 };
 
+export function createDefaultDailyBlockDraft(): DailyBlockDraft {
+    return {
+        startTime: "",
+        endTime: "",
+        isFlexible: true,
+        title: "",
+        linkedTargetId: "",
+        amount: 1,
+        actual: 0
+    };
+}
+
 type UseDailyBlocksParams = {
     cycle: Cycle | null;
     googleConnected: boolean;
