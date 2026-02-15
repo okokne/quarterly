@@ -2219,11 +2219,22 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range {
+  --slider-fill: 0%;
   flex: 1 1 auto;
+  -webkit-appearance: none;
   appearance: none;
-  height: 1.2px;
+  height: 12px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--border) 86%, var(--bg-subtle));
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--slider-fill),
+    color-mix(in srgb, var(--border) 86%, var(--bg-subtle)) var(--slider-fill)
+  );
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 1.2px !important;
   outline: none;
   width: 100%;
 }

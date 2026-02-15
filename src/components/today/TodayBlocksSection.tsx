@@ -811,9 +811,7 @@ export function TodayBlocksSection({
                                         min={0}
                                         max={plannedAmount}
                                         value={sliderValue}
-                                        style={{
-                                            background: `linear-gradient(to right, var(--accent) ${sliderPercent}%, var(--border) ${sliderPercent}%)`
-                                        }}
+                                        style={{ "--slider-fill": `${sliderPercent}%` } as CSSProperties}
                                         draggable={false}
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onTouchStart={(e) => e.stopPropagation()}
