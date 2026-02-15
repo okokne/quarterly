@@ -2221,7 +2221,7 @@ button.ghost-danger:hover {
 .block-counter-range {
   flex: 1 1 auto;
   appearance: none;
-  height: 3px;
+  height: 1.2px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--border) 86%, var(--bg-subtle));
   outline: none;
@@ -2229,7 +2229,7 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range::-webkit-slider-runnable-track {
-  height: 3px;
+  height: 1.2px;
   border-radius: 999px;
   background: transparent;
 }
@@ -2246,11 +2246,11 @@ button.ghost-danger:hover {
   background: transparent;
   box-shadow: none;
   opacity: 0;
-  margin-top: -4px;
+  margin-top: -5.4px;
 }
 
 .block-counter-range::-moz-range-track {
-  height: 3px;
+  height: 1.2px;
   border-radius: 999px;
   background: transparent;
 }

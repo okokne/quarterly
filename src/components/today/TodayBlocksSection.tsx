@@ -169,9 +169,11 @@ export function TodayBlocksSection({
         pointerId: number;
         startX: number;
         travelPx: number;
+        initialProgress: number;
         progress: number;
         didDrag: boolean;
-        completed: boolean;
+        committed: boolean;
+        nextDoneState: boolean;
     } | null>(null);
     const completionFxTimeoutRef = useRef<Map<string, number>>(new Map());
 
@@ -353,7 +355,7 @@ export function TodayBlocksSection({
 
     const startCompletionInteraction = useCallback(
         (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
-            if (isArchiveView || options.usesCounter || options.isDone) return;
+            if (isArchiveView || options.usesCounter) return;
             if (event.button !== 0) return;
 
             event.preventDefault();
@@ -363,16 +365,19 @@ export function TodayBlocksSection({
             if (!track) return;
 
             const travelPx = Math.max(18, track.getBoundingClientRect().width - event.currentTarget.getBoundingClientRect().width - 4);
+            const initialProgress = options.isDone ? 1 : 0;
             completionDragSessionRef.current = {
                 blockId: block.id,
                 pointerId: event.pointerId,
                 startX: event.clientX,
                 travelPx,
-                progress: 0,
+                initialProgress,
+                progress: initialProgress,
                 didDrag: false,
-                completed: false
+                committed: false,
+                nextDoneState: !options.isDone
             };
-            setCompletionDragState({ blockId: block.id, progress: 0 });
+            setCompletionDragState({ blockId: block.id, progress: initialProgress });
 
             try {
                 event.currentTarget.setPointerCapture(event.pointerId);
@@ -385,7 +390,7 @@ export function TodayBlocksSection({
 
     const moveCompletionInteraction = useCallback(
         (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
-            if (isArchiveView || options.usesCounter || options.isDone) return;
+            if (isArchiveView || options.usesCounter) return;
             const session = completionDragSessionRef.current;
             if (!session) return;
             if (session.blockId !== block.id || session.pointerId !== event.pointerId) return;
@@ -393,20 +398,27 @@ export function TodayBlocksSection({
             event.preventDefault();
             event.stopPropagation();
 
-            const deltaX = Math.max(0, event.clientX - session.startX);
-            const nextProgress = Math.max(0, Math.min(1, deltaX / session.travelPx));
+            const deltaX = event.clientX - session.startX;
+            const nextProgress = Math.max(0, Math.min(1, session.initialProgress + (deltaX / session.travelPx)));
             if (nextProgress > 0.03) {
                 session.didDrag = true;
             }
             session.progress = nextProgress;
             setCompletionDragState({ blockId: block.id, progress: nextProgress });
 
-            if (!session.completed && nextProgress >= COMPLETION_DRAG_THRESHOLD) {
-                session.completed = true;
-                session.progress = 1;
-                setCompletionDragState({ blockId: block.id, progress: 1 });
-                handleToggleCompletion(block, true);
-                triggerCompletionFx(block.id);
+            if (!session.committed) {
+                if (session.nextDoneState && nextProgress >= COMPLETION_DRAG_THRESHOLD) {
+                    session.committed = true;
+                    session.progress = 1;
+                    setCompletionDragState({ blockId: block.id, progress: 1 });
+                    handleToggleCompletion(block, true);
+                    triggerCompletionFx(block.id);
+                } else if (!session.nextDoneState && nextProgress <= (1 - COMPLETION_DRAG_THRESHOLD)) {
+                    session.committed = true;
+                    session.progress = 0;
+                    setCompletionDragState({ blockId: block.id, progress: 0 });
+                    handleToggleCompletion(block, false);
+                }
             }
         },
         [handleToggleCompletion, isArchiveView, triggerCompletionFx]
@@ -414,7 +426,7 @@ export function TodayBlocksSection({
 
     const endCompletionInteraction = useCallback(
         (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
-            if (isArchiveView || options.usesCounter || options.isDone) return;
+            if (isArchiveView || options.usesCounter) return;
             const session = completionDragSessionRef.current;
             if (!session) return;
             if (session.blockId !== block.id || session.pointerId !== event.pointerId) return;
@@ -422,12 +434,15 @@ export function TodayBlocksSection({
             event.preventDefault();
             event.stopPropagation();
 
-            const shouldCompleteOnRelease = !session.completed
-                && (!session.didDrag || session.progress >= COMPLETION_DRAG_THRESHOLD);
+            const shouldToggleOnTap = !session.committed && !session.didDrag;
+            const shouldSnapToDone = !session.committed && session.nextDoneState && session.progress >= COMPLETION_DRAG_THRESHOLD;
+            const shouldSnapToPending = !session.committed && !session.nextDoneState && session.progress <= (1 - COMPLETION_DRAG_THRESHOLD);
 
-            if (shouldCompleteOnRelease) {
-                handleToggleCompletion(block, true);
-                triggerCompletionFx(block.id);
+            if (shouldToggleOnTap || shouldSnapToDone || shouldSnapToPending) {
+                handleToggleCompletion(block, session.nextDoneState);
+                if (session.nextDoneState) {
+                    triggerCompletionFx(block.id);
+                }
             }
 
             completionDragSessionRef.current = null;
@@ -444,7 +459,7 @@ export function TodayBlocksSection({
 
     const cancelCompletionInteraction = useCallback(
         (event: ReactPointerEvent<HTMLButtonElement>, block: DailyBlock, options: { usesCounter: boolean; isDone: boolean }) => {
-            if (isArchiveView || options.usesCounter || options.isDone) return;
+            if (isArchiveView || options.usesCounter) return;
             const session = completionDragSessionRef.current;
             if (!session) return;
             if (session.blockId !== block.id || session.pointerId !== event.pointerId) return;
@@ -597,9 +612,11 @@ export function TodayBlocksSection({
         const statusLabel = isDone ? tr(language, "today.completedStatus") : tr(language, "today.pendingStatus");
         const isCompleting = Boolean(completionFxById[String(block.id)]);
         const completionDragProgress = completionDragState?.blockId === block.id ? completionDragState.progress : 0;
-        const completionProgress = isDone ? 1 : completionDragProgress;
+        const completionProgress = completionDragState?.blockId === block.id
+            ? completionDragProgress
+            : (isDone ? 1 : 0);
         const canUndoFromBadge = isDone;
-        const completionSlideEnabled = !isArchiveView && !usesCounter && !isDone;
+        const completionSlideEnabled = !isArchiveView && !usesCounter;
         const completionClickEnabled = !isArchiveView;
 
         return (
@@ -679,8 +696,8 @@ export function TodayBlocksSection({
 
                                         if (isArchiveView) return;
 
-                                        if (!usesCounter && !isDone) {
-                                            // Pending non-counter blocks are handled via pointer interactions (tap/slide).
+                                        if (!usesCounter) {
+                                            // Non-counter blocks are handled via pointer tap/slide interaction.
                                             return;
                                         }
 
