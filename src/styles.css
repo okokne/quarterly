@@ -2212,6 +2212,36 @@ button.ghost-danger:hover {
   flex: 0 0 auto;
 }
 
+.block-counter-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.block-counter-adjust-btn {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-subtle));
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-counter-adjust-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent-bg) 68%, var(--bg-card));
+}
+
 .block-counter input[type="range"] {
   width: 100%;
   min-width: 0;
@@ -5140,6 +5170,17 @@ button.ghost-danger:hover {
   .block-counter-value {
     min-width: 56px;
     font-size: 0.74rem;
+  }
+
+  .block-counter-side {
+    gap: 5px;
+  }
+
+  .block-counter-adjust-btn {
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.78rem;
   }
 
   .planner-block-heading {

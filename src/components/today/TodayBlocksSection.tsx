@@ -618,6 +618,17 @@ export function TodayBlocksSection({
         const canUndoFromBadge = isDone;
         const completionSlideEnabled = !isArchiveView && !usesCounter;
         const completionClickEnabled = !isArchiveView;
+        const applyCounterActual = (nextActualRaw: number) => {
+            const nextActual = Math.min(Math.max(nextActualRaw, 0), plannedAmount);
+            const nextDone = nextActual >= plannedAmount;
+            if (!isDone && nextDone) {
+                triggerCompletionFx(block.id);
+            }
+            onUpdateBlock(selectedDate, block.id, {
+                actual: nextActual,
+                done: nextDone
+            });
+        };
 
         return (
             <div
@@ -817,19 +828,35 @@ export function TodayBlocksSection({
                                         onTouchStart={(e) => e.stopPropagation()}
                                         onClick={(e) => e.stopPropagation()}
                                         onKeyDown={(e) => e.stopPropagation()}
-                                        onChange={(e) => {
-                                            const nextActual = Math.min(Math.max(Number(e.target.value), 0), plannedAmount);
-                                            const nextDone = nextActual >= plannedAmount;
-                                            if (!isDone && nextDone) {
-                                                triggerCompletionFx(block.id);
-                                            }
-                                            onUpdateBlock(selectedDate, block.id, {
-                                                actual: nextActual,
-                                                done: nextDone
-                                            });
-                                        }}
+                                        onChange={(e) => applyCounterActual(Number(e.target.value))}
                                     />
-                                    <span className="block-counter-value">{actualValue} / {plannedAmount}</span>
+                                    <div className="block-counter-side">
+                                        <span className="block-counter-value">{actualValue} / {plannedAmount}</span>
+                                        <button
+                                            type="button"
+                                            className="block-counter-adjust-btn"
+                                            title={tr(language, "today.decreaseActual")}
+                                            aria-label={tr(language, "today.decreaseActual")}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                applyCounterActual(actualValue - 1);
+                                            }}
+                                        >
+                                            -
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="block-counter-adjust-btn"
+                                            title={tr(language, "today.increaseActual")}
+                                            aria-label={tr(language, "today.increaseActual")}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                applyCounterActual(actualValue + 1);
+                                            }}
+                                        >
+                                            +
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
