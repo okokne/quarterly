@@ -2239,13 +2239,14 @@ button.ghost-danger:hover {
 .block-counter-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 0;
-  height: 0;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 0;
   background: transparent;
   box-shadow: none;
-  margin-top: 0;
+  opacity: 0;
+  margin-top: -4px;
 }
 
 .block-counter-range::-moz-range-track {
@@ -2255,12 +2256,13 @@ button.ghost-danger:hover {
 }
 
 .block-counter-range::-moz-range-thumb {
-  width: 0;
-  height: 0;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 0;
   background: transparent;
   box-shadow: none;
+  opacity: 0;
 }
 
 .block-content {
@@ -2388,7 +2390,7 @@ button.ghost-danger:hover {
   transition: width 180ms ease;
 }
 
-.planner-completion-track.is-interactive {
+.planner-completion-track.is-slide-enabled {
   border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
 }
 
@@ -2421,11 +2423,15 @@ button.ghost-danger:hover {
   z-index: 1;
 }
 
-.planner-completion-track.is-interactive .planner-completion-handle {
+.planner-completion-track.is-slide-enabled .planner-completion-handle {
   cursor: ew-resize;
 }
 
-.planner-completion-track.is-interactive:hover .planner-completion-handle {
+.planner-completion-track.is-click-enabled .planner-completion-handle {
+  cursor: pointer;
+}
+
+.planner-completion-track.is-click-enabled:hover .planner-completion-handle {
   color: var(--accent);
 }
 
@@ -2549,7 +2555,7 @@ button.ghost-danger:hover {
 }
 
 .planner-block-card.is-completing::after {
-  animation: planner-card-glow 240ms ease;
+  animation: planner-card-glow 800ms ease;
 }
 
 .planner-block-progress {

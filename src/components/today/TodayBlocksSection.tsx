@@ -65,7 +65,7 @@ const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 22;
 const TIMELINE_DEFAULT_DURATION_MINUTES = 60;
 const COMPLETION_DRAG_THRESHOLD = 0.6;
-const COMPLETION_FX_DURATION_MS = 280;
+const COMPLETION_FX_DURATION_MS = 850;
 const TARGET_ACCENT_PALETTE = [
     "#4a7cf7",
     "#2f9f7f",
@@ -599,6 +599,8 @@ export function TodayBlocksSection({
         const completionDragProgress = completionDragState?.blockId === block.id ? completionDragState.progress : 0;
         const completionProgress = isDone ? 1 : completionDragProgress;
         const canUndoFromBadge = isDone;
+        const completionSlideEnabled = !isArchiveView && !usesCounter && !isDone;
+        const completionClickEnabled = !isArchiveView;
 
         return (
             <div
@@ -657,7 +659,7 @@ export function TodayBlocksSection({
                         </strong>
                         <div className="planner-block-actions">
                             <div
-                                className={`planner-completion-track ${!usesCounter && !isDone && !isArchiveView ? "is-interactive" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
+                                className={`planner-completion-track ${completionSlideEnabled ? "is-slide-enabled" : ""} ${completionClickEnabled ? "is-click-enabled" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
                                 style={{ "--completion-progress": `${completionProgress}` } as CSSProperties}
                             >
                                 <button
@@ -674,6 +676,31 @@ export function TodayBlocksSection({
                                     onClick={(event) => {
                                         event.preventDefault();
                                         event.stopPropagation();
+
+                                        if (isArchiveView) return;
+
+                                        if (!usesCounter && !isDone) {
+                                            // Pending non-counter blocks are handled via pointer interactions (tap/slide).
+                                            return;
+                                        }
+
+                                        if (isDone) {
+                                            if (usesCounter) {
+                                                const nextActual = Math.max(0, plannedAmount - 1);
+                                                onUpdateBlock(selectedDate, block.id, {
+                                                    done: false,
+                                                    actual: nextActual
+                                                });
+                                                return;
+                                            }
+                                            handleToggleCompletion(block, false);
+                                            return;
+                                        }
+
+                                        if (usesCounter) {
+                                            handleToggleCompletion(block, true);
+                                            triggerCompletionFx(block.id);
+                                        }
                                     }}
                                 >
                                     <Icon icon={Check} size={12} />
