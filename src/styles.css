@@ -2822,6 +2822,8 @@ button.ghost-danger:hover {
   width: 20px;
   min-width: 20px;
   height: 20px;
+  min-height: 20px;
+  margin: 0;
   border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg-card) 96%, white);
@@ -2829,11 +2831,18 @@ button.ghost-danger:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  font-size: 0;
   transform: translateX(calc(var(--completion-progress) * 26px));
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
   padding: 0;
   z-index: 1;
+}
+
+.planner-completion-handle svg {
+  width: 11px;
+  height: 11px;
 }
 
 .planner-completion-track.is-slide-enabled .planner-completion-handle {
