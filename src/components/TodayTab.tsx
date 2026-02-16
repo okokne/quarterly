@@ -19,7 +19,6 @@ import {
     WeeklyTarget
 } from "../types";
 import {
-    addDays,
     formatDate,
     getWeekProgressPercent,
     weekdayLabelLong
@@ -114,21 +113,6 @@ export function TodayTab({
     const dayProgressPercent = dayBlocks.length > 0 ? Math.round((completedBlocks / dayBlocks.length) * 100) : 0;
     const remainingBlocks = Math.max(dayBlocks.length - completedBlocks, 0);
     const weekProgressPercent = getWeekProgressPercent(cycle, selectedWeek);
-    const dayStreak = useMemo(() => {
-        let streak = 0;
-        let cursor = selectedDate;
-        let guard = 0;
-        while (guard < 180) {
-            guard += 1;
-            const blocks = cycle.dailyPlans[cursor] ?? [];
-            if (blocks.length === 0) break;
-            const doneCount = blocks.filter((block) => getBlockCompletionState({ amount: block.amount, actual: block.actual, done: block.done }).isDone).length;
-            if (doneCount === 0) break;
-            streak += 1;
-            cursor = addDays(cursor, -1);
-        }
-        return streak;
-    }, [cycle.dailyPlans, selectedDate]);
 
     return (
         <section className="card">
@@ -148,11 +132,6 @@ export function TodayTab({
                         <strong>{dayProgressPercent}%</strong>
                         <p className="muted">{tr(language, "today.heroRemaining", { count: remainingBlocks })}</p>
                     </div>
-                </article>
-                <article className="subcard today-hero-card">
-                    <h3>{tr(language, "today.heroStreakTitle")}</h3>
-                    <strong>{dayStreak}</strong>
-                    <p className="muted">{dayStreak > 0 ? tr(language, "today.heroStreakPositive") : tr(language, "today.heroStreakZero")}</p>
                 </article>
                 <article className="subcard today-hero-card">
                     <h3>{tr(language, "today.heroWeekTitle")}</h3>

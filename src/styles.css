@@ -9,9 +9,9 @@
   /* ─── Typography ─── */
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: 'DM Serif Display', serif;
-  --type-h1: 32px;
-  --type-h2: 22px;
-  --type-h3: 18px;
+  --type-h1: 36px;
+  --type-h2: 26px;
+  --type-h3: 20px;
   --type-body: 15px;
   --type-small: 13px;
   --type-badge: 12px;
@@ -126,7 +126,7 @@
   --space-title-content: 16px;
   --space-card: 24px;
   --space-grid: 24px;
-  --space-section: 48px;
+  --space-section: 36px;
 
   /* ─── Transitions ─── */
   --transition-fast: 150ms ease;
@@ -6705,6 +6705,235 @@ body.dark-mode .archive-banner {
   background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
   border-color: var(--border);
   color: var(--text-secondary);
+}
+
+/* ─── Premium Refinement Pass ─── */
+.app-sidebar-quick-btn {
+  min-height: 42px;
+  border-radius: 11px;
+  border-color: color-mix(in srgb, var(--accent-500) 34%, var(--border));
+  background: linear-gradient(145deg,
+      color-mix(in srgb, var(--accent-500) 90%, white 10%),
+      color-mix(in srgb, var(--accent-600) 84%, var(--accent-500)));
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--accent-500) 26%, transparent);
+}
+
+.app-sidebar-quick-btn:hover {
+  filter: brightness(1.02);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 20%, transparent);
+}
+
+.app-sidebar-quick-menu {
+  border-color: var(--border-light);
+  border-radius: 12px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--bg-card) 96%, var(--bg-subtle));
+}
+
+.app-sidebar-quick-menu .app-sidebar-quick-menu-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 34px;
+  border-radius: 8px;
+  font-size: var(--type-small);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.app-sidebar-nav-item {
+  border-radius: 10px;
+}
+
+.app-sidebar-nav-item.active {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-bg) 64%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-300) 54%, var(--border));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-300) 14%, transparent);
+}
+
+.today-hero-row {
+  grid-template-columns: minmax(320px, 1.45fr) minmax(220px, 1fr);
+  gap: 16px;
+}
+
+.today-hero-card h3 {
+  font-size: clamp(1.22rem, 1rem + 0.45vw, 1.45rem);
+  margin-bottom: 2px;
+}
+
+.today-hero-card strong {
+  font-size: clamp(1.7rem, 1.15rem + 0.9vw, 2rem);
+  font-weight: 700;
+}
+
+.today-week-strip {
+  gap: 10px;
+}
+
+.today-week-shift-btn {
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-subtle));
+}
+
+.today-weekday-chip {
+  border-radius: 12px;
+  border-color: color-mix(in srgb, var(--border) 88%, transparent);
+  background: color-mix(in srgb, var(--bg-card) 96%, var(--bg-subtle));
+  min-height: 76px;
+}
+
+.today-weekday-chip:hover {
+  border-color: color-mix(in srgb, var(--accent-300) 72%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 42%, var(--bg-card));
+}
+
+.today-weekday-chip.selected {
+  border-color: color-mix(in srgb, var(--accent-300) 78%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 72%, var(--bg-card));
+  box-shadow: var(--shadow-sm);
+}
+
+.planner-block-card {
+  border-color: color-mix(in srgb, var(--border) 84%, var(--border-light));
+  background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-subtle));
+  box-shadow: var(--shadow-sm);
+}
+
+.planner-block-card:hover {
+  border-color: color-mix(in srgb, var(--accent-300) 58%, var(--border));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-300) 12%, transparent);
+}
+
+.planner-block-heading {
+  font-size: 1rem;
+  line-height: 1.32;
+}
+
+.planner-meta-row {
+  min-height: 26px;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--accent-300) 78%, var(--accent-200)),
+      color-mix(in srgb, var(--accent-500) 88%, var(--accent-400)));
+  border-radius: 999px;
+}
+
+.block-counter-range {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+      color-mix(in srgb, var(--accent-500) 84%, var(--accent-300)) var(--slider-fill),
+      color-mix(in srgb, var(--border-light) 88%, var(--bg-subtle)) var(--slider-fill));
+  background-size: 100% 4px !important;
+}
+
+.block-counter-range::-webkit-slider-runnable-track {
+  height: 4px;
+}
+
+.block-counter-range::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent-300) 84%, var(--accent-500));
+  background: color-mix(in srgb, var(--bg-card) 96%, white);
+  box-shadow: var(--shadow-sm);
+  opacity: 1;
+  margin-top: -4.5px;
+}
+
+.block-counter-range::-moz-range-track {
+  height: 4px;
+}
+
+.block-counter-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent-300) 84%, var(--accent-500));
+  background: color-mix(in srgb, var(--bg-card) 96%, white);
+  box-shadow: var(--shadow-sm);
+  opacity: 1;
+}
+
+.planner-completion-track {
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--border) 84%, transparent);
+}
+
+.planner-completion-handle {
+  border-radius: 7px;
+  box-shadow: var(--shadow-sm);
+}
+
+.plan-goals-card {
+  gap: 10px;
+}
+
+.plan-goals-subtitle {
+  margin: -8px 0 2px;
+}
+
+.plan-goals-grid {
+  gap: 14px;
+}
+
+.plan-goal-chip {
+  padding: 14px 15px;
+  border-radius: 12px;
+  gap: 5px;
+  background: color-mix(in srgb, var(--plan-goal-color) 14%, var(--bg-card));
+}
+
+.plan-goal-chip strong {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.stats-goals-header {
+  margin-bottom: 4px;
+}
+
+.stats-goals-focus .muted {
+  margin-top: 0;
+}
+
+.stats-chart {
+  gap: 12px;
+}
+
+.stats-bar {
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  background: color-mix(in srgb, var(--bg-subtle) 74%, var(--bg-card));
+}
+
+.stats-bar-container.current .stats-bar {
+  border: 1px solid color-mix(in srgb, var(--accent-300) 72%, var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+.stats-bar-fill {
+  background: linear-gradient(180deg,
+      color-mix(in srgb, var(--accent-300) 80%, var(--accent-200)),
+      color-mix(in srgb, var(--accent-500) 88%, var(--accent-400)));
+}
+
+.stats-big-number {
+  font-weight: 600;
+  font-size: clamp(2.35rem, 1.7rem + 1.1vw, 2.8rem);
 }
 
 .app-main .archive-banner {

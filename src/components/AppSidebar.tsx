@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3, BookOpenText, CalendarDays, CloudAlert, CloudCheck, CloudOff, FolderKanban, LayoutGrid, type LucideIcon, Plus, Settings } from "./ui/icons";
+import { BarChart3, BookOpenText, CalendarDays, CheckSquare, CloudAlert, CloudCheck, CloudOff, FolderKanban, LayoutGrid, type LucideIcon, Plus, Settings, SquarePen } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { AppTab } from "../navigation";
 import { AppLanguage, SyncStatus } from "../types";
 import { Icon } from "./ui/Icon";
 
-type QuickCaptureAction = "block" | "flexible" | "note";
+type QuickCaptureAction = "block" | "note";
 
 type AppSidebarProps = {
     language: AppLanguage;
@@ -96,29 +96,24 @@ export function AppSidebar({
                         <div className="app-sidebar-quick-menu" role="menu" aria-label={tr(language, "sidebar.quickCapture")}>
                             <button
                                 type="button"
+                                className="app-sidebar-quick-menu-item"
                                 onClick={() => {
                                     onQuickCapture("block");
                                     setShowQuickCaptureMenu(false);
                                 }}
                             >
+                                <Icon icon={CheckSquare} size={13} />
                                 {tr(language, "sidebar.quick.block")}
                             </button>
                             <button
                                 type="button"
-                                onClick={() => {
-                                    onQuickCapture("flexible");
-                                    setShowQuickCaptureMenu(false);
-                                }}
-                            >
-                                {tr(language, "sidebar.quick.flexible")}
-                            </button>
-                            <button
-                                type="button"
+                                className="app-sidebar-quick-menu-item"
                                 onClick={() => {
                                     onQuickCapture("note");
                                     setShowQuickCaptureMenu(false);
                                 }}
                             >
+                                <Icon icon={SquarePen} size={13} />
                                 {tr(language, "sidebar.quick.note")}
                             </button>
                         </div>

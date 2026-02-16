@@ -87,10 +87,11 @@ export function PlanTab({
                 )}
             </div>
 
-            <div className="subcard">
+            <div className="subcard plan-goals-card">
                 <div className="plan-card-head">
                     <h3>{tr(language, "plan.goalsTitle")}</h3>
                 </div>
+                <p className="plan-goals-subtitle muted">{tr(language, "plan.goalsSubtitle")}</p>
                 {cycle.goals.length === 0 ? (
                     <p className="empty">{tr(language, "stats.noGoalsEmptyState")}</p>
                 ) : (

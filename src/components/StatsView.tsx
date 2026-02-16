@@ -156,7 +156,6 @@ export function StatsView({
                 <div className="stats-goals-header">
                     <h3>{tr(language, "stats.goals")}</h3>
                     <div className="stats-goals-header-actions">
-                        <span className="stats-goals-count">{cycle.goals.length}</span>
                         <button type="button" onClick={onOpenCycleDrawer}>{tr(language, "stats.editGoals")}</button>
                     </div>
                 </div>

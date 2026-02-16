@@ -626,7 +626,7 @@ export default function App() {
             return;
           }
           setShowQuickCapture(false);
-          queueTodayComposer(action === "block" ? "timed" : "flexible");
+          queueTodayComposer("timed");
         }}
       />
       <div className="app-main">
