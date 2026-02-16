@@ -11,12 +11,12 @@ type TodayOpenTargetsSectionProps = {
 };
 
 const TARGET_ACCENT_PALETTE = [
-    "#4a7cf7",
-    "#2f9f7f",
-    "#d5a322",
-    "#8b6bd9",
-    "#e07a3f",
-    "#7a8a9a"
+    "#9bb6ea",
+    "#93c6b3",
+    "#dec690",
+    "#b8a4d8",
+    "#e3b394",
+    "#a7b3bf"
 ];
 
 export function TodayOpenTargetsSection({

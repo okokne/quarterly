@@ -3,8 +3,7 @@ import {
     SetStateAction,
     useEffect,
     useMemo,
-    useState,
-    useRef
+    useState
 } from "react";
 import { DailyBlockDraft } from "../hooks/useDailyBlocks";
 import { t as tr } from "../i18n";
@@ -41,88 +40,22 @@ import { resolveHabitIcon } from "./ui/habitIcons";
 type DayPlanViewMode = "list" | "timeline";
 type DaylightPhase = "day" | "night";
 
-const SUN_ZENITH_DEGREES = 90.833;
-
-function normalizeDegrees(value: number): number {
-    return ((value % 360) + 360) % 360;
-}
-
-function toRadians(value: number): number {
-    return (value * Math.PI) / 180;
-}
-
-function toDegrees(value: number): number {
-    return (value * 180) / Math.PI;
-}
-
 function getDayOfYear(date: Date): number {
     const start = new Date(date.getFullYear(), 0, 0);
     const diffMs = date.getTime() - start.getTime();
     return Math.floor(diffMs / 86_400_000);
 }
 
-function calculateSunEventUtc(date: Date, latitude: number, longitude: number, isSunrise: boolean): Date | null {
-    const dayOfYear = getDayOfYear(date);
-    const lngHour = longitude / 15;
-    const approxTime = dayOfYear + (((isSunrise ? 6 : 18) - lngHour) / 24);
-    const meanAnomaly = (0.9856 * approxTime) - 3.289;
+function resolveDaylightPhaseApprox(now: Date): DaylightPhase {
+    // Approximation by local time + season curve (no geolocation permission needed).
+    const dayOfYear = getDayOfYear(now);
+    const seasonalOffset = Math.sin((2 * Math.PI * (dayOfYear - 80)) / 365.25);
+    const daylightHours = 12 + (3.5 * seasonalOffset); // ~8.5h winter to ~15.5h summer
+    const sunriseHour = 12 - (daylightHours / 2);
+    const sunsetHour = 12 + (daylightHours / 2);
+    const hourNow = now.getHours() + (now.getMinutes() / 60);
 
-    const trueLongitude = normalizeDegrees(
-        meanAnomaly
-        + (1.916 * Math.sin(toRadians(meanAnomaly)))
-        + (0.020 * Math.sin(toRadians(2 * meanAnomaly)))
-        + 282.634
-    );
-
-    let rightAscension = normalizeDegrees(toDegrees(Math.atan(0.91764 * Math.tan(toRadians(trueLongitude)))));
-    const trueLongitudeQuadrant = Math.floor(trueLongitude / 90) * 90;
-    const rightAscensionQuadrant = Math.floor(rightAscension / 90) * 90;
-    rightAscension = (rightAscension + (trueLongitudeQuadrant - rightAscensionQuadrant)) / 15;
-
-    const sinDeclination = 0.39782 * Math.sin(toRadians(trueLongitude));
-    const cosDeclination = Math.cos(Math.asin(sinDeclination));
-    const cosHourAngle = (
-        Math.cos(toRadians(SUN_ZENITH_DEGREES))
-        - (sinDeclination * Math.sin(toRadians(latitude)))
-    ) / (cosDeclination * Math.cos(toRadians(latitude)));
-
-    if (cosHourAngle > 1 || cosHourAngle < -1) {
-        return null;
-    }
-
-    let hourAngle = isSunrise
-        ? 360 - toDegrees(Math.acos(cosHourAngle))
-        : toDegrees(Math.acos(cosHourAngle));
-    hourAngle /= 15;
-
-    const localMeanTime = hourAngle + rightAscension - (0.06571 * approxTime) - 6.622;
-    let universalTime = localMeanTime - lngHour;
-    universalTime = ((universalTime % 24) + 24) % 24;
-
-    const hours = Math.floor(universalTime);
-    const minutesFloat = (universalTime - hours) * 60;
-    const minutes = Math.floor(minutesFloat);
-    const seconds = Math.round((minutesFloat - minutes) * 60);
-
-    return new Date(Date.UTC(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-        hours,
-        minutes,
-        seconds
-    ));
-}
-
-function resolveDaylightPhase(now: Date, latitude: number, longitude: number): DaylightPhase {
-    const sunriseUtc = calculateSunEventUtc(now, latitude, longitude, true);
-    const sunsetUtc = calculateSunEventUtc(now, latitude, longitude, false);
-    if (!sunriseUtc || !sunsetUtc) {
-        const hour = now.getHours();
-        return hour >= 6 && hour < 18 ? "day" : "night";
-    }
-
-    return now >= sunriseUtc && now < sunsetUtc ? "day" : "night";
+    return hourNow >= sunriseHour && hourNow < sunsetHour ? "day" : "night";
 }
 
 type TodayTabProps = {
@@ -208,8 +141,6 @@ export function TodayTab({
     const remainingBlocks = Math.max(dayBlocks.length - completedBlocks, 0);
     const weekProgressPercent = getWeekProgressPercent(cycle, selectedWeek);
     const [daylightPhase, setDaylightPhase] = useState<DaylightPhase>("day");
-    const geoWatchIdRef = useRef<number | null>(null);
-    const [geoPosition, setGeoPosition] = useState<{ latitude: number; longitude: number } | null>(null);
     const activeHabitsForDate = useMemo(() => getActiveHabitsForDate(selectedDate), [getActiveHabitsForDate, selectedDate]);
     const quickHabits = activeHabitsForDate.slice(0, 7);
     const hiddenHabitCount = Math.max(activeHabitsForDate.length - quickHabits.length, 0);
@@ -248,45 +179,12 @@ export function TodayTab({
 
     useEffect(() => {
         const updatePhase = () => {
-            const now = new Date();
-            if (geoPosition) {
-                setDaylightPhase(resolveDaylightPhase(now, geoPosition.latitude, geoPosition.longitude));
-                return;
-            }
-            const hour = now.getHours();
-            setDaylightPhase(hour >= 6 && hour < 18 ? "day" : "night");
+            setDaylightPhase(resolveDaylightPhaseApprox(new Date()));
         };
 
         updatePhase();
         const intervalId = window.setInterval(updatePhase, 60_000);
         return () => window.clearInterval(intervalId);
-    }, [geoPosition]);
-
-    useEffect(() => {
-        if (!("geolocation" in navigator)) return;
-
-        geoWatchIdRef.current = navigator.geolocation.watchPosition(
-            (position) => {
-                setGeoPosition({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                });
-            },
-            () => {
-                setGeoPosition(null);
-            },
-            {
-                enableHighAccuracy: false,
-                maximumAge: 30 * 60 * 1000,
-                timeout: 20_000
-            }
-        );
-
-        return () => {
-            if (geoWatchIdRef.current !== null) {
-                navigator.geolocation.clearWatch(geoWatchIdRef.current);
-            }
-        };
     }, []);
 
     return (
