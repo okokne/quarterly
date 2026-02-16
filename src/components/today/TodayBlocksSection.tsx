@@ -7,6 +7,7 @@ import { t as tr } from "../../i18n";
 import { getBlockCompletionState } from "../../regressionLogic";
 import { AppLanguage, DailyBlock, DailyTemplate, Id, TimeFormat, WeeklyTarget } from "../../types";
 import { formatTime, toIsoDate } from "../../utils";
+import { buildWeeklyTargetAccentMap, DEFAULT_WEEKLY_TARGET_ACCENT } from "../../utils/weeklyTargetAccents";
 import { ToggleSwitch } from "../ToggleSwitch";
 import { Icon } from "../ui/Icon";
 
@@ -67,14 +68,6 @@ const TIMELINE_END_HOUR = 22;
 const TIMELINE_DEFAULT_DURATION_MINUTES = 60;
 const COMPLETION_DRAG_THRESHOLD = 0.6;
 const COMPLETION_FX_DURATION_MS = 850;
-const TARGET_ACCENT_PALETTE = [
-    "#4a7cf7",
-    "#2f9f7f",
-    "#d5a322",
-    "#8b6bd9",
-    "#e07a3f",
-    "#7a8a9a"
-];
 const TIMELINE_PIXELS_PER_HOUR_BY_ZOOM: Record<TimelineZoomLevel, number> = {
     compact: 28,
     normal: 56,
@@ -233,11 +226,12 @@ export function TodayBlocksSection({
     );
 
     const targetMetaById = useMemo(() => {
+        const accentById = buildWeeklyTargetAccentMap(selectedWeekTargets);
         const byId = new Map<string, { title: string; accent: string }>();
-        selectedWeekTargets.forEach((target, index) => {
+        selectedWeekTargets.forEach((target) => {
             byId.set(String(target.id), {
                 title: target.title,
-                accent: TARGET_ACCENT_PALETTE[index % TARGET_ACCENT_PALETTE.length]
+                accent: accentById.get(String(target.id)) ?? DEFAULT_WEEKLY_TARGET_ACCENT
             });
         });
         return byId;

@@ -1,6 +1,7 @@
 import { CSSProperties, useMemo } from "react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, WeeklyTarget } from "../../types";
+import { buildWeeklyTargetAccentMap } from "../../utils/weeklyTargetAccents";
 import { ProgressBar } from "../ProgressBar";
 
 type TodayOpenTargetsSectionProps = {
@@ -10,28 +11,16 @@ type TodayOpenTargetsSectionProps = {
     getWeeklyRemaining: (weekIndex: number) => Array<WeeklyTarget & { remaining: number }>;
 };
 
-const TARGET_ACCENT_PALETTE = [
-    "#9bb6ea",
-    "#93c6b3",
-    "#dec690",
-    "#b8a4d8",
-    "#e3b394",
-    "#a7b3bf"
-];
-
 export function TodayOpenTargetsSection({
     language,
     selectedWeek,
     selectedWeekTargets,
     getWeeklyRemaining
 }: TodayOpenTargetsSectionProps) {
-    const targetAccentById = useMemo(() => {
-        const accentMap = new Map<string, string>();
-        selectedWeekTargets.forEach((target, index) => {
-            accentMap.set(String(target.id), TARGET_ACCENT_PALETTE[index % TARGET_ACCENT_PALETTE.length]);
-        });
-        return accentMap;
-    }, [selectedWeekTargets]);
+    const targetAccentById = useMemo(
+        () => buildWeeklyTargetAccentMap(selectedWeekTargets),
+        [selectedWeekTargets]
+    );
 
     return (
         <div className="subcard">
