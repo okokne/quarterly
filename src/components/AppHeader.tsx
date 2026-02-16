@@ -1,63 +1,25 @@
-import { useEffect, useRef, useState } from "react";
-import { CloudAlert, CloudCheck, CloudOff, FolderKanban, Search, Settings } from "./ui/icons";
+import { CloudAlert, CloudCheck, CloudOff, Search } from "./ui/icons";
 import { t as tr } from "../i18n";
-import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
-import { buildWeekLabel, formatDate, formatRange } from "../utils";
-import { ProgressRing } from "./ProgressRing";
+import { AppLanguage, SyncStatus } from "../types";
 import { Icon } from "./ui/Icon";
 
 type AppHeaderProps = {
-    title?: string;
-    startDate: string;
-    currentWeekIndex: number;
-    currentWeek: Week;
     language: AppLanguage;
-    dateFormat: DateFormat;
-    onOpenCycleDrawer: () => void;
-    onOpenSearch: () => void;
-    onOpenSettings: () => void;
-    onOpenSyncStatus: () => void;
-    weekCompletion: { percent: number; targetCount: number };
+    title: string;
+    context?: string;
     syncStatus?: SyncStatus;
+    onOpenSearch: () => void;
+    onOpenSyncStatus: () => void;
 };
 
 export function AppHeader({
-    title,
-    startDate,
-    currentWeekIndex,
-    currentWeek,
     language,
-    dateFormat,
-    onOpenCycleDrawer,
+    title,
+    context,
+    syncStatus,
     onOpenSearch,
-    onOpenSettings,
-    onOpenSyncStatus,
-    weekCompletion,
-    syncStatus
+    onOpenSyncStatus
 }: AppHeaderProps) {
-    const [showWeekProgressInfo, setShowWeekProgressInfo] = useState(false);
-    const weekProgressRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (!showWeekProgressInfo) return;
-        const onPointerDown = (event: MouseEvent) => {
-            if (!weekProgressRef.current?.contains(event.target as Node)) {
-                setShowWeekProgressInfo(false);
-            }
-        };
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                setShowWeekProgressInfo(false);
-            }
-        };
-        document.addEventListener("mousedown", onPointerDown);
-        document.addEventListener("keydown", onKeyDown);
-        return () => {
-            document.removeEventListener("mousedown", onPointerDown);
-            document.removeEventListener("keydown", onKeyDown);
-        };
-    }, [showWeekProgressInfo]);
-
     const syncLabel = syncStatus === "syncing"
         ? tr(language, "app.syncBadgeSyncing")
         : syncStatus === "synced"
@@ -67,98 +29,43 @@ export function AppHeader({
                 : syncStatus === "offline"
                     ? tr(language, "app.syncBadgeOffline")
                     : tr(language, "app.syncBadgeSaved");
-    const weekProgressTitle = weekCompletion.targetCount > 0
-        ? tr(language, "today.weekProgress")
-        : tr(language, "week.noWeeklyTargets");
     const syncIcon = syncStatus === "syncing"
         ? CloudCheck
-        : syncStatus === "synced"
-            ? CloudCheck
-            : syncStatus === "error"
-                ? CloudAlert
-                : syncStatus === "offline"
-                    ? CloudOff
-                    : CloudCheck;
+        : syncStatus === "error"
+            ? CloudAlert
+            : syncStatus === "offline"
+                ? CloudOff
+                : CloudCheck;
 
     return (
-        <header className="header">
-            <div className="header-main">
-                <div>
-                    <button className="header-cycle-trigger" onClick={onOpenCycleDrawer}>
-                        <p className="eyebrow">Quarterly</p>
-                        <h1>{title ?? "Quarterly"}</h1>
-                    </button>
-                    <p className="muted">{tr(language, "app.brandTagline")}</p>
-                    <p className="muted">{tr(language, "app.headerStartWeek", {
-                        date: formatDate(startDate, dateFormat, language),
-                        week: currentWeekIndex,
-                        weekLabel: buildWeekLabel(language, currentWeekIndex, currentWeek.weekName),
-                        range: formatRange(currentWeek.startDate, currentWeek.endDate, dateFormat, language)
-                    })}</p>
-                </div>
+        <header className="app-content-header">
+            <div className="app-content-header-main">
+                <h1>{title}</h1>
+                {context && <p className="muted">{context}</p>}
             </div>
-            <div className="header-side">
-                <div className="header-week-progress" title={weekProgressTitle} ref={weekProgressRef}>
-                        <ProgressRing value={weekCompletion.percent} max={100} size={92} strokeWidth={8} />
-                        <div className="header-week-progress-meta">
-                            <div className="header-week-progress-meta-top">
-                                <strong>{buildWeekLabel(language, currentWeekIndex, currentWeek.weekName)}</strong>
-                                <button
-                                    type="button"
-                                    className="header-week-progress-info-btn"
-                                    aria-label={tr(language, "app.weekProgressInfoLabel")}
-                                    title={tr(language, "app.weekProgressInfoLabel")}
-                                    onClick={() => setShowWeekProgressInfo((prev) => !prev)}
-                                >
-                                    i
-                                </button>
-                            </div>
-                            {showWeekProgressInfo && (
-                                <div className="header-week-progress-popover" role="dialog">
-                                    {tr(language, "app.weekProgressInfoText")}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                <div className="header-actions">
+            <div className="app-content-header-actions">
+                <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={onOpenSearch}
+                    title={tr(language, "app.searchTitle")}
+                    aria-label={tr(language, "app.searchTitle")}
+                >
+                    <Icon icon={Search} size={14} />
+                </button>
+                {syncStatus && (
                     <button
-                        onClick={onOpenCycleDrawer}
-                        title={tr(language, "app.openCycleDrawer")}
-                        className="icon-btn header-cycle-btn"
+                        type="button"
+                        className={`sync-status sync-status-button ${syncStatus}`}
+                        onClick={onOpenSyncStatus}
+                        title={tr(language, "app.openSyncStatus")}
                     >
-                        <Icon icon={FolderKanban} />
-                        <span className="header-cycle-btn-text">
-                            <strong>{tr(language, "app.cycleLabel")}</strong>
-                            <em>{tr(language, "app.myQuarterContext", { week: currentWeekIndex, remaining: Math.max(0, 12 - currentWeekIndex) })}</em>
-                        </span>
+                        <Icon icon={syncIcon} size={12} className="sync-status-icon" />
+                        {syncLabel}
                     </button>
-                    <button
-                        onClick={onOpenSearch}
-                        title={tr(language, "app.searchTitle")}
-                        className="icon-btn"
-                    >
-                        <Icon icon={Search} />
-                    </button>
-                    {syncStatus && (
-                        <button
-                            type="button"
-                            className={`sync-status sync-status-button ${syncStatus}`}
-                            onClick={onOpenSyncStatus}
-                            title={tr(language, "app.openSyncStatus")}
-                        >
-                            <Icon icon={syncIcon} size={14} className="sync-status-icon" />
-                            {syncLabel}
-                        </button>
-                    )}
-                    <button
-                        onClick={onOpenSettings}
-                        title={tr(language, "common.settings")}
-                        className="icon-btn"
-                    >
-                        <Icon icon={Settings} />
-                    </button>
-                </div>
+                )}
             </div>
         </header>
     );
 }
+

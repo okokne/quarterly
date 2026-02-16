@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { createDefaultDailyBlockDraft, DailyBlockDraft } from "./useDailyBlocks";
+import { AppTab } from "../navigation";
 import { Id } from "../types";
 import { toIsoDate } from "../utils";
 
@@ -17,7 +18,7 @@ type TargetDraft = {
 export function useAppUiState() {
     const [titleInput, setTitleInput] = useState("");
     const [startDateInput, setStartDateInput] = useState(() => toIsoDate(new Date()));
-    const [activeTab, setActiveTab] = useState<"today" | "week" | "stats" | "journal">("today");
+    const [activeTab, setActiveTab] = useState<AppTab>("today");
     const [selectedDate, setSelectedDate] = useState(() => toIsoDate(new Date()));
     const [selectedWeek, setSelectedWeek] = useState(1);
     const [showSettings, setShowSettings] = useState(false);

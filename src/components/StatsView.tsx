@@ -2,6 +2,7 @@ import { AppLanguage, Cycle, Habit } from "../types";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3 } from "./ui/icons";
 import { t as tr } from "../i18n";
+import { AppTab } from "../navigation";
 import { addDays, getWeekIndexForDate, getWeekLabel, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
 import { ProgressBar } from "./ProgressBar";
 import { Icon } from "./ui/Icon";
@@ -14,8 +15,6 @@ import {
     getHabitCellVisualState
 } from "../regressionLogic";
 
-type Tab = "today" | "week" | "stats" | "journal";
-
 interface StatsViewProps {
     cycle: Cycle;
     habits: Habit[];
@@ -25,7 +24,7 @@ interface StatsViewProps {
     readOnly: boolean;
     language: AppLanguage;
     setSelectedWeek: (week: number) => void;
-    setActiveTab: (tab: Tab) => void;
+    setActiveTab: (tab: AppTab) => void;
     onOpenHabitsManager: () => void;
     onOpenCycleDrawer: () => void;
 }
@@ -90,47 +89,6 @@ export function StatsView({
             </h2>
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
-            <div className="subcard stats-summary stats-goals-focus">
-                <div className="stats-goals-header">
-                    <h3>{tr(language, "stats.goals")}</h3>
-                    <div className="stats-goals-header-actions">
-                        <span className="stats-goals-count">{cycle.goals.length}</span>
-                        <button type="button" onClick={onOpenCycleDrawer}>{tr(language, "stats.editGoals")}</button>
-                    </div>
-                </div>
-                <p className="muted">{tr(language, "stats.goalsSubtitle")}</p>
-                <div className="stats-goal-list">
-                    {cycle.goals.length === 0 && (
-                        <div className="stats-empty-state">
-                            <p className="empty">{tr(language, "stats.noGoalsEmptyState")}</p>
-                            <button type="button" onClick={onOpenCycleDrawer}>{tr(language, "stats.addGoals")}</button>
-                        </div>
-                    )}
-                    {cycle.goals.map((goal, index) => (
-                        <div key={goal.id} className="stats-goal-card">
-                            <div className="stats-goal-index" aria-hidden="true">
-                                {index + 1}
-                            </div>
-                            <div className="stats-goal-content">
-                                <strong className="stats-goal-title">{goal.title}</strong>
-                                {goal.metric && (
-                                    <div className="stats-goal-metric">{goal.metric}</div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="subcard stats-summary">
-                <h3>{tr(language, "stats.totalProgress")}</h3>
-                <div className="stats-big-number">{cyclePercent}</div>
-                <p className="muted">{tr(language, "stats.totalProgressContext")}</p>
-                {hasWeeklyTargets && (
-                    <p className="stats-progress-status">{tr(language, progressStatusKey)}</p>
-                )}
-            </div>
-
             <div className="subcard">
                 <h3>{tr(language, "stats.weeklyProgress")}</h3>
                 {!hasWeeklyTargets && (
@@ -183,6 +141,47 @@ export function StatsView({
                         })}
                     </div>
                 )}
+            </div>
+
+            <div className="subcard stats-summary">
+                <h3>{tr(language, "stats.totalProgress")}</h3>
+                <div className="stats-big-number">{cyclePercent}</div>
+                <p className="muted">{tr(language, "stats.totalProgressContext")}</p>
+                {hasWeeklyTargets && (
+                    <p className="stats-progress-status">{tr(language, progressStatusKey)}</p>
+                )}
+            </div>
+
+            <div className="subcard stats-summary stats-goals-focus">
+                <div className="stats-goals-header">
+                    <h3>{tr(language, "stats.goals")}</h3>
+                    <div className="stats-goals-header-actions">
+                        <span className="stats-goals-count">{cycle.goals.length}</span>
+                        <button type="button" onClick={onOpenCycleDrawer}>{tr(language, "stats.editGoals")}</button>
+                    </div>
+                </div>
+                <p className="muted">{tr(language, "stats.goalsSubtitle")}</p>
+                <div className="stats-goal-list">
+                    {cycle.goals.length === 0 && (
+                        <div className="stats-empty-state">
+                            <p className="empty">{tr(language, "stats.noGoalsEmptyState")}</p>
+                            <button type="button" onClick={onOpenCycleDrawer}>{tr(language, "stats.addGoals")}</button>
+                        </div>
+                    )}
+                    {cycle.goals.map((goal, index) => (
+                        <div key={goal.id} className="stats-goal-card">
+                            <div className="stats-goal-index" aria-hidden="true">
+                                {index + 1}
+                            </div>
+                            <div className="stats-goal-content">
+                                <strong className="stats-goal-title">{goal.title}</strong>
+                                {goal.metric && (
+                                    <div className="stats-goal-metric">{goal.metric}</div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {hasWeeklyTargets && goalTracking.length > 0 && (

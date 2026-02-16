@@ -1,9 +1,11 @@
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { Cycle } from "./types";
-import { addDays, migrateCycle, cycleReducer, toIsoDate } from "./utils";
+import { t as tr } from "./i18n";
+import { addDays, formatRange, getWeekLabel, migrateCycle, cycleReducer, formatDate, toIsoDate, weekdayLabelLong } from "./utils";
 import { ConfirmModals } from "./components/ConfirmModals";
 import { SettingsModalHost } from "./components/SettingsModalHost";
 import { AppHeader } from "./components/AppHeader";
+import { AppSidebar } from "./components/AppSidebar";
 import { AppDashboardContent } from "./components/AppDashboardContent";
 import { AppEntryState } from "./components/AppEntryState";
 import { AppStateBanners } from "./components/AppStateBanners";
@@ -209,7 +211,7 @@ export default function App() {
     selectedWeek,
     selectedDate
   });
-  const { weekCompletion, totalWeeklyDone, getWeeklyRemaining } = useWeekMetrics({
+  const { totalWeeklyDone, getWeeklyRemaining } = useWeekMetrics({
     cycle,
     selectedWeek: todayWeekIndex
   });
@@ -337,6 +339,7 @@ export default function App() {
     step
   });
   const [startQuarterReview, setStartQuarterReview] = useState(false);
+  const [todayComposerRequest, setTodayComposerRequest] = useState<{ id: number; mode: "timed" | "flexible" } | null>(null);
   const openQuarterDashboard = () => {
     setStartQuarterReview(false);
     setShowCycleDrawer(true);
@@ -353,6 +356,32 @@ export default function App() {
         || (cycle.finalReview.nextCycle ?? "").trim()
       )
   );
+  const queueTodayComposer = useCallback((mode: "timed" | "flexible") => {
+    const nowIso = toIsoDate(new Date());
+    setSelectedDate(nowIso);
+    setActiveTab("today");
+
+    if (mode === "flexible") {
+      setBlockDraft(createDefaultDailyBlockDraft());
+    } else {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const roundedStartMinutes = (Math.floor(currentMinutes / 15) + 1) * 15;
+      const startHours = Math.floor((roundedStartMinutes % 1440) / 60);
+      const startMinutes = roundedStartMinutes % 60;
+      const endTotalMinutes = roundedStartMinutes + 60;
+      const endHours = Math.floor((endTotalMinutes % 1440) / 60);
+      const endMinutes = endTotalMinutes % 60;
+      setBlockDraft({
+        ...createDefaultDailyBlockDraft(),
+        isFlexible: false,
+        startTime: `${String(startHours).padStart(2, "0")}:${String(startMinutes).padStart(2, "0")}`,
+        endTime: `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`
+      });
+    }
+
+    setTodayComposerRequest({ id: Date.now(), mode });
+  }, [setActiveTab, setBlockDraft, setSelectedDate]);
   const {
     handleAddGoal,
     handleDeleteGoal,
@@ -492,6 +521,7 @@ export default function App() {
     dailyReview,
     weeklyReview,
     showReminder,
+    history,
     updateCycle,
     onAddGoal: handleAddGoal,
     onDeleteGoal: handleDeleteGoal,
@@ -518,7 +548,11 @@ export default function App() {
     onOpenLabelSettings: (contextId) => {
       setSettingsContextFocusId(contextId ?? null);
       setShowSettings(true);
-    }
+    },
+    onViewArchivedCycle: (archiveId) => setViewingArchiveId(archiveId),
+    onDeleteArchivedCycle: (archiveId) => setShowArchiveDeleteConfirm(archiveId),
+    onArchiveRestart: () => setShowDeleteConfirm(true),
+    todayComposerRequest
   });
   const entryStateProps = useAppEntryStateProps({
     language,
@@ -552,43 +586,80 @@ export default function App() {
     );
   }
 
+  const selectedWeekData = cycle.weeks.find((week) => week.index === selectedWeek) ?? currentWeek;
+  const contentHeaderTitle = activeTab === "today"
+    ? tr(language, "sidebar.nav.today")
+    : activeTab === "week"
+      ? tr(language, "sidebar.nav.week")
+      : activeTab === "plan"
+        ? tr(language, "sidebar.nav.plan")
+        : activeTab === "inbox"
+          ? tr(language, "sidebar.nav.inbox")
+          : tr(language, "sidebar.nav.stats");
+  const contentHeaderContext = activeTab === "today"
+    ? `${weekdayLabelLong(selectedDate, language)} · ${formatDate(selectedDate, dateFormat, language)}`
+    : activeTab === "week"
+      ? `${getWeekLabel(cycle, selectedWeek, language)} · ${formatRange(selectedWeekData.startDate, selectedWeekData.endDate, dateFormat, language)}`
+      : activeTab === "plan"
+        ? formatRange(cycle.startDate, cycle.weeks[cycle.weeks.length - 1]?.endDate ?? cycle.startDate, dateFormat, language)
+        : activeTab === "inbox"
+          ? tr(language, "journal.subtitle")
+          : tr(language, "stats.totalProgressContext");
+
   return (
-    <div className="page">
-      <AppStateBanners
-        viewingArchiveId={viewingArchiveId}
-        cycleTitle={cycle.title}
-        cycleStartDate={cycle.startDate}
+    <div className="page app-shell-page">
+      <AppSidebar
         language={language}
-        dateFormat={dateFormat}
-        onExitArchive={() => setViewingArchiveId(null)}
-        recoveryCandidate={recoveryCandidate}
-        onRestoreLatestSnapshot={restoreLatestSnapshot}
-        onDismissRecovery={dismissRecovery}
-        persistenceWarning={persistenceWarning}
-        onClearPersistenceWarning={clearPersistenceWarning}
-        showQuarterReviewBanner={isQuarterComplete && !hasQuarterReview}
-        onStartQuarterReview={() => {
-          setStartQuarterReview(true);
-          setShowCycleDrawer(true);
-        }}
-      />
-      <AppHeader
-        title={cycle.title}
-        startDate={cycle.startDate}
-        currentWeekIndex={todayWeekIndex}
-        currentWeek={currentWeek}
-        language={language}
-        dateFormat={dateFormat}
-        onOpenCycleDrawer={openQuarterDashboard}
-        onOpenSearch={() => setShowSearchOverlay(true)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        syncEnabled={syncEnabled}
+        syncStatus={syncEnabled ? syncStatus : undefined}
         onOpenSettings={() => {
           setSettingsContextFocusId(null);
           openSettings();
         }}
         onOpenSyncStatus={() => setShowSyncStatusSheet(true)}
-        weekCompletion={weekCompletion}
-        syncStatus={syncEnabled ? syncStatus : undefined}
+        onQuickCapture={(action) => {
+          if (action === "note") {
+            setActiveTab("inbox");
+            setShowQuickCapture(true);
+            return;
+          }
+          setShowQuickCapture(false);
+          queueTodayComposer(action === "block" ? "timed" : "flexible");
+        }}
       />
+      <div className="app-main">
+        <AppStateBanners
+          viewingArchiveId={viewingArchiveId}
+          cycleTitle={cycle.title}
+          cycleStartDate={cycle.startDate}
+          language={language}
+          dateFormat={dateFormat}
+          onExitArchive={() => setViewingArchiveId(null)}
+          recoveryCandidate={recoveryCandidate}
+          onRestoreLatestSnapshot={restoreLatestSnapshot}
+          onDismissRecovery={dismissRecovery}
+          persistenceWarning={persistenceWarning}
+          onClearPersistenceWarning={clearPersistenceWarning}
+          showQuarterReviewBanner={isQuarterComplete && !hasQuarterReview}
+          onStartQuarterReview={() => {
+            setStartQuarterReview(true);
+            setShowCycleDrawer(true);
+          }}
+        />
+        <AppHeader
+          language={language}
+          title={contentHeaderTitle}
+          context={contentHeaderContext}
+          onOpenSearch={() => setShowSearchOverlay(true)}
+          onOpenSyncStatus={() => setShowSyncStatusSheet(true)}
+          syncStatus={syncEnabled ? syncStatus : undefined}
+        />
+        <div className="app-main-scroll">
+          <AppDashboardContent {...dashboardContentProps} />
+        </div>
+      </div>
 
       <SearchOverlay
         open={showSearchOverlay}
@@ -658,8 +729,6 @@ export default function App() {
 
       <SettingsModalHost show={showSettings} props={settingsModalProps} />
 
-      <AppDashboardContent {...dashboardContentProps} />
-
       {step >= 4 && (
         <QuickNoteCapture
           cycle={cycle}
@@ -669,6 +738,7 @@ export default function App() {
           open={showQuickCapture}
           setOpen={setShowQuickCapture}
           updateCycle={updateCycle}
+          showFab={false}
         />
       )}
 

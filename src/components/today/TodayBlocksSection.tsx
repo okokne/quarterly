@@ -34,6 +34,7 @@ type TodayBlocksSectionProps = {
     onDeleteBlock: (date: string, blockId: Id) => void | Promise<void>;
     dayPlanViewMode: DayPlanViewMode;
     setDayPlanViewMode: Dispatch<SetStateAction<DayPlanViewMode>>;
+    composerRequest: { id: number; mode: "timed" | "flexible" } | null;
 };
 
 type TimelineBlock = {
@@ -152,7 +153,8 @@ export function TodayBlocksSection({
     onUpdateBlock,
     onDeleteBlock,
     dayPlanViewMode,
-    setDayPlanViewMode
+    setDayPlanViewMode,
+    composerRequest
 }: TodayBlocksSectionProps) {
     const {
         touchDraggingBlockId,
@@ -186,6 +188,7 @@ export function TodayBlocksSection({
         nextDoneState: boolean;
     } | null>(null);
     const completionFxTimeoutRef = useRef<Map<string, number>>(new Map());
+    const handledComposerRequestIdRef = useRef<number | null>(null);
 
     const timelineStartAndEnd = useMemo(() => {
         let minStartMinutes = TIMELINE_START_HOUR * 60;
@@ -312,6 +315,16 @@ export function TodayBlocksSection({
             timelineAutoScrollKeyRef.current = "";
         }
     }, [dayPlanViewMode, selectedDate]);
+
+    useEffect(() => {
+        if (!composerRequest) return;
+        if (handledComposerRequestIdRef.current === composerRequest.id) return;
+        handledComposerRequestIdRef.current = composerRequest.id;
+        if (dayPlanViewMode !== "list") {
+            setDayPlanViewMode("list");
+        }
+        setIsComposerOpen(true);
+    }, [composerRequest, dayPlanViewMode, setDayPlanViewMode]);
 
     const triggerCompletionFx = useCallback((blockId: Id) => {
         const key = String(blockId);

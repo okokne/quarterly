@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { DailyBlockDraft } from "./useDailyBlocks";
+import { AppTab } from "../navigation";
 import {
     Cycle,
     DailyBlock,
@@ -13,8 +14,6 @@ import {
     DateFormat,
     TimeFormat
 } from "../types";
-
-type Tab = "today" | "week" | "stats" | "journal";
 
 type GoalDraft = {
     title: string;
@@ -33,8 +32,8 @@ type UseAppDashboardContentPropsParams = {
     dateFormat: DateFormat;
     timeFormat: TimeFormat;
     isArchiveView: boolean;
-    activeTab: Tab;
-    setActiveTab: (tab: Tab) => void;
+    activeTab: AppTab;
+    setActiveTab: (tab: AppTab) => void;
     step: 1 | 2 | 3 | 4;
     setStep: Dispatch<SetStateAction<1 | 2 | 3 | 4>>;
     onboardingGoalsComplete: boolean;
@@ -62,6 +61,7 @@ type UseAppDashboardContentPropsParams = {
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
     showReminder: boolean;
+    history: Cycle[];
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onAddGoal: () => void;
     onDeleteGoal: (goalId: Id) => void;
@@ -86,6 +86,10 @@ type UseAppDashboardContentPropsParams = {
     onOpenHabitsManager: () => void;
     onOpenCycleDrawer: () => void;
     onOpenLabelSettings: (contextId?: string) => void;
+    onViewArchivedCycle: (id: Id) => void;
+    onDeleteArchivedCycle: (id: Id) => void;
+    onArchiveRestart: () => void;
+    todayComposerRequest: { id: number; mode: "timed" | "flexible" } | null;
 };
 
 export function useAppDashboardContentProps(params: UseAppDashboardContentPropsParams) {

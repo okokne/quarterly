@@ -18,6 +18,7 @@ type QuickNoteCaptureProps = {
     open: boolean;
     setOpen: (next: boolean) => void;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
+    showFab?: boolean;
 };
 
 export function QuickNoteCapture({
@@ -27,7 +28,8 @@ export function QuickNoteCapture({
     currentWeekIndex,
     open,
     setOpen,
-    updateCycle
+    updateCycle,
+    showFab = true
 }: QuickNoteCaptureProps) {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -77,16 +79,18 @@ export function QuickNoteCapture({
 
     return (
         <>
-            <button
-                type="button"
-                className="quick-note-fab"
-                onClick={() => setOpen(true)}
-                disabled={readOnly}
-                title={tr(language, "quickNote.tooltip")}
-                aria-label={tr(language, "quickNote.tooltip")}
-            >
-                <Icon icon={SquarePen} size={19} />
-            </button>
+            {showFab && (
+                <button
+                    type="button"
+                    className="quick-note-fab"
+                    onClick={() => setOpen(true)}
+                    disabled={readOnly}
+                    title={tr(language, "quickNote.tooltip")}
+                    aria-label={tr(language, "quickNote.tooltip")}
+                >
+                    <Icon icon={SquarePen} size={19} />
+                </button>
+            )}
 
             {open && (
                 <div className="modal-backdrop quick-note-backdrop" onClick={() => setOpen(false)}>
@@ -135,4 +139,3 @@ export function QuickNoteCapture({
         </>
     );
 }
-

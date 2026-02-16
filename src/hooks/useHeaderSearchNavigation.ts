@@ -1,10 +1,11 @@
 import { useCallback } from "react";
+import { AppTab } from "../navigation";
 import { SearchResultItem } from "../types/search";
 
 type UseHeaderSearchNavigationParams = {
     setSelectedWeek: (week: number) => void;
     setSelectedDate: (date: string) => void;
-    setActiveTab: (tab: "today" | "week" | "stats" | "journal") => void;
+    setActiveTab: (tab: AppTab) => void;
     setSearchQuery: (value: string) => void;
 };
 

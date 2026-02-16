@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { t as tr } from "../i18n";
+import { AppTab } from "../navigation";
 import { DailyBlockDraft } from "../hooks/useDailyBlocks";
 import {
     AppLanguage,
@@ -15,9 +16,9 @@ import {
     WeeklyTarget
 } from "../types";
 import { buildCycle } from "../utils";
-import { AppTab, AppTabs } from "./AppTabs";
 import { JournalView } from "./JournalView";
 import { OnboardingPanel } from "./OnboardingPanel";
+import { PlanTab } from "./PlanTab";
 import { StatsView } from "./StatsView";
 import { TodayTab } from "./TodayTab";
 import { WeekTab } from "./WeekTab";
@@ -68,6 +69,7 @@ type AppDashboardContentProps = {
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
     showReminder: boolean;
+    history: Cycle[];
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onAddGoal: () => void;
     onDeleteGoal: (goalId: Id) => void;
@@ -92,6 +94,10 @@ type AppDashboardContentProps = {
     onOpenHabitsManager: () => void;
     onOpenCycleDrawer: () => void;
     onOpenLabelSettings: (contextId?: string) => void;
+    onViewArchivedCycle: (id: Id) => void;
+    onDeleteArchivedCycle: (id: Id) => void;
+    onArchiveRestart: () => void;
+    todayComposerRequest: { id: number; mode: "timed" | "flexible" } | null;
 };
 
 export function AppDashboardContent({
@@ -129,6 +135,7 @@ export function AppDashboardContent({
     dailyReview,
     weeklyReview,
     showReminder,
+    history,
     updateCycle,
     onAddGoal,
     onDeleteGoal,
@@ -152,7 +159,11 @@ export function AppDashboardContent({
     onDeleteHabit,
     onOpenHabitsManager,
     onOpenCycleDrawer,
-    onOpenLabelSettings
+    onOpenLabelSettings,
+    onViewArchivedCycle,
+    onDeleteArchivedCycle,
+    onArchiveRestart,
+    todayComposerRequest
 }: AppDashboardContentProps) {
     const onboardingDone = step >= 4;
 
@@ -179,14 +190,6 @@ export function AppDashboardContent({
                         setStep(4);
                         setActiveTab("week");
                     }}
-                />
-            )}
-
-            {onboardingDone && (
-                <AppTabs
-                    language={language}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
                 />
             )}
 
@@ -227,6 +230,7 @@ export function AppDashboardContent({
                     onOpenHabitsManager={onOpenHabitsManager}
                     dailyReview={dailyReview}
                     updateCycle={updateCycle}
+                    composerRequest={todayComposerRequest}
                 />
             )}
 
@@ -273,7 +277,7 @@ export function AppDashboardContent({
                 />
             )}
 
-            {onboardingDone && activeTab === "journal" && (
+            {onboardingDone && activeTab === "inbox" && (
                 <JournalView
                     cycle={cycle}
                     language={language}
@@ -284,6 +288,24 @@ export function AppDashboardContent({
                     setActiveTab={setActiveTab}
                     updateCycle={updateCycle}
                     onOpenLabelSettings={onOpenLabelSettings}
+                />
+            )}
+
+            {onboardingDone && activeTab === "plan" && (
+                <PlanTab
+                    cycle={cycle}
+                    language={language}
+                    dateFormat={dateFormat}
+                    isArchiveView={isArchiveView}
+                    history={history}
+                    habits={habits}
+                    setSelectedWeek={setSelectedWeek}
+                    setActiveTab={setActiveTab}
+                    updateCycle={updateCycle}
+                    onOpenHabitsManager={onOpenHabitsManager}
+                    onViewArchivedCycle={onViewArchivedCycle}
+                    onDeleteArchivedCycle={onDeleteArchivedCycle}
+                    onArchiveRestart={onArchiveRestart}
                 />
             )}
         </>

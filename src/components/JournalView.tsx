@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Filter } from "./ui/icons";
 import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../types";
 import { t as tr } from "../i18n";
+import { AppTab } from "../navigation";
 import {
     createJournalCustomReviewEntry,
     createJournalDailyReviewEntry,
@@ -18,8 +19,6 @@ import { FilterOption } from "./journal/types";
 import { useJournalState } from "../hooks/useJournalState";
 import { Icon } from "./ui/Icon";
 
-type Tab = "today" | "week" | "stats" | "journal";
-
 interface JournalViewProps {
     cycle: Cycle;
     language: AppLanguage;
@@ -27,7 +26,7 @@ interface JournalViewProps {
     readOnly: boolean;
     setSelectedWeek: (week: number) => void;
     setSelectedDate: (date: string) => void;
-    setActiveTab: (tab: Tab) => void;
+    setActiveTab: (tab: AppTab) => void;
     updateCycle: (updater: (prev: Cycle) => Cycle) => void;
     onOpenLabelSettings: (contextId?: string) => void;
 }

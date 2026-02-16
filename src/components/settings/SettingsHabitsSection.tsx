@@ -25,6 +25,7 @@ export function SettingsHabitsSection({
     habitLog,
     setHabitLog
 }: SettingsHabitsSectionProps) {
+    const HABIT_PICKER_ICON_SIZE = 13;
     const [showHabitForm, setShowHabitForm] = useState(false);
     const [habitTitle, setHabitTitle] = useState("");
     const [habitFreq, setHabitFreq] = useState<"daily" | "custom">("daily");
@@ -170,7 +171,7 @@ export function SettingsHabitsSection({
                                                         title={tr(language, option.labelKey)}
                                                         aria-label={tr(language, option.labelKey)}
                                                     >
-                                                        <Icon icon={option.icon} size={16} className="habit-emoji-icon" />
+                                                        <Icon icon={option.icon} size={HABIT_PICKER_ICON_SIZE} className="habit-emoji-icon" />
                                                     </button>
                                                 ))}
                                             </div>
@@ -279,7 +280,7 @@ export function SettingsHabitsSection({
                                     title={tr(language, option.labelKey)}
                                     aria-label={tr(language, option.labelKey)}
                                 >
-                                    <Icon icon={option.icon} size={16} className="habit-emoji-icon" />
+                                    <Icon icon={option.icon} size={HABIT_PICKER_ICON_SIZE} className="habit-emoji-icon" />
                                 </button>
                             ))}
                         </div>
