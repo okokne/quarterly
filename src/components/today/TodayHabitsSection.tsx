@@ -1,4 +1,4 @@
-import { CheckSquare, Plus, Square } from "lucide-react";
+import { CheckSquare, Plus, Square } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Id } from "../../types";
 import { Icon } from "../ui/Icon";

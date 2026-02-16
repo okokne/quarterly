@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil } from "../ui/icons";
 import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, Id, WeeklyTarget } from "../../types";

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X } from "./ui/icons";
 import { AppLanguage, Cycle, Habit } from "../types";
 import { t as tr } from "../i18n";
 import { SettingsHabitsSection } from "./settings/SettingsHabitsSection";

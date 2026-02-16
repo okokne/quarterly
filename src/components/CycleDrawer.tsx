@@ -1,5 +1,5 @@
 import { DragEvent, useMemo, useRef, useState } from "react";
-import { Pencil, X } from "lucide-react";
+import { Pencil, X } from "./ui/icons";
 import { AppLanguage, Cycle, DateFormat, Habit, Id } from "../types";
 import { t as tr } from "../i18n";
 import { CycleVisionSection } from "./cycle/CycleVisionSection";

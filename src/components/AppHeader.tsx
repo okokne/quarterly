@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CloudAlert, CloudCheck, CloudOff, FolderKanban, Search, Settings } from "lucide-react";
+import { CloudAlert, CloudCheck, CloudOff, FolderKanban, Search, Settings } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { AppLanguage, DateFormat, SyncStatus, Week } from "../types";
 import { buildWeekLabel, formatDate, formatRange } from "../utils";

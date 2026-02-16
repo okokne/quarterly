@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter } from "./ui/icons";
 import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../types";
 import { t as tr } from "../i18n";
 import {

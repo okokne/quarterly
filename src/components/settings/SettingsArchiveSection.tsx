@@ -1,5 +1,5 @@
 import { AppLanguage, Cycle, DateFormat, Id } from "../../types";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { formatDate } from "../../utils";
 import { Icon } from "../ui/Icon";

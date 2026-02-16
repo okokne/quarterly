@@ -1,4 +1,4 @@
-import { RefreshCcw, X } from "lucide-react";
+import { RefreshCcw, X } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { AppLanguage, SyncStatus } from "../types";
 import { Icon } from "./ui/Icon";

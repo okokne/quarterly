@@ -10,7 +10,7 @@
     "test": "rm -rf .test-dist && tsc -p tsconfig.tests.json && printf '{\"type\":\"commonjs\"}\\n' > .test-dist/package.json && node --test .test-dist/tests/*.test.js && rm -rf .test-dist"
   },
   "dependencies": {
-    "lucide-react": "^0.564.0",
+    "@phosphor-icons/react": "^2.1.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

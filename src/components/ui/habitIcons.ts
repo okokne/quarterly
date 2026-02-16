@@ -47,7 +47,7 @@ import {
     Utensils,
     Wallet,
     WineOff
-} from "lucide-react";
+} from "./icons";
 
 export type HabitIconOption = {
     key: string;

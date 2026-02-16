@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, BookOpenText, LayoutGrid } from "lucide-react";
+import { BarChart3, CalendarDays, BookOpenText, LayoutGrid } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { AppLanguage } from "../types";
 import { Icon } from "./ui/Icon";

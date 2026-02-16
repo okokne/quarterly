@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { SquarePen } from "lucide-react";
+import { SquarePen } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { AppLanguage, Cycle } from "../types";
 import {

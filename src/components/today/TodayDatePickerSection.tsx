@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useMemo, useRef } from "react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat } from "../../types";
 import { addDays, formatDate, getWeekIndexForDate, parseIso, toIsoDate, weekdayLabel, weekdayLabelLong } from "../../utils";

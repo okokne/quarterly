@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { X } from "lucide-react";
+import { X } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { AppLanguage, ReviewSignal } from "../../types";
 import { FeedRangeFilter, FeedTypeFilter, FilterOption } from "./types";

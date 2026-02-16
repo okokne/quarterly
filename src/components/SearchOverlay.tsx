@@ -1,4 +1,4 @@
-import { Search, Target, BarChart3, Clock3, X } from "lucide-react";
+import { Search, Target, BarChart3, Clock3, X } from "./ui/icons";
 import { AppLanguage, DateFormat } from "../types";
 import { SearchResultItem } from "../types/search";
 import { t as tr } from "../i18n";

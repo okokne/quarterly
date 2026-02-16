@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Pencil, Sparkles, Trash2, X } from "lucide-react";
+import { Check, Pencil, Sparkles, Trash2, X } from "../ui/icons";
 import { AppLanguage, Cycle, Habit } from "../../types";
 import { t as tr } from "../../i18n";
 import { toIsoDate, uid } from "../../utils";

@@ -9,7 +9,7 @@ import {
     PersistedPlannerState,
     TimeFormat
 } from "../../types";
-import { Download } from "lucide-react";
+import { Download } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { formatDate, toIsoDate } from "../../utils";
 import { createBackupSnapshot, parseBackupPayload } from "../../backup";

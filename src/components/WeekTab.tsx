@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil } from "./ui/icons";
 import { t as tr } from "../i18n";
 import {
     AppLanguage,

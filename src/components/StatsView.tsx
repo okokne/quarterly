@@ -1,6 +1,6 @@
 import { AppLanguage, Cycle, Habit } from "../types";
 import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3 } from "lucide-react";
+import { BarChart3 } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { addDays, getWeekIndexForDate, getWeekLabel, parseIso, toIsoDate, isHabitPlannedOnDate } from "../utils";
 import { ProgressBar } from "./ProgressBar";

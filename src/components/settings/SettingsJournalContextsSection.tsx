@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Pencil, Trash2, X } from "lucide-react";
+import { Check, Pencil, Trash2, X } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle } from "../../types";
 import { JOURNAL_LABEL_COLOR_PALETTE, pickNextJournalContextColor, uid } from "../../utils";

@@ -1,5 +1,5 @@
 import { CSSProperties, Dispatch, SetStateAction } from "react";
-import { ArrowRight, ChevronRight, Pencil, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Pencil, X } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat, JournalContext, ReviewEntry } from "../../types";
 import { formatDate, getReviewEntrySignals, getWeekIndexForDate, getWeekLabel } from "../../utils";

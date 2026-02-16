@@ -1,6 +1,6 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { Check, PencilLine, Trash2, X } from "lucide-react";
+import { Check, PencilLine, Trash2, X } from "../ui/icons";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
