@@ -20,7 +20,9 @@ import {
 } from "../types";
 import {
     formatDate,
+    getEffectiveWeeklyDone,
     getWeekProgressPercent,
+    parseIso,
     weekdayLabelLong
 } from "../utils";
 import { ProgressBar } from "./ProgressBar";
@@ -30,6 +32,10 @@ import { TodayHabitsSection } from "./today/TodayHabitsSection";
 import { TodayDailyReviewSection } from "./today/TodayDailyReviewSection";
 import { TodayDatePickerSection } from "./today/TodayDatePickerSection";
 import { TodayBlocksSection } from "./today/TodayBlocksSection";
+import { AppTab } from "../navigation";
+import { ArrowRight, BarChart3, Sunrise } from "./ui/icons";
+import { Icon } from "./ui/Icon";
+import { resolveHabitIcon } from "./ui/habitIcons";
 
 type DayPlanViewMode = "list" | "timeline";
 
@@ -43,6 +49,7 @@ type TodayTabProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
+    setActiveTab: (tab: AppTab) => void;
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
@@ -78,6 +85,7 @@ export function TodayTab({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
+    setActiveTab,
     selectedWeekTargets,
     blockDraft,
     setBlockDraft,
@@ -113,6 +121,40 @@ export function TodayTab({
     const dayProgressPercent = dayBlocks.length > 0 ? Math.round((completedBlocks / dayBlocks.length) * 100) : 0;
     const remainingBlocks = Math.max(dayBlocks.length - completedBlocks, 0);
     const weekProgressPercent = getWeekProgressPercent(cycle, selectedWeek);
+    const activeHabitsForDate = useMemo(() => getActiveHabitsForDate(selectedDate), [getActiveHabitsForDate, selectedDate]);
+    const quickHabits = activeHabitsForDate.slice(0, 7);
+    const hiddenHabitCount = Math.max(activeHabitsForDate.length - quickHabits.length, 0);
+    const doneHabitIds = habitLog[selectedDate] ?? [];
+    const nextPriority = useMemo(() => {
+        if (activeWeekTargets.length === 0) return null;
+
+        return activeWeekTargets
+            .map((target) => {
+                const safeTarget = target.target > 0 ? target.target : 0;
+                const done = getEffectiveWeeklyDone(cycle, selectedWeek, target);
+                const percent = safeTarget > 0 ? Math.round((done / safeTarget) * 100) : 100;
+                return {
+                    target,
+                    done,
+                    percent
+                };
+            })
+            .sort((a, b) => a.percent - b.percent || (b.target.target - a.target.target))
+            [0];
+    }, [activeWeekTargets, cycle, selectedWeek]);
+    const nextPriorityDone = nextPriority
+        ? (Number.isInteger(nextPriority.done) ? nextPriority.done : Number(nextPriority.done.toFixed(1)))
+        : 0;
+    const weekDayNumber = useMemo(() => {
+        const selectedWeekData = cycle.weeks.find((week) => week.index === selectedWeek);
+        if (!selectedWeekData) return ((parseIso(selectedDate).getDay() + 6) % 7) + 1;
+
+        const selectedDay = parseIso(selectedDate);
+        const weekStart = parseIso(selectedWeekData.startDate);
+        const msInDay = 1000 * 60 * 60 * 24;
+        const rawDiff = Math.floor((selectedDay.getTime() - weekStart.getTime()) / msInDay) + 1;
+        return Math.max(1, Math.min(7, rawDiff));
+    }, [cycle.weeks, selectedDate, selectedWeek]);
 
     return (
         <section className="card">
@@ -123,20 +165,81 @@ export function TodayTab({
             {isArchiveView && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
             <div className="today-hero-row">
-                <article className="subcard today-hero-card today-hero-card-progress">
-                    <div className="today-hero-progress-ring">
-                        <ProgressRing value={dayProgressPercent} max={100} size={76} strokeWidth={6} />
+                <article className={`subcard today-hero-card today-hero-card-progress ${dayProgressPercent >= 100 ? "is-complete" : ""}`}>
+                    <div className="today-hero-watermark" aria-hidden="true">
+                        <Icon icon={Sunrise} size={40} />
                     </div>
-                    <div className="today-hero-main">
-                        <h3>{tr(language, "today.heroProgressTitle")}</h3>
-                        <strong>{dayProgressPercent}%</strong>
-                        <p className="muted">{tr(language, "today.heroRemaining", { count: remainingBlocks })}</p>
+                    <div className="today-hero-mainline">
+                        <div className="today-hero-progress-ring">
+                            <ProgressRing value={dayProgressPercent} max={100} size={70} strokeWidth={6} />
+                        </div>
+                        <div className="today-hero-main">
+                            <h3>{tr(language, "today.heroProgressTitle")}</h3>
+                            <strong>{dayProgressPercent}%</strong>
+                            <p className="muted">{tr(language, "today.heroRemaining", { count: remainingBlocks })}</p>
+                        </div>
+                    </div>
+                    <div className="today-hero-habit-quick-access">
+                        <span className="today-hero-secondary">{tr(language, "today.heroQuickHabits")}</span>
+                        {activeHabitsForDate.length === 0 ? (
+                            <p className="muted today-hero-habit-empty">{tr(language, "today.heroNoHabits")}</p>
+                        ) : (
+                            <div className="today-hero-habit-bubbles">
+                                {quickHabits.map((habit) => {
+                                    const done = doneHabitIds.includes(habit.id);
+                                    return (
+                                        <button
+                                            key={habit.id}
+                                            type="button"
+                                            className={`today-hero-habit-bubble ${done ? "done" : ""}`}
+                                            onClick={() => onToggleHabit(selectedDate, habit.id)}
+                                            title={habit.title}
+                                            disabled={isArchiveView}
+                                            aria-label={habit.title}
+                                        >
+                                            <Icon icon={resolveHabitIcon(habit.emoji)} size={14} />
+                                        </button>
+                                    );
+                                })}
+                                {hiddenHabitCount > 0 && (
+                                    <span className="today-hero-habit-overflow">+{hiddenHabitCount}</span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </article>
-                <article className="subcard today-hero-card">
-                    <h3>{tr(language, "today.heroWeekTitle")}</h3>
+                <article className="subcard today-hero-card today-hero-card-week">
+                    <div className="today-hero-watermark" aria-hidden="true">
+                        <Icon icon={BarChart3} size={40} />
+                    </div>
+                    <div className="today-hero-week-header">
+                        <h3>{tr(language, "today.heroWeekTitle")}</h3>
+                        <button
+                            type="button"
+                            className="today-hero-week-link"
+                            onClick={() => setActiveTab("week")}
+                            title={tr(language, "today.heroOpenWeek")}
+                            aria-label={tr(language, "today.heroOpenWeek")}
+                        >
+                            <Icon icon={ArrowRight} size={14} />
+                        </button>
+                    </div>
                     <strong>{weekProgressPercent}%</strong>
                     <ProgressBar value={weekProgressPercent} max={100} showLabel={false} />
+                    <span className="today-hero-secondary">{tr(language, "today.heroNextPriority")}</span>
+                    <p className="today-hero-priority-title">
+                        {nextPriority?.target.title ?? tr(language, "today.noWeekTargets")}
+                    </p>
+                    {nextPriority && (
+                        <p className="muted today-hero-priority-meta">
+                            {tr(language, "week.targetProgressSimple", {
+                                actual: nextPriorityDone,
+                                target: nextPriority.target.target,
+                                unit: nextPriority.target.unit ?? ""
+                            })}
+                        </p>
+                    )}
+                    <p className="muted today-hero-week-day">{tr(language, "today.heroWeekDay", { day: weekDayNumber })}</p>
                 </article>
             </div>
 

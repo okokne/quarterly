@@ -208,6 +208,7 @@ export function AppDashboardContent({
                     setSelectedDate={setSelectedDate}
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
+                    setActiveTab={setActiveTab}
                     selectedWeekTargets={selectedWeekTargets}
                     blockDraft={blockDraft}
                     setBlockDraft={setBlockDraft}

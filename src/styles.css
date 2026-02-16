@@ -4715,24 +4715,42 @@ button.ghost-danger:hover {
 
 .today-hero-row {
   display: grid;
-  grid-template-columns: minmax(260px, 1.5fr) repeat(2, minmax(180px, 1fr));
-  gap: var(--space-grid);
+  grid-template-columns: minmax(320px, 1.45fr) minmax(220px, 1fr);
+  gap: 16px;
 }
 
 .today-hero-card {
-  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  min-height: 168px;
+  padding: 16px 18px;
+  gap: 10px;
+  transition: all 0.3s ease;
 }
 
 .today-hero-card h3 {
-  margin-bottom: 4px;
+  margin: 0;
+  font-size: clamp(1.22rem, 1rem + 0.45vw, 1.45rem);
+  line-height: 1.16;
 }
 
 .today-hero-card strong {
-  font-size: 1.45rem;
+  font-size: clamp(1.52rem, 1.1rem + 0.7vw, 1.84rem);
   letter-spacing: -0.02em;
+  line-height: 1.05;
+  transition: all 0.3s ease;
 }
 
 .today-hero-card-progress {
+  border-color: color-mix(in srgb, var(--accent-300) 44%, var(--border));
+}
+
+.today-hero-card-progress.is-complete {
+  border-color: color-mix(in srgb, var(--accent-400) 76%, var(--border));
+  box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--accent-300) 28%, transparent), 0 0 24px color-mix(in srgb, var(--accent-500) 22%, transparent);
+}
+
+.today-hero-mainline {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -4743,11 +4761,167 @@ button.ghost-danger:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .today-hero-main {
   display: grid;
-  gap: 3px;
+  gap: 4px;
+  transition: all 0.3s ease;
+}
+
+.today-hero-card .progress-bar,
+.today-hero-card .progress-bar-fill {
+  transition: all 0.3s ease;
+}
+
+.today-hero-card .progress-ring-fill {
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.today-hero-watermark {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: color-mix(in srgb, var(--accent-400) 28%, transparent);
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.today-hero-secondary {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  color: var(--text-muted);
+}
+
+.today-hero-habit-quick-access {
+  display: grid;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.today-hero-habit-empty {
+  margin: 0;
+  font-size: var(--type-small);
+}
+
+.today-hero-habit-bubbles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.today-hero-habit-bubble {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border) 85%, var(--accent-200));
+  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-subtle));
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.today-hero-habit-bubble:hover {
+  border-color: color-mix(in srgb, var(--accent-300) 74%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 54%, var(--bg-card));
+  color: var(--accent-600);
+}
+
+.today-hero-habit-bubble.done {
+  border-color: color-mix(in srgb, var(--success-border) 82%, var(--border));
+  background: color-mix(in srgb, var(--success-bg) 86%, var(--bg-card));
+  color: var(--success-text);
+}
+
+.today-hero-habit-bubble:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.today-hero-habit-overflow {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, var(--text-light));
+  background: color-mix(in srgb, var(--bg-subtle) 84%, var(--bg-card));
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.today-hero-card-week {
+  border-color: color-mix(in srgb, var(--warm-blue-border) 44%, var(--border));
+}
+
+.today-hero-week-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.today-hero-week-link {
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--border) 84%, var(--warm-blue-border));
+  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-subtle));
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.today-hero-week-link:hover {
+  color: var(--warm-blue-text);
+  border-color: color-mix(in srgb, var(--warm-blue-border) 84%, var(--border));
+  background: color-mix(in srgb, var(--warm-blue-bg) 74%, var(--bg-card));
+}
+
+.today-hero-priority-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.today-hero-priority-meta {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.today-hero-week-day {
+  margin-top: auto;
+  margin-bottom: 0;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.005em;
+}
+
+body.dark-mode .today-hero-watermark {
+  opacity: 0.28;
+  color: color-mix(in srgb, var(--accent-400) 46%, transparent);
 }
 
 .today-view-toggle {
@@ -6755,16 +6929,16 @@ body.dark-mode .archive-banner {
 
 .today-hero-row {
   grid-template-columns: minmax(320px, 1.45fr) minmax(220px, 1fr);
-  gap: 16px;
+  gap: 14px;
 }
 
 .today-hero-card h3 {
   font-size: clamp(1.22rem, 1rem + 0.45vw, 1.45rem);
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .today-hero-card strong {
-  font-size: clamp(1.7rem, 1.15rem + 0.9vw, 2rem);
+  font-size: clamp(1.52rem, 1.1rem + 0.7vw, 1.84rem);
   font-weight: 700;
 }
 
@@ -6946,10 +7120,6 @@ body.dark-mode .archive-banner {
 @media (max-width: 1180px) {
   .today-hero-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .today-hero-card-progress {
-    grid-column: 1 / -1;
   }
 }
 
