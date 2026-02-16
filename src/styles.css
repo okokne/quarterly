@@ -8,95 +8,95 @@
 :root {
   /* ─── Primary Accent: Warm Muted Orange ─── */
   --accent: #e07b4c;
-  --accent-soft: #f0a06a;
-  --accent-muted: #f5c9a8;
-  --accent-bg: rgba(224, 123, 76, 0.08);
+  --accent-soft: #e8956b;
+  --accent-muted: #f0c4a8;
+  --accent-bg: rgba(224, 123, 76, 0.06);
   --accent-hover: #cc6a3d;
 
   /* ─── Warm Neutrals ─── */
-  --bg-page: #faf8f5;
+  --bg-page: #f7f4ef;
   --bg-card: #ffffff;
-  --bg-subtle: #f7f5f2;
-  --bg-hover: #f2efeb;
+  --bg-subtle: #f2eee9;
+  --bg-hover: #ede9e3;
 
   /* ─── Text Colors (Anthracite, not pure black) ─── */
-  --text-primary: #2d2a26;
-  --text-secondary: #6b6560;
+  --text-primary: #2c2926;
+  --text-secondary: #6d6760;
   --text-muted: #9c9590;
   --text-light: #b8b2aa;
 
   /* ─── Borders & Shadows ─── */
-  --border: #e8e4df;
-  --border-light: #f0ece7;
+  --border: #e6e1da;
+  --border-light: #ece7e0;
   --habit-grid-outline: rgba(107, 101, 96, 0.82);
-  --shadow-sm: 0 1px 3px rgba(45, 42, 38, 0.04);
-  --shadow-md: 0 4px 12px rgba(45, 42, 38, 0.06);
-  --shadow-lg: 0 8px 24px rgba(45, 42, 38, 0.08);
+  --shadow-sm: 0 1px 2px rgba(45, 42, 38, 0.03);
+  --shadow-md: 0 2px 8px rgba(45, 42, 38, 0.04);
+  --shadow-lg: 0 4px 16px rgba(45, 42, 38, 0.06);
 
   /* ─── Subtle Accent Colors ─── */
   --sage: #a8b5a0;
-  --sage-bg: rgba(168, 181, 160, 0.12);
+  --sage-bg: rgba(168, 181, 160, 0.10);
   --warm-blue: #7a9eb8;
-  --warm-blue-bg: rgba(122, 158, 184, 0.1);
+  --warm-blue-bg: rgba(122, 158, 184, 0.08);
 
-  /* ─── Status Colors ─── */
-  --success: #7cb87a;
-  --success-bg: rgba(124, 184, 122, 0.12);
-  --warning: #e0a84c;
-  --warning-bg: rgba(224, 168, 76, 0.12);
-  --danger: #d64545;
-  --danger-bg: rgba(214, 69, 69, 0.12);
-  --danger-hover: #b53535;
+  /* ─── Status Colors (desaturated, earthy) ─── */
+  --success: #6fae72;
+  --success-bg: rgba(111, 174, 114, 0.10);
+  --warning: #c79a4a;
+  --warning-bg: rgba(199, 154, 74, 0.10);
+  --danger: #c04a4a;
+  --danger-bg: rgba(192, 74, 74, 0.10);
+  --danger-hover: #a83e3e;
 
   /* ─── Spacing ─── */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
 
   /* ─── Transitions ─── */
   --transition-fast: 150ms ease;
-  --transition-base: 250ms ease;
-  --transition-smooth: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 150ms ease;
+  --transition-smooth: 200ms ease;
 }
 
 /* ─── Dark Mode ─── */
 body.dark-mode {
-  --accent: #f0945e;
-  --accent-soft: #e07b4c;
-  --accent-muted: #a85a3a;
-  --accent-bg: rgba(240, 148, 94, 0.12);
-  --accent-hover: #f7a87a;
+  --accent: #e8945e;
+  --accent-soft: #d47a4c;
+  --accent-muted: #8a5a3a;
+  --accent-bg: rgba(232, 148, 94, 0.08);
+  --accent-hover: #f0a87a;
 
-  --bg-page: #1a1918;
-  --bg-card: #252321;
-  --bg-subtle: #2d2a28;
-  --bg-hover: #363330;
+  --bg-page: #141312;
+  --bg-card: #1c1b19;
+  --bg-subtle: #23211f;
+  --bg-hover: #2b2926;
 
-  --text-primary: #f5f3f0;
-  --text-secondary: #b8b2aa;
-  --text-muted: #8a847c;
-  --text-light: #6b6560;
+  --text-primary: #f3efe9;
+  --text-secondary: #a39c94;
+  --text-muted: #7a746c;
+  --text-light: #5c5650;
 
-  --border: #3a3632;
-  --border-light: #2d2a28;
-  --habit-grid-outline: rgba(245, 243, 240, 0.8);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --border: #2f2c29;
+  --border-light: #272420;
+  --habit-grid-outline: rgba(243, 239, 233, 0.8);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.16);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.20);
 
   --sage: #8a9c82;
-  --sage-bg: rgba(138, 156, 130, 0.15);
+  --sage-bg: rgba(138, 156, 130, 0.10);
   --warm-blue: #6a8ea8;
-  --warm-blue-bg: rgba(106, 142, 168, 0.15);
+  --warm-blue-bg: rgba(106, 142, 168, 0.10);
 
-  --success: #6aa868;
-  --success-bg: rgba(106, 168, 104, 0.15);
-  --warning: #d09840;
-  --warning-bg: rgba(208, 152, 64, 0.15);
-  --danger: #e05e5e;
-  --danger-bg: rgba(224, 94, 94, 0.15);
-  --danger-hover: #f07070;
+  --success: #6fae72;
+  --success-bg: rgba(111, 174, 114, 0.12);
+  --warning: #c79a4a;
+  --warning-bg: rgba(199, 154, 74, 0.12);
+  --danger: #c04a4a;
+  --danger-bg: rgba(192, 74, 74, 0.12);
+  --danger-hover: #d45a5a;
 }
 
 /* ─── Reset & Base ─── */
@@ -112,8 +112,8 @@ body {
   font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg-page);
   color: var(--text-primary);
-  line-height: 1.65;
-  font-size: 15px;
+  line-height: 1.4;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -134,7 +134,7 @@ body {
   padding: 0;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 272px minmax(0, 1fr);
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: 0;
   overflow: hidden;
   background: var(--bg-page);
@@ -145,7 +145,7 @@ body {
   position: sticky;
   top: 0;
   border-right: 1px solid var(--border);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 88%, var(--bg-subtle)) 0%, var(--bg-subtle) 100%);
+  background: var(--bg-card);
   padding: 18px 12px 14px;
   display: flex;
   flex-direction: column;
@@ -168,7 +168,7 @@ body {
 
 .app-sidebar-brand strong {
   display: block;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   line-height: 1.2;
 }
 
@@ -181,14 +181,13 @@ body {
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  background: linear-gradient(150deg, var(--accent-soft), var(--accent));
+  background: var(--accent);
   color: #fff;
   font-weight: 800;
   font-size: 0.95rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 .app-sidebar-quick-shell {
@@ -198,9 +197,9 @@ body {
 .app-sidebar-quick-btn {
   width: 100%;
   min-height: 44px;
-  border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--accent) 44%, transparent);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 92%, #fff 8%), color-mix(in srgb, var(--accent-soft) 92%, #fff 8%));
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -208,11 +207,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .app-sidebar-quick-btn:hover {
-  filter: brightness(1.04);
+  background: var(--accent-hover);
 }
 
 .app-sidebar-quick-menu {
@@ -253,31 +251,32 @@ body {
 
 .app-sidebar-nav-item {
   width: 100%;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-secondary);
-  min-height: 42px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
   padding: 0 10px;
-  font-size: 0.93rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .app-sidebar-nav-item:hover {
   color: var(--text-primary);
-  background: color-mix(in srgb, var(--bg-card) 75%, transparent);
-  border-color: var(--border);
+  background: var(--bg-hover);
+  border-color: transparent;
 }
 
 .app-sidebar-nav-item.active {
-  color: var(--accent-hover);
-  background: color-mix(in srgb, var(--accent-bg) 76%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--accent) 46%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent), 0 8px 14px color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  border-color: transparent;
+  box-shadow: inset 3px 0 0 var(--accent);
+  font-weight: 600;
 }
 
 .app-sidebar-bottom {
@@ -354,30 +353,30 @@ body {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   color: var(--accent);
   margin-bottom: 6px;
 }
 
 h1 {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: 1.25;
   margin-bottom: 6px;
 }
 
 h2 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--text-primary);
   margin-bottom: 14px;
 }
@@ -785,17 +784,17 @@ p {
 .progress-bar {
   position: relative;
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: var(--bg-subtle);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-soft) 100%);
-  border-radius: 4px;
-  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.4s ease;
 }
 
 .progress-bar-label {
@@ -844,27 +843,27 @@ p {
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
-  padding: 28px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  padding: 24px;
+  box-shadow: none;
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  transition: box-shadow var(--transition-base);
+  gap: 20px;
+  transition: border-color var(--transition-base);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--border) 80%, var(--text-light));
 }
 
 .subcard {
   background: var(--bg-subtle);
-  border-radius: var(--radius-lg);
-  padding: 22px;
+  border-radius: var(--radius-md);
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
 }
 
 /* ─── Stats Dashboard ─── */
@@ -891,7 +890,7 @@ p {
 }
 
 .stats-bar-container:hover {
-  transform: translateY(-2px);
+  transform: none;
 }
 
 .stats-bar-container:disabled {
@@ -940,9 +939,9 @@ p {
 .stats-bar-fill {
   width: 100%;
   height: var(--bar-progress, 0%);
-  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-soft) 100%);
+  background: var(--accent);
   border-radius: var(--radius-sm);
-  transition: height 0.5s ease, width 0.5s ease;
+  transition: height 0.4s ease, width 0.4s ease;
   min-height: 2px;
 }
 
@@ -968,8 +967,8 @@ p {
 
 .stats-goals-focus {
   text-align: left;
-  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
-  background: linear-gradient(165deg, color-mix(in srgb, var(--accent-bg) 75%, transparent), var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  background: var(--bg-card);
 }
 
 .stats-goals-header {
@@ -997,7 +996,7 @@ p {
   font-size: 0.84rem;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(160deg, var(--accent), var(--accent-soft));
+  background: var(--accent);
 }
 
 .stats-goal-list {
@@ -1014,9 +1013,9 @@ p {
   gap: 12px;
   padding: 14px 16px;
   border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-bg) 50%, transparent), color-mix(in srgb, var(--bg-card) 88%, transparent));
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: none;
 }
 
 .stats-goal-index {
@@ -1029,7 +1028,7 @@ p {
   font-size: 0.9rem;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(165deg, var(--accent), var(--accent-soft));
+  background: var(--accent);
   flex-shrink: 0;
 }
 
@@ -1276,28 +1275,28 @@ p {
 }
 
 .goal-week-chip.high {
-  background: var(--success);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--success) 10%, var(--bg-card));
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 30%, var(--border));
 }
 
 .goal-week-chip.mid {
-  background: var(--accent);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-card));
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
 }
 
 .goal-week-chip.low {
-  background: var(--warning);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--warning) 10%, var(--bg-card));
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 30%, var(--border));
 }
 
 .goal-week-chip.zero {
-  background: var(--danger);
-  color: #fff;
-  opacity: 0.7;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg-card));
+  color: var(--danger);
+  opacity: 0.8;
+  border-color: color-mix(in srgb, var(--danger) 25%, var(--border));
 }
 
 .goal-week-chip.empty {
@@ -1330,8 +1329,7 @@ p {
 .habit-chip:hover {
   border-color: var(--accent);
   background: var(--accent-bg);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .habit-chip.done {
@@ -1707,7 +1705,7 @@ p {
 }
 
 .habit-heatmap-cell.clickable:hover {
-  transform: scale(1.18);
+  transform: scale(1.08);
   z-index: 1;
 }
 
@@ -1762,15 +1760,14 @@ p {
 
 @keyframes habitCellFlash {
   0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 20%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 15%, transparent);
   }
-  45% {
-    transform: scale(1.06);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+
+  50% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
   }
+
   100% {
-    transform: scale(1);
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent);
   }
 }
@@ -1935,7 +1932,6 @@ p {
 .habit-emoji-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
-  transform: scale(1.08);
 }
 
 .habit-emoji-btn.selected {
@@ -2040,7 +2036,6 @@ p {
 
 .completion-week-pill:hover {
   background: var(--bg-hover);
-  transform: translateY(-1px);
 }
 
 .completion-week-pill.active {
@@ -2111,11 +2106,11 @@ label {
 input,
 select,
 textarea {
-  padding: 13px 16px;
-  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-card);
-  font-size: 0.925rem;
+  font-size: 0.9rem;
   font-family: inherit;
   color: var(--text-primary);
   transition: var(--transition-fast);
@@ -2203,19 +2198,19 @@ button:hover,
 
 button:active,
 .button:active {
-  transform: scale(0.98);
+  transform: none;
 }
 
 button.primary {
   background: var(--accent);
   color: white;
   border: none;
-  box-shadow: 0 2px 8px rgba(224, 123, 76, 0.25);
+  box-shadow: none;
 }
 
 button.primary:hover {
   background: var(--accent-hover);
-  box-shadow: 0 4px 12px rgba(224, 123, 76, 0.3);
+  box-shadow: none;
 }
 
 button:disabled {
@@ -2232,7 +2227,7 @@ button.danger {
 
 button.danger:hover {
   background: var(--danger-hover);
-  box-shadow: 0 4px 12px rgba(214, 69, 69, 0.3);
+  box-shadow: none;
 }
 
 button.ghost-danger {
@@ -2325,7 +2320,8 @@ button.ghost-danger:hover {
 .tabs button.active {
   background: var(--bg-card);
   color: var(--accent);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
+  border: 1px solid var(--border);
 }
 
 /* ─── Lists ─── */
@@ -2343,7 +2339,7 @@ button.ghost-danger:hover {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   padding: 16px 18px;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   transition: var(--transition-fast);
 }
 
@@ -2476,11 +2472,9 @@ button.ghost-danger:hover {
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--accent) var(--slider-fill),
-    color-mix(in srgb, var(--border) 86%, var(--bg-subtle)) var(--slider-fill)
-  );
+  background: linear-gradient(to right,
+      var(--accent) var(--slider-fill),
+      color-mix(in srgb, var(--border) 86%, var(--bg-subtle)) var(--slider-fill));
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: 100% 1.2px !important;
@@ -2593,7 +2587,7 @@ button.ghost-danger:hover {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 86% 48%, color-mix(in srgb, var(--success) 28%, transparent) 0%, transparent 62%);
+  background: transparent;
   opacity: 0;
 }
 
@@ -2829,7 +2823,7 @@ button.ghost-danger:hover {
   }
 
   40% {
-    transform: scale(1.02);
+    transform: scale(1.005);
   }
 
   100% {
@@ -2843,7 +2837,7 @@ button.ghost-danger:hover {
   }
 
   45% {
-    opacity: 0.92;
+    opacity: 0.3;
   }
 
   100% {
@@ -3295,7 +3289,7 @@ button.ghost-danger:hover {
 
 .week-review-main-card {
   gap: 10px;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--accent-bg) 34%, transparent), var(--bg-subtle));
+  background: var(--bg-subtle);
 }
 
 .week-review-content {
@@ -3438,9 +3432,9 @@ button.ghost-danger:hover {
 }
 
 .journal-filter-chip.active {
-  background: color-mix(in srgb, var(--accent) 92%, white);
-  border-color: color-mix(in srgb, var(--accent) 80%, var(--border));
-  color: white;
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-card));
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .journal-filter-chip.journal-label-chip {
@@ -5369,7 +5363,7 @@ button.ghost-danger:hover {
     height: 100%;
     width: var(--bar-progress, 0%);
     border-radius: 999px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-soft) 100%);
+    background: var(--accent);
   }
 
   .stats-bar-value {
@@ -5959,7 +5953,7 @@ textarea:focus-visible {
 
 .readonly-banner {
   border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
-  background: linear-gradient(135deg, var(--accent-bg), transparent);
+  background: var(--accent-bg);
   color: var(--text-primary);
 }
 
@@ -6506,6 +6500,7 @@ body.dark-mode .archive-banner {
 
 /* ─── Extra Small Mobile Finetune (iPhone SE class) ─── */
 @media (max-width: 390px) {
+
   .week-goals-context-header button,
   .week-target-composer-toggle-row button {
     width: 100%;
