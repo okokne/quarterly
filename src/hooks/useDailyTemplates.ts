@@ -11,7 +11,46 @@ type UseDailyTemplatesParams = {
 function parseTemplates(raw: string | null): DailyTemplate[] {
     if (!raw) return [];
     try {
-        return JSON.parse(raw) as DailyTemplate[];
+        const parsed = JSON.parse(raw) as unknown;
+        if (!Array.isArray(parsed)) return [];
+
+        return parsed
+            .map((entry): DailyTemplate | null => {
+                if (!entry || typeof entry !== "object") return null;
+                const template = entry as Record<string, unknown>;
+                if (typeof template.id !== "string" || !template.id) return null;
+                if (typeof template.name !== "string" || !template.name.trim()) return null;
+                if (!Array.isArray(template.blocks)) return null;
+
+                const blocks: DailyTemplate["blocks"] = [];
+                template.blocks.forEach((rawBlock) => {
+                        if (!rawBlock || typeof rawBlock !== "object") return null;
+                        const block = rawBlock as Record<string, unknown>;
+                        if (typeof block.title !== "string" || !block.title.trim()) return null;
+
+                        const normalized: DailyTemplate["blocks"][number] = {
+                            startTime: typeof block.startTime === "string" ? block.startTime : null,
+                            endTime: typeof block.endTime === "string" ? block.endTime : null,
+                            title: block.title.trim(),
+                            ...(block.isFlexible === true ? { isFlexible: true } : {}),
+                            ...(typeof block.linkedTargetId === "string" && block.linkedTargetId
+                                ? { linkedTargetId: block.linkedTargetId }
+                                : {}),
+                            ...(typeof block.amount === "number" && Number.isFinite(block.amount)
+                                ? { amount: Math.max(1, Math.floor(block.amount)) }
+                                : {})
+                        };
+                        blocks.push(normalized);
+                        return null;
+                    });
+
+                return {
+                    id: template.id,
+                    name: template.name.trim(),
+                    blocks
+                };
+            })
+            .filter((template): template is DailyTemplate => template !== null);
     } catch {
         return [];
     }
@@ -38,6 +77,7 @@ export function useDailyTemplates({ selectedDate, updateCycle, storageScope }: U
             endTime: block.endTime,
             isFlexible: block.isFlexible,
             title: block.title,
+            linkedTargetId: block.linkedTargetId,
             amount: block.amount
         }));
         if (blocks.length === 0) return false;
@@ -60,6 +100,7 @@ export function useDailyTemplates({ selectedDate, updateCycle, storageScope }: U
                 endTime: block.endTime,
                 isFlexible: block.isFlexible,
                 title: block.title,
+                linkedTargetId: block.linkedTargetId,
                 amount: block.amount,
                 done: false,
                 actual: 0

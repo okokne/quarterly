@@ -155,7 +155,7 @@ export type ReminderSettings = {
 export type DailyTemplate = {
     id: Id;
     name: string;
-    blocks: Omit<DailyBlock, 'id' | 'linkedTargetId' | 'done' | 'actual'>[];
+    blocks: Array<Pick<DailyBlock, "startTime" | "endTime" | "isFlexible" | "title" | "linkedTargetId" | "amount">>;
 };
 
 export type PersistedPlannerPreferences = {

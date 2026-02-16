@@ -78,6 +78,7 @@ function normalizeTemplateBlock(value: unknown): DailyTemplate["blocks"][number]
         endTime: isFlexible ? null : parsedEndTime,
         isFlexible: isFlexible ? true : undefined,
         title: value.title.trim(),
+        linkedTargetId: isString(value.linkedTargetId) && value.linkedTargetId ? value.linkedTargetId : undefined,
         amount
     };
 }

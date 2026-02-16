@@ -1177,12 +1177,15 @@ export function TodayBlocksSection({
                                                 actual: block.actual,
                                                 done: block.done
                                             });
-                                            const linkedTargetTitle = block.linkedTargetId
-                                                ? targetMetaById.get(String(block.linkedTargetId))?.title ?? tr(language, "week.weeklyTarget")
+                                            const linkedTargetMeta = block.linkedTargetId
+                                                ? targetMetaById.get(String(block.linkedTargetId))
                                                 : null;
+                                            const linkedTargetTitle = block.linkedTargetId
+                                                ? linkedTargetMeta?.title ?? tr(language, "week.weeklyTarget")
+                                                : null;
+                                            const targetAccent = linkedTargetMeta?.accent;
                                             const untimedTooltip = [
                                                 block.title,
-                                                tr(language, "today.untimedHint"),
                                                 linkedTargetTitle ? tr(language, "today.linked", { target: linkedTargetTitle }) : null
                                             ]
                                                 .filter((part): part is string => Boolean(part))
@@ -1192,18 +1195,21 @@ export function TodayBlocksSection({
                                                     key={block.id}
                                                     type="button"
                                                     className={`today-untimed-item ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
+                                                    style={targetAccent ? ({ "--timeline-block-accent": targetAccent } as CSSProperties) : undefined}
                                                     onClick={() => openBlockEditor(block)}
                                                     title={untimedTooltip}
                                                 >
                                                     <div className="today-untimed-mainline">
                                                         <strong className="today-timeline-title">{block.title}</strong>
                                                         {linkedTargetTitle ? (
-                                                            <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                            <span
+                                                                className="today-timeline-badge today-timeline-badge-target"
+                                                                style={targetAccent ? ({ "--timeline-block-accent": targetAccent } as CSSProperties) : undefined}
+                                                                title={linkedTargetTitle}
+                                                            >
                                                                 {linkedTargetTitle}
                                                             </span>
-                                                        ) : (
-                                                            <span className="today-untimed-hint muted">{tr(language, "today.untimedHint")}</span>
-                                                        )}
+                                                        ) : null}
                                                     </div>
                                                     <div
                                                         className="today-untimed-actions"
@@ -1255,9 +1261,13 @@ export function TodayBlocksSection({
                                                     actual: entry.block.actual,
                                                     done: entry.block.done
                                                 });
-                                                const linkedTargetTitle = entry.block.linkedTargetId
-                                                    ? targetMetaById.get(String(entry.block.linkedTargetId))?.title ?? tr(language, "week.weeklyTarget")
+                                                const linkedTargetMeta = entry.block.linkedTargetId
+                                                    ? targetMetaById.get(String(entry.block.linkedTargetId))
                                                     : null;
+                                                const linkedTargetTitle = entry.block.linkedTargetId
+                                                    ? linkedTargetMeta?.title ?? tr(language, "week.weeklyTarget")
+                                                    : null;
+                                                const targetAccent = linkedTargetMeta?.accent;
                                                 const startLabel = formatTime(entry.displayStart, timeFormat);
                                                 const endLabel = formatTime(entry.displayEnd, timeFormat);
                                                 const timelineTooltip = [
@@ -1272,7 +1282,11 @@ export function TodayBlocksSection({
                                                         key={entry.block.id}
                                                         type="button"
                                                         className={`today-timeline-block ${isDone ? "done" : ""} ${linkedTargetTitle ? "has-target" : ""}`}
-                                                        style={{ top: `${entry.top}px`, height: `${entry.height}px` } as CSSProperties}
+                                                        style={{
+                                                            top: `${entry.top}px`,
+                                                            height: `${entry.height}px`,
+                                                            ...(targetAccent ? { "--timeline-block-accent": targetAccent } : {})
+                                                        } as CSSProperties}
                                                         onClick={() => openBlockEditor(entry.block)}
                                                         title={timelineTooltip}
                                                     >
@@ -1282,7 +1296,11 @@ export function TodayBlocksSection({
                                                         </div>
                                                         {linkedTargetTitle && (
                                                             <div className="today-timeline-chip-wrap">
-                                                                <span className="today-timeline-badge today-timeline-badge-target" title={linkedTargetTitle}>
+                                                                <span
+                                                                    className="today-timeline-badge today-timeline-badge-target"
+                                                                    style={targetAccent ? ({ "--timeline-block-accent": targetAccent } as CSSProperties) : undefined}
+                                                                    title={linkedTargetTitle}
+                                                                >
                                                                     {linkedTargetTitle}
                                                                 </span>
                                                             </div>

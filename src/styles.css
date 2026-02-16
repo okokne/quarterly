@@ -2736,6 +2736,31 @@ button.ghost-danger:hover {
   background: color-mix(in srgb, var(--bg-subtle) 78%, var(--bg-card));
 }
 
+.today-open-target-item {
+  gap: 10px;
+}
+
+.today-open-target-chip {
+  flex: 0 0 auto;
+}
+
+.today-open-target-meta {
+  margin-left: auto;
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.today-open-target-item .progress-bar {
+  border-color: color-mix(in srgb, var(--open-target-accent, var(--accent-300)) 28%, var(--border));
+  background: color-mix(in srgb, var(--open-target-accent, var(--accent-200)) 10%, var(--bg-card));
+}
+
+.today-open-target-item .progress-bar-fill {
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--open-target-accent, var(--accent-300)) 78%, var(--accent-200)),
+      color-mix(in srgb, var(--open-target-accent, var(--accent-400)) 90%, var(--accent-400)));
+}
+
 .planner-block-card {
   align-items: flex-start;
   position: relative;
@@ -2751,8 +2776,8 @@ button.ghost-danger:hover {
   left: 6px;
   width: 2px;
   border-radius: 999px;
-  background: transparent;
-  opacity: 0;
+  background: color-mix(in srgb, var(--accent-400) 58%, transparent);
+  opacity: 0.62;
   transition: opacity var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -5194,8 +5219,9 @@ body.dark-mode .today-hero-watermark {
   left: 8px;
   right: 8px;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
-  background: color-mix(in srgb, var(--bg-subtle) 84%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 44%, var(--border));
+  border-left: 3px solid color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 70%, var(--border));
+  background: color-mix(in srgb, var(--timeline-block-accent, var(--accent-200)) 10%, var(--bg-card));
   padding: 6px 9px;
   display: flex;
   align-items: center;
@@ -5207,12 +5233,14 @@ body.dark-mode .today-hero-watermark {
 }
 
 .today-timeline-block:hover {
-  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  border-color: color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 66%, var(--border));
+  background: color-mix(in srgb, var(--timeline-block-accent, var(--accent-200)) 16%, var(--bg-card));
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 14%, transparent);
   transform: translateY(-1px);
 }
 
 .today-timeline-block.has-target {
-  border-left: 3px solid color-mix(in srgb, var(--accent) 58%, var(--border));
+  border-left-width: 3px;
 }
 
 .today-timeline-block.done {
@@ -5273,6 +5301,9 @@ body.dark-mode .today-hero-watermark {
 }
 
 .today-timeline-badge-target {
+  border-color: color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 54%, var(--border));
+  background: color-mix(in srgb, var(--timeline-block-accent, var(--accent-200)) 14%, var(--bg-card));
+  color: color-mix(in srgb, var(--timeline-block-accent, var(--text-primary)) 68%, var(--text-primary));
   max-width: 100%;
 }
 
@@ -5423,8 +5454,9 @@ body.dark-mode .today-hero-watermark {
 .today-untimed-item {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: var(--bg-card);
+  border: 1px solid color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 38%, var(--border));
+  border-left: 3px solid color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 66%, var(--border));
+  background: color-mix(in srgb, var(--timeline-block-accent, var(--accent-200)) 8%, var(--bg-card));
   padding: 7px 10px;
   display: flex;
   align-items: center;
@@ -5433,11 +5465,12 @@ body.dark-mode .today-hero-watermark {
 }
 
 .today-untimed-item:hover {
-  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-color: color-mix(in srgb, var(--timeline-block-accent, var(--accent-300)) 62%, var(--border));
+  background: color-mix(in srgb, var(--timeline-block-accent, var(--accent-200)) 14%, var(--bg-card));
 }
 
 .today-untimed-item.has-target {
-  border-left: 3px solid color-mix(in srgb, var(--accent) 58%, var(--border));
+  border-left-width: 3px;
 }
 
 .today-untimed-item.done {
@@ -6297,10 +6330,18 @@ textarea:focus-visible {
 .toggle-switch {
   position: relative;
   width: 44px;
+  min-width: 44px;
   height: 24px;
+  min-height: 24px;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
   border-radius: 12px;
   background: var(--border);
   border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
   cursor: pointer;
   transition: background var(--transition-base);
   flex-shrink: 0;
@@ -7047,9 +7088,13 @@ body.dark-mode .archive-banner {
   box-shadow: var(--shadow-sm);
 }
 
+.planner-block-card:not(.has-target-accent) {
+  border-color: color-mix(in srgb, var(--accent-300) 36%, var(--border));
+}
+
 .planner-block-card:hover {
-  border-color: color-mix(in srgb, var(--accent-300) 58%, var(--border));
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-300) 12%, transparent);
+  border-color: color-mix(in srgb, var(--planner-target-accent, var(--accent-300)) 58%, var(--border));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--planner-target-accent, var(--accent-300)) 14%, transparent);
 }
 
 .planner-block-heading {
@@ -7294,6 +7339,12 @@ body.dark-mode .archive-banner {
   .week-row-actions,
   .week-target-controls {
     gap: 8px;
+  }
+
+  .today-open-target-meta {
+    margin-left: 0;
+    text-align: left;
+    width: 100%;
   }
 
   .week-row-actions .ghost-danger {
