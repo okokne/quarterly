@@ -1,11 +1,13 @@
 import { Cycle, Id, WeeklyTarget } from "../types";
 import { clamp, uid } from "../utils";
 import { canReorderIndices } from "../regressionLogic";
+import { DEFAULT_WEEKLY_TARGET_ACCENT, normalizeWeeklyTargetAccent } from "../utils/weeklyTargetAccents";
 
 export type WeeklyTargetDraft = {
     title: string;
     target: number;
     unit: string;
+    color: string;
 };
 
 type UseWeeklyTargetsParams = {
@@ -26,6 +28,7 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
                     title: draft.title.trim(),
                     target: clamp(draft.target || 1, 1, 9999),
                     unit: draft.unit.trim() || undefined,
+                    color: normalizeWeeklyTargetAccent(draft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT,
                     manualAdjust: 0
                 }
             ];
@@ -109,6 +112,7 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
             title: target.title,
             target: target.target,
             unit: target.unit,
+            color: normalizeWeeklyTargetAccent(target.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT,
             manualAdjust: 0,
             notes: target.notes
         }));

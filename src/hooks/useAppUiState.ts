@@ -3,6 +3,7 @@ import { createDefaultDailyBlockDraft, DailyBlockDraft } from "./useDailyBlocks"
 import { AppTab } from "../navigation";
 import { Id } from "../types";
 import { toIsoDate } from "../utils";
+import { DEFAULT_WEEKLY_TARGET_ACCENT } from "../utils/weeklyTargetAccents";
 
 type GoalDraft = {
     title: string;
@@ -13,6 +14,7 @@ type TargetDraft = {
     title: string;
     target: number;
     unit: string;
+    color: string;
 };
 
 export function useAppUiState() {
@@ -34,7 +36,12 @@ export function useAppUiState() {
     }, []);
 
     const [goalDraft, setGoalDraft] = useState<GoalDraft>({ title: "", metric: "" });
-    const [targetDraft, setTargetDraft] = useState<TargetDraft>({ title: "", target: 1, unit: "" });
+    const [targetDraft, setTargetDraft] = useState<TargetDraft>({
+        title: "",
+        target: 1,
+        unit: "",
+        color: DEFAULT_WEEKLY_TARGET_ACCENT
+    });
     const [blockDraft, setBlockDraft] = useState<DailyBlockDraft>(() => createDefaultDailyBlockDraft());
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

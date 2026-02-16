@@ -5,6 +5,7 @@ import { buildReviewEntriesFromLegacy, normalizeReviewEntries } from "./reviewEn
 import { clamp, getDatesInWeek } from "./cycleMath";
 import { normalizeJournalContexts, resolveDefaultJournalContextId } from "./journalContexts";
 import { normalizeWeekName } from "./weekNames";
+import { normalizeWeeklyTargetAccent } from "./weeklyTargetAccents";
 
 export function migrateCycle(raw: any): Cycle | null {
     if (!raw) return null;
@@ -131,6 +132,7 @@ export function migrateCycle(raw: any): Cycle | null {
                         title: typeof rawTarget.title === "string" && rawTarget.title.trim() ? rawTarget.title.trim() : "Target",
                         target: targetValue,
                         unit: typeof rawTarget.unit === "string" && rawTarget.unit.trim() ? rawTarget.unit.trim() : undefined,
+                        color: normalizeWeeklyTargetAccent(rawTarget.color),
                         manualAdjust,
                         notes: typeof rawTarget.notes === "string" ? rawTarget.notes : undefined
                     };

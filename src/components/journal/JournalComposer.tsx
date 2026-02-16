@@ -83,6 +83,15 @@ export function JournalComposer({
 }: JournalComposerProps) {
     if (!showComposer) return null;
     const composerSignalOptions = signalOptions.filter((option) => option.id !== "note");
+    const allContextLabels = [
+        tr(language, "journal.contextNone"),
+        ...((cycle.journalContexts ?? []).map((context) => context.label))
+    ];
+    const longestContextLabelLength = allContextLabels.reduce(
+        (maxLength, label) => Math.max(maxLength, label.trim().length),
+        0
+    );
+    const contextChipWidthCh = Math.min(22, Math.max(11, longestContextLabelLength + 2));
 
     return (
         <div className="subcard journal-entry-form">
@@ -126,7 +135,10 @@ export function JournalComposer({
                                 <Icon icon={Pencil} size={13} />
                             </button>
                         </div>
-                        <div className="journal-filter-chip-row">
+                        <div
+                            className="journal-filter-chip-row journal-label-chip-row"
+                            style={{ "--journal-label-chip-width": `${contextChipWidthCh}ch` } as CSSProperties}
+                        >
                             <button
                                 type="button"
                                 className={`journal-filter-chip journal-label-chip journal-label-chip-none ${customContextId === "" ? "active" : ""}`}

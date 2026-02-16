@@ -84,7 +84,7 @@ export function StatsView({
     return (
         <section className="card stats-card">
             <h2 className="section-title-with-icon">
-                <Icon icon={BarChart3} />
+                <Icon icon={BarChart3} size={23} className="stats-card-title-icon" />
                 {tr(language, "common.stats")}
             </h2>
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}

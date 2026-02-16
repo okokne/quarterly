@@ -153,10 +153,11 @@ export function PlanTab({
                 {activeHabits.length === 0 ? (
                     <p className="empty">{tr(language, "stats.noHabitsEmptyState")}</p>
                 ) : (
-                    <div className="chip-wrap">
+                    <div className="plan-habits-list">
                         {activeHabits.map((habit) => (
-                            <span key={habit.id} className="week-chip neutral">
-                                <Icon icon={resolveHabitIcon(habit.emoji)} size={15} /> {habit.title}
+                            <span key={habit.id} className="week-chip plan-habit-chip">
+                                <Icon icon={resolveHabitIcon(habit.emoji)} size={16} className="plan-habit-chip-icon" />
+                                <span className="plan-habit-chip-label">{habit.title}</span>
                             </span>
                         ))}
                     </div>

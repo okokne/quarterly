@@ -23,11 +23,11 @@ export function WeekGoalsSection({
             <div className="stats-goal-list week-goals-readonly-list">
                 {cycle.goals.length === 0 && <p className="empty">{tr(language, "week.noGoals")}</p>}
                 {cycle.goals.map((goal, index) => (
-                    <div key={goal.id} className="stats-goal-card">
-                        <div className="stats-goal-index">{index + 1}</div>
-                        <div className="stats-goal-content">
-                            <strong className="stats-goal-title">{goal.title}</strong>
-                            {goal.metric && <span className="stats-goal-metric">{goal.metric}</span>}
+                    <div key={goal.id} className="stats-goal-card week-focus-goal-card">
+                        <span className="planner-meta-chip week-focus-goal-index">{index + 1}</span>
+                        <div className="stats-goal-content week-focus-goal-content">
+                            <strong className="stats-goal-title week-focus-goal-title">{goal.title}</strong>
+                            {goal.metric && <span className="planner-meta-chip week-focus-goal-metric">{goal.metric}</span>}
                         </div>
                     </div>
                 ))}

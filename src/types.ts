@@ -112,6 +112,7 @@ export type WeeklyTarget = {
     target: number;
     unit?: string;
     manualAdjust: number;
+    color?: string;
     notes?: string;
 };
 

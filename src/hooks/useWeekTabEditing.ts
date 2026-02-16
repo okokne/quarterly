@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Cycle, Id, WeeklyTarget } from "../types";
+import { Id, WeeklyTarget } from "../types";
 import { TargetDraft } from "../components/week/types";
+import { DEFAULT_WEEKLY_TARGET_ACCENT, normalizeWeeklyTargetAccent } from "../utils/weeklyTargetAccents";
 
 type UseWeekTabEditingParams = {
     totalWeeklyTargets: WeeklyTarget[];
@@ -12,7 +13,12 @@ export function useWeekTabEditing({
     onUpdateWeeklyTarget
 }: UseWeekTabEditingParams) {
     const [editingTargetId, setEditingTargetId] = useState<Id | null>(null);
-    const [targetEditDraft, setTargetEditDraft] = useState<TargetDraft>({ title: "", target: 1, unit: "" });
+    const [targetEditDraft, setTargetEditDraft] = useState<TargetDraft>({
+        title: "",
+        target: 1,
+        unit: "",
+        color: DEFAULT_WEEKLY_TARGET_ACCENT
+    });
 
     useEffect(() => {
         if (editingTargetId && !totalWeeklyTargets.some((target) => target.id === editingTargetId)) {
@@ -25,7 +31,8 @@ export function useWeekTabEditing({
         setTargetEditDraft({
             title: target.title,
             target: target.target,
-            unit: target.unit ?? ""
+            unit: target.unit ?? "",
+            color: normalizeWeeklyTargetAccent(target.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT
         });
     };
 
@@ -42,7 +49,8 @@ export function useWeekTabEditing({
         onUpdateWeeklyTarget(editingTargetId, {
             title: nextTitle,
             target: nextTarget,
-            unit: targetEditDraft.unit.trim() || undefined
+            unit: targetEditDraft.unit.trim() || undefined,
+            color: normalizeWeeklyTargetAccent(targetEditDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT
         });
         setEditingTargetId(null);
     };

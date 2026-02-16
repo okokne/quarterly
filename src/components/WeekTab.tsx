@@ -186,8 +186,17 @@ export function WeekTab({
                 <p className="week-selected-week-note muted">{tr(language, "week.currentWeekSelected")}</p>
             ) : (
                 <div className="week-selected-week-note planning">
-                    <p>{tr(language, "week.planningWeekNotice", { weekLabel: selectedWeekLabel })}</p>
-                    <p className="muted">{tr(language, "week.currentWeekNotice", { weekLabel: currentWeekLabel })}</p>
+                    <div className="week-selected-week-note-copy">
+                        <p>{tr(language, "week.planningWeekNotice", { weekLabel: selectedWeekLabel })}</p>
+                        <p className="muted">{tr(language, "week.currentWeekNotice", { weekLabel: currentWeekLabel })}</p>
+                    </div>
+                    <button
+                        type="button"
+                        className="week-jump-current-btn"
+                        onClick={() => setSelectedWeek(currentWeekIndex)}
+                    >
+                        {tr(language, "week.jumpToCurrent")}
+                    </button>
                 </div>
             )}
 

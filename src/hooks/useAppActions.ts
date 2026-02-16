@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useCallback } from "react";
 import { Cycle, DailyBlock, DailyTemplate, Id, WeeklyTarget } from "../types";
 import { uid } from "../utils";
 import { WeeklyTargetDraft } from "./useWeeklyTargets";
+import { DEFAULT_WEEKLY_TARGET_ACCENT } from "../utils/weeklyTargetAccents";
 
 type GoalDraft = {
     title: string;
@@ -71,7 +72,7 @@ export function useAppActions({
     const handleAddWeeklyTarget = useCallback(() => {
         const didAdd = addWeeklyTarget(selectedWeek, targetDraft);
         if (didAdd) {
-            setTargetDraft({ title: "", target: 1, unit: "" });
+            setTargetDraft({ title: "", target: 1, unit: "", color: DEFAULT_WEEKLY_TARGET_ACCENT });
         }
         return didAdd;
     }, [addWeeklyTarget, selectedWeek, setTargetDraft, targetDraft]);

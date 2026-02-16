@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BarChart3, BookOpenText, CalendarDays, CheckSquare, CloudAlert, CloudCheck, CloudOff, FolderKanban, LayoutGrid, type LucideIcon, Plus, Settings, SquarePen } from "./ui/icons";
+import { BarChart3, BookOpenText, CalendarDays, CheckSquare, CloudAlert, CloudCheck, CloudOff, LayoutGrid, Target, type LucideIcon, Plus, Settings, SquarePen } from "./ui/icons";
 import { t as tr } from "../i18n";
 import { AppTab } from "../navigation";
 import { AppLanguage, SyncStatus } from "../types";
@@ -27,7 +27,7 @@ type SidebarNavItem = {
 const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
     { id: "today", labelKey: "sidebar.nav.today", icon: CalendarDays },
     { id: "week", labelKey: "sidebar.nav.week", icon: LayoutGrid },
-    { id: "plan", labelKey: "sidebar.nav.plan", icon: FolderKanban },
+    { id: "plan", labelKey: "sidebar.nav.plan", icon: Target },
     { id: "inbox", labelKey: "sidebar.nav.inbox", icon: BookOpenText },
     { id: "stats", labelKey: "sidebar.nav.stats", icon: BarChart3 }
 ];

@@ -1,8 +1,14 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { Pencil } from "../ui/icons";
+import { CSSProperties, Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { Check, Pencil } from "../ui/icons";
 import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, Id, WeeklyTarget } from "../../types";
+import {
+    buildWeeklyTargetAccentMap,
+    DEFAULT_WEEKLY_TARGET_ACCENT,
+    normalizeWeeklyTargetAccent,
+    WEEKLY_TARGET_ACCENT_PALETTE
+} from "../../utils/weeklyTargetAccents";
 import { ProgressBar } from "../ProgressBar";
 import { Icon } from "../ui/Icon";
 import { TargetDraft } from "./types";
@@ -78,6 +84,10 @@ export function WeekTargetsSection({
     });
     const [highlightedTargetId, setHighlightedTargetId] = useState<Id | null>(null);
     const highlightTimeoutRef = useRef<number | null>(null);
+    const targetAccentById = useMemo(
+        () => buildWeeklyTargetAccentMap(totalWeeklyTargets),
+        [totalWeeklyTargets]
+    );
 
     const handleAddTarget = () => {
         const didAdd = onAddWeeklyTarget();
@@ -152,6 +162,29 @@ export function WeekTargetsSection({
                             />
                         </label>
                     </div>
+                    <div className="week-target-color-picker">
+                        <span className="week-target-color-picker-label">{tr(language, "week.targetColor")}</span>
+                        <div className="week-target-color-grid" role="radiogroup" aria-label={tr(language, "week.targetColor")}>
+                            {WEEKLY_TARGET_ACCENT_PALETTE.map((color, index) => {
+                                const selectedColor = normalizeWeeklyTargetAccent(targetDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
+                                const isSelected = selectedColor === color;
+                                return (
+                                    <button
+                                        key={color}
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={isSelected}
+                                        className={`week-target-color-swatch ${isSelected ? "selected" : ""}`}
+                                        style={{ "--week-target-accent": color } as CSSProperties}
+                                        onClick={() => setTargetDraft({ ...targetDraft, color })}
+                                        title={`${tr(language, "week.targetColor")} ${index + 1}`}
+                                    >
+                                        {isSelected && <Icon icon={Check} size={13} />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                     <div className="button-row">
                         <button className="primary" type="button" onClick={handleAddTarget}>
                             {tr(language, "common.add")}
@@ -160,7 +193,12 @@ export function WeekTargetsSection({
                             type="button"
                             onClick={() => {
                                 setShowComposer(false);
-                                setTargetDraft({ title: "", target: 1, unit: "" });
+                                setTargetDraft({
+                                    title: "",
+                                    target: 1,
+                                    unit: "",
+                                    color: DEFAULT_WEEKLY_TARGET_ACCENT
+                                });
                             }}
                         >
                             {tr(language, "common.cancel")}
@@ -178,13 +216,18 @@ export function WeekTargetsSection({
                     const autoDone = totalWeeklyDone(selectedWeek, target.id);
                     const manualAdjust = target.manualAdjust ?? 0;
                     const effectiveDone = Math.min(target.target, Math.max(0, autoDone + manualAdjust));
+                    const targetAccent = targetAccentById.get(String(target.id)) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
 
                     return (
                         <div
                             key={target.id}
                             id={`week-target-${target.id}`}
-                            className={`list-item column week-target-item ${draggingTargetId === target.id ? "dragging" : ""} ${isEditingTarget ? "editing" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""} ${highlightedTargetId === target.id ? "focus-highlight" : ""}`}
+                            className={`list-item column week-target-item planner-block-card has-target-accent ${draggingTargetId === target.id ? "dragging" : ""} ${isEditingTarget ? "editing" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""} ${highlightedTargetId === target.id ? "focus-highlight" : ""}`}
                             data-target-index={index}
+                            style={{
+                                "--planner-target-accent": targetAccent,
+                                "--week-target-accent": targetAccent
+                            } as CSSProperties}
                             onDragOver={(e) => {
                                 if (isArchiveView) return;
                                 e.preventDefault();
@@ -249,6 +292,29 @@ export function WeekTargetsSection({
                                                         onChange={(e) => setTargetEditDraft((prev) => ({ ...prev, unit: e.target.value }))}
                                                         placeholder={tr(language, "week.unitPlaceholder")}
                                                     />
+                                                    <div className="week-target-edit-color-row">
+                                                        <span className="week-target-color-picker-label">{tr(language, "week.targetColor")}</span>
+                                                        <div className="week-target-color-grid" role="radiogroup" aria-label={tr(language, "week.targetColor")}>
+                                                            {WEEKLY_TARGET_ACCENT_PALETTE.map((color, colorIndex) => {
+                                                                const selectedColor = normalizeWeeklyTargetAccent(targetEditDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
+                                                                const isSelected = selectedColor === color;
+                                                                return (
+                                                                    <button
+                                                                        key={color}
+                                                                        type="button"
+                                                                        role="radio"
+                                                                        aria-checked={isSelected}
+                                                                        className={`week-target-color-swatch ${isSelected ? "selected" : ""}`}
+                                                                        style={{ "--week-target-accent": color } as CSSProperties}
+                                                                        onClick={() => setTargetEditDraft((prev) => ({ ...prev, color }))}
+                                                                        title={`${tr(language, "week.targetColor")} ${colorIndex + 1}`}
+                                                                    >
+                                                                        {isSelected && <Icon icon={Check} size={13} />}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <strong className="week-target-title">{target.title}</strong>

@@ -19,17 +19,17 @@
   /* ─── Editorial Color System (ClawProxy V2) ─── */
 
   /* Accent Scale (Warm Orange Base) */
-  --accent-100: #fdf1ea;
+  --accent-100: #fdf2ec;
   /* Soft background tint */
-  --accent-200: #f8dece;
+  --accent-200: #f9dfd1;
   /* Hover backgrounds */
-  --accent-300: #f1c3a7;
+  --accent-300: #f3c6af;
   /* Borders / Soft UI */
-  --accent-400: #e69b72;
+  --accent-400: #ea9f7c;
   /* Secondary actions */
-  --accent-500: #d87c4f;
+  --accent-500: #e58d66;
   /* Primary Brand Color */
-  --accent-600: #a95a33;
+  --accent-600: #c9734f;
   /* Dark Text on light bg */
 
   /* Legacy mappings for backward compat */
@@ -142,12 +142,12 @@ body.dark-mode {
   --bg-subtle: #2c2926;
   --bg-hover: #35312d;
 
-  --accent-100: #3f2f28;
-  --accent-200: #5a3b2f;
-  --accent-300: #77503e;
-  --accent-400: #955f44;
-  --accent-500: #b36d4a;
-  --accent-600: #cb8762;
+  --accent-100: #493730;
+  --accent-200: #63463a;
+  --accent-300: #825b4b;
+  --accent-400: #a7745e;
+  --accent-500: #c68669;
+  --accent-600: #e3a486;
   --accent: var(--accent-500);
   --accent-soft: var(--accent-400);
   --accent-muted: var(--accent-300);
@@ -1083,6 +1083,20 @@ p {
   text-align: center;
 }
 
+.stats-card .section-title-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.stats-card .stats-card-title-icon {
+  flex: 0 0 auto;
+  color: var(--text-primary);
+  transform: translateY(0.5px);
+}
+
 .stats-goals-focus {
   text-align: left;
   border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
@@ -1350,10 +1364,8 @@ p {
   /* Bolder for outline */
   transition: all var(--transition-fast);
   cursor: default;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  /* White base */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  background: color-mix(in srgb, var(--bg-subtle) 78%, var(--bg-card));
   color: var(--text-secondary);
   line-height: 1;
   flex-shrink: 0;
@@ -1404,36 +1416,38 @@ p {
 
 
 .goal-week-chip:hover {
-  filter: brightness(0.97);
+  background: color-mix(in srgb, var(--bg-hover) 86%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--border) 65%, var(--text-light));
+  color: var(--text-primary);
 }
 
 .goal-week-chip.high {
-  border-color: var(--success);
-  color: var(--success);
-  background: transparent;
+  background: color-mix(in srgb, var(--success-bg) 84%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--success-border) 86%, var(--border));
+  color: var(--success-text);
 }
 
 .goal-week-chip.mid {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: transparent;
+  background: color-mix(in srgb, var(--accent-bg) 78%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-300) 75%, var(--border));
+  color: var(--accent-600);
 }
 
 .goal-week-chip.low {
-  border-color: var(--warning);
-  color: var(--warning);
-  background: transparent;
+  background: color-mix(in srgb, var(--warning-bg) 84%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--warning-border) 85%, var(--border));
+  color: var(--warning-text);
 }
 
 .goal-week-chip.zero {
-  border-color: var(--danger);
-  color: var(--danger);
-  background: transparent;
+  background: color-mix(in srgb, var(--danger-bg) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--danger-border) 84%, var(--border));
+  color: var(--danger-text);
   opacity: 1;
 }
 
 .goal-week-chip.empty {
-  background: var(--bg-subtle);
+  background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
   color: var(--text-muted);
   border: 1px dashed var(--border);
 }
@@ -1536,18 +1550,18 @@ p {
 .habit-tracker-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .habit-tracker-section.compact {
-  gap: 12px;
+  gap: 8px;
 }
 
 .habit-tracker-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px;
+  gap: 6px;
+  padding: 12px;
   border-radius: var(--radius-md);
   background: var(--bg-subtle);
   border: 1px solid var(--border);
@@ -1555,7 +1569,7 @@ p {
 }
 
 .habit-tracker-section.compact .habit-tracker-item {
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
 
 .habit-tracker-item:hover {
@@ -1575,7 +1589,7 @@ p {
 .habit-tracker-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -1583,7 +1597,7 @@ p {
   width: 100%;
   background: none;
   border: none;
-  padding: 8px;
+  padding: 6px;
   border-radius: var(--radius-sm);
   text-align: left;
   cursor: pointer;
@@ -1607,7 +1621,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .habit-tracker-header>* {
@@ -1618,7 +1632,7 @@ p {
 .habit-tracker-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .habit-tracker-emoji {
@@ -1629,25 +1643,25 @@ p {
 
 .habit-tracker-title {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .habit-tracker-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .habit-tracker-meta-grid {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .habit-tracker-side {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .habit-tracker-caret {
@@ -1671,18 +1685,18 @@ p {
 
 .habit-mini-grid {
   display: grid;
-  grid-template-columns: repeat(7, 12px);
-  gap: 3px;
-  padding: 6px;
+  grid-template-columns: repeat(7, 10px);
+  gap: 2px;
+  padding: 5px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-card);
 }
 
 .habit-mini-cell {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
   border: 1px solid transparent;
 }
 
@@ -1726,7 +1740,9 @@ p {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg-card) 90%, transparent);
-  --habit-heatmap-meta-h: 28px;
+  --habit-heatmap-meta-h: 24px;
+  --habit-heatmap-cell-size: 11px;
+  --habit-heatmap-gap: 2px;
 }
 
 .habit-heatmap-panel-meta {
@@ -1737,11 +1753,11 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 0.7rem;
+  gap: 6px;
+  font-size: 0.66rem;
   font-weight: 700;
   color: var(--text-secondary);
-  padding: 5px 8px;
+  padding: 4px 7px;
   border-bottom: 1px solid var(--border-light);
   background: color-mix(in srgb, var(--bg-card) 95%, transparent);
 }
@@ -1760,15 +1776,16 @@ p {
 }
 
 .habit-heatmap-scroll {
-  max-height: 220px;
+  max-height: 238px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  padding: 0 8px 8px;
+  padding: 0 6px 6px;
 }
 
 .habit-heatmap-wrap {
   margin-top: 0;
+  display: inline-flex;
 }
 
 .habit-streak-badge {
@@ -1807,9 +1824,10 @@ p {
 
 .habit-heatmap {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  grid-template-columns: repeat(7, var(--habit-heatmap-cell-size));
+  gap: var(--habit-heatmap-gap);
   padding: 0;
+  width: max-content;
 }
 
 .habit-heatmap-week-label {
@@ -1822,12 +1840,11 @@ p {
 }
 
 .habit-heatmap-cell {
-  aspect-ratio: 1;
+  width: var(--habit-heatmap-cell-size);
+  height: var(--habit-heatmap-cell-size);
   border-radius: 3px;
   transition: transform var(--transition-fast);
   cursor: default;
-  min-width: 0;
-  width: 100%;
   margin: 0;
   padding: 0;
   background: transparent;
@@ -1844,7 +1861,7 @@ p {
 }
 
 .habit-heatmap-cell.clickable:hover {
-  transform: scale(1.08);
+  transform: scale(1.04);
   z-index: 1;
 }
 
@@ -1914,10 +1931,11 @@ p {
 /* Day-of-week header for heatmap */
 .habit-heatmap-dayrow {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  padding: 4px 3px;
-  margin-bottom: 6px;
+  grid-template-columns: repeat(7, var(--habit-heatmap-cell-size));
+  gap: var(--habit-heatmap-gap);
+  width: max-content;
+  padding: 3px 2px;
+  margin-bottom: 4px;
   position: sticky;
   top: var(--habit-heatmap-meta-h);
   z-index: 2;
@@ -1927,7 +1945,7 @@ p {
 }
 
 .habit-heatmap-dayrow span {
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   text-align: center;
   color: var(--text-light);
   font-weight: 700;
@@ -2728,14 +2746,6 @@ button.ghost-danger:hover {
   font-weight: 700;
 }
 
-.today-blocks-group-flexible .today-blocks-group-header h4 {
-  color: color-mix(in srgb, var(--text-secondary) 90%, var(--text-muted));
-}
-
-.today-blocks-group-flexible .list-item {
-  background: color-mix(in srgb, var(--bg-subtle) 78%, var(--bg-card));
-}
-
 .today-open-target-item {
   gap: 10px;
 }
@@ -3244,13 +3254,13 @@ button.ghost-danger:hover {
 
 .week-goal-row.editing,
 .week-target-item.editing {
-  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
-  background: color-mix(in srgb, var(--accent-bg) 38%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 42%, var(--border));
+  background: color-mix(in srgb, var(--week-target-accent, var(--accent-200)) 20%, var(--bg-card));
 }
 
 .week-target-item.focus-highlight {
-  border-color: color-mix(in srgb, var(--accent-300) 86%, var(--border));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-300) 34%, transparent), 0 8px 22px color-mix(in srgb, var(--accent-400) 16%, transparent);
+  border-color: color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 76%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 32%, transparent), 0 8px 22px color-mix(in srgb, var(--week-target-accent, var(--accent-400)) 14%, transparent);
   transition: border-color 220ms ease, box-shadow 220ms ease;
 }
 
@@ -3306,11 +3316,82 @@ button.ghost-danger:hover {
   flex: 1;
 }
 
+.week-target-item {
+  --week-target-accent: var(--accent-300);
+}
+
+.week-target-item.has-target-accent {
+  border-color: color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 28%, var(--border-light));
+  background: color-mix(in srgb, var(--week-target-accent, var(--accent-200)) 8%, var(--bg-card));
+}
+
 .week-target-edit-fields {
   width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px 120px;
   gap: 8px;
+}
+
+.week-target-edit-color-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.week-target-color-picker {
+  display: grid;
+  gap: 6px;
+}
+
+.week-target-color-picker-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.week-target-color-grid {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.week-target-color-swatch {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 80%, var(--border));
+  background: color-mix(in srgb, var(--week-target-accent, var(--accent-200)) 54%, var(--bg-card));
+  color: color-mix(in srgb, var(--week-target-accent, var(--text-primary)) 78%, var(--text-primary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.week-target-color-swatch:hover {
+  transform: translateY(-1px);
+}
+
+.week-target-color-swatch.selected {
+  border-color: color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 90%, var(--text-secondary));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 45%, transparent);
+}
+
+.week-target-item .progress-bar {
+  border-color: color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 30%, var(--border));
+  background: color-mix(in srgb, var(--week-target-accent, var(--accent-200)) 10%, var(--bg-card));
+}
+
+.week-target-item .progress-bar-fill {
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--week-target-accent, var(--accent-300)) 80%, var(--accent-200)),
+      color-mix(in srgb, var(--week-target-accent, var(--accent-400)) 88%, var(--accent-400)));
 }
 
 .week-target-done {
@@ -3414,13 +3495,36 @@ button.ghost-danger:hover {
 
 .week-selected-week-note.planning {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-light);
   background: color-mix(in srgb, var(--bg-subtle) 72%, transparent);
   color: var(--text-secondary);
+}
+
+.week-selected-week-note-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.week-jump-current-btn {
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: var(--radius-chip);
+  border: 1px solid color-mix(in srgb, var(--accent-300) 70%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 70%, var(--bg-card));
+  color: var(--accent-600);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.week-jump-current-btn:hover {
+  border-color: color-mix(in srgb, var(--accent-400) 76%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 82%, var(--bg-card));
 }
 
 .week-goals-context-card {
@@ -3441,6 +3545,44 @@ button.ghost-danger:hover {
 
 .week-goals-readonly-list {
   gap: 10px;
+}
+
+.week-focus-goal-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.week-focus-goal-index {
+  min-width: 26px;
+  min-height: 22px;
+  justify-content: center;
+  padding: 2px 8px;
+  border-color: color-mix(in srgb, var(--accent-300) 72%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 72%, var(--bg-card));
+  color: var(--accent-600);
+}
+
+.week-focus-goal-content {
+  gap: 6px;
+}
+
+.week-focus-goal-title {
+  font-size: 0.95rem;
+}
+
+.week-focus-goal-metric {
+  margin: 0;
+  max-width: min(100%, 360px);
+  width: fit-content;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .week-targets-main-card {
@@ -3631,6 +3773,14 @@ button.ghost-danger:hover {
   gap: 8px;
 }
 
+.journal-label-chip-row .journal-label-chip {
+  width: var(--journal-label-chip-width, 13ch);
+  min-width: var(--journal-label-chip-width, 13ch);
+  max-width: var(--journal-label-chip-width, 13ch);
+  justify-content: center;
+  text-align: center;
+}
+
 .journal-filter-chip {
   min-height: 30px;
   padding: 5px 12px;
@@ -3662,20 +3812,22 @@ button.ghost-danger:hover {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: var(--journal-context-bg, var(--bg-subtle));
-  border-color: color-mix(in srgb, var(--text-muted) 24%, var(--border));
-  color: var(--text-primary);
+  background: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 92%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-200)) 52%, var(--border));
+  color: color-mix(in srgb, var(--journal-context-bg, var(--accent-200)) 38%, var(--text-primary));
 }
 
 .journal-filter-chip.journal-label-chip:hover {
-  background: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 86%, var(--bg-card));
+  background: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 96%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 64%, var(--border));
+  color: color-mix(in srgb, var(--journal-context-bg, var(--accent-200)) 44%, var(--text-primary));
 }
 
 .journal-filter-chip.journal-label-chip.active {
-  background: var(--journal-context-bg, var(--bg-subtle));
-  border-color: color-mix(in srgb, var(--accent) 44%, var(--border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
-  color: var(--text-primary);
+  background: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 98%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 72%, var(--border));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 36%, transparent);
+  color: color-mix(in srgb, var(--journal-context-bg, var(--accent-200)) 48%, var(--text-primary));
 }
 
 .journal-filter-chip.journal-label-chip-none.active {
@@ -3736,6 +3888,7 @@ button.ghost-danger:hover {
 
 .journal-card,
 .journal-entry-card {
+  --journal-entry-action-top: 8px;
   position: relative;
   padding: 20px;
   border: 1px solid var(--border);
@@ -3931,7 +4084,7 @@ button.ghost-danger:hover {
 .journal-delete-x {
   position: absolute;
   right: 8px;
-  top: 8px;
+  top: var(--journal-entry-action-top);
   width: 24px;
   min-width: 24px;
   height: 24px;
@@ -3952,11 +4105,11 @@ button.ghost-danger:hover {
 
 .journal-entry-mode-icon {
   position: absolute;
-  right: 38px;
-  top: 9px;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
+  right: 36px;
+  top: var(--journal-entry-action-top);
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
   border: 1px solid var(--border);
   background: var(--bg-subtle);
   display: inline-flex;
@@ -4700,6 +4853,42 @@ button.ghost-danger:hover {
   background: color-mix(in srgb, var(--success-bg) 70%, transparent);
 }
 
+.plan-habits-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.plan-habit-chip {
+  width: 100%;
+  min-height: 36px;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--bg-subtle) 78%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--border) 86%, transparent);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.plan-habit-chip:hover {
+  border-color: color-mix(in srgb, var(--accent-300) 72%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 68%, var(--bg-card));
+}
+
+.plan-habit-chip-icon {
+  flex: 0 0 auto;
+  color: var(--accent-600);
+}
+
+.plan-habit-chip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .today-nav-header {
   display: flex;
   align-items: flex-start;
@@ -4958,7 +5147,7 @@ button.ghost-danger:hover {
 }
 
 .today-hero-week-link svg {
-  transform: rotate(35deg);
+  transform: rotate(-35deg);
 }
 
 .today-hero-priority-title {
@@ -5248,6 +5437,12 @@ body.dark-mode .today-hero-watermark {
   filter: saturate(0.82);
 }
 
+.today-timeline-block.done .today-timeline-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--text-muted) 60%, transparent);
+}
+
 .today-timeline-mainline {
   flex: 1 1 auto;
   min-width: 0;
@@ -5475,6 +5670,12 @@ body.dark-mode .today-hero-watermark {
 
 .today-untimed-item.done {
   opacity: 0.58;
+}
+
+.today-untimed-item.done .today-timeline-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--text-muted) 60%, transparent);
 }
 
 .today-untimed-mainline {
@@ -6107,6 +6308,13 @@ body.dark-mode .today-hero-watermark {
     height: 30px;
   }
 
+  .journal-entry-mode-icon {
+    right: 40px;
+    top: 6px;
+    width: 30px;
+    height: 30px;
+  }
+
   .week-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -6178,14 +6386,14 @@ body.dark-mode .today-hero-watermark {
   }
 
   .habit-mini-grid {
-    grid-template-columns: repeat(7, 12px);
+    grid-template-columns: repeat(7, 10px);
     gap: 2px;
-    padding: 6px;
+    padding: 5px;
   }
 
   .habit-mini-cell {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
   }
 
   .habit-delete-controls {
@@ -6200,12 +6408,14 @@ body.dark-mode .today-hero-watermark {
   }
 
   .habit-heatmap-scroll {
-    max-height: 172px;
+    max-height: 168px;
     padding: 5px 6px 6px;
   }
 
   .habit-heatmap-panel {
     --habit-heatmap-meta-h: 24px;
+    --habit-heatmap-cell-size: 10px;
+    --habit-heatmap-gap: 2px;
   }
 
   .habit-heatmap-panel-meta {
@@ -6231,8 +6441,8 @@ body.dark-mode .today-hero-watermark {
   }
 
   .habit-heatmap-cell {
-    width: 12px;
-    height: 12px;
+    width: var(--habit-heatmap-cell-size);
+    height: var(--habit-heatmap-cell-size);
     border-radius: 3px;
     background-color: transparent;
     border-color: transparent;
@@ -7110,13 +7320,13 @@ body.dark-mode .archive-banner {
   height: 10px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-300) 34%, var(--border));
 }
 
 .progress-bar-fill {
   background: linear-gradient(90deg,
-      color-mix(in srgb, var(--accent-300) 78%, var(--accent-200)),
-      color-mix(in srgb, var(--accent-500) 88%, var(--accent-400)));
+      color-mix(in srgb, var(--accent-400) 86%, var(--accent-200)),
+      color-mix(in srgb, var(--accent-600) 84%, var(--accent-500)));
   border-radius: 999px;
 }
 
@@ -7124,7 +7334,7 @@ body.dark-mode .archive-banner {
   height: 14px;
   border-radius: 999px;
   background: linear-gradient(to right,
-      color-mix(in srgb, var(--accent-500) 84%, var(--accent-300)) var(--slider-fill),
+      color-mix(in srgb, var(--accent-500) 90%, var(--accent-400)) var(--slider-fill),
       color-mix(in srgb, var(--border-light) 88%, var(--bg-subtle)) var(--slider-fill));
   background-size: 100% 4px !important;
 }
@@ -7137,9 +7347,9 @@ body.dark-mode .archive-banner {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent-300) 84%, var(--accent-500));
+  border: 1px solid color-mix(in srgb, var(--accent-500) 74%, var(--accent-300));
   background: color-mix(in srgb, var(--bg-card) 96%, white);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   opacity: 1;
   margin-top: -4.5px;
 }
@@ -7152,9 +7362,9 @@ body.dark-mode .archive-banner {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent-300) 84%, var(--accent-500));
+  border: 1px solid color-mix(in srgb, var(--accent-500) 74%, var(--accent-300));
   background: color-mix(in srgb, var(--bg-card) 96%, white);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   opacity: 1;
 }
 
@@ -7166,7 +7376,8 @@ body.dark-mode .archive-banner {
 
 .planner-completion-handle {
   border-radius: 7px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
+  border: 1px solid color-mix(in srgb, var(--accent-300) 40%, var(--border));
 }
 
 .plan-goals-card {
@@ -7213,18 +7424,32 @@ body.dark-mode .archive-banner {
 
 .stats-bar-container.current .stats-bar {
   border: 1px solid color-mix(in srgb, var(--accent-300) 72%, var(--border));
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .stats-bar-fill {
   background: linear-gradient(180deg,
-      color-mix(in srgb, var(--accent-300) 80%, var(--accent-200)),
-      color-mix(in srgb, var(--accent-500) 88%, var(--accent-400)));
+      color-mix(in srgb, var(--accent-400) 86%, var(--accent-200)),
+      color-mix(in srgb, var(--accent-600) 84%, var(--accent-500)));
 }
 
 .stats-big-number {
   font-weight: 600;
   font-size: clamp(2.35rem, 1.7rem + 1.1vw, 2.8rem);
+  color: var(--accent-600);
+}
+
+.stats-bar-label,
+.stats-bar-value {
+  color: color-mix(in srgb, var(--accent-600) 82%, var(--text-secondary));
+}
+
+.stats-bar-container.current .stats-bar-label {
+  color: var(--accent-600);
+}
+
+.stats-week-value {
+  color: var(--accent-600);
 }
 
 .app-main .archive-banner {
@@ -7327,6 +7552,15 @@ body.dark-mode .archive-banner {
 
   .week-goals-context-header button,
   .week-target-composer-toggle-row button {
+    width: 100%;
+  }
+
+  .week-selected-week-note.planning {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .week-jump-current-btn {
     width: 100%;
   }
 
