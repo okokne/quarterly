@@ -39,6 +39,8 @@ type WeekTabProps = {
     onDeleteWeeklyTarget: (targetId: Id) => void;
     totalWeeklyDone: (weekIndex: number, targetId: Id) => number;
     weeklyReview: WeeklyReview;
+    focusTargetId: Id | null;
+    onFocusTargetHandled: () => void;
     onOpenCycleDrawer: () => void;
 };
 
@@ -64,6 +66,8 @@ export function WeekTab({
     onDeleteWeeklyTarget,
     totalWeeklyDone,
     weeklyReview,
+    focusTargetId,
+    onFocusTargetHandled,
     onOpenCycleDrawer
 }: WeekTabProps) {
     const {
@@ -237,6 +241,8 @@ export function WeekTab({
                         cancelTargetEdit={cancelTargetEdit}
                         saveTargetEdit={saveTargetEdit}
                         setEditingTargetId={setEditingTargetId}
+                        focusTargetId={focusTargetId}
+                        onFocusHandled={onFocusTargetHandled}
                     />
                 </fieldset>
             </div>

@@ -32,7 +32,6 @@ import { TodayHabitsSection } from "./today/TodayHabitsSection";
 import { TodayDailyReviewSection } from "./today/TodayDailyReviewSection";
 import { TodayDatePickerSection } from "./today/TodayDatePickerSection";
 import { TodayBlocksSection } from "./today/TodayBlocksSection";
-import { AppTab } from "../navigation";
 import { ArrowRight, BarChart3, Sunrise } from "./ui/icons";
 import { Icon } from "./ui/Icon";
 import { resolveHabitIcon } from "./ui/habitIcons";
@@ -49,7 +48,7 @@ type TodayTabProps = {
     setSelectedDate: Dispatch<SetStateAction<string>>;
     selectedWeek: number;
     setSelectedWeek: Dispatch<SetStateAction<number>>;
-    setActiveTab: (tab: AppTab) => void;
+    onOpenWeekTarget: (targetId?: Id) => void;
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
@@ -85,7 +84,7 @@ export function TodayTab({
     setSelectedDate,
     selectedWeek,
     setSelectedWeek,
-    setActiveTab,
+    onOpenWeekTarget,
     selectedWeekTargets,
     blockDraft,
     setBlockDraft,
@@ -155,6 +154,7 @@ export function TodayTab({
         const rawDiff = Math.floor((selectedDay.getTime() - weekStart.getTime()) / msInDay) + 1;
         return Math.max(1, Math.min(7, rawDiff));
     }, [cycle.weeks, selectedDate, selectedWeek]);
+    const isWeekFullyDone = weekProgressPercent >= 100 && activeWeekTargets.length > 0;
 
     return (
         <section className="card">
@@ -212,25 +212,16 @@ export function TodayTab({
                     <div className="today-hero-watermark" aria-hidden="true">
                         <Icon icon={BarChart3} size={40} />
                     </div>
-                    <div className="today-hero-week-header">
-                        <h3>{tr(language, "today.heroWeekTitle")}</h3>
-                        <button
-                            type="button"
-                            className="today-hero-week-link"
-                            onClick={() => setActiveTab("week")}
-                            title={tr(language, "today.heroOpenWeek")}
-                            aria-label={tr(language, "today.heroOpenWeek")}
-                        >
-                            <Icon icon={ArrowRight} size={14} />
-                        </button>
-                    </div>
+                    <h3>{tr(language, "today.heroWeekTitle")}</h3>
                     <strong>{weekProgressPercent}%</strong>
                     <ProgressBar value={weekProgressPercent} max={100} showLabel={false} />
-                    <span className="today-hero-secondary">{tr(language, "today.heroNextPriority")}</span>
-                    <p className="today-hero-priority-title">
-                        {nextPriority?.target.title ?? tr(language, "today.noWeekTargets")}
+                    <span className="today-hero-secondary">{tr(language, isWeekFullyDone ? "today.completedStatus" : "today.heroNextPriority")}</span>
+                    <p className={`today-hero-priority-title ${isWeekFullyDone ? "complete" : ""}`}>
+                        {isWeekFullyDone
+                            ? tr(language, "today.heroWeekAllDone")
+                            : nextPriority?.target.title ?? tr(language, "today.noWeekTargets")}
                     </p>
-                    {nextPriority && (
+                    {!isWeekFullyDone && nextPriority && (
                         <p className="muted today-hero-priority-meta">
                             {tr(language, "week.targetProgressSimple", {
                                 actual: nextPriorityDone,
@@ -240,6 +231,15 @@ export function TodayTab({
                         </p>
                     )}
                     <p className="muted today-hero-week-day">{tr(language, "today.heroWeekDay", { day: weekDayNumber })}</p>
+                    <button
+                        type="button"
+                        className="today-hero-week-link"
+                        onClick={() => onOpenWeekTarget(nextPriority?.target.id)}
+                        title={tr(language, "today.heroOpenWeek")}
+                        aria-label={tr(language, "today.heroOpenWeek")}
+                    >
+                        <Icon icon={ArrowRight} size={14} />
+                    </button>
                 </article>
             </div>
 

@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Pencil } from "../ui/icons";
 import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
@@ -32,6 +32,8 @@ type WeekTargetsSectionProps = {
     cancelTargetEdit: () => void;
     saveTargetEdit: () => void;
     setEditingTargetId: Dispatch<SetStateAction<Id | null>>;
+    focusTargetId: Id | null;
+    onFocusHandled: () => void;
 };
 
 export function WeekTargetsSection({
@@ -58,7 +60,9 @@ export function WeekTargetsSection({
     startTargetEdit,
     cancelTargetEdit,
     saveTargetEdit,
-    setEditingTargetId
+    setEditingTargetId,
+    focusTargetId,
+    onFocusHandled
 }: WeekTargetsSectionProps) {
     const {
         touchDraggingTargetId,
@@ -72,12 +76,42 @@ export function WeekTargetsSection({
         totalWeeklyTargets,
         onReorderTargets
     });
+    const [highlightedTargetId, setHighlightedTargetId] = useState<Id | null>(null);
+    const highlightTimeoutRef = useRef<number | null>(null);
 
     const handleAddTarget = () => {
         const didAdd = onAddWeeklyTarget();
         if (!didAdd) return;
         setShowComposer(false);
     };
+
+    useEffect(() => {
+        return () => {
+            if (highlightTimeoutRef.current !== null) {
+                window.clearTimeout(highlightTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!focusTargetId) return;
+
+        const targetRow = document.getElementById(`week-target-${String(focusTargetId)}`);
+        if (targetRow) {
+            targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+            setHighlightedTargetId(focusTargetId);
+
+            if (highlightTimeoutRef.current !== null) {
+                window.clearTimeout(highlightTimeoutRef.current);
+            }
+            highlightTimeoutRef.current = window.setTimeout(() => {
+                setHighlightedTargetId((prev) => (prev === focusTargetId ? null : prev));
+                highlightTimeoutRef.current = null;
+            }, 1800);
+        }
+
+        onFocusHandled();
+    }, [focusTargetId, onFocusHandled, selectedWeek, totalWeeklyTargets]);
 
     return (
         <>
@@ -148,7 +182,8 @@ export function WeekTargetsSection({
                     return (
                         <div
                             key={target.id}
-                            className={`list-item column week-target-item ${draggingTargetId === target.id ? "dragging" : ""} ${isEditingTarget ? "editing" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
+                            id={`week-target-${target.id}`}
+                            className={`list-item column week-target-item ${draggingTargetId === target.id ? "dragging" : ""} ${isEditingTarget ? "editing" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""} ${highlightedTargetId === target.id ? "focus-highlight" : ""}`}
                             data-target-index={index}
                             onDragOver={(e) => {
                                 if (isArchiveView) return;

@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { t as tr } from "../i18n";
 import { AppTab } from "../navigation";
 import { DailyBlockDraft } from "../hooks/useDailyBlocks";
@@ -166,6 +166,14 @@ export function AppDashboardContent({
     todayComposerRequest
 }: AppDashboardContentProps) {
     const onboardingDone = step >= 4;
+    const [weekFocusTargetId, setWeekFocusTargetId] = useState<Id | null>(null);
+    const handleOpenWeekFromToday = useCallback((targetId?: Id) => {
+        setWeekFocusTargetId(targetId ?? null);
+        setActiveTab("week");
+    }, [setActiveTab]);
+    const handleWeekFocusHandled = useCallback(() => {
+        setWeekFocusTargetId(null);
+    }, []);
 
     return (
         <>
@@ -208,7 +216,7 @@ export function AppDashboardContent({
                     setSelectedDate={setSelectedDate}
                     selectedWeek={selectedWeek}
                     setSelectedWeek={setSelectedWeek}
-                    setActiveTab={setActiveTab}
+                    onOpenWeekTarget={handleOpenWeekFromToday}
                     selectedWeekTargets={selectedWeekTargets}
                     blockDraft={blockDraft}
                     setBlockDraft={setBlockDraft}
@@ -258,6 +266,8 @@ export function AppDashboardContent({
                     onDeleteWeeklyTarget={onDeleteWeeklyTarget}
                     totalWeeklyDone={totalWeeklyDone}
                     weeklyReview={weeklyReview}
+                    focusTargetId={activeTab === "week" ? weekFocusTargetId : null}
+                    onFocusTargetHandled={handleWeekFocusHandled}
                     onOpenCycleDrawer={onOpenCycleDrawer}
                 />
             )}
