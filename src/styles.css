@@ -4998,12 +4998,39 @@ body.dark-mode .today-hero-watermark {
   justify-content: flex-start;
 }
 
+.today-dayplan-composer-actions button.active {
+  background: color-mix(in srgb, var(--accent-bg) 74%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent-300) 76%, var(--border));
+  color: var(--accent-600);
+}
+
 .today-dayplan-composer-grid {
   gap: 12px;
 }
 
 .today-dayplan-timing-panel {
   margin-top: -2px;
+}
+
+.today-dayplan-template-panel {
+  margin-top: 2px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--border) 86%, var(--accent-200));
+  background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-subtle));
+  display: grid;
+  gap: 8px;
+}
+
+.today-dayplan-template-panel .muted {
+  margin: 0;
+  font-size: var(--type-small);
+}
+
+.today-dayplan-template-panel .template-list {
+  max-height: 220px;
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .today-timeline-zoom-controls {

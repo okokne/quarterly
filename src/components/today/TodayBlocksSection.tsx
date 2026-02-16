@@ -169,6 +169,7 @@ export function TodayBlocksSection({
 
     const [timelineNow, setTimelineNow] = useState(() => new Date());
     const [isComposerOpen, setIsComposerOpen] = useState(false);
+    const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
     const [editingBlockId, setEditingBlockId] = useState<Id | null>(null);
     const [editingDraft, setEditingDraft] = useState<BlockEditDraft | null>(null);
     const [timelineZoomLevel, setTimelineZoomLevel] = useState<TimelineZoomLevel>("normal");
@@ -311,6 +312,7 @@ export function TodayBlocksSection({
 
     useEffect(() => {
         setIsComposerOpen(false);
+        setIsTemplatePickerOpen(false);
         if (dayPlanViewMode !== "timeline") {
             timelineAutoScrollKeyRef.current = "";
         }
@@ -324,6 +326,7 @@ export function TodayBlocksSection({
             setDayPlanViewMode("list");
         }
         setIsComposerOpen(true);
+        setIsTemplatePickerOpen(false);
     }, [composerRequest, dayPlanViewMode, setDayPlanViewMode]);
 
     const triggerCompletionFx = useCallback((blockId: Id) => {
@@ -506,6 +509,7 @@ export function TodayBlocksSection({
         const didAdd = await onAddBlock(selectedDate);
         if (didAdd) {
             setIsComposerOpen(false);
+            setIsTemplatePickerOpen(false);
         }
     }, [onAddBlock, selectedDate]);
 
@@ -982,7 +986,15 @@ export function TodayBlocksSection({
                     <button
                         type="button"
                         className={`primary today-dayplan-add-btn ${isComposerOpen ? "open" : ""}`}
-                        onClick={() => setIsComposerOpen((prev) => !prev)}
+                        onClick={() => {
+                            setIsComposerOpen((prev) => {
+                                const next = !prev;
+                                if (!next) {
+                                    setIsTemplatePickerOpen(false);
+                                }
+                                return next;
+                            });
+                        }}
                         title={isComposerOpen ? tr(language, "common.close") : tr(language, "today.blockAdd")}
                         aria-label={isComposerOpen ? tr(language, "common.close") : tr(language, "today.blockAdd")}
                     >
@@ -1047,36 +1059,64 @@ export function TodayBlocksSection({
                     )}
                     <div className="button-row today-dayplan-composer-actions">
                         <button className="primary" onClick={handleAddBlockSubmit}>{tr(language, "today.blockAdd")}</button>
-                        <button type="button" onClick={() => setIsComposerOpen(false)}>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsComposerOpen(false);
+                                setIsTemplatePickerOpen(false);
+                            }}
+                        >
                             {tr(language, "common.cancel")}
                         </button>
+                        {templates.length > 0 && (
+                            <button
+                                type="button"
+                                className={isTemplatePickerOpen ? "active" : ""}
+                                onClick={() => setIsTemplatePickerOpen((prev) => !prev)}
+                            >
+                                {tr(language, "today.loadTemplate")}
+                            </button>
+                        )}
                         {dayPlanViewMode === "list" && dayBlocks.length > 0 && (
                             <button onClick={onOpenTemplateModal}>{tr(language, "today.saveAsTemplate")}</button>
                         )}
                     </div>
-                </>
-            )}
-
-            {templates.length > 0 && dayPlanViewMode === "list" && (
-                <div className="subcard template-section">
-                    <h4>{tr(language, "today.templates")}</h4>
-                    <div className="template-list">
-                        {templates.map((template) => (
-                            <div key={template.id} className="template-item">
-                                <div>
-                                    <strong>{template.name}</strong>
-                                    <span className="muted"> · {tr(language, "today.blocksCount", { count: template.blocks.length })}</span>
-                                </div>
-                                <div className="button-row compact">
-                                    <button onClick={() => onLoadTemplate(template)}>{tr(language, "common.load")}</button>
-                                    <button onClick={() => onDeleteTemplate(template.id)} aria-label={tr(language, "common.delete")} title={tr(language, "common.delete")}>
-                                        <Icon icon={Trash2} size={16} />
-                                    </button>
-                                </div>
+                    {templates.length > 0 && isTemplatePickerOpen && (
+                        <div className="today-dayplan-template-panel">
+                            <p className="muted">{tr(language, "today.templates")}</p>
+                            <div className="template-list">
+                                {templates.map((template) => (
+                                    <div key={template.id} className="template-item">
+                                        <div>
+                                            <strong>{template.name}</strong>
+                                            <span className="muted"> · {tr(language, "today.blocksCount", { count: template.blocks.length })}</span>
+                                        </div>
+                                        <div className="button-row compact">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    onLoadTemplate(template);
+                                                    setIsTemplatePickerOpen(false);
+                                                    setIsComposerOpen(false);
+                                                }}
+                                            >
+                                                {tr(language, "common.load")}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => onDeleteTemplate(template.id)}
+                                                aria-label={tr(language, "common.delete")}
+                                                title={tr(language, "common.delete")}
+                                            >
+                                                <Icon icon={Trash2} size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        </div>
+                    )}
+                </>
             )}
 
             {dayPlanViewMode === "list" && (
