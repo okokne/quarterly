@@ -1,6 +1,6 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { Check, PencilLine, Trash2, X } from "../ui/icons";
+import { Check, PencilLine, Plus, Trash2, X } from "../ui/icons";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -1121,7 +1121,19 @@ export function TodayBlocksSection({
 
             {dayPlanViewMode === "list" && (
                 <div className="today-list-sections">
-                    {dayBlocks.length === 0 && <p className="empty">{tr(language, "today.noBlocks")}</p>}
+                    {dayBlocks.length === 0 && (
+                        <div className="today-empty-state">
+                            <p className="empty">{tr(language, "today.noBlocks")}</p>
+                            <button
+                                type="button"
+                                className="today-empty-add-btn"
+                                onClick={() => setIsComposerOpen(true)}
+                            >
+                                <Icon icon={Plus} size={14} />
+                                {tr(language, "today.blockAdd")}
+                            </button>
+                        </div>
+                    )}
 
                     {plannedBlocks.length > 0 && (
                         <section className="today-blocks-group">

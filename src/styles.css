@@ -2697,6 +2697,21 @@ button.ghost-danger:hover {
   gap: var(--space-grid);
 }
 
+.today-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.today-empty-state .empty {
+  width: 100%;
+}
+
+.today-empty-add-btn {
+  min-height: 34px;
+  padding: 7px 12px;
+}
+
 .today-blocks-group {
   display: grid;
   gap: 8px;
