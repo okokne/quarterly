@@ -3286,7 +3286,7 @@ button.ghost-danger:hover {
 .week-goal-row.editing,
 .week-target-item.editing {
   border-color: var(--week-target-accent, var(--accent-300));
-  background: var(--week-target-accent, var(--accent-100));
+  background: var(--bg-card);
 }
 
 .week-target-item.focus-highlight {
@@ -3353,7 +3353,7 @@ button.ghost-danger:hover {
 
 .week-target-item.has-target-accent {
   border-color: var(--week-target-accent, var(--accent-300));
-  background: var(--week-target-accent, var(--accent-100));
+  background: var(--bg-card);
 }
 
 .week-target-edit-fields {
