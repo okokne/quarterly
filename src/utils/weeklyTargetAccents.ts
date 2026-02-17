@@ -1,17 +1,28 @@
 import type { Goal, WeeklyTarget } from "../types";
 
 export const WEEKLY_TARGET_ACCENT_PALETTE = [
-    "#d9ebff",
-    "#dff3e7",
-    "#fff1cc",
-    "#f5e2fe",
-    "#ffe5e6",
-    "#ffe8d6",
-    "#def2f0",
-    "#e8edf5"
+    "#b7d9ff",
+    "#bfeacb",
+    "#ffe39a",
+    "#e7bdfd",
+    "#ffccd3",
+    "#ffcba6",
+    "#bde8e2",
+    "#d2def2"
 ] as const;
 
-const LEGACY_WEEKLY_TARGET_ACCENT_PALETTE = [
+const LEGACY_WEEKLY_TARGET_ACCENT_PALETTES: readonly string[][] = [
+    [
+        "#d9ebff",
+        "#dff3e7",
+        "#fff1cc",
+        "#f5e2fe",
+        "#ffe5e6",
+        "#ffe8d6",
+        "#def2f0",
+        "#e8edf5"
+    ],
+    [
     "#9bb6ea",
     "#93c6b3",
     "#dec690",
@@ -20,6 +31,7 @@ const LEGACY_WEEKLY_TARGET_ACCENT_PALETTE = [
     "#e3b394",
     "#a7b3bf",
     "#b9d39f"
+    ]
 ] as const;
 
 export const DEFAULT_WEEKLY_TARGET_ACCENT = WEEKLY_TARGET_ACCENT_PALETTE[0];
@@ -31,11 +43,11 @@ export function normalizeWeeklyTargetAccent(color: unknown): string | undefined 
     if (WEEKLY_TARGET_ACCENT_PALETTE.includes(normalized as typeof WEEKLY_TARGET_ACCENT_PALETTE[number])) {
         return normalized;
     }
-    const legacyIndex = LEGACY_WEEKLY_TARGET_ACCENT_PALETTE.indexOf(
-        normalized as typeof LEGACY_WEEKLY_TARGET_ACCENT_PALETTE[number]
-    );
-    if (legacyIndex >= 0) {
-        return WEEKLY_TARGET_ACCENT_PALETTE[legacyIndex];
+    for (const palette of LEGACY_WEEKLY_TARGET_ACCENT_PALETTES) {
+        const legacyIndex = palette.indexOf(normalized);
+        if (legacyIndex >= 0) {
+            return WEEKLY_TARGET_ACCENT_PALETTE[legacyIndex];
+        }
     }
     return undefined;
 }
