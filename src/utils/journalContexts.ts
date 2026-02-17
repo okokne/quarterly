@@ -1,17 +1,7 @@
 import { Cycle, JournalContext } from "../types";
+import { WEEKLY_TARGET_ACCENT_PALETTE } from "./weeklyTargetAccents";
 
-export const JOURNAL_LABEL_COLOR_PALETTE = [
-    "#D9EBFF", // soft blue
-    "#DFF3E7", // soft green
-    "#F5E2FE", // soft purple
-    "#FFE8D6", // soft orange
-    "#FFE5E6", // soft red
-    "#DEF2F0", // teal
-    "#E7E6FF", // indigo
-    "#E8EDF5", // slate
-    "#FFF1CC", // amber
-    "#FFE6F1"  // rose
-];
+export const JOURNAL_LABEL_COLOR_PALETTE: string[] = [...WEEKLY_TARGET_ACCENT_PALETTE];
 
 export const DEFAULT_JOURNAL_CONTEXTS: JournalContext[] = [
     { id: "private", label: "Privat", color: JOURNAL_LABEL_COLOR_PALETTE[0] },
@@ -36,7 +26,7 @@ function normalizeContextLabel(value: unknown): string | null {
 
 function normalizeContextColor(value: unknown): string | null {
     if (typeof value !== "string") return null;
-    const normalized = value.trim();
+    const normalized = value.trim().toLowerCase();
     if (!/^#([0-9a-fA-F]{6})$/.test(normalized)) return null;
     return normalized;
 }
@@ -47,7 +37,7 @@ function colorForIndex(index: number): string {
 
 export function pickNextJournalContextColor(existingContexts: JournalContext[]): string {
     if (existingContexts.length === 0) return colorForIndex(0);
-    const used = new Set(existingContexts.map((context) => context.color));
+    const used = new Set(existingContexts.map((context) => context.color.trim().toLowerCase()));
     const nextUnused = JOURNAL_LABEL_COLOR_PALETTE.find((color) => !used.has(color));
     if (nextUnused) return nextUnused;
     return colorForIndex(existingContexts.length);

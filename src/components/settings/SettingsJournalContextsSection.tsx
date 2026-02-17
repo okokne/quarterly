@@ -25,6 +25,7 @@ export function SettingsJournalContextsSection({
     updateCycle,
     focusedContextId
 }: SettingsJournalContextsSectionProps) {
+    const isPaletteColor = (color: string): boolean => JOURNAL_LABEL_COLOR_PALETTE.includes(color.trim().toLowerCase());
     const contexts = cycle.journalContexts ?? [];
     const [newContext, setNewContext] = useState("");
     const [newContextColor, setNewContextColor] = useState(() => pickNextJournalContextColor(contexts));
@@ -45,7 +46,7 @@ export function SettingsJournalContextsSection({
     }, [focusedContextId, contexts]);
 
     useEffect(() => {
-        if (!newContextColor || !JOURNAL_LABEL_COLOR_PALETTE.includes(newContextColor)) {
+        if (!newContextColor || !isPaletteColor(newContextColor)) {
             setNewContextColor(pickNextJournalContextColor(contexts));
         }
     }, [contexts, newContextColor]);
@@ -66,8 +67,8 @@ export function SettingsJournalContextsSection({
             const generatedId = slugifyContextId(trimmed) || `ctx-${uid().slice(0, 8)}`;
             const idTaken = new Set(existingContexts.map((context) => context.id));
             const nextId = idTaken.has(generatedId) ? `${generatedId}-${uid().slice(0, 6)}` : generatedId;
-            const selectedColor = JOURNAL_LABEL_COLOR_PALETTE.includes(newContextColor)
-                ? newContextColor
+            const selectedColor = isPaletteColor(newContextColor)
+                ? newContextColor.toLowerCase()
                 : pickNextJournalContextColor(existingContexts);
             const nextContexts = [
                 ...existingContexts,
@@ -84,8 +85,8 @@ export function SettingsJournalContextsSection({
             };
         });
         setNewContext("");
-        const nextColorSeed = JOURNAL_LABEL_COLOR_PALETTE.includes(newContextColor)
-            ? newContextColor
+        const nextColorSeed = isPaletteColor(newContextColor)
+            ? newContextColor.toLowerCase()
             : pickNextJournalContextColor(contexts);
         setNewContextColor(
             pickNextJournalContextColor([
@@ -99,8 +100,8 @@ export function SettingsJournalContextsSection({
         setEditingContextId(contextId);
         setEditDraft(currentLabel);
         setEditColorDraft(
-            JOURNAL_LABEL_COLOR_PALETTE.includes(currentColor)
-                ? currentColor
+            isPaletteColor(currentColor)
+                ? currentColor.toLowerCase()
                 : JOURNAL_LABEL_COLOR_PALETTE[0]
         );
     };
@@ -126,8 +127,8 @@ export function SettingsJournalContextsSection({
                     ? {
                         ...context,
                         label: nextLabel,
-                        color: JOURNAL_LABEL_COLOR_PALETTE.includes(editColorDraft)
-                            ? editColorDraft
+                        color: isPaletteColor(editColorDraft)
+                            ? editColorDraft.toLowerCase()
                             : context.color
                     }
                     : context

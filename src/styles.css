@@ -92,6 +92,32 @@
   --warm-blue-border: var(--warm-blue-200);
   --warm-blue-text: var(--warm-blue-600);
 
+  /* Shared pastel tones used across goals, journal and status chips */
+  --tone-blue-100: #d9ebff;
+  --tone-blue-200: #bcd8fb;
+  --tone-blue-700: #2f5f9a;
+  --tone-green-100: #dff3e7;
+  --tone-green-200: #c5e7d3;
+  --tone-green-700: #2f5f46;
+  --tone-yellow-100: #fff1cc;
+  --tone-yellow-200: #f1dfa6;
+  --tone-yellow-700: #7c6123;
+  --tone-purple-100: #f5e2fe;
+  --tone-purple-200: #e3c9f5;
+  --tone-purple-700: #6c4d8e;
+  --tone-red-100: #ffe5e6;
+  --tone-red-200: #f6c7cb;
+  --tone-red-700: #8c4550;
+  --tone-orange-100: #ffe8d6;
+  --tone-orange-200: #f4d0b2;
+  --tone-orange-700: #8a5a2d;
+  --tone-teal-100: #def2f0;
+  --tone-teal-200: #bfe3de;
+  --tone-teal-700: #2d6360;
+  --tone-slate-100: #e8edf5;
+  --tone-slate-200: #ccd6e5;
+  --tone-slate-700: #45566f;
+
   /* ─── Warm Neutrals (Editorial) ─── */
   --bg-page: #f8f7f4;
   /* Almost white, hint of warmth */
@@ -107,6 +133,7 @@
   /* Warm Gray */
   --text-muted: #938c85;
   --text-light: #b1aaa2;
+  --text-on-accent: #ffffff;
   --text: var(--text-primary);
   --bg: var(--bg-card);
 
@@ -119,6 +146,32 @@
   /* Extremely subtle */
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.045);
   --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.065);
+
+  /* Component color tokens */
+  --surface-soft: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
+  --surface-soft-hover: color-mix(in srgb, var(--bg-hover) 86%, var(--bg-card));
+  --surface-soft-border: var(--border);
+  --surface-soft-border-hover: color-mix(in srgb, var(--border) 66%, var(--text-light));
+  --button-primary-bg: var(--accent-500);
+  --button-primary-bg-hover: var(--accent-600);
+  --button-primary-border: color-mix(in srgb, var(--accent-500) 76%, var(--border));
+  --button-primary-text: var(--text-on-accent);
+  --chip-bg: var(--surface-soft);
+  --chip-border: var(--surface-soft-border);
+  --chip-text: var(--text-secondary);
+  --chip-hover-bg: var(--surface-soft-hover);
+  --chip-hover-border: var(--surface-soft-border-hover);
+  --chip-hover-text: var(--text-primary);
+  --chip-accent-bg: var(--accent-bg-strong);
+  --chip-accent-border: var(--accent-500);
+  --chip-accent-text: var(--accent-600);
+  --progress-track-bg: color-mix(in srgb, var(--bg-subtle) 86%, var(--bg-card));
+  --progress-track-border: color-mix(in srgb, var(--border) 86%, transparent);
+  --progress-fill-start: var(--accent-400);
+  --progress-fill-end: var(--accent-600);
+  --overlay-scrim: rgba(45, 42, 38, 0.4);
+  --overlay-scrim-soft: rgba(45, 42, 38, 0.34);
+  --overlay-scrim-strong: rgba(0, 0, 0, 0.4);
 
   /* ─── Spacing & Structure ─── */
   --radius-sm: 8px;
@@ -180,30 +233,81 @@ body.dark-mode {
   /* Semantic Pastels (Dark Mode adj.) */
   --success: #8cb59b;
   --success-bg: rgba(140, 181, 155, 0.2);
-  --success-bg-strong: rgba(140, 181, 155, 0.45);
-  --success-text: #c4dece;
-  --success-border: rgba(140, 181, 155, 0.32);
+  --success-bg-strong: rgba(140, 181, 155, 0.34);
+  --success-text: #c9e2d2;
+  --success-border: rgba(140, 181, 155, 0.42);
 
   --warning: #c4a369;
   --warning-bg: rgba(196, 163, 105, 0.2);
-  --warning-bg-strong: rgba(196, 163, 105, 0.45);
-  --warning-text: #e4d2ad;
-  --warning-border: rgba(196, 163, 105, 0.32);
+  --warning-bg-strong: rgba(196, 163, 105, 0.34);
+  --warning-text: #e8d4ab;
+  --warning-border: rgba(196, 163, 105, 0.42);
 
   --danger: #c78282;
   --danger-bg: rgba(199, 130, 130, 0.2);
-  --danger-bg-strong: rgba(199, 130, 130, 0.45);
-  --danger-text: #e8c0c0;
-  --danger-border: rgba(199, 130, 130, 0.32);
+  --danger-bg-strong: rgba(199, 130, 130, 0.34);
+  --danger-text: #ecc7c7;
+  --danger-border: rgba(199, 130, 130, 0.42);
 
   --warm-blue-100: rgba(123, 149, 192, 0.18);
-  --warm-blue-200: rgba(123, 149, 192, 0.28);
+  --warm-blue-200: rgba(123, 149, 192, 0.34);
   --warm-blue-500: #88a4d2;
   --warm-blue-600: #c2d1ea;
   --warm-blue: var(--warm-blue-500);
   --warm-blue-bg: var(--warm-blue-100);
   --warm-blue-border: var(--warm-blue-200);
   --warm-blue-text: var(--warm-blue-600);
+
+  --tone-blue-100: rgba(120, 162, 226, 0.24);
+  --tone-blue-200: rgba(120, 162, 226, 0.42);
+  --tone-blue-700: #bfd8fb;
+  --tone-green-100: rgba(127, 178, 146, 0.24);
+  --tone-green-200: rgba(127, 178, 146, 0.42);
+  --tone-green-700: #cbe6d6;
+  --tone-yellow-100: rgba(196, 163, 105, 0.24);
+  --tone-yellow-200: rgba(196, 163, 105, 0.42);
+  --tone-yellow-700: #e8d4ab;
+  --tone-purple-100: rgba(166, 132, 210, 0.24);
+  --tone-purple-200: rgba(166, 132, 210, 0.42);
+  --tone-purple-700: #dac5f4;
+  --tone-red-100: rgba(199, 130, 130, 0.24);
+  --tone-red-200: rgba(199, 130, 130, 0.42);
+  --tone-red-700: #ecc7c7;
+  --tone-orange-100: rgba(198, 134, 105, 0.24);
+  --tone-orange-200: rgba(198, 134, 105, 0.42);
+  --tone-orange-700: #f0c9b4;
+  --tone-teal-100: rgba(121, 178, 171, 0.24);
+  --tone-teal-200: rgba(121, 178, 171, 0.42);
+  --tone-teal-700: #c4e8e3;
+  --tone-slate-100: rgba(150, 162, 185, 0.24);
+  --tone-slate-200: rgba(150, 162, 185, 0.42);
+  --tone-slate-700: #c8d2e4;
+
+  --text-on-accent: #ffffff;
+  --surface-soft: color-mix(in srgb, var(--bg-subtle) 76%, var(--bg-card));
+  --surface-soft-hover: color-mix(in srgb, var(--bg-hover) 86%, var(--bg-card));
+  --surface-soft-border: var(--border);
+  --surface-soft-border-hover: color-mix(in srgb, var(--border) 76%, var(--text-light));
+  --button-primary-bg: var(--accent-500);
+  --button-primary-bg-hover: var(--accent-600);
+  --button-primary-border: color-mix(in srgb, var(--accent-500) 70%, var(--border));
+  --button-primary-text: var(--text-on-accent);
+  --chip-bg: var(--surface-soft);
+  --chip-border: var(--surface-soft-border);
+  --chip-text: var(--text-secondary);
+  --chip-hover-bg: var(--surface-soft-hover);
+  --chip-hover-border: var(--surface-soft-border-hover);
+  --chip-hover-text: var(--text-primary);
+  --chip-accent-bg: var(--accent-bg-strong);
+  --chip-accent-border: var(--accent-500);
+  --chip-accent-text: var(--accent-600);
+  --progress-track-bg: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
+  --progress-track-border: color-mix(in srgb, var(--border) 82%, transparent);
+  --progress-fill-start: var(--accent-400);
+  --progress-fill-end: var(--accent-600);
+  --overlay-scrim: rgba(0, 0, 0, 0.5);
+  --overlay-scrim-soft: rgba(0, 0, 0, 0.44);
+  --overlay-scrim-strong: rgba(0, 0, 0, 0.56);
 }
 
 /* ─── Reset & Base ─── */
@@ -290,7 +394,7 @@ body {
   height: 34px;
   border-radius: 999px;
   background: linear-gradient(145deg, var(--accent-400), var(--accent-500));
-  color: #fff;
+  color: var(--text-on-accent);
   font-weight: 800;
   font-size: 0.95rem;
   display: inline-flex;
@@ -309,7 +413,7 @@ body {
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--accent-500) 42%, transparent);
   background: linear-gradient(140deg, var(--accent-500), color-mix(in srgb, var(--accent-500) 82%, var(--accent-400)));
-  color: #fff;
+  color: var(--button-primary-text);
   font-weight: 700;
   letter-spacing: 0.01em;
   display: inline-flex;
@@ -1135,7 +1239,7 @@ p {
   border-radius: 999px;
   font-size: 0.84rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-on-accent);
   background: var(--accent);
 }
 
@@ -1491,7 +1595,7 @@ p {
   /* Not pill-shaped */
   border: 1px solid var(--border);
   background: var(--bg-card);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
   font-size: 13px;
@@ -2389,8 +2493,8 @@ button,
 
 button:hover,
 .button:hover {
-  background: var(--bg-hover);
-  border-color: var(--text-light);
+  background: var(--surface-soft-hover);
+  border-color: var(--surface-soft-border-hover);
   box-shadow: var(--shadow-sm);
 }
 
@@ -2400,26 +2504,26 @@ button:active,
 }
 
 button.primary {
-  background: var(--accent-500);
-  color: white;
-  border-color: color-mix(in srgb, var(--accent-600) 46%, transparent);
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--accent-500) 30%, transparent);
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border-color: var(--button-primary-border);
+  box-shadow: var(--shadow-sm);
 }
 
 button.primary:hover {
-  background: var(--accent-600);
-  border-color: color-mix(in srgb, var(--accent-600) 66%, transparent);
+  background: var(--button-primary-bg-hover);
+  border-color: var(--button-primary-border);
 }
 
 .button.accent {
-  background: var(--accent-500);
-  color: #fff;
-  border-color: color-mix(in srgb, var(--accent-600) 46%, transparent);
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border-color: var(--button-primary-border);
 }
 
 .button.accent:hover {
-  background: var(--accent-600);
-  border-color: color-mix(in srgb, var(--accent-600) 66%, transparent);
+  background: var(--button-primary-bg-hover);
+  border-color: var(--button-primary-border);
 }
 
 button:disabled {
@@ -2430,7 +2534,7 @@ button:disabled {
 
 button.danger {
   background: var(--danger);
-  color: white;
+  color: var(--text-on-accent);
   border: none;
 }
 
@@ -2906,7 +3010,7 @@ button.ghost-danger:hover {
   margin: 0;
   border: 0;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-card) 96%, white);
+  background: var(--bg-card);
   color: var(--text-muted);
   display: inline-flex;
   align-items: center;
@@ -2915,7 +3019,7 @@ button.ghost-danger:hover {
   font-size: 0;
   transform: translateX(calc(var(--completion-progress) * 26px));
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+  box-shadow: var(--shadow-sm);
   padding: 0;
   z-index: 1;
 }
@@ -2938,8 +3042,8 @@ button.ghost-danger:hover {
 }
 
 .planner-completion-track.is-done .planner-completion-handle {
-  background: color-mix(in srgb, var(--success) 90%, white);
-  color: #fff;
+  background: var(--success);
+  color: var(--text-on-accent);
 }
 
 .planner-completion-track.is-dragging .planner-completion-handle {
@@ -3672,7 +3776,7 @@ button.ghost-danger:hover {
 }
 
 .week-target-plus-btn:hover {
-  color: color-mix(in srgb, var(--accent) 70%, #fff);
+  color: var(--accent-hover);
   text-decoration-color: currentColor;
 }
 
@@ -3856,9 +3960,9 @@ button.ghost-danger:hover {
 }
 
 .journal-filter-chip.journal-label-chip {
-  --journal-label-surface: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 90%, var(--bg-card));
-  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--accent-200)) 58%, var(--border));
-  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 34%, #10243f);
+  --journal-label-surface: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-100)) 78%, var(--bg-card));
+  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 72%, var(--border));
+  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 50%, var(--text-primary));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3870,16 +3974,16 @@ button.ghost-danger:hover {
 }
 
 .journal-filter-chip.journal-label-chip:hover {
-  background: color-mix(in srgb, var(--journal-label-surface) 86%, white);
-  border-color: color-mix(in srgb, var(--journal-label-border) 74%, var(--journal-context-bg, var(--accent-300)));
-  color: color-mix(in srgb, var(--journal-label-text) 82%, #0b1628);
+  background: color-mix(in srgb, var(--journal-label-surface) 90%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--journal-label-border) 82%, var(--journal-context-bg, var(--accent-300)));
+  color: var(--journal-label-text);
 }
 
 .journal-filter-chip.journal-label-chip.active {
-  background: color-mix(in srgb, var(--journal-label-surface) 78%, white);
-  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 76%, var(--border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 32%, transparent);
-  color: color-mix(in srgb, var(--journal-label-text) 86%, #091222);
+  background: color-mix(in srgb, var(--journal-label-surface) 84%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 78%, var(--border));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 30%, transparent);
+  color: var(--journal-label-text);
 }
 
 .journal-filter-chip.journal-label-chip-none.active {
@@ -4037,9 +4141,9 @@ button.ghost-danger:hover {
 }
 
 .journal-entry-meta-row .journal-entry-context {
-  --journal-label-surface: color-mix(in srgb, var(--journal-context-bg, var(--bg-subtle)) 90%, var(--bg-card));
-  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--accent-200)) 58%, var(--border));
-  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 34%, #10243f);
+  --journal-label-surface: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-100)) 78%, var(--bg-card));
+  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 72%, var(--border));
+  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 50%, var(--text-primary));
   display: inline-flex;
   align-items: center;
   min-height: 22px;
@@ -4195,7 +4299,7 @@ button.ghost-danger:hover {
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
   background: var(--accent);
-  color: white;
+  color: var(--text-on-accent);
   box-shadow: var(--shadow-lg);
   z-index: 900;
 }
@@ -4277,13 +4381,13 @@ button.ghost-danger:hover {
 .draggable.dragging {
   opacity: 0.5;
   transform: scale(0.98);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   background: var(--bg-card);
   z-index: 10;
 }
 
 .draggable:not(.dragging):hover {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -4412,26 +4516,26 @@ button.ghost-danger:hover {
 .chip {
   padding: 6px 10px;
   border-radius: var(--radius-chip);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
   font-weight: 500;
   font-size: var(--type-badge);
   text-align: center;
   transition: var(--transition-fast);
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--chip-text);
 }
 
 .chip:hover {
-  border-color: var(--text-light);
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  border-color: var(--chip-hover-border);
+  background: var(--chip-hover-bg);
+  color: var(--chip-hover-text);
 }
 
 .chip.active {
-  background: color-mix(in srgb, var(--accent-bg) 78%, var(--bg-card));
-  color: var(--accent-600);
-  border-color: color-mix(in srgb, var(--accent-300) 72%, var(--border));
+  background: var(--chip-accent-bg);
+  color: var(--chip-accent-text);
+  border-color: var(--chip-accent-border);
   box-shadow: var(--shadow-sm);
 }
 
@@ -4526,7 +4630,7 @@ button.ghost-danger:hover {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(45, 42, 38, 0.4);
+  background: var(--overlay-scrim);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -4583,7 +4687,7 @@ button.ghost-danger:hover {
   position: fixed;
   inset: 0;
   z-index: 1150;
-  background: rgba(45, 42, 38, 0.34);
+  background: var(--overlay-scrim-soft);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -6657,7 +6761,7 @@ textarea:focus-visible {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: white;
+  background: var(--bg-card);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base);
 }
@@ -6694,9 +6798,9 @@ textarea:focus-visible {
 }
 
 .toggle-status.done {
-  color: var(--success);
-  border-color: rgba(124, 184, 122, 0.45);
-  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
+  background: var(--success-bg-strong);
 }
 
 .toggle-status.pending {
@@ -6747,7 +6851,7 @@ textarea:focus-visible {
 .settings-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--overlay-scrim-strong);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -7176,9 +7280,9 @@ body.dark-mode .archive-banner {
   border-radius: var(--radius-chip);
   border-width: 1px;
   border-style: solid;
-  border-color: var(--border);
-  background: color-mix(in srgb, var(--bg-subtle) 78%, var(--bg-card));
-  color: var(--text-secondary);
+  border-color: var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--chip-text);
   font-size: var(--type-badge);
   font-weight: 500;
   letter-spacing: 0;
@@ -7218,9 +7322,9 @@ body.dark-mode .archive-banner {
 .journal-filter-chip:hover,
 .week-chip:hover,
 .habit-freq-chip:hover {
-  background: color-mix(in srgb, var(--bg-hover) 86%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--border) 65%, var(--text-light));
-  color: var(--text-primary);
+  background: var(--chip-hover-bg);
+  border-color: var(--chip-hover-border);
+  color: var(--chip-hover-text);
 }
 
 .completion-week-pill.active,
@@ -7230,9 +7334,9 @@ body.dark-mode .archive-banner {
 .goal-tracking-badge.mid,
 .habit-streak-badge,
 .stats-trend.neutral {
-  background: var(--accent-bg-strong);
-  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
-  color: var(--accent-600);
+  background: var(--chip-accent-bg);
+  border-color: var(--chip-accent-border);
+  color: var(--chip-accent-text);
 }
 
 .goal-week-chip.high,
@@ -7245,7 +7349,7 @@ body.dark-mode .archive-banner {
 .stats-trend.up,
 .toggle-status.done {
   background: var(--success-bg-strong);
-  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
+  border-color: var(--success-border);
   color: var(--success-text);
 }
 
@@ -7256,7 +7360,7 @@ body.dark-mode .archive-banner {
 .habit-success-rate.mid,
 .stats-trend.mid {
   background: var(--warning-bg-strong);
-  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
+  border-color: var(--warning-border);
   color: var(--warning-text);
 }
 
@@ -7266,7 +7370,7 @@ body.dark-mode .archive-banner {
 .habit-success-rate.low,
 .stats-trend.down {
   background: var(--danger-bg-strong);
-  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
+  border-color: var(--danger-border);
   color: var(--danger-text);
 }
 
@@ -7274,93 +7378,97 @@ body.dark-mode .archive-banner {
 .goal-week-chip.high,
 .goal-tracking-badge.high {
   background: var(--success-bg-strong);
-  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
+  border-color: var(--success-border);
   color: var(--success-text);
 }
 
 .goal-week-chip.mid,
 .goal-tracking-badge.mid {
-  background: var(--accent-bg-strong);
-  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
-  color: var(--accent-600);
+  background: var(--chip-accent-bg);
+  border-color: var(--chip-accent-border);
+  color: var(--chip-accent-text);
 }
 
 .goal-week-chip.low,
 .goal-tracking-badge.low {
   background: var(--warning-bg-strong);
-  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
+  border-color: var(--warning-border);
   color: var(--warning-text);
 }
 
 .goal-week-chip.zero {
   background: var(--danger-bg-strong);
-  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
+  border-color: var(--danger-border);
   color: var(--danger-text);
 }
 
 /* Stats Habit Tracker: keep badge/chip colors aligned with semantic pastel tokens. */
 .stats-card .habit-mini-label,
 .stats-card .habit-streak-badge {
-  background: var(--accent-bg-strong);
-  border-color: var(--accent-500);
-  color: var(--accent-600);
+  background: var(--chip-accent-bg);
+  border-color: var(--chip-accent-border);
+  color: var(--chip-accent-text);
 }
 
 .stats-card .habit-success-rate.high {
   background: var(--success-bg-strong);
-  border-color: var(--success);
+  border-color: var(--success-border);
   color: var(--success-text);
 }
 
 .stats-card .habit-success-rate.mid {
   background: var(--warning-bg-strong);
-  border-color: var(--warning);
+  border-color: var(--warning-border);
   color: var(--warning-text);
 }
 
 .stats-card .habit-success-rate.low {
   background: var(--danger-bg-strong);
-  border-color: var(--danger);
+  border-color: var(--danger-border);
   color: var(--danger-text);
 }
 
 .journal-entry-type.weekly {
-  background: color-mix(in srgb, var(--warm-blue-bg) 86%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--warm-blue-border) 88%, var(--border));
+  background: var(--warm-blue-bg);
+  border-color: var(--warm-blue-border);
   color: var(--warm-blue-text);
 }
 
 .journal-entry-type.daily,
 .journal-entry-type.quick,
 .journal-entry-type.note {
-  background: color-mix(in srgb, var(--accent-bg) 80%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--accent-300) 72%, var(--border));
-  color: var(--accent-600);
+  background: var(--chip-accent-bg);
+  border-color: var(--chip-accent-border);
+  color: var(--chip-accent-text);
 }
 
 .journal-entry-type.custom,
 .planner-status-chip.pending,
 .goal-week-chip.empty,
 .toggle-status.pending {
-  background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
-  border-color: var(--border);
-  color: var(--text-secondary);
+  background: var(--chip-bg);
+  border-color: var(--chip-border);
+  color: var(--chip-text);
 }
 
 /* ─── Premium Refinement Pass ─── */
 .app-sidebar-quick-btn {
   min-height: 42px;
   border-radius: 11px;
-  border-color: color-mix(in srgb, var(--accent-500) 34%, var(--border));
+  border-color: var(--button-primary-border);
   background: linear-gradient(145deg,
-      color-mix(in srgb, var(--accent-500) 90%, white 10%),
-      color-mix(in srgb, var(--accent-600) 84%, var(--accent-500)));
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--accent-500) 26%, transparent);
+      var(--button-primary-bg),
+      var(--button-primary-bg-hover));
+  color: var(--button-primary-text);
+  box-shadow: var(--shadow-sm);
 }
 
 .app-sidebar-quick-btn:hover {
-  filter: brightness(1.02);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 20%, transparent);
+  filter: none;
+  background: linear-gradient(145deg,
+      var(--button-primary-bg-hover),
+      var(--button-primary-bg));
+  box-shadow: var(--shadow-md);
 }
 
 .app-sidebar-quick-menu {
@@ -7462,14 +7570,14 @@ body.dark-mode .archive-banner {
 .progress-bar {
   height: 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-subtle) 88%, var(--bg-card));
-  border: 1px solid color-mix(in srgb, var(--accent-300) 34%, var(--border));
+  background: var(--progress-track-bg);
+  border: 1px solid var(--progress-track-border);
 }
 
 .progress-bar-fill {
   background: linear-gradient(90deg,
-      color-mix(in srgb, var(--accent-400) 86%, var(--accent-200)),
-      color-mix(in srgb, var(--accent-600) 84%, var(--accent-500)));
+      var(--progress-fill-start),
+      var(--progress-fill-end));
   border-radius: 999px;
 }
 
@@ -7477,8 +7585,8 @@ body.dark-mode .archive-banner {
   height: 14px;
   border-radius: 999px;
   background: linear-gradient(to right,
-      color-mix(in srgb, var(--accent-500) 90%, var(--accent-400)) var(--slider-fill),
-      color-mix(in srgb, var(--border-light) 88%, var(--bg-subtle)) var(--slider-fill));
+      var(--button-primary-bg) var(--slider-fill),
+      var(--progress-track-bg) var(--slider-fill));
   background-size: 100% 4px !important;
 }
 
@@ -7490,8 +7598,8 @@ body.dark-mode .archive-banner {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent-500) 74%, var(--accent-300));
-  background: color-mix(in srgb, var(--bg-card) 96%, white);
+  border: 1px solid var(--button-primary-border);
+  background: var(--bg-card);
   box-shadow: none;
   opacity: 1;
   margin-top: -4.5px;
@@ -7505,8 +7613,8 @@ body.dark-mode .archive-banner {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--accent-500) 74%, var(--accent-300));
-  background: color-mix(in srgb, var(--bg-card) 96%, white);
+  border: 1px solid var(--button-primary-border);
+  background: var(--bg-card);
   box-shadow: none;
   opacity: 1;
 }
