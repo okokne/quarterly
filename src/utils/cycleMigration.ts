@@ -5,7 +5,7 @@ import { buildReviewEntriesFromLegacy, normalizeReviewEntries } from "./reviewEn
 import { clamp, getDatesInWeek } from "./cycleMath";
 import { normalizeJournalContexts, resolveDefaultJournalContextId } from "./journalContexts";
 import { normalizeWeekName } from "./weekNames";
-import { normalizeWeeklyTargetAccent } from "./weeklyTargetAccents";
+import { normalizeWeeklyTargetAccent, WEEKLY_TARGET_ACCENT_PALETTE } from "./weeklyTargetAccents";
 
 export function migrateCycle(raw: any): Cycle | null {
     if (!raw) return null;
@@ -40,6 +40,17 @@ export function migrateCycle(raw: any): Cycle | null {
             index: week.index ?? index + 1,
             weekName: normalizeWeekName(week.weekName)
         }));
+        cycle.goals = (cycle.goals ?? [])
+            .filter((goal) => goal && typeof goal === "object")
+            .map((goal, index) => {
+                const rawGoal = goal as Record<string, unknown>;
+                return {
+                    id: typeof rawGoal.id === "string" && rawGoal.id.trim() ? rawGoal.id.trim() : uid(),
+                    title: typeof rawGoal.title === "string" && rawGoal.title.trim() ? rawGoal.title.trim() : `Goal ${index + 1}`,
+                    metric: typeof rawGoal.metric === "string" && rawGoal.metric.trim() ? rawGoal.metric.trim() : undefined,
+                    color: normalizeWeeklyTargetAccent(rawGoal.color) ?? WEEKLY_TARGET_ACCENT_PALETTE[index % WEEKLY_TARGET_ACCENT_PALETTE.length]
+                };
+            });
 
         cycle.habits = cycle.habits.map((habit) => ({
             ...habit,
@@ -133,6 +144,7 @@ export function migrateCycle(raw: any): Cycle | null {
                         target: targetValue,
                         unit: typeof rawTarget.unit === "string" && rawTarget.unit.trim() ? rawTarget.unit.trim() : undefined,
                         color: normalizeWeeklyTargetAccent(rawTarget.color),
+                        goalId: typeof rawTarget.goalId === "string" && rawTarget.goalId.trim() ? rawTarget.goalId.trim() : undefined,
                         manualAdjust,
                         notes: typeof rawTarget.notes === "string" ? rawTarget.notes : undefined
                     };

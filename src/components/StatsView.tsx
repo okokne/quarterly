@@ -8,6 +8,7 @@ import { ProgressBar } from "./ProgressBar";
 import { Icon } from "./ui/Icon";
 import { resolveHabitIcon } from "./ui/habitIcons";
 import { useStatsMetrics } from "../hooks/useStatsMetrics";
+import { buildGoalAccentMap } from "../utils/weeklyTargetAccents";
 import {
     canToggleHabitCell,
     getExpandedHabitDateWindow,
@@ -72,6 +73,7 @@ export function StatsView({
         if (cyclePercentValue <= 70) return "stats.progressStatusMid";
         return "stats.progressStatusHigh";
     }, [cyclePercentValue]);
+    const goalAccentById = useMemo(() => buildGoalAccentMap(cycle.goals), [cycle.goals]);
 
     useEffect(() => {
         return () => {
@@ -168,7 +170,11 @@ export function StatsView({
                         </div>
                     )}
                     {cycle.goals.map((goal, index) => (
-                        <div key={goal.id} className="stats-goal-card">
+                        <div
+                            key={goal.id}
+                            className="stats-goal-card has-goal-accent"
+                            style={{ "--goal-accent": goalAccentById.get(String(goal.id)) } as CSSProperties}
+                        >
                             <div className="stats-goal-index" aria-hidden="true">
                                 {index + 1}
                             </div>

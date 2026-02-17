@@ -79,6 +79,7 @@ export function WeekTab({
         saveTargetEdit,
         setEditingTargetId
     } = useWeekTabEditing({
+        goals: cycle.goals,
         totalWeeklyTargets,
         onUpdateWeeklyTarget
     });

@@ -4,6 +4,7 @@ import { useTouchTargetReorder } from "../../hooks/useTouchTargetReorder";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, Id, WeeklyTarget } from "../../types";
 import {
+    buildGoalAccentMap,
     buildWeeklyTargetAccentMap,
     DEFAULT_WEEKLY_TARGET_ACCENT,
     normalizeWeeklyTargetAccent,
@@ -84,9 +85,19 @@ export function WeekTargetsSection({
     });
     const [highlightedTargetId, setHighlightedTargetId] = useState<Id | null>(null);
     const highlightTimeoutRef = useRef<number | null>(null);
+    const goalAccentById = useMemo(
+        () => buildGoalAccentMap(cycle.goals),
+        [cycle.goals]
+    );
+    const goalTitleById = useMemo(
+        () => new Map(cycle.goals.map((goal) => [String(goal.id), goal.title])),
+        [cycle.goals]
+    );
+    const linkedComposerGoalAccent = targetDraft.goalId ? goalAccentById.get(targetDraft.goalId) : undefined;
+    const linkedComposerColor = linkedComposerGoalAccent ?? normalizeWeeklyTargetAccent(targetDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
     const targetAccentById = useMemo(
-        () => buildWeeklyTargetAccentMap(totalWeeklyTargets),
-        [totalWeeklyTargets]
+        () => buildWeeklyTargetAccentMap(totalWeeklyTargets, cycle.goals),
+        [cycle.goals, totalWeeklyTargets]
     );
 
     const handleAddTarget = () => {
@@ -161,12 +172,39 @@ export function WeekTargetsSection({
                                 placeholder={tr(language, "week.unitExamples")}
                             />
                         </label>
+                        <label>
+                            {tr(language, "week.mainGoalOptional")}
+                            <select
+                                value={targetDraft.goalId}
+                                onChange={(e) => {
+                                    const nextGoalId = e.target.value;
+                                    const linkedGoalAccent = nextGoalId ? goalAccentById.get(nextGoalId) : undefined;
+                                    setTargetDraft({
+                                        ...targetDraft,
+                                        goalId: nextGoalId,
+                                        color: linkedGoalAccent ?? targetDraft.color
+                                    });
+                                }}
+                            >
+                                <option value="">{tr(language, "week.mainGoalNone")}</option>
+                                {cycle.goals.map((goal) => (
+                                    <option key={goal.id} value={goal.id}>
+                                        {goal.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
                     </div>
                     <div className="week-target-color-picker">
                         <span className="week-target-color-picker-label">{tr(language, "week.targetColor")}</span>
+                        {targetDraft.goalId && (
+                            <span className="week-target-color-link-hint">
+                                {tr(language, "week.targetColorFromGoal")}
+                            </span>
+                        )}
                         <div className="week-target-color-grid" role="radiogroup" aria-label={tr(language, "week.targetColor")}>
                             {WEEKLY_TARGET_ACCENT_PALETTE.map((color, index) => {
-                                const selectedColor = normalizeWeeklyTargetAccent(targetDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
+                                const selectedColor = linkedComposerColor;
                                 const isSelected = selectedColor === color;
                                 return (
                                     <button
@@ -176,7 +214,11 @@ export function WeekTargetsSection({
                                         aria-checked={isSelected}
                                         className={`week-target-color-swatch ${isSelected ? "selected" : ""}`}
                                         style={{ "--week-target-accent": color } as CSSProperties}
-                                        onClick={() => setTargetDraft({ ...targetDraft, color })}
+                                        onClick={() => {
+                                            if (targetDraft.goalId) return;
+                                            setTargetDraft({ ...targetDraft, color });
+                                        }}
+                                        disabled={Boolean(targetDraft.goalId)}
                                         title={`${tr(language, "week.targetColor")} ${index + 1}`}
                                     >
                                         {isSelected && <Icon icon={Check} size={13} />}
@@ -197,7 +239,8 @@ export function WeekTargetsSection({
                                     title: "",
                                     target: 1,
                                     unit: "",
-                                    color: DEFAULT_WEEKLY_TARGET_ACCENT
+                                    color: DEFAULT_WEEKLY_TARGET_ACCENT,
+                                    goalId: ""
                                 });
                             }}
                         >
@@ -217,6 +260,9 @@ export function WeekTargetsSection({
                     const manualAdjust = target.manualAdjust ?? 0;
                     const effectiveDone = Math.min(target.target, Math.max(0, autoDone + manualAdjust));
                     const targetAccent = targetAccentById.get(String(target.id)) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
+                    const linkedGoalTitle = target.goalId ? goalTitleById.get(String(target.goalId)) : undefined;
+                    const linkedEditGoalAccent = targetEditDraft.goalId ? goalAccentById.get(targetEditDraft.goalId) : undefined;
+                    const selectedEditColor = linkedEditGoalAccent ?? normalizeWeeklyTargetAccent(targetEditDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
 
                     return (
                         <div
@@ -292,12 +338,35 @@ export function WeekTargetsSection({
                                                         onChange={(e) => setTargetEditDraft((prev) => ({ ...prev, unit: e.target.value }))}
                                                         placeholder={tr(language, "week.unitPlaceholder")}
                                                     />
+                                                    <select
+                                                        value={targetEditDraft.goalId}
+                                                        onChange={(e) => {
+                                                            const nextGoalId = e.target.value;
+                                                            const linkedGoalAccent = nextGoalId ? goalAccentById.get(nextGoalId) : undefined;
+                                                            setTargetEditDraft((prev) => ({
+                                                                ...prev,
+                                                                goalId: nextGoalId,
+                                                                color: linkedGoalAccent ?? prev.color
+                                                            }));
+                                                        }}
+                                                    >
+                                                        <option value="">{tr(language, "week.mainGoalNone")}</option>
+                                                        {cycle.goals.map((goal) => (
+                                                            <option key={`${target.id}-${goal.id}`} value={goal.id}>
+                                                                {goal.title}
+                                                            </option>
+                                                        ))}
+                                                    </select>
                                                     <div className="week-target-edit-color-row">
                                                         <span className="week-target-color-picker-label">{tr(language, "week.targetColor")}</span>
+                                                        {targetEditDraft.goalId && (
+                                                            <span className="week-target-color-link-hint">
+                                                                {tr(language, "week.targetColorFromGoal")}
+                                                            </span>
+                                                        )}
                                                         <div className="week-target-color-grid" role="radiogroup" aria-label={tr(language, "week.targetColor")}>
                                                             {WEEKLY_TARGET_ACCENT_PALETTE.map((color, colorIndex) => {
-                                                                const selectedColor = normalizeWeeklyTargetAccent(targetEditDraft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT;
-                                                                const isSelected = selectedColor === color;
+                                                                const isSelected = selectedEditColor === color;
                                                                 return (
                                                                     <button
                                                                         key={color}
@@ -306,7 +375,11 @@ export function WeekTargetsSection({
                                                                         aria-checked={isSelected}
                                                                         className={`week-target-color-swatch ${isSelected ? "selected" : ""}`}
                                                                         style={{ "--week-target-accent": color } as CSSProperties}
-                                                                        onClick={() => setTargetEditDraft((prev) => ({ ...prev, color }))}
+                                                                        onClick={() => {
+                                                                            if (targetEditDraft.goalId) return;
+                                                                            setTargetEditDraft((prev) => ({ ...prev, color }));
+                                                                        }}
+                                                                        disabled={Boolean(targetEditDraft.goalId)}
                                                                         title={`${tr(language, "week.targetColor")} ${colorIndex + 1}`}
                                                                     >
                                                                         {isSelected && <Icon icon={Check} size={13} />}
@@ -317,7 +390,14 @@ export function WeekTargetsSection({
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <strong className="week-target-title">{target.title}</strong>
+                                                <>
+                                                    <strong className="week-target-title">{target.title}</strong>
+                                                    {linkedGoalTitle && (
+                                                        <span className="planner-meta-chip week-target-goal-chip">
+                                                            {tr(language, "week.linkedGoalPrefix", { goal: linkedGoalTitle })}
+                                                        </span>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     </div>

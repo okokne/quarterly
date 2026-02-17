@@ -8,6 +8,7 @@ import { ProgressRing } from "./ProgressRing";
 import { addDays, formatDate, getWeekIndexForDate, toIsoDate, uid } from "../utils";
 import { Icon } from "./ui/Icon";
 import { resolveHabitIcon } from "./ui/habitIcons";
+import { normalizeWeeklyTargetAccent, WEEKLY_TARGET_ACCENT_PALETTE } from "../utils/weeklyTargetAccents";
 
 type CycleDrawerProps = {
     open: boolean;
@@ -83,7 +84,8 @@ export function CycleDrawer({
             goals: [...prev.goals, {
                 id: uid(),
                 title: goalTitleDraft.trim(),
-                metric: goalMetricDraft.trim() || undefined
+                metric: goalMetricDraft.trim() || undefined,
+                color: WEEKLY_TARGET_ACCENT_PALETTE[prev.goals.length % WEEKLY_TARGET_ACCENT_PALETTE.length]
             }]
         }));
         setGoalTitleDraft("");
@@ -109,10 +111,32 @@ export function CycleDrawer({
 
     const deleteGoal = (goalId: Id) => {
         if (readOnly) return;
-        updateCycle((prev) => ({
-            ...prev,
-            goals: prev.goals.filter((goal) => goal.id !== goalId)
-        }));
+        updateCycle((prev) => {
+            const goalIndex = prev.goals.findIndex((goal) => goal.id === goalId);
+            const fallbackAccent = WEEKLY_TARGET_ACCENT_PALETTE[
+                (goalIndex >= 0 ? goalIndex : 0) % WEEKLY_TARGET_ACCENT_PALETTE.length
+            ];
+            const nextWeeklyTargets: Cycle["weeklyTargets"] = {};
+
+            Object.entries(prev.weeklyTargets).forEach(([weekKey, targets]) => {
+                const weekIndex = Number.parseInt(weekKey, 10);
+                if (!Number.isInteger(weekIndex)) return;
+                nextWeeklyTargets[weekIndex] = targets.map((target) => {
+                    if (target.goalId !== goalId) return target;
+                    return {
+                        ...target,
+                        goalId: undefined,
+                        color: normalizeWeeklyTargetAccent(target.color) ?? fallbackAccent
+                    };
+                });
+            });
+
+            return {
+                ...prev,
+                goals: prev.goals.filter((goal) => goal.id !== goalId),
+                weeklyTargets: nextWeeklyTargets
+            };
+        });
         if (editingGoalId === goalId) {
             setEditingGoalId(null);
         }

@@ -2,7 +2,11 @@ import { Dispatch, SetStateAction, useCallback } from "react";
 import { Cycle, DailyBlock, DailyTemplate, Id, WeeklyTarget } from "../types";
 import { uid } from "../utils";
 import { WeeklyTargetDraft } from "./useWeeklyTargets";
-import { DEFAULT_WEEKLY_TARGET_ACCENT } from "../utils/weeklyTargetAccents";
+import {
+    DEFAULT_WEEKLY_TARGET_ACCENT,
+    normalizeWeeklyTargetAccent,
+    WEEKLY_TARGET_ACCENT_PALETTE
+} from "../utils/weeklyTargetAccents";
 
 type GoalDraft = {
     title: string;
@@ -52,27 +56,55 @@ export function useAppActions({
 }: UseAppActionsParams) {
     const handleAddGoal = useCallback(() => {
         if (!cycle) return;
-        if (cycle.goals.length >= 3) return;
         if (!goalDraft.title.trim()) return;
 
         updateCycle((prev) => ({
             ...prev,
-            goals: [...prev.goals, { id: uid(), title: goalDraft.title.trim(), metric: goalDraft.metric.trim() || undefined }]
+            goals: [
+                ...prev.goals,
+                {
+                    id: uid(),
+                    title: goalDraft.title.trim(),
+                    metric: goalDraft.metric.trim() || undefined,
+                    color: WEEKLY_TARGET_ACCENT_PALETTE[prev.goals.length % WEEKLY_TARGET_ACCENT_PALETTE.length]
+                }
+            ]
         }));
         setGoalDraft({ title: "", metric: "" });
     }, [cycle, goalDraft, setGoalDraft, updateCycle]);
 
     const handleDeleteGoal = useCallback((goalId: Id) => {
-        updateCycle((prev) => ({
-            ...prev,
-            goals: prev.goals.filter((g) => g.id !== goalId)
-        }));
+        updateCycle((prev) => {
+            const goalIndex = prev.goals.findIndex((goal) => goal.id === goalId);
+            const fallbackAccent = WEEKLY_TARGET_ACCENT_PALETTE[
+                (goalIndex >= 0 ? goalIndex : 0) % WEEKLY_TARGET_ACCENT_PALETTE.length
+            ];
+            const nextWeeklyTargets: Cycle["weeklyTargets"] = {};
+            Object.entries(prev.weeklyTargets).forEach(([weekKey, targets]) => {
+                const weekIndex = Number.parseInt(weekKey, 10);
+                if (!Number.isInteger(weekIndex)) return;
+                nextWeeklyTargets[weekIndex] = targets.map((target) => {
+                    if (target.goalId !== goalId) return target;
+                    return {
+                        ...target,
+                        goalId: undefined,
+                        color: normalizeWeeklyTargetAccent(target.color) ?? fallbackAccent
+                    };
+                });
+            });
+
+            return {
+                ...prev,
+                goals: prev.goals.filter((g) => g.id !== goalId),
+                weeklyTargets: nextWeeklyTargets
+            };
+        });
     }, [updateCycle]);
 
     const handleAddWeeklyTarget = useCallback(() => {
         const didAdd = addWeeklyTarget(selectedWeek, targetDraft);
         if (didAdd) {
-            setTargetDraft({ title: "", target: 1, unit: "", color: DEFAULT_WEEKLY_TARGET_ACCENT });
+            setTargetDraft({ title: "", target: 1, unit: "", color: DEFAULT_WEEKLY_TARGET_ACCENT, goalId: "" });
         }
         return didAdd;
     }, [addWeeklyTarget, selectedWeek, setTargetDraft, targetDraft]);

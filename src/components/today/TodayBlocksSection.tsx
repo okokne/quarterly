@@ -5,7 +5,7 @@ import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
 import { getBlockCompletionState } from "../../regressionLogic";
-import { AppLanguage, DailyBlock, DailyTemplate, Id, TimeFormat, WeeklyTarget } from "../../types";
+import { AppLanguage, DailyBlock, DailyTemplate, Goal, Id, TimeFormat, WeeklyTarget } from "../../types";
 import { formatTime, toIsoDate } from "../../utils";
 import { buildWeeklyTargetAccentMap, DEFAULT_WEEKLY_TARGET_ACCENT } from "../../utils/weeklyTargetAccents";
 import { ToggleSwitch } from "../ToggleSwitch";
@@ -19,6 +19,7 @@ type TodayBlocksSectionProps = {
     timeFormat: TimeFormat;
     isArchiveView: boolean;
     selectedDate: string;
+    goals: Goal[];
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
@@ -131,6 +132,7 @@ export function TodayBlocksSection({
     timeFormat,
     isArchiveView,
     selectedDate,
+    goals,
     selectedWeekTargets,
     blockDraft,
     setBlockDraft,
@@ -226,7 +228,7 @@ export function TodayBlocksSection({
     );
 
     const targetMetaById = useMemo(() => {
-        const accentById = buildWeeklyTargetAccentMap(selectedWeekTargets);
+        const accentById = buildWeeklyTargetAccentMap(selectedWeekTargets, goals);
         const byId = new Map<string, { title: string; accent: string }>();
         selectedWeekTargets.forEach((target) => {
             byId.set(String(target.id), {
@@ -235,7 +237,7 @@ export function TodayBlocksSection({
             });
         });
         return byId;
-    }, [selectedWeekTargets]);
+    }, [goals, selectedWeekTargets]);
 
     const timelineBlocks = useMemo<TimelineBlock[]>(() => {
         return dayBlocks

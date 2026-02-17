@@ -1,12 +1,13 @@
 import { CSSProperties, useMemo } from "react";
 import { t as tr } from "../../i18n";
-import { AppLanguage, WeeklyTarget } from "../../types";
+import { AppLanguage, Goal, WeeklyTarget } from "../../types";
 import { buildWeeklyTargetAccentMap } from "../../utils/weeklyTargetAccents";
 import { ProgressBar } from "../ProgressBar";
 
 type TodayOpenTargetsSectionProps = {
     language: AppLanguage;
     selectedWeek: number;
+    goals: Goal[];
     selectedWeekTargets: WeeklyTarget[];
     getWeeklyRemaining: (weekIndex: number) => Array<WeeklyTarget & { remaining: number }>;
 };
@@ -14,12 +15,13 @@ type TodayOpenTargetsSectionProps = {
 export function TodayOpenTargetsSection({
     language,
     selectedWeek,
+    goals,
     selectedWeekTargets,
     getWeeklyRemaining
 }: TodayOpenTargetsSectionProps) {
     const targetAccentById = useMemo(
-        () => buildWeeklyTargetAccentMap(selectedWeekTargets),
-        [selectedWeekTargets]
+        () => buildWeeklyTargetAccentMap(selectedWeekTargets, goals),
+        [goals, selectedWeekTargets]
     );
 
     return (

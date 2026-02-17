@@ -15,6 +15,7 @@ type TargetDraft = {
     target: number;
     unit: string;
     color: string;
+    goalId: string;
 };
 
 export function useAppUiState() {
@@ -40,7 +41,8 @@ export function useAppUiState() {
         title: "",
         target: 1,
         unit: "",
-        color: DEFAULT_WEEKLY_TARGET_ACCENT
+        color: DEFAULT_WEEKLY_TARGET_ACCENT,
+        goalId: ""
     });
     const [blockDraft, setBlockDraft] = useState<DailyBlockDraft>(() => createDefaultDailyBlockDraft());
 

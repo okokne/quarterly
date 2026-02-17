@@ -104,6 +104,7 @@ export type Goal = {
     id: Id;
     title: string;
     metric?: string;
+    color?: string;
 };
 
 export type WeeklyTarget = {
@@ -113,6 +114,7 @@ export type WeeklyTarget = {
     unit?: string;
     manualAdjust: number;
     color?: string;
+    goalId?: Id;
     notes?: string;
 };
 

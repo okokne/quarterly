@@ -311,6 +311,7 @@ export function TodayTab({
                     timeFormat={timeFormat}
                     isArchiveView={isArchiveView}
                     selectedDate={selectedDate}
+                    goals={cycle.goals}
                     selectedWeekTargets={activeWeekTargets}
                     blockDraft={blockDraft}
                     setBlockDraft={setBlockDraft}
@@ -333,6 +334,7 @@ export function TodayTab({
                 <TodayOpenTargetsSection
                     language={language}
                     selectedWeek={selectedWeek}
+                    goals={cycle.goals}
                     selectedWeekTargets={activeWeekTargets}
                     getWeeklyRemaining={getWeeklyRemaining}
                 />

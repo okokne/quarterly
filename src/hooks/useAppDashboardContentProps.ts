@@ -25,6 +25,7 @@ type TargetDraft = {
     target: number;
     unit: string;
     color: string;
+    goalId: string;
 };
 
 type UseAppDashboardContentPropsParams = {

@@ -60,7 +60,8 @@ export function OnboardingPanel({
                             <input value={goalDraft.metric} onChange={(e) => setGoalDraft({ ...goalDraft, metric: e.target.value })} />
                         </label>
                     </div>
-                    <button className="primary" onClick={onAddGoal} disabled={cycle.goals.length >= 3}>{tr(language, "onboarding.goalAdd")}</button>
+                    <p className="muted">{tr(language, "onboarding.goalRecommendation")}</p>
+                    <button className="primary" onClick={onAddGoal}>{tr(language, "onboarding.goalAdd")}</button>
                     <div className="list">
                         {cycle.goals.map((goal) => (
                             <div key={goal.id} className="list-item">

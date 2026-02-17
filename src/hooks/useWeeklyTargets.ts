@@ -1,13 +1,18 @@
 import { Cycle, Id, WeeklyTarget } from "../types";
 import { clamp, uid } from "../utils";
 import { canReorderIndices } from "../regressionLogic";
-import { DEFAULT_WEEKLY_TARGET_ACCENT, normalizeWeeklyTargetAccent } from "../utils/weeklyTargetAccents";
+import {
+    buildGoalAccentMap,
+    DEFAULT_WEEKLY_TARGET_ACCENT,
+    normalizeWeeklyTargetAccent
+} from "../utils/weeklyTargetAccents";
 
 export type WeeklyTargetDraft = {
     title: string;
     target: number;
     unit: string;
     color: string;
+    goalId: string;
 };
 
 type UseWeeklyTargetsParams = {
@@ -21,6 +26,9 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
 
         updateCycle((prev) => {
             const targets = prev.weeklyTargets[selectedWeek] ?? [];
+            const linkedGoalId = draft.goalId.trim() || undefined;
+            const goalAccentById = buildGoalAccentMap(prev.goals);
+            const linkedGoalAccent = linkedGoalId ? goalAccentById.get(linkedGoalId) : undefined;
             const next = [
                 ...targets,
                 {
@@ -28,7 +36,8 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
                     title: draft.title.trim(),
                     target: clamp(draft.target || 1, 1, 9999),
                     unit: draft.unit.trim() || undefined,
-                    color: normalizeWeeklyTargetAccent(draft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT,
+                    color: linkedGoalAccent ?? normalizeWeeklyTargetAccent(draft.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT,
+                    goalId: linkedGoalId,
                     manualAdjust: 0
                 }
             ];
@@ -107,15 +116,20 @@ export function useWeeklyTargets({ cycle, updateCycle }: UseWeeklyTargetsParams)
         const previousTargets = cycle.weeklyTargets[selectedWeek - 1] ?? [];
         if (previousTargets.length === 0) return;
 
-        const copiedTargets: WeeklyTarget[] = previousTargets.map((target) => ({
-            id: crypto.randomUUID(),
-            title: target.title,
-            target: target.target,
-            unit: target.unit,
-            color: normalizeWeeklyTargetAccent(target.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT,
-            manualAdjust: 0,
-            notes: target.notes
-        }));
+        const goalAccentById = buildGoalAccentMap(cycle.goals);
+        const copiedTargets: WeeklyTarget[] = previousTargets.map((target) => {
+            const linkedGoalAccent = target.goalId ? goalAccentById.get(String(target.goalId)) : undefined;
+            return {
+                id: crypto.randomUUID(),
+                title: target.title,
+                target: target.target,
+                unit: target.unit,
+                color: linkedGoalAccent ?? normalizeWeeklyTargetAccent(target.color) ?? DEFAULT_WEEKLY_TARGET_ACCENT,
+                goalId: target.goalId,
+                manualAdjust: 0,
+                notes: target.notes
+            };
+        });
 
         updateCycle((prev) => ({
             ...prev,
