@@ -37,6 +37,7 @@
   --accent-soft: var(--accent-400);
   --accent-muted: var(--accent-300);
   --accent-bg: var(--accent-100);
+  --accent-bg-strong: var(--accent-200);
   --accent-hover: var(--accent-600);
   /* Keep for button hover */
 
@@ -50,6 +51,7 @@
 
   --success: var(--sage-500);
   --success-bg: var(--sage-100);
+  --success-bg-strong: var(--sage-200);
   --success-text: var(--sage-600);
   --success-border: var(--sage-200);
 
@@ -62,6 +64,7 @@
 
   --warning: var(--gold-500);
   --warning-bg: var(--gold-100);
+  --warning-bg-strong: var(--gold-200);
   --warning-text: var(--gold-600);
   --warning-border: var(--gold-200);
 
@@ -74,6 +77,7 @@
 
   --danger: var(--red-500);
   --danger-bg: var(--red-100);
+  --danger-bg-strong: var(--red-200);
   --danger-text: var(--red-600);
   --danger-border: var(--red-200);
   --danger-hover: #a65353;
@@ -152,6 +156,7 @@ body.dark-mode {
   --accent-soft: var(--accent-400);
   --accent-muted: var(--accent-300);
   --accent-bg: color-mix(in srgb, var(--accent-500) 18%, transparent);
+  --accent-bg-strong: color-mix(in srgb, var(--accent-500) 30%, transparent);
   --accent-hover: var(--accent-600);
 
   /* Reduced contrast text */
@@ -175,16 +180,19 @@ body.dark-mode {
   /* Semantic Pastels (Dark Mode adj.) */
   --success: #8cb59b;
   --success-bg: rgba(140, 181, 155, 0.2);
+  --success-bg-strong: rgba(140, 181, 155, 0.3);
   --success-text: #c4dece;
   --success-border: rgba(140, 181, 155, 0.32);
 
   --warning: #c4a369;
   --warning-bg: rgba(196, 163, 105, 0.2);
+  --warning-bg-strong: rgba(196, 163, 105, 0.3);
   --warning-text: #e4d2ad;
   --warning-border: rgba(196, 163, 105, 0.32);
 
   --danger: #c78282;
   --danger-bg: rgba(199, 130, 130, 0.2);
+  --danger-bg-strong: rgba(199, 130, 130, 0.3);
   --danger-text: #e8c0c0;
   --danger-border: rgba(199, 130, 130, 0.32);
 
@@ -1335,20 +1343,20 @@ p {
 
 .goal-tracking-badge.high {
   color: var(--success-text);
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  background: var(--success-bg-strong);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
 }
 
 .goal-tracking-badge.mid {
   color: var(--accent-600);
-  background: var(--accent-bg);
-  border-color: var(--accent-300);
+  background: var(--accent-bg-strong);
+  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
 }
 
 .goal-tracking-badge.low {
   color: var(--warning-text);
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
+  background: var(--warning-bg-strong);
+  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
 }
 
 .goal-week-grid {
@@ -1437,26 +1445,26 @@ p {
 }
 
 .goal-week-chip.high {
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  background: var(--success-bg-strong);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
   color: var(--success-text);
 }
 
 .goal-week-chip.mid {
-  background: var(--accent-bg);
-  border-color: var(--accent-300);
+  background: var(--accent-bg-strong);
+  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
   color: var(--accent-600);
 }
 
 .goal-week-chip.low {
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
+  background: var(--warning-bg-strong);
+  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
   color: var(--warning-text);
 }
 
 .goal-week-chip.zero {
-  background: var(--danger-bg);
-  border-color: var(--danger-border);
+  background: var(--danger-bg-strong);
+  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
   color: var(--danger-text);
   opacity: 1;
 }
@@ -1539,8 +1547,8 @@ p {
   font-size: 0.74rem;
   font-weight: 700;
   color: var(--accent-600);
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-300);
+  background: var(--accent-bg-strong);
+  border: 1px solid color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
   border-radius: var(--radius-chip);
   padding: 4px 10px;
 }
@@ -1810,8 +1818,8 @@ p {
   gap: 4px;
   padding: 3px 10px;
   border-radius: var(--radius-chip);
-  border: 1px solid var(--accent-300);
-  background: var(--accent-bg);
+  border: 1px solid color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
+  background: var(--accent-bg-strong);
   color: var(--accent-600);
   font-size: 0.75rem;
   font-weight: 600;
@@ -1828,20 +1836,20 @@ p {
 }
 
 .habit-success-rate.high {
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  background: var(--success-bg-strong);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
   color: var(--success-text);
 }
 
 .habit-success-rate.mid {
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
+  background: var(--warning-bg-strong);
+  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
   color: var(--warning-text);
 }
 
 .habit-success-rate.low {
-  background: var(--danger-bg);
-  border-color: var(--danger-border);
+  background: var(--danger-bg-strong);
+  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
   color: var(--danger-text);
 }
 
@@ -7225,8 +7233,8 @@ body.dark-mode .archive-banner {
 .goal-tracking-badge.mid,
 .habit-streak-badge,
 .stats-trend.neutral {
-  background: var(--accent-bg);
-  border-color: var(--accent-300);
+  background: var(--accent-bg-strong);
+  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
   color: var(--accent-600);
 }
 
@@ -7239,8 +7247,8 @@ body.dark-mode .archive-banner {
 .habit-success-rate.high,
 .stats-trend.up,
 .toggle-status.done {
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  background: var(--success-bg-strong);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
   color: var(--success-text);
 }
 
@@ -7250,8 +7258,8 @@ body.dark-mode .archive-banner {
 .badge.yellow,
 .habit-success-rate.mid,
 .stats-trend.mid {
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
+  background: var(--warning-bg-strong);
+  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
   color: var(--warning-text);
 }
 
@@ -7260,62 +7268,62 @@ body.dark-mode .archive-banner {
 .badge.red,
 .habit-success-rate.low,
 .stats-trend.down {
-  background: var(--danger-bg);
-  border-color: var(--danger-border);
+  background: var(--danger-bg-strong);
+  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
   color: var(--danger-text);
 }
 
 /* Keep goal progress status colors identical to app-wide semantic pastel tokens. */
 .goal-week-chip.high,
 .goal-tracking-badge.high {
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  background: var(--success-bg-strong);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
   color: var(--success-text);
 }
 
 .goal-week-chip.mid,
 .goal-tracking-badge.mid {
-  background: var(--accent-bg);
-  border-color: var(--accent-300);
+  background: var(--accent-bg-strong);
+  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
   color: var(--accent-600);
 }
 
 .goal-week-chip.low,
 .goal-tracking-badge.low {
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
+  background: var(--warning-bg-strong);
+  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
   color: var(--warning-text);
 }
 
 .goal-week-chip.zero {
-  background: var(--danger-bg);
-  border-color: var(--danger-border);
+  background: var(--danger-bg-strong);
+  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
   color: var(--danger-text);
 }
 
 /* Stats Habit Tracker: keep badge/chip colors aligned with semantic pastel tokens. */
 .stats-card .habit-mini-label,
 .stats-card .habit-streak-badge {
-  background: var(--accent-bg);
-  border-color: var(--accent-300);
+  background: var(--accent-bg-strong);
+  border-color: color-mix(in srgb, var(--accent-500) 52%, var(--accent-300));
   color: var(--accent-600);
 }
 
 .stats-card .habit-success-rate.high {
-  background: var(--success-bg);
-  border-color: var(--success-border);
+  background: var(--success-bg-strong);
+  border-color: color-mix(in srgb, var(--success) 42%, var(--success-border));
   color: var(--success-text);
 }
 
 .stats-card .habit-success-rate.mid {
-  background: var(--warning-bg);
-  border-color: var(--warning-border);
+  background: var(--warning-bg-strong);
+  border-color: color-mix(in srgb, var(--warning) 44%, var(--warning-border));
   color: var(--warning-text);
 }
 
 .stats-card .habit-success-rate.low {
-  background: var(--danger-bg);
-  border-color: var(--danger-border);
+  background: var(--danger-bg-strong);
+  border-color: color-mix(in srgb, var(--danger) 44%, var(--danger-border));
   color: var(--danger-text);
 }
 
