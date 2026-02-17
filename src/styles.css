@@ -42,10 +42,10 @@
 
   /* ─── Semantic Pastels ─── */
   /* Success: Sage Green */
-  --sage-100: #eef5f1;
-  --sage-200: #d6e7dd;
-  --sage-500: #77aa86;
-  --sage-600: #2f5942;
+  --sage-100: #dff3e7;
+  --sage-200: #c5e7d3;
+  --sage-500: #79b18f;
+  --sage-600: #2f5f46;
   /* Text */
 
   --success: var(--sage-500);
@@ -54,10 +54,10 @@
   --success-border: var(--sage-200);
 
   /* Warning: Warm Gold */
-  --gold-100: #fef8ea;
-  --gold-200: #f1e5c5;
-  --gold-500: #b49353;
-  --gold-600: #6f5729;
+  --gold-100: #fff1cc;
+  --gold-200: #f7df9e;
+  --gold-500: #c39d4b;
+  --gold-600: #73561f;
   /* Text */
 
   --warning: var(--gold-500);
@@ -66,10 +66,10 @@
   --warning-border: var(--gold-200);
 
   /* Danger: Soft Red */
-  --red-100: #f9eded;
-  --red-200: #efd9d9;
-  --red-500: #be6161;
-  --red-600: #7f3535;
+  --red-100: #ffe5e6;
+  --red-200: #f6c7cb;
+  --red-500: #c87881;
+  --red-600: #7f3b45;
   /* Text */
 
   --danger: var(--red-500);
@@ -79,10 +79,10 @@
   --danger-hover: #a65353;
 
   /* Weekly/Info Accent: muted blue */
-  --warm-blue-100: #edf2fb;
-  --warm-blue-200: #d9e5f8;
-  --warm-blue-500: #5f80b8;
-  --warm-blue-600: #34517f;
+  --warm-blue-100: #d9ebff;
+  --warm-blue-200: #bcd8fb;
+  --warm-blue-500: #6e95c9;
+  --warm-blue-600: #345a86;
   --warm-blue: var(--warm-blue-500);
   --warm-blue-bg: var(--warm-blue-100);
   --warm-blue-border: var(--warm-blue-200);

@@ -1,16 +1,16 @@
 import { Cycle, JournalContext } from "../types";
 
 export const JOURNAL_LABEL_COLOR_PALETTE = [
-    "#DDEBFF", // soft blue
-    "#DDF2E4", // soft green
-    "#E7E0FF", // soft purple
-    "#F7E5D2", // soft orange
-    "#F7DFE6", // soft red
-    "#D8EEF0", // teal
-    "#E1E6FB", // indigo
-    "#E3E9F2", // slate
-    "#F6E8C8", // amber
-    "#F5DDEA" // rose
+    "#D9EBFF", // soft blue
+    "#DFF3E7", // soft green
+    "#F5E2FE", // soft purple
+    "#FFE8D6", // soft orange
+    "#FFE5E6", // soft red
+    "#DEF2F0", // teal
+    "#E7E6FF", // indigo
+    "#E8EDF5", // slate
+    "#FFF1CC", // amber
+    "#FFE6F1"  // rose
 ];
 
 export const DEFAULT_JOURNAL_CONTEXTS: JournalContext[] = [

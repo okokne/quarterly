@@ -1,6 +1,17 @@
 import type { Goal, WeeklyTarget } from "../types";
 
 export const WEEKLY_TARGET_ACCENT_PALETTE = [
+    "#d9ebff",
+    "#dff3e7",
+    "#fff1cc",
+    "#f5e2fe",
+    "#ffe5e6",
+    "#ffe8d6",
+    "#def2f0",
+    "#e8edf5"
+] as const;
+
+const LEGACY_WEEKLY_TARGET_ACCENT_PALETTE = [
     "#9bb6ea",
     "#93c6b3",
     "#dec690",
@@ -19,6 +30,12 @@ export function normalizeWeeklyTargetAccent(color: unknown): string | undefined 
     if (!normalized) return undefined;
     if (WEEKLY_TARGET_ACCENT_PALETTE.includes(normalized as typeof WEEKLY_TARGET_ACCENT_PALETTE[number])) {
         return normalized;
+    }
+    const legacyIndex = LEGACY_WEEKLY_TARGET_ACCENT_PALETTE.indexOf(
+        normalized as typeof LEGACY_WEEKLY_TARGET_ACCENT_PALETTE[number]
+    );
+    if (legacyIndex >= 0) {
+        return WEEKLY_TARGET_ACCENT_PALETTE[legacyIndex];
     }
     return undefined;
 }
