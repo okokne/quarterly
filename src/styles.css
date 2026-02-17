@@ -49,11 +49,11 @@
   --sage-600: #2f5f46;
   /* Text */
 
-  --success: var(--sage-500);
-  --success-bg: var(--sage-100);
-  --success-bg-strong: var(--sage-200);
-  --success-text: var(--sage-600);
-  --success-border: var(--sage-200);
+  --success: var(--tone-green-700);
+  --success-bg: var(--tone-green-100);
+  --success-bg-strong: var(--tone-green-100);
+  --success-text: var(--tone-green-700);
+  --success-border: var(--tone-green-200);
 
   /* Warning: Warm Gold */
   --gold-100: #fff1cc;
@@ -62,11 +62,11 @@
   --gold-600: #73561f;
   /* Text */
 
-  --warning: var(--gold-500);
-  --warning-bg: var(--gold-100);
-  --warning-bg-strong: var(--gold-200);
-  --warning-text: var(--gold-600);
-  --warning-border: var(--gold-200);
+  --warning: var(--tone-yellow-700);
+  --warning-bg: var(--tone-yellow-100);
+  --warning-bg-strong: var(--tone-yellow-100);
+  --warning-text: var(--tone-yellow-700);
+  --warning-border: var(--tone-yellow-200);
 
   /* Danger: Soft Red */
   --red-100: #ffe5e6;
@@ -75,18 +75,18 @@
   --red-600: #7f3b45;
   /* Text */
 
-  --danger: var(--red-500);
-  --danger-bg: var(--red-100);
-  --danger-bg-strong: var(--red-200);
-  --danger-text: var(--red-600);
-  --danger-border: var(--red-200);
+  --danger: var(--tone-red-700);
+  --danger-bg: var(--tone-red-100);
+  --danger-bg-strong: var(--tone-red-100);
+  --danger-text: var(--tone-red-700);
+  --danger-border: var(--tone-red-200);
   --danger-hover: #a65353;
 
   /* Weekly/Info Accent: muted blue */
   --warm-blue-100: #d9ebff;
   --warm-blue-200: #bcd8fb;
-  --warm-blue-500: #6e95c9;
-  --warm-blue-600: #345a86;
+  --warm-blue-500: var(--tone-blue-700);
+  --warm-blue-600: var(--tone-blue-700);
   --warm-blue: var(--warm-blue-500);
   --warm-blue-bg: var(--warm-blue-100);
   --warm-blue-border: var(--warm-blue-200);
@@ -148,26 +148,26 @@
   --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.065);
 
   /* Component color tokens */
-  --surface-soft: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
-  --surface-soft-hover: color-mix(in srgb, var(--bg-hover) 86%, var(--bg-card));
+  --surface-soft: color-mix(in srgb, var(--bg-subtle) 90%, var(--bg-card));
+  --surface-soft-hover: color-mix(in srgb, var(--bg-hover) 92%, var(--bg-card));
   --surface-soft-border: var(--border);
   --surface-soft-border-hover: color-mix(in srgb, var(--border) 66%, var(--text-light));
   --button-primary-bg: var(--accent-500);
   --button-primary-bg-hover: var(--accent-600);
-  --button-primary-border: color-mix(in srgb, var(--accent-500) 76%, var(--border));
+  --button-primary-border: var(--accent-600);
   --button-primary-text: var(--text-on-accent);
   --chip-bg: var(--surface-soft);
-  --chip-border: var(--surface-soft-border);
+  --chip-border: color-mix(in srgb, var(--border) 84%, var(--text-light));
   --chip-text: var(--text-secondary);
   --chip-hover-bg: var(--surface-soft-hover);
   --chip-hover-border: var(--surface-soft-border-hover);
   --chip-hover-text: var(--text-primary);
-  --chip-accent-bg: var(--accent-bg-strong);
-  --chip-accent-border: var(--accent-500);
+  --chip-accent-bg: var(--accent-100);
+  --chip-accent-border: var(--accent-300);
   --chip-accent-text: var(--accent-600);
-  --progress-track-bg: color-mix(in srgb, var(--bg-subtle) 86%, var(--bg-card));
-  --progress-track-border: color-mix(in srgb, var(--border) 86%, transparent);
-  --progress-fill-start: var(--accent-400);
+  --progress-track-bg: color-mix(in srgb, var(--accent-100) 56%, var(--bg-card));
+  --progress-track-border: color-mix(in srgb, var(--accent-300) 62%, var(--border));
+  --progress-fill-start: var(--accent-500);
   --progress-fill-end: var(--accent-600);
   --overlay-scrim: rgba(45, 42, 38, 0.4);
   --overlay-scrim-soft: rgba(45, 42, 38, 0.34);
@@ -231,28 +231,28 @@ body.dark-mode {
   --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.32);
 
   /* Semantic Pastels (Dark Mode adj.) */
-  --success: #8cb59b;
-  --success-bg: rgba(140, 181, 155, 0.2);
-  --success-bg-strong: rgba(140, 181, 155, 0.34);
-  --success-text: #c9e2d2;
-  --success-border: rgba(140, 181, 155, 0.42);
+  --success: #cbe6d6;
+  --success-bg: rgba(127, 178, 146, 0.22);
+  --success-bg-strong: rgba(127, 178, 146, 0.3);
+  --success-text: #cbe6d6;
+  --success-border: rgba(127, 178, 146, 0.46);
 
-  --warning: #c4a369;
-  --warning-bg: rgba(196, 163, 105, 0.2);
-  --warning-bg-strong: rgba(196, 163, 105, 0.34);
+  --warning: #e8d4ab;
+  --warning-bg: rgba(196, 163, 105, 0.22);
+  --warning-bg-strong: rgba(196, 163, 105, 0.3);
   --warning-text: #e8d4ab;
-  --warning-border: rgba(196, 163, 105, 0.42);
+  --warning-border: rgba(196, 163, 105, 0.46);
 
-  --danger: #c78282;
-  --danger-bg: rgba(199, 130, 130, 0.2);
-  --danger-bg-strong: rgba(199, 130, 130, 0.34);
+  --danger: #ecc7c7;
+  --danger-bg: rgba(199, 130, 130, 0.22);
+  --danger-bg-strong: rgba(199, 130, 130, 0.3);
   --danger-text: #ecc7c7;
-  --danger-border: rgba(199, 130, 130, 0.42);
+  --danger-border: rgba(199, 130, 130, 0.46);
 
-  --warm-blue-100: rgba(123, 149, 192, 0.18);
-  --warm-blue-200: rgba(123, 149, 192, 0.34);
-  --warm-blue-500: #88a4d2;
-  --warm-blue-600: #c2d1ea;
+  --warm-blue-100: rgba(120, 162, 226, 0.2);
+  --warm-blue-200: rgba(120, 162, 226, 0.38);
+  --warm-blue-500: #bfd8fb;
+  --warm-blue-600: #bfd8fb;
   --warm-blue: var(--warm-blue-500);
   --warm-blue-bg: var(--warm-blue-100);
   --warm-blue-border: var(--warm-blue-200);
@@ -290,20 +290,20 @@ body.dark-mode {
   --surface-soft-border-hover: color-mix(in srgb, var(--border) 76%, var(--text-light));
   --button-primary-bg: var(--accent-500);
   --button-primary-bg-hover: var(--accent-600);
-  --button-primary-border: color-mix(in srgb, var(--accent-500) 70%, var(--border));
+  --button-primary-border: color-mix(in srgb, var(--accent-500) 86%, var(--border));
   --button-primary-text: var(--text-on-accent);
   --chip-bg: var(--surface-soft);
-  --chip-border: var(--surface-soft-border);
+  --chip-border: color-mix(in srgb, var(--border) 88%, var(--text-light));
   --chip-text: var(--text-secondary);
   --chip-hover-bg: var(--surface-soft-hover);
   --chip-hover-border: var(--surface-soft-border-hover);
   --chip-hover-text: var(--text-primary);
-  --chip-accent-bg: var(--accent-bg-strong);
-  --chip-accent-border: var(--accent-500);
+  --chip-accent-bg: color-mix(in srgb, var(--accent-500) 20%, transparent);
+  --chip-accent-border: color-mix(in srgb, var(--accent-500) 58%, var(--border));
   --chip-accent-text: var(--accent-600);
-  --progress-track-bg: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
-  --progress-track-border: color-mix(in srgb, var(--border) 82%, transparent);
-  --progress-fill-start: var(--accent-400);
+  --progress-track-bg: color-mix(in srgb, var(--accent-500) 12%, var(--bg-subtle));
+  --progress-track-border: color-mix(in srgb, var(--accent-500) 34%, var(--border));
+  --progress-fill-start: var(--accent-500);
   --progress-fill-end: var(--accent-600);
   --overlay-scrim: rgba(0, 0, 0, 0.5);
   --overlay-scrim-soft: rgba(0, 0, 0, 0.44);
@@ -411,8 +411,8 @@ body {
   width: 100%;
   min-height: 44px;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--accent-500) 42%, transparent);
-  background: linear-gradient(140deg, var(--accent-500), color-mix(in srgb, var(--accent-500) 82%, var(--accent-400)));
+  border: 1px solid var(--button-primary-border);
+  background: var(--button-primary-bg);
   color: var(--button-primary-text);
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -420,11 +420,13 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-500) 22%, transparent);
+  box-shadow: var(--shadow-sm);
 }
 
 .app-sidebar-quick-btn:hover {
-  background: linear-gradient(140deg, var(--accent-600), var(--accent-500));
+  background: var(--button-primary-bg-hover);
+  border-color: var(--button-primary-border);
+  box-shadow: var(--shadow-md);
 }
 
 .app-sidebar-quick-menu {
@@ -3960,9 +3962,9 @@ button.ghost-danger:hover {
 }
 
 .journal-filter-chip.journal-label-chip {
-  --journal-label-surface: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-100)) 78%, var(--bg-card));
-  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 72%, var(--border));
-  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 50%, var(--text-primary));
+  --journal-label-surface: var(--journal-context-bg, var(--tone-slate-100));
+  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 84%, var(--text-light));
+  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 22%, var(--text-primary));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3975,13 +3977,13 @@ button.ghost-danger:hover {
 
 .journal-filter-chip.journal-label-chip:hover {
   background: color-mix(in srgb, var(--journal-label-surface) 90%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--journal-label-border) 82%, var(--journal-context-bg, var(--accent-300)));
+  border-color: color-mix(in srgb, var(--journal-label-border) 92%, var(--text-light));
   color: var(--journal-label-text);
 }
 
 .journal-filter-chip.journal-label-chip.active {
-  background: color-mix(in srgb, var(--journal-label-surface) 84%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 78%, var(--border));
+  background: color-mix(in srgb, var(--journal-label-surface) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 92%, var(--text-light));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--journal-context-bg, var(--accent-300)) 30%, transparent);
   color: var(--journal-label-text);
 }
@@ -4141,9 +4143,9 @@ button.ghost-danger:hover {
 }
 
 .journal-entry-meta-row .journal-entry-context {
-  --journal-label-surface: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-100)) 78%, var(--bg-card));
-  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 72%, var(--border));
-  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 50%, var(--text-primary));
+  --journal-label-surface: var(--journal-context-bg, var(--tone-slate-100));
+  --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 84%, var(--text-light));
+  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 22%, var(--text-primary));
   display: inline-flex;
   align-items: center;
   min-height: 22px;
@@ -7456,18 +7458,14 @@ body.dark-mode .archive-banner {
   min-height: 42px;
   border-radius: 11px;
   border-color: var(--button-primary-border);
-  background: linear-gradient(145deg,
-      var(--button-primary-bg),
-      var(--button-primary-bg-hover));
+  background: var(--button-primary-bg);
   color: var(--button-primary-text);
   box-shadow: var(--shadow-sm);
 }
 
 .app-sidebar-quick-btn:hover {
   filter: none;
-  background: linear-gradient(145deg,
-      var(--button-primary-bg-hover),
-      var(--button-primary-bg));
+  background: var(--button-primary-bg-hover);
   box-shadow: var(--shadow-md);
 }
 
