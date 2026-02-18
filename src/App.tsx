@@ -733,6 +733,7 @@ export default function App() {
         <QuickNoteCapture
           cycle={cycle}
           language={language}
+          dateFormat={dateFormat}
           readOnly={isArchiveView}
           currentWeekIndex={todayWeekIndex}
           open={showQuickCapture}

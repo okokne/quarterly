@@ -439,6 +439,29 @@ export function JournalView({
 
             {readOnly && <p className="readonly-note">{tr(language, "app.archiveReadOnlyMode")}</p>}
 
+            {showFilters && (
+                <JournalFeedToolbar
+                    language={language}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    typeFilter={typeFilter}
+                    setTypeFilter={setTypeFilter}
+                    typeOptions={typeOptions}
+                    signalFilter={signalFilter}
+                    setSignalFilter={setSignalFilter}
+                    signalOptions={signalOptions}
+                    toggleSignalSelection={toggleSignalSelection}
+                    rangeFilter={rangeFilter}
+                    setRangeFilter={setRangeFilter}
+                    rangeOptions={rangeOptions}
+                    contextFilter={contextFilter}
+                    setContextFilter={setContextFilter}
+                    contextOptions={contextOptions}
+                    toggleContextSelection={toggleContextSelection}
+                    onClose={() => setShowFilters(false)}
+                />
+            )}
+
             <JournalComposer
                 cycle={cycle}
                 language={language}
@@ -476,29 +499,6 @@ export function JournalView({
                 composerSubmitDisabled={composerSubmitDisabled}
                 handleCreateEntry={handleCreateEntry}
             />
-
-            {showFilters && (
-                <JournalFeedToolbar
-                    language={language}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    typeFilter={typeFilter}
-                    setTypeFilter={setTypeFilter}
-                    typeOptions={typeOptions}
-                    signalFilter={signalFilter}
-                    setSignalFilter={setSignalFilter}
-                    signalOptions={signalOptions}
-                    toggleSignalSelection={toggleSignalSelection}
-                    rangeFilter={rangeFilter}
-                    setRangeFilter={setRangeFilter}
-                    rangeOptions={rangeOptions}
-                    contextFilter={contextFilter}
-                    setContextFilter={setContextFilter}
-                    contextOptions={contextOptions}
-                    toggleContextSelection={toggleContextSelection}
-                    onClose={() => setShowFilters(false)}
-                />
-            )}
 
             <JournalFeedList
                 cycle={cycle}

@@ -232,7 +232,7 @@ export function SettingsSyncSection({
                         <p className="muted">{tr(language, "settings.downloadMyDataHint")}</p>
                     </div>
                     <button className="button" onClick={onDownloadMyData}>
-                        {tr(language, "settings.downloadMyData")}
+                        {tr(language, "settings.downloadSnapshot")}
                     </button>
                 </div>
 

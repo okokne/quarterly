@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { SquarePen } from "./ui/icons";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronRight, SquarePen } from "./ui/icons";
 import { t as tr } from "../i18n";
-import { AppLanguage, Cycle } from "../types";
+import { AppLanguage, Cycle, DateFormat } from "../types";
 import {
     createJournalQuickReviewEntry,
+    formatDate,
     getWritableReviewEntries,
     resolveDefaultJournalContextId,
     toIsoDate
@@ -13,6 +14,7 @@ import { Icon } from "./ui/Icon";
 type QuickNoteCaptureProps = {
     cycle: Cycle;
     language: AppLanguage;
+    dateFormat: DateFormat;
     readOnly: boolean;
     currentWeekIndex: number;
     open: boolean;
@@ -24,6 +26,7 @@ type QuickNoteCaptureProps = {
 export function QuickNoteCapture({
     cycle,
     language,
+    dateFormat,
     readOnly,
     currentWeekIndex,
     open,
@@ -35,18 +38,28 @@ export function QuickNoteCapture({
     const [content, setContent] = useState("");
     const defaultContextId = useMemo(() => resolveDefaultJournalContextId(cycle) ?? "", [cycle]);
     const [contextId, setContextId] = useState(defaultContextId);
+    const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+    const contextPickerRef = useRef<HTMLDivElement | null>(null);
+    const contextOptions = cycle.journalContexts ?? [];
+    const selectedContext = contextOptions.find((context) => context.id === contextId) ?? null;
+    const todayLabel = useMemo(() => formatDate(toIsoDate(new Date()), dateFormat, language), [dateFormat, language]);
 
     useEffect(() => {
         if (!open) return;
         setTitle("");
         setContent("");
         setContextId(defaultContextId);
+        setIsContextMenuOpen(false);
     }, [defaultContextId, open]);
 
     useEffect(() => {
         if (!open) return;
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
+                if (isContextMenuOpen) {
+                    setIsContextMenuOpen(false);
+                    return;
+                }
                 setOpen(false);
             }
         };
@@ -54,7 +67,20 @@ export function QuickNoteCapture({
         return () => {
             document.removeEventListener("keydown", onKeyDown);
         };
-    }, [open, setOpen]);
+    }, [isContextMenuOpen, open, setOpen]);
+
+    useEffect(() => {
+        if (!open || !isContextMenuOpen) return;
+        const onMouseDown = (event: MouseEvent) => {
+            if (!contextPickerRef.current?.contains(event.target as Node)) {
+                setIsContextMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", onMouseDown);
+        return () => {
+            document.removeEventListener("mousedown", onMouseDown);
+        };
+    }, [isContextMenuOpen, open]);
 
     const submitDisabled = !title.trim() && !content.trim();
 
@@ -116,17 +142,66 @@ export function QuickNoteCapture({
                         </label>
                         <label>
                             {tr(language, "quickNote.context")}
-                            <select
-                                value={contextId}
-                                onChange={(event) => setContextId(event.target.value)}
-                            >
-                                <option value="">{tr(language, "journal.contextNone")}</option>
-                                {(cycle.journalContexts ?? []).map((context) => (
-                                    <option key={context.id} value={context.id}>{context.label}</option>
-                                ))}
-                            </select>
+                            <div className="quick-note-context-picker" ref={contextPickerRef}>
+                                <button
+                                    type="button"
+                                    className={`quick-note-context-trigger ${isContextMenuOpen ? "open" : ""}`}
+                                    onClick={() => setIsContextMenuOpen((prev) => !prev)}
+                                    aria-haspopup="listbox"
+                                    aria-expanded={isContextMenuOpen}
+                                >
+                                    <span className="quick-note-context-trigger-label">
+                                        {selectedContext?.label ?? tr(language, "journal.contextNone")}
+                                    </span>
+                                    <span className="quick-note-context-trigger-right">
+                                        <span
+                                            className={`quick-note-context-dot ${selectedContext ? "" : "none"}`.trim()}
+                                            style={selectedContext
+                                                ? ({ "--quick-note-context-color": selectedContext.color } as CSSProperties)
+                                                : undefined}
+                                            aria-hidden="true"
+                                        />
+                                        <span className={`quick-note-context-caret ${isContextMenuOpen ? "open" : ""}`} aria-hidden="true">
+                                            <Icon icon={ChevronRight} size={12} />
+                                        </span>
+                                    </span>
+                                </button>
+                                {isContextMenuOpen && (
+                                    <div className="quick-note-context-menu" role="listbox" aria-label={tr(language, "quickNote.context")}>
+                                        <button
+                                            type="button"
+                                            className={`quick-note-context-option ${contextId === "" ? "active" : ""}`}
+                                            onClick={() => {
+                                                setContextId("");
+                                                setIsContextMenuOpen(false);
+                                            }}
+                                        >
+                                            <span>{tr(language, "journal.contextNone")}</span>
+                                            <span className="quick-note-context-dot none" aria-hidden="true" />
+                                        </button>
+                                        {contextOptions.map((context) => (
+                                            <button
+                                                key={context.id}
+                                                type="button"
+                                                className={`quick-note-context-option ${contextId === context.id ? "active" : ""}`}
+                                                onClick={() => {
+                                                    setContextId(context.id);
+                                                    setIsContextMenuOpen(false);
+                                                }}
+                                            >
+                                                <span>{context.label}</span>
+                                                <span
+                                                    className="quick-note-context-dot"
+                                                    style={{ "--quick-note-context-color": context.color } as CSSProperties}
+                                                    aria-hidden="true"
+                                                />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </label>
-                        <p className="muted quick-note-meta">{tr(language, "quickNote.meta", { week: currentWeekIndex })}</p>
+                        <p className="muted quick-note-meta">{tr(language, "quickNote.meta", { date: todayLabel, week: currentWeekIndex })}</p>
                         <div className="modal-actions">
                             <button className="primary" onClick={handleSave} disabled={readOnly || submitDisabled}>
                                 {tr(language, "quickNote.save")}

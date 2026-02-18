@@ -1170,7 +1170,7 @@ p {
 .stats-bar-fill {
   width: 100%;
   height: var(--bar-progress, 0%);
-  background: var(--accent);
+  background: var(--button-primary-bg);
   border-radius: var(--radius-sm);
   /* 8px */
   transition: height 0.4s ease, width 0.4s ease;
@@ -1267,7 +1267,7 @@ p {
 
 .stats-goal-card.has-goal-accent {
   border-color: color-mix(in srgb, var(--goal-accent) 34%, var(--border));
-  background: color-mix(in srgb, var(--goal-accent) 10%, var(--bg-card));
+  background: var(--bg-card);
 }
 
 .stats-goal-index {
@@ -1282,13 +1282,13 @@ p {
   font-size: var(--type-badge);
   font-weight: 600;
   color: color-mix(in srgb, var(--goal-accent) 86%, var(--text-primary));
-  background: color-mix(in srgb, var(--goal-accent) 52%, var(--bg-card));
+  background: transparent;
   flex-shrink: 0;
 }
 
 .stats-goal-card.has-goal-accent .stats-goal-index {
   border-color: color-mix(in srgb, var(--goal-accent) 66%, var(--border));
-  background: color-mix(in srgb, var(--goal-accent) 54%, var(--bg-card));
+  background: transparent;
   color: color-mix(in srgb, var(--goal-accent) 88%, var(--text-primary));
 }
 
@@ -1314,7 +1314,7 @@ p {
   padding: 4px 10px;
   border-radius: var(--radius-chip);
   border: 1px solid color-mix(in srgb, var(--goal-accent) 40%, var(--border));
-  background: color-mix(in srgb, var(--goal-accent) 14%, var(--bg-card));
+  background: transparent;
   color: color-mix(in srgb, var(--goal-accent) 84%, var(--text-primary));
   font-weight: 500;
   white-space: nowrap;
@@ -2886,6 +2886,7 @@ button.ghost-danger:hover {
 
 .today-open-target-item {
   gap: 10px;
+  padding: 12px 14px;
 }
 
 .today-open-target-chip {
@@ -2912,6 +2913,46 @@ button.ghost-danger:hover {
   position: relative;
   overflow: hidden;
   transition: border-color var(--transition-fast), background-color var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.today-list-sections .planner-block-card {
+  padding: 12px 14px;
+  gap: 12px;
+}
+
+.today-list-sections .planner-block-card::before {
+  top: 8px;
+  bottom: 8px;
+}
+
+.today-list-sections .block-content {
+  gap: 6px;
+}
+
+.today-list-sections .planner-block-header {
+  gap: 8px;
+}
+
+.today-list-sections .planner-block-heading {
+  line-height: 1.2;
+}
+
+.today-list-sections .planner-meta-row {
+  min-height: 20px;
+  gap: 6px;
+}
+
+.today-list-sections .planner-meta-chip {
+  min-height: 20px;
+  padding: 1px 7px;
+}
+
+.today-list-sections .planner-block-progress {
+  gap: 4px;
+}
+
+.today-list-sections .block-counter {
+  gap: 7px;
 }
 
 .planner-block-card::before {
@@ -3360,7 +3401,7 @@ button.ghost-danger:hover {
 .week-goal-row,
 .week-target-row {
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
@@ -3444,17 +3485,20 @@ button.ghost-danger:hover {
   align-items: flex-start;
   width: 100%;
   min-width: 0;
+  gap: 4px;
 }
 
 .week-target-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
 }
 
 .week-target-item {
   --week-target-accent: var(--accent-300);
+  padding: 12px 14px;
+  gap: 8px;
 }
 
 .week-target-item.has-target-accent {
@@ -3561,14 +3605,22 @@ button.ghost-danger:hover {
 }
 
 .week-target-stepper button {
-  width: 32px;
-  min-width: 32px;
-  height: 32px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
   padding: 0;
   border-radius: var(--radius-chip);
   border: 1px solid var(--border);
   background: var(--bg-card);
   font-weight: 700;
+}
+
+.week-target-item .progress-bar-wrapper {
+  padding-top: 12px;
+}
+
+.week-target-item .progress-bar {
+  height: 8px;
 }
 
 .week-target-stepper button:hover {
@@ -3710,7 +3762,7 @@ button.ghost-danger:hover {
   justify-content: center;
   padding: 2px 8px;
   border-color: color-mix(in srgb, var(--goal-accent, var(--accent-300)) 70%, var(--border));
-  background: color-mix(in srgb, var(--goal-accent, var(--accent-200)) 62%, var(--bg-card));
+  background: transparent;
   color: color-mix(in srgb, var(--goal-accent, var(--accent-600)) 84%, var(--text-primary));
 }
 
@@ -3796,8 +3848,9 @@ button.ghost-danger:hover {
 }
 
 .week-target-progress-simple {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .week-review-main-card {
@@ -3964,7 +4017,7 @@ button.ghost-danger:hover {
 .journal-filter-chip.journal-label-chip {
   --journal-label-surface: var(--journal-context-bg, var(--tone-slate-100));
   --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 84%, var(--text-light));
-  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 22%, var(--text-primary));
+  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 48%, #1f1b18);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4145,12 +4198,12 @@ button.ghost-danger:hover {
 .journal-entry-meta-row .journal-entry-context {
   --journal-label-surface: var(--journal-context-bg, var(--tone-slate-100));
   --journal-label-border: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-200)) 84%, var(--text-light));
-  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 22%, var(--text-primary));
+  --journal-label-text: color-mix(in srgb, var(--journal-context-bg, var(--tone-slate-700)) 48%, #1f1b18);
   display: inline-flex;
   align-items: center;
   min-height: 22px;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-chip);
   border: 1px solid var(--journal-label-border);
   background: var(--journal-label-surface);
   color: var(--journal-label-text);
@@ -4332,6 +4385,122 @@ button.ghost-danger:hover {
 .quick-note-meta {
   margin-top: -2px;
   font-size: 0.8rem;
+}
+
+.quick-note-context-picker {
+  position: relative;
+}
+
+.quick-note-context-trigger {
+  width: 100%;
+  min-height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.quick-note-context-trigger:hover {
+  border-color: color-mix(in srgb, var(--accent-300) 62%, var(--border));
+}
+
+.quick-note-context-trigger.open {
+  border-color: color-mix(in srgb, var(--accent-300) 76%, var(--border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-300) 20%, transparent);
+}
+
+.quick-note-context-trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.quick-note-context-trigger-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.quick-note-context-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.quick-note-context-caret.open {
+  transform: rotate(90deg);
+  color: var(--text-secondary);
+}
+
+.quick-note-context-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, var(--text-light));
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+  max-height: 220px;
+  overflow: auto;
+  padding: 4px;
+  display: grid;
+  gap: 2px;
+}
+
+.quick-note-context-option {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  color: var(--text-primary);
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.quick-note-context-option:hover {
+  background: color-mix(in srgb, var(--bg-hover) 82%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--border) 90%, var(--text-light));
+}
+
+.quick-note-context-option.active {
+  border-color: color-mix(in srgb, var(--accent-300) 70%, var(--border));
+  background: color-mix(in srgb, var(--accent-100) 40%, var(--bg-card));
+}
+
+.quick-note-context-dot {
+  --quick-note-context-color: var(--text-muted);
+  width: 10px;
+  min-width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--quick-note-context-color) 70%, var(--border));
+  background: var(--quick-note-context-color);
+}
+
+.quick-note-context-dot.none {
+  border-color: color-mix(in srgb, var(--border) 84%, var(--text-light));
+  background: transparent;
 }
 
 .warning-text {
@@ -4925,7 +5094,7 @@ button.ghost-danger:hover {
   --goal-accent: var(--accent-300);
   border-radius: var(--radius-md);
   border: 1px solid color-mix(in srgb, var(--goal-accent) 34%, var(--border));
-  background: color-mix(in srgb, var(--goal-accent) 10%, var(--bg-card));
+  background: var(--bg-card);
   padding: 11px;
   display: grid;
   gap: 4px;
@@ -5845,17 +6014,21 @@ body.dark-mode .today-hero-watermark {
   border-radius: 10px;
   border: 1px solid var(--timeline-block-accent, var(--accent-300));
   border-left: 3px solid var(--timeline-block-accent, var(--accent-300));
-  background: var(--timeline-block-accent, var(--accent-100));
+  background: color-mix(in srgb, var(--bg-card) 94%, var(--bg-subtle));
   padding: 7px 10px;
   display: flex;
   align-items: center;
   gap: 8px;
   text-align: left;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .today-untimed-item:hover {
   border-color: var(--timeline-block-accent, var(--accent-300));
-  background: var(--timeline-block-accent, var(--accent-200));
+  background: color-mix(in srgb, var(--bg-hover) 76%, var(--bg-card));
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .today-untimed-item.has-target {
@@ -6203,7 +6376,7 @@ body.dark-mode .today-hero-watermark {
     height: 100%;
     width: var(--bar-progress, 0%);
     border-radius: 999px;
-    background: var(--accent);
+    background: var(--button-primary-bg);
   }
 
   .stats-bar-value {
@@ -6975,11 +7148,22 @@ textarea:focus-visible {
   margin-top: 12px;
   padding: 12px;
   border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
-  background: color-mix(in srgb, var(--danger-bg) 65%, transparent);
+  border: 1px solid color-mix(in srgb, #dc2626 38%, transparent);
+  background: color-mix(in srgb, #fee2e2 86%, var(--bg-card));
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.settings-danger-zone .button.danger {
+  background: #dc2626;
+  border-color: #b91c1c;
+  color: #fff;
+}
+
+.settings-danger-zone .button.danger:hover {
+  background: #b91c1c;
+  border-color: #991b1b;
 }
 
 @media (max-width: 680px) {
@@ -7085,22 +7269,31 @@ textarea:focus-visible {
 
 .settings-label-color-grid {
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(var(--settings-color-count, 8), minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
 }
 
 .settings-label-color-dot {
-  width: 22px;
-  min-width: 22px;
-  height: 22px;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 1 / 1;
   padding: 0;
-  border-radius: 999px;
+  border-radius: 50%;
   border: 1px solid color-mix(in srgb, var(--text-muted) 35%, transparent);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.settings-label-color-grid-full .settings-label-color-dot {
+  max-width: 30px;
+  justify-self: center;
 }
 
 .settings-label-color-dot.selected {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 52%, transparent);
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  transform: scale(1.04);
 }
 
 .journal-nav-focus {
@@ -7650,7 +7843,7 @@ body.dark-mode .archive-banner {
   padding: 14px 15px;
   border-radius: 12px;
   gap: 5px;
-  background: color-mix(in srgb, var(--goal-accent, var(--accent-200)) 14%, var(--bg-card));
+  background: var(--bg-card);
 }
 
 .plan-goal-chip strong {
@@ -7682,9 +7875,7 @@ body.dark-mode .archive-banner {
 }
 
 .stats-bar-fill {
-  background: linear-gradient(180deg,
-      color-mix(in srgb, var(--accent-400) 86%, var(--accent-200)),
-      color-mix(in srgb, var(--accent-600) 84%, var(--accent-500)));
+  background: var(--button-primary-bg);
 }
 
 .stats-big-number {

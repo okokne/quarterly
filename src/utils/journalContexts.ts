@@ -1,5 +1,5 @@
 import { Cycle, JournalContext } from "../types";
-import { WEEKLY_TARGET_ACCENT_PALETTE } from "./weeklyTargetAccents";
+import { normalizeWeeklyTargetAccent, WEEKLY_TARGET_ACCENT_PALETTE } from "./weeklyTargetAccents";
 
 export const JOURNAL_LABEL_COLOR_PALETTE: string[] = [...WEEKLY_TARGET_ACCENT_PALETTE];
 
@@ -27,6 +27,8 @@ function normalizeContextLabel(value: unknown): string | null {
 function normalizeContextColor(value: unknown): string | null {
     if (typeof value !== "string") return null;
     const normalized = value.trim().toLowerCase();
+    const migratedAccent = normalizeWeeklyTargetAccent(normalized);
+    if (migratedAccent) return migratedAccent;
     if (!/^#([0-9a-fA-F]{6})$/.test(normalized)) return null;
     return normalized;
 }

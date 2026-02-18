@@ -76,7 +76,8 @@ export function useDailyBlocks({
 
         updateCycle((prev) => {
             const blocks = prev.dailyPlans[date] ?? [];
-            return { ...prev, dailyPlans: { ...prev.dailyPlans, [date]: [...blocks, newBlock] } };
+            const nextBlocks = isFlexible ? [newBlock, ...blocks] : [...blocks, newBlock];
+            return { ...prev, dailyPlans: { ...prev.dailyPlans, [date]: nextBlocks } };
         });
 
         return true;

@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Pencil, Trash2, X } from "../ui/icons";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle } from "../../types";
 import { JOURNAL_LABEL_COLOR_PALETTE, pickNextJournalContextColor, uid } from "../../utils";
+import { normalizeWeeklyTargetAccent } from "../../utils/weeklyTargetAccents";
 import { Icon } from "../ui/Icon";
 
 type SettingsJournalContextsSectionProps = {
@@ -26,6 +27,7 @@ export function SettingsJournalContextsSection({
     focusedContextId
 }: SettingsJournalContextsSectionProps) {
     const isPaletteColor = (color: string): boolean => JOURNAL_LABEL_COLOR_PALETTE.includes(color.trim().toLowerCase());
+    const resolveContextColor = (color: string): string => normalizeWeeklyTargetAccent(color) ?? color.trim().toLowerCase();
     const contexts = cycle.journalContexts ?? [];
     const [newContext, setNewContext] = useState("");
     const [newContextColor, setNewContextColor] = useState(() => pickNextJournalContextColor(contexts));
@@ -166,6 +168,7 @@ export function SettingsJournalContextsSection({
                 {contexts.map((context) => {
                     const isEditing = editingContextId === context.id;
                     const isHighlighted = highlightedContextId === context.id;
+                    const contextColor = resolveContextColor(context.color);
                     return (
                         <div
                             key={context.id}
@@ -174,7 +177,7 @@ export function SettingsJournalContextsSection({
                             }}
                             className={`settings-context-row ${isHighlighted ? "highlighted" : ""}`}
                         >
-                            <span className="settings-context-swatch" style={{ backgroundColor: context.color }} aria-hidden="true" />
+                            <span className="settings-context-swatch" style={{ backgroundColor: contextColor }} aria-hidden="true" />
                             {isEditing ? (
                                 <div className="settings-context-edit-group">
                                     <input
@@ -187,7 +190,10 @@ export function SettingsJournalContextsSection({
                                         autoFocus
                                         disabled={readOnly}
                                     />
-                                    <div className="settings-label-color-grid">
+                                    <div
+                                        className="settings-label-color-grid"
+                                        style={{ "--settings-color-count": JOURNAL_LABEL_COLOR_PALETTE.length } as CSSProperties}
+                                    >
                                         {JOURNAL_LABEL_COLOR_PALETTE.map((color) => (
                                             <button
                                                 key={`${context.id}-${color}`}
@@ -216,7 +222,7 @@ export function SettingsJournalContextsSection({
                                         </button>
                                     </>
                                 ) : (
-                                    <button type="button" className="icon-btn" onClick={() => startRename(context.id, context.label, context.color)} disabled={readOnly} aria-label={tr(language, "common.edit")} title={tr(language, "common.edit")}>
+                                    <button type="button" className="icon-btn" onClick={() => startRename(context.id, context.label, contextColor)} disabled={readOnly} aria-label={tr(language, "common.edit")} title={tr(language, "common.edit")}>
                                         <Icon icon={Pencil} size={14} />
                                     </button>
                                 )}
@@ -253,7 +259,10 @@ export function SettingsJournalContextsSection({
                     placeholder={tr(language, "settings.journalContextPlaceholder")}
                     disabled={readOnly}
                 />
-                <div className="settings-label-color-grid">
+                <div
+                    className="settings-label-color-grid settings-label-color-grid-full"
+                    style={{ "--settings-color-count": JOURNAL_LABEL_COLOR_PALETTE.length } as CSSProperties}
+                >
                     {JOURNAL_LABEL_COLOR_PALETTE.map((color) => (
                         <button
                             key={`new-${color}`}

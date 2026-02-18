@@ -876,8 +876,8 @@ export function TodayBlocksSection({
                         )}
                     </div>
 
-                    <div className="planner-block-progress">
-                        {usesCounter && (
+                    {usesCounter && (
+                        <div className="planner-block-progress">
                             <div
                                 className="block-progress-row"
                                 data-no-drag="true"
@@ -929,8 +929,8 @@ export function TodayBlocksSection({
                                     </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         );

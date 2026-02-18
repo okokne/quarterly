@@ -62,6 +62,7 @@ export function JournalFeedList({
                             <div className="journal-card-list">
                                 {entries.map((entry) => {
                                     const signals = getReviewEntrySignals(entry);
+                                    const visibleSignals = signals.filter((signal) => signal !== "next_step");
                                     const isNoteEntry = entry.type === "custom" || entry.type === "quick";
                                     const isReviewEntry = entry.type === "daily" || entry.type === "weekly";
                                     const isClickable = isNoteEntry || isReviewEntry;
@@ -112,9 +113,9 @@ export function JournalFeedList({
                                                         ? `${getWeekLabel(cycle, weekIndex, language)} · ${formatDate(entry.date, dateFormat, language)}`
                                                         : formatDate(entry.date, dateFormat, language)}
                                                 </span>
-                                                {!isNoteEntry && (
+                                                {!isNoteEntry && visibleSignals.length > 0 && (
                                                     <div className="journal-entry-signal-row">
-                                                        {signals.map((signal) => (
+                                                        {visibleSignals.map((signal) => (
                                                             <span key={`${entry.id}-${signal}`} className={`journal-entry-signal ${signal}`}>
                                                                 {tr(language, `journal.signal${SIGNAL_LABEL_SUFFIX[signal]}`)}
                                                             </span>

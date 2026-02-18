@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Cycle, Habit, HABITS_STORAGE_KEY, HABIT_LOG_STORAGE_KEY, Id, StorageScope } from "../types";
-import { parseIso } from "../utils";
+import { parseIso, toIsoDate } from "../utils";
 import { toggleHabitLogEntry } from "../regressionLogic";
 import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
 
@@ -43,6 +43,39 @@ export function useHabitsStore({ activeCycle, isArchiveView, storageScope }: Use
         }
     }, [habitLog, storageScope]);
 
+    useEffect(() => {
+        const today = toIsoDate(new Date());
+        const knownHabitIds = new Set(habits.map((habit) => String(habit.id)));
+        setHabitLog((prev) => {
+            let changed = false;
+            const next: Record<string, string[]> = {};
+
+            Object.entries(prev).forEach(([date, ids]) => {
+                if (date > today) {
+                    changed = true;
+                    return;
+                }
+
+                const filteredIds = ids.filter((id) => knownHabitIds.has(String(id)));
+                const uniqueIds = Array.from(new Set(filteredIds));
+                if (uniqueIds.length === 0) {
+                    if (ids.length > 0) changed = true;
+                    return;
+                }
+
+                if (
+                    uniqueIds.length !== ids.length
+                    || uniqueIds.some((id, index) => id !== ids[index])
+                ) {
+                    changed = true;
+                }
+                next[date] = uniqueIds;
+            });
+
+            return changed ? next : prev;
+        });
+    }, [habits]);
+
     // One-time per cycle migration: old cycle-scoped habits -> global store.
     useEffect(() => {
         if (!activeCycle) return;
@@ -75,6 +108,7 @@ export function useHabitsStore({ activeCycle, isArchiveView, storageScope }: Use
 
     const toggleHabit = useCallback((date: string, habitId: Id) => {
         if (isArchiveView) return;
+        if (date > toIsoDate(new Date())) return;
         setHabitLog((prev) => toggleHabitLogEntry(prev, date, habitId));
     }, [isArchiveView]);
     const deleteHabit = useCallback((habitId: Id) => {

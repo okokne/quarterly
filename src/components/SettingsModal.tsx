@@ -172,14 +172,6 @@ export function SettingsModal({
                     />
                 )}
 
-                <div className="settings-section">
-                    <h3>{tr(language, "cycle.drawerTitle")}</h3>
-                    <p className="muted">{tr(language, "settings.cycleDrawerHint")}</p>
-                </div>
-                <div className="settings-section">
-                    <h3>{tr(language, "common.habits")}</h3>
-                    <p className="muted">{tr(language, "settings.habitsInAppHint")}</p>
-                </div>
             </div>
         </div>
     );

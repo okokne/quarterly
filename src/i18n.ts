@@ -152,7 +152,7 @@ export const translations: TranslationDictionary = {
     "today.heroStreakPositive": "Stark, bleib dran.",
     "today.heroStreakZero": "Starte heute deine Serie.",
     "today.heroWeekTitle": "Diese Woche",
-    "today.heroQuickHabits": "Habit Quick Access",
+    "today.heroQuickHabits": "Heute abhaken",
     "today.heroNoHabits": "Keine Habits für heute aktiv.",
     "today.heroNextPriority": "Next Priority",
     "today.heroWeekAllDone": "Alle Aufgaben fuer diese Woche sind erledigt.",
@@ -603,7 +603,7 @@ export const translations: TranslationDictionary = {
     "quickNote.context": "Label",
     "quickNote.save": "Speichern",
     "quickNote.cancel": "Abbrechen",
-    "quickNote.meta": "Heute · Woche {week}",
+    "quickNote.meta": "{date} · Woche {week}",
 
     "notify.unsupported": "Dein Browser unterstützt keine Benachrichtigungen.",
     "notify.enabledBody": "Benachrichtigungen aktiviert! Du wirst an Reviews erinnert."
@@ -753,7 +753,7 @@ export const translations: TranslationDictionary = {
     "today.heroStreakPositive": "Keep the momentum.",
     "today.heroStreakZero": "Start your streak today.",
     "today.heroWeekTitle": "This week",
-    "today.heroQuickHabits": "Habit quick access",
+    "today.heroQuickHabits": "Quick check-off",
     "today.heroNoHabits": "No active habits for today.",
     "today.heroNextPriority": "Next priority",
     "today.heroWeekAllDone": "All tasks for this week are completed.",
@@ -1204,7 +1204,7 @@ export const translations: TranslationDictionary = {
     "quickNote.context": "Label",
     "quickNote.save": "Save",
     "quickNote.cancel": "Cancel",
-    "quickNote.meta": "Today · Week {week}",
+    "quickNote.meta": "{date} · Week {week}",
 
     "notify.unsupported": "Your browser does not support notifications.",
     "notify.enabledBody": "Notifications enabled. You will be reminded about reviews."
