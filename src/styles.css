@@ -1,23 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PREMIUM WEEKLY PLANNER - Design System
-   Precision & Flow • High-Contrast • Minimalist • Architectural
+   Aura & Glass V3 • Vibrant • Deep Contrast • Organic
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ─── Typography ─── */
-  --font-sans: "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-headline: "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* ─── Typography (Energetic & Bouncy) ─── */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-headline: "Plus Jakarta Sans", "Outfit", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --type-h1: 44px;
-  /* Increased for tension */
+  --type-h1: 42px;
   --type-h2: 24px;
-  --type-h3: 16px;
-  /* Decreased for contrast */
-  --type-body: 14px;
-  --type-small: 12px;
+  --type-h3: 18px;
+  --type-body: 15px;
+  --type-small: 13px;
   --type-badge: 11px;
 
   --line-h1: 1.05;
@@ -28,38 +26,44 @@
   --line-small: 1.4;
   --line-badge: 1;
 
-  /* ─── Zero-Elevation Architecture / Base System (Light Mode) ─── */
-  --bg: #FAFAFA;
+  /* ─── Aura & Glass Base System (Light Mode) ─── */
+  --bg: #FFFBF9;
+  /* Warm, creamy canvas */
   --bg-elevated: #FFFFFF;
-  --bg-soft: #F4F4F5;
+  --bg-soft: #FFF2EB;
+  /* Soft peach backing */
 
   --surface-1: #FFFFFF;
-  --surface-2: #FAFAFA;
-  --surface-3: #F4F4F5;
+  --surface-2: #FFFBF9;
+  --surface-3: #FFF2EB;
 
   /* ─── Text (Light Mode) ─── */
-  --text-primary: #09090B;
-  --text-secondary: #3F3F46;
-  --text-muted: #71717A;
-  --text-subtle: #A1A1AA;
-  --text-invert: #FAFAFA;
+  --text-primary: #1F191A;
+  /* Very warm deep brown/black */
+  --text-secondary: #574B4E;
+  --text-muted: #8A7E81;
+  --text-subtle: #B3A8AA;
+  --text-invert: #FFFFFF;
   --text: var(--text-primary);
 
-  /* ─── Borders (Light Mode - highly structural) ─── */
-  --border-subtle: #E4E4E7;
-  --border-strong: #D4D4D8;
-  --border-outline: #A1A1AA;
+  /* ─── Borders (Light Mode - highly translucent) ─── */
+  --border-subtle: rgba(235, 219, 217, 0.6);
+  --border-strong: rgba(235, 219, 217, 1);
+  --border-outline: rgba(189, 172, 170, 0.4);
   --border: var(--border-subtle);
 
-  /* ─── Accent Scale (Ultramarine / Cobalt Blue) ─── */
-  --accent-100: #DBEAFE;
-  --accent-200: #BFDBFE;
-  --accent-300: #93C5FD;
-  --accent-400: #60A5FA;
-  --accent-500: #2563EB;
-  /* Primary Action */
-  --accent-600: #1D4ED8;
-  /* Hover */
+  /* ─── Accent Scale (Sunset Aura: Coral & Violet) ─── */
+  --accent-100: #FFE1DE;
+  --accent-200: #FFC4BE;
+  --accent-300: #FFA296;
+  --accent-400: #FF705F;
+  --accent-500: #FF4D38;
+  /* Vibrant Coral */
+  --accent-600: #E63522;
+
+  --accent-violet: #C026D3;
+  /* Secondary aura stop */
+  --accent-gradient: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-violet) 100%);
 
   --accent: var(--accent-500);
   --accent-bg: var(--accent-100);
@@ -95,62 +99,55 @@
   --warm-blue-text: var(--warm-blue-600);
   --warm-blue: var(--warm-blue-500);
 
-  /* 8-Color Goal / Target Palette (Jewel & Metal - subtle backgrounds, solid borders for timelines) */
+  /* 8-Color Goal Palette (Jewel System) */
   --tone-blue-100: #E0F2FE;
-  --tone-blue-200: #0284C7;
-  --tone-blue-700: #0369A1;
-
-  --tone-green-100: #CCFBF1;
-  --tone-green-200: #0D9488;
-  --tone-green-700: #0F766E;
-
-  --tone-yellow-100: #FEF9C3;
-  --tone-yellow-200: #CA8A04;
+  --tone-blue-200: #0EA5E9;
+  --tone-blue-700: #0284C7;
+  --tone-green-100: #D1FAE5;
+  --tone-green-200: #10B981;
+  --tone-green-700: #047857;
+  --tone-yellow-100: #FEF3C7;
+  --tone-yellow-200: #F59E0B;
   --tone-yellow-700: #B45309;
-
   --tone-purple-100: #F3E8FF;
-  --tone-purple-200: #9333EA;
-  --tone-purple-700: #6D28D9;
-
-  --tone-red-100: #FFEDD5;
-  --tone-red-200: #EA580C;
-  --tone-red-700: #9A3412;
-
-  --tone-orange-100: #FAF5FF;
-  --tone-orange-200: #C026D3;
-  --tone-orange-700: #86198F;
-
-  --tone-teal-100: #ECFCCB;
-  --tone-teal-200: #65A30D;
-  --tone-teal-700: #4D7C0F;
-
+  --tone-purple-200: #A855F7;
+  --tone-purple-700: #7E22CE;
+  --tone-red-100: #FFE4E6;
+  --tone-red-200: #F43F5E;
+  --tone-red-700: #BE123C;
+  --tone-orange-100: #FFEDD5;
+  --tone-orange-200: #F97316;
+  --tone-orange-700: #C2410C;
+  --tone-teal-100: #CCFBF1;
+  --tone-teal-200: #14B8A6;
+  --tone-teal-700: #0F766E;
   --tone-slate-100: #F1F5F9;
-  --tone-slate-200: #475569;
+  --tone-slate-200: #64748B;
   --tone-slate-700: #334155;
 
-  /* ─── Mineral Weekday Color System (Light Mode) ─── */
-  --day-0: #71717A;
-  /* Sun - Gravel */
-  --day-1: #475569;
-  /* Mon - Slate */
-  --day-2: #9A3412;
-  /* Tue - Rust */
-  --day-3: #0F766E;
-  /* Wed - Spruce */
-  --day-4: #5B21B6;
+  /* ─── Jewel Weekday Color System (Light Mode) ─── */
+  --day-0: #F43F5E;
+  /* Sun - Ruby */
+  --day-1: #0EA5E9;
+  /* Mon - Sapphire */
+  --day-2: #F59E0B;
+  /* Tue - Topaz */
+  --day-3: #10B981;
+  /* Wed - Emerald */
+  --day-4: #A855F7;
   /* Thu - Amethyst */
-  --day-5: #1D4ED8;
-  /* Fri - Cobalt */
-  --day-6: #3F3F46;
-  /* Sat - Graphite */
+  --day-5: #F97316;
+  /* Fri - Amber */
+  --day-6: #14B8A6;
+  /* Sat - Turquoise */
 
-  --day-0-bg: #F4F4F5;
-  --day-1-bg: #F1F5F9;
-  --day-2-bg: #FFEDD5;
-  --day-3-bg: #CCFBF1;
+  --day-0-bg: #FFE4E6;
+  --day-1-bg: #E0F2FE;
+  --day-2-bg: #FEF3C7;
+  --day-3-bg: #D1FAE5;
   --day-4-bg: #F3E8FF;
-  --day-5-bg: #DBEAFE;
-  --day-6-bg: #F4F4F5;
+  --day-5-bg: #FFEDD5;
+  --day-6-bg: #CCFBF1;
 
   /* ─── Legacy Neutral Aliases (Replacing) ─── */
   --bg-page: var(--bg);
@@ -189,29 +186,31 @@
   --overlay-scrim-soft: rgba(9, 9, 11, 0.3);
   --overlay-scrim-strong: rgba(9, 9, 11, 0.6);
 
-  /* ─── Spacing & Structure (Sharp & Architectural) ─── */
-  --radius-chip: 4px;
-  --radius-input: 4px;
-  /* Hardened from 6px */
-  --radius-button: 4px;
-  --radius-card: 6px;
-  /* Hardened from 8px */
-  --radius-backplate: 6px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  /* ─── Spacing & Structure (Floating & Glassy) ─── */
+  --radius-chip: 999px;
+  /* Pill shapes for bouncy tags */
+  --radius-input: 12px;
+  --radius-button: 999px;
+  /* Pill buttons */
+  --radius-card: 20px;
+  --radius-backplate: 24px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 
-  --space-title-content: 12px;
-  --space-card: 20px;
+  --space-title-content: 16px;
+  --space-card: 24px;
   --space-grid: 16px;
   --space-section: 48px;
   --space-backplate: 0px;
 
-  /* ─── Shadows (Disabled) ─── */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
-  /* Modals only */
+  /* ─── Shadows (Aura Glows) ─── */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.08);
+
+  --shadow-aura-primary: 0 8px 24px rgba(255, 77, 56, 0.35);
+  /* Glowing offset */
 
   /* ─── Transitions ─── */
   --transition-fast: 150ms ease;
@@ -219,35 +218,41 @@
   --transition-smooth: 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* ─── Dark Mode (Trading Terminal Aesthetic) ─── */
+/* ─── Dark Mode (Deep Plum Aura) ─── */
 body.dark-mode {
-  --bg: #09090B;
-  --bg-elevated: #18181B;
-  --bg-soft: #121214;
+  --bg: #130F1A;
+  /* Deep plum/blackberry root */
+  --bg-elevated: #1F1924;
+  --bg-soft: #1E1725;
 
-  --surface-1: #121214;
-  --surface-2: #18181B;
-  --surface-3: #27272A;
+  --surface-1: #1F1924;
+  --surface-2: #1E1725;
+  --surface-3: #2D2236;
 
-  --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-muted: #71717A;
-  --text-subtle: #52525B;
-  --text-invert: #09090B;
+  --text-primary: #FCF9FA;
+  --text-secondary: #D4C9CE;
+  --text-muted: #A3969C;
+  --text-subtle: #75676E;
+  --text-invert: #130F1A;
   --text: var(--text-primary);
 
-  --border-subtle: #27272A;
-  --border-strong: #3F3F46;
-  --border-outline: #52525B;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  /* Frosted borders */
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-outline: rgba(255, 255, 255, 0.24);
   --border: var(--border-subtle);
 
-  /* Ultramarine optimized for dark */
-  --accent-100: #1E3A8A;
-  --accent-200: #1D4ED8;
-  --accent-300: #2563EB;
-  --accent-400: #3B82F6;
-  --accent-500: #3B82F6;
-  --accent-600: #60A5FA;
+  /* Sunset Aura optimized for dark */
+  --accent-100: #4A1A17;
+  --accent-200: #8A2B23;
+  --accent-300: #D84234;
+  --accent-400: #FF5A4A;
+  --accent-500: #FF5A4A;
+  /* Vibrant Coral */
+  --accent-600: #FF8578;
+
+  --accent-violet: #D946EF;
+  --accent-gradient: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-violet) 100%);
 
   --accent: var(--accent-500);
   --accent-bg: var(--accent-100);
@@ -297,29 +302,36 @@ body.dark-mode {
   --tone-slate-200: #475569;
   --tone-slate-700: #CBD5E1;
 
-  /* ─── Mineral Weekday Color System (Dark Mode) ─── */
-  --day-0: #D4D4D8;
-  /* Sun - Gravel */
-  --day-1: #94A3B8;
-  /* Mon - Slate */
-  --day-2: #F97316;
-  /* Tue - Rust */
-  --day-3: #2DD4BF;
-  /* Wed - Spruce */
-  --day-4: #A78BFA;
-  /* Thu - Amethyst */
-  --day-5: #60A5FA;
-  /* Fri - Cobalt */
-  --day-6: #A1A1AA;
-  /* Sat - Graphite */
+  /* ─── Jewel Weekday Color System (Dark Mode) ─── */
+  --day-0: #FB7185;
+  /* Sun */
+  --day-1: #38BDF8;
+  /* Mon */
+  --day-2: #FBBF24;
+  /* Tue */
+  --day-3: #34D399;
+  /* Wed */
+  --day-4: #C084FC;
+  /* Thu */
+  --day-5: #FB923C;
+  /* Fri */
+  --day-6: #2DD4BF;
+  /* Sat */
 
-  --day-0-bg: rgba(212, 212, 216, 0.1);
-  --day-1-bg: rgba(148, 163, 184, 0.1);
-  --day-2-bg: rgba(249, 115, 22, 0.1);
-  --day-3-bg: rgba(45, 212, 191, 0.1);
-  --day-4-bg: rgba(167, 139, 250, 0.1);
-  --day-5-bg: rgba(96, 165, 250, 0.1);
-  --day-6-bg: rgba(161, 161, 170, 0.1);
+  --day-0-bg: rgba(244, 63, 94, 0.15);
+  /* Ruby Glow */
+  --day-1-bg: rgba(14, 165, 233, 0.15);
+  /* Sapphire Glow */
+  --day-2-bg: rgba(245, 158, 11, 0.15);
+  /* Topaz Glow */
+  --day-3-bg: rgba(16, 185, 129, 0.15);
+  /* Emerald Glow */
+  --day-4-bg: rgba(168, 85, 247, 0.15);
+  /* Amethyst Glow */
+  --day-5-bg: rgba(249, 115, 22, 0.15);
+  /* Amber Glow */
+  --day-6-bg: rgba(20, 184, 166, 0.15);
+  /* Turquoise Glow */
 
   /* Legacy overrides */
   --bg-page: var(--bg);
@@ -1147,19 +1159,21 @@ p {
   box-shadow: none;
   border: none;
   display: flex;
-  flex-direction: column;
   gap: var(--space-section);
 }
 
 .card {
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-radius: var(--radius-card);
   padding: var(--space-card);
-  box-shadow: none;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  /* Restored soft aura shadow */
   display: flex;
   flex-direction: column;
-  gap: var(--space-grid);
+  gap: 16px;
   transition: border-color var(--transition-fast);
 }
 
@@ -1168,14 +1182,15 @@ p {
 }
 
 .subcard {
-  background: var(--bg-subtle);
-  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-md);
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  border: 1px solid var(--border-subtle);
-  box-shadow: none;
+  gap: 12px;
+  border: 1px solid var(--border-light);
 }
 
 /* ─── Stats Dashboard ─── */
@@ -2586,16 +2601,23 @@ button:active,
   transform: none;
 }
 
-button.primary {
-  background: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  border-color: var(--button-primary-border);
-  box-shadow: none;
+button.btn-primary {
+  background: var(--accent-gradient);
+  color: #FFFFFF;
+  border: none;
+  font-weight: 600;
+  box-shadow: var(--shadow-aura-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-button.primary:hover {
-  background: var(--button-primary-bg-hover);
-  border-color: var(--button-primary-border);
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(255, 77, 56, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .button.accent {
@@ -2689,40 +2711,37 @@ button.ghost-danger:hover {
   border-color: var(--accent-muted);
 }
 
-/* ─── Tab Navigation ─── */
+/* ─── Tab Navigation (Glass Pill) ─── */
 .tabs {
   display: inline-flex;
-  gap: 16px;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  border-bottom: 1px solid var(--border-light);
-  width: 100%;
+  gap: 4px;
+  background: var(--surface-3);
+  padding: 4px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--border);
+  width: auto;
 }
 
 .tabs button {
-  border-radius: 0;
-  padding: 10px 4px;
+  border-radius: var(--radius-chip);
+  padding: 8px 16px;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
   color: var(--text-secondary);
-  font-weight: 500;
-  margin-bottom: -1px;
-  /* Overlap the container border */
+  font-weight: 600;
+  transition: all var(--transition-fast);
 }
 
 .tabs button:hover {
-  background: transparent;
+  background: var(--surface-2);
   color: var(--text-primary);
-  border-bottom: 2px solid var(--border-strong);
 }
 
 .tabs button.active {
-  background: transparent;
-  color: var(--accent);
-  box-shadow: none;
-  border-bottom: 2px solid var(--accent);
+  background: var(--accent-gradient);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-aura-primary);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* ─── Lists ─── */
@@ -4921,12 +4940,17 @@ button.ghost-danger:hover {
 }
 
 .modal {
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  padding: 28px;
-  max-width: 420px;
-  width: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  animation: modal-slide-in 0.2s ease-out forwards;
+  position: relative;
   box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -6187,26 +6211,25 @@ body.dark-mode .today-hero-watermark {
 
 .today-weekday-chip {
   border: 1px solid var(--border);
-  border-left-width: 3px;
-  /* Asymmetric architectural anchor */
-  border-left-color: var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-button);
+  /* Fully rounded pill */
   background: var(--bg-card);
   color: var(--text-primary);
-  padding: 8px 6px 8px 4px;
-  /* adjusted for left border */
-  min-height: 74px;
+  padding: 12px 6px;
+  min-height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .today-weekday-chip:hover {
-  border-color: var(--border-outline);
-  border-left-color: var(--day-color, var(--accent-muted));
+  border-color: var(--day-color, var(--accent));
+  box-shadow: 0 4px 12px var(--day-bg, var(--accent-bg));
+  /* Glowing aura on hover */
+  transform: translateY(-1px);
 }
 
 .today-weekday-chip:active {
@@ -6214,13 +6237,19 @@ body.dark-mode .today-hero-watermark {
 }
 
 .today-weekday-chip.selected {
-  border-color: var(--border-strong);
-  border-left-color: var(--day-color, var(--accent));
-  background: var(--day-bg, var(--accent-bg));
+  border-color: transparent;
+  background: var(--day-color, var(--accent));
+  color: #FFFFFF;
+  box-shadow: 0 6px 16px var(--day-bg, var(--accent-100));
+  /* Deep colored aura */
+}
+
+.today-weekday-chip.selected .today-weekday-label {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .today-weekday-chip.today {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--day-color, var(--accent)) 45%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--day-color, var(--accent));
 }
 
 /* ─── Weekday Data Maps ─── */
@@ -7066,8 +7095,12 @@ textarea:focus-visible {
   flex-shrink: 0;
 }
 
-.toggle-switch.toggle-on {
-  background: var(--accent);
+.toggle input:checked+.slider {
+  background: var(--accent-gradient);
+}
+
+.toggle input:focus+.slider {
+  box-shadow: 0 0 1px var(--accent-500);
 }
 
 .toggle-thumb {
