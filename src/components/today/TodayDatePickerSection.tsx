@@ -117,6 +117,7 @@ export function TodayDatePickerSection({
                                 className={`today-weekday-chip ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
                                 onClick={() => selectDate(date)}
                                 aria-label={`${weekdayLabelLong(date, language)} ${formatDate(date, dateFormat, language)}`}
+                                data-day={parseIso(date).getDay()}
                             >
                                 <span className="today-weekday-label">{weekdayLabel(date, language)}</span>
                                 <span className="today-weekday-date">{parseIso(date).getDate()}</span>
