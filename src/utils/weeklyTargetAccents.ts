@@ -1,17 +1,27 @@
 import type { Goal, WeeklyTarget } from "../types";
 
 export const WEEKLY_TARGET_ACCENT_PALETTE = [
-    "#b7d9ff",
-    "#bfeacb",
-    "#ffe39a",
-    "#e7bdfd",
-    "#ffccd3",
-    "#ffcba6",
-    "#bde8e2",
-    "#d2def2"
+    "#455771", // tone-blue-700
+    "#4a5b46", // tone-green-700
+    "#736242", // tone-yellow-700
+    "#5d4b66", // tone-purple-700
+    "#824b4b", // tone-red-700
+    "#856140", // tone-orange-700
+    "#3b5f5a", // tone-teal-700
+    "#4b5563"  // tone-slate-700
 ] as const;
 
 const LEGACY_WEEKLY_TARGET_ACCENT_PALETTES: readonly string[][] = [
+    [
+        "#b7d9ff",
+        "#bfeacb",
+        "#ffe39a",
+        "#e7bdfd",
+        "#ffccd3",
+        "#ffcba6",
+        "#bde8e2",
+        "#d2def2"
+    ],
     [
         "#d9ebff",
         "#dff3e7",
@@ -23,14 +33,14 @@ const LEGACY_WEEKLY_TARGET_ACCENT_PALETTES: readonly string[][] = [
         "#e8edf5"
     ],
     [
-    "#9bb6ea",
-    "#93c6b3",
-    "#dec690",
-    "#b8a4d8",
-    "#f0b9cf",
-    "#e3b394",
-    "#a7b3bf",
-    "#b9d39f"
+        "#9bb6ea",
+        "#93c6b3",
+        "#dec690",
+        "#b8a4d8",
+        "#f0b9cf",
+        "#e3b394",
+        "#a7b3bf",
+        "#b9d39f"
     ]
 ] as const;
 
