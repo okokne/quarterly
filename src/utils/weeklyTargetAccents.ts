@@ -1,14 +1,14 @@
 import type { Goal, WeeklyTarget } from "../types";
 
 export const WEEKLY_TARGET_ACCENT_PALETTE = [
-    "#455771", // tone-blue-700
-    "#4a5b46", // tone-green-700
-    "#736242", // tone-yellow-700
-    "#5d4b66", // tone-purple-700
-    "#824b4b", // tone-red-700
-    "#856140", // tone-orange-700
-    "#3b5f5a", // tone-teal-700
-    "#4b5563"  // tone-slate-700
+    "#F43F5E", // Ruby
+    "#0EA5E9", // Sapphire
+    "#F59E0B", // Topaz
+    "#10B981", // Emerald
+    "#A855F7", // Amethyst
+    "#F97316", // Amber
+    "#14B8A6", // Turquoise
+    "#6366F1"  // Indigo
 ] as const;
 
 const LEGACY_WEEKLY_TARGET_ACCENT_PALETTES: readonly string[][] = [
