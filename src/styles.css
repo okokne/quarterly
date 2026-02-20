@@ -8082,6 +8082,109 @@ body.dark-mode .archive-banner {
   border-radius: var(--radius-md);
 }
 
+/* ─── Today Daily Review ─── */
+.today-daily-review-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  margin-top: var(--space-xl);
+}
+
+.today-daily-review-card.is-open {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.today-daily-review-card.is-complete {
+  background: color-mix(in srgb, var(--accent-bg) 40%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border-light));
+}
+
+.daily-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.daily-review-header:hover {
+  background: var(--bg-hover);
+}
+
+.daily-review-header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.daily-review-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  transition: all var(--transition-normal);
+}
+
+.today-daily-review-card.is-complete .daily-review-icon-container {
+  background: var(--accent);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-aura-primary);
+}
+
+.daily-review-title {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.daily-review-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.daily-review-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.daily-review-progress-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  padding: 4px 10px;
+  border-radius: var(--radius-chip);
+}
+
+.today-daily-review-card.is-complete .daily-review-progress-badge {
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+.today-daily-review-card .grid {
+  padding: 0 20px 20px 20px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 0;
+  padding-top: 20px;
+}
+
+.today-daily-review-card textarea {
+  min-height: 100px;
+  background: var(--bg-body);
+}
+
 @media (max-width: 1180px) {
   .today-hero-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { BookOpen, Check } from "../ui/icons";
+import { Icon } from "../ui/Icon";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DailyBlock, DailyReview, DateFormat } from "../../types";
 import { formatDate, getWritableReviewEntries, upsertCurrentDailyReviewEntry } from "../../utils";
@@ -40,16 +42,28 @@ export function TodayDailyReviewSection({
     }, [dailyReview.bad, dailyReview.good]);
 
     return (
-        <div className="subcard" id="today-daily-review">
-            <div className="section-header">
-                <h3>{tr(language, "review.daily", { date: formatDate(selectedDate, dateFormat, language) })}</h3>
-                <div className="button-row compact">
-                    <span className="muted">{reviewProgress}/2</span>
-                    <button className="button" onClick={() => setIsOpen((prev) => !prev)}>
-                        {isOpen ? tr(language, "today.hideReview") : tr(language, "today.openReview")}
+        <section className={`today-daily-review-card ${isOpen ? "is-open" : ""} ${reviewProgress === 2 ? "is-complete" : ""}`} id="today-daily-review">
+            <header className="daily-review-header" onClick={() => setIsOpen((prev) => !prev)}>
+                <div className="daily-review-header-content">
+                    <div className="daily-review-icon-container">
+                        <Icon icon={reviewProgress === 2 ? Check : BookOpen} size={20} />
+                    </div>
+                    <div>
+                        <h3 className="daily-review-title">{tr(language, "review.daily", { date: formatDate(selectedDate, dateFormat, language) })}</h3>
+                        <p className="daily-review-subtitle muted">
+                            {reviewProgress === 0 && "Take a moment to reflect on your day"}
+                            {reviewProgress > 0 && reviewProgress < 2 && "Keep going! Reflection in progress..."}
+                            {reviewProgress === 2 && "Review complete. Great job today!"}
+                        </p>
+                    </div>
+                </div>
+                <div className="daily-review-controls">
+                    <span className="daily-review-progress-badge">{reviewProgress}/2</span>
+                    <button className="icon-btn" aria-expanded={isOpen} type="button">
+                        <span className={`chevron ${isOpen ? "open" : ""}`}>▼</span>
                     </button>
                 </div>
-            </div>
+            </header>
             {isOpen && (
                 <div className="grid">
                     <label>
@@ -108,6 +122,6 @@ export function TodayDailyReviewSection({
                     </label>
                 </div>
             )}
-        </div>
+        </section>
     );
 }
