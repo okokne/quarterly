@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 import { Book } from "../src/types";
 import {
     getBookActivityTimestamp,
+    getNextQueueOrder,
     getBookProgressPercent,
     normalizeBookRecord,
     sanitizeBookCategories,
+    sortQueueBooks,
     sortBookSessionsByDateDesc
 } from "../src/utils/books";
 
@@ -28,6 +30,16 @@ test("normalizeBookRecord moves book to reading when progress exists", () => {
     assert.equal(normalized.status, "reading");
     assert.equal(normalized.startDate, "2026-02-22");
     assert.equal(normalized.finishDate, undefined);
+});
+
+test("normalizeBookRecord maps legacy wishlist books to reading queue", () => {
+    const normalized = normalizeBookRecord(
+        createBook({ status: "want_to_read", readPages: 0, queueOrder: 3 }),
+        "2026-02-22"
+    );
+    assert.equal(normalized.status, "reading");
+    assert.equal(normalized.queueOrder, 3);
+    assert.equal(normalized.startDate, undefined);
 });
 
 test("normalizeBookRecord marks finished book with full progress and finish date", () => {
@@ -69,4 +81,15 @@ test("session helpers keep latest entries first and expose activity timestamp", 
 test("getBookProgressPercent returns rounded percentage and guards missing totals", () => {
     assert.equal(getBookProgressPercent({ readPages: 45, totalPages: 180 }), 25);
     assert.equal(getBookProgressPercent({ readPages: 5, totalPages: 0 }), 0);
+});
+
+test("queue helpers return stable order and next position", () => {
+    const books = [
+        createBook({ id: "b1", title: "One", queueOrder: 2, status: "reading", readPages: 0 }),
+        createBook({ id: "b2", title: "Two", queueOrder: 1, status: "reading", readPages: 0 }),
+        createBook({ id: "b3", title: "Three", status: "finished", readPages: 100, totalPages: 100 })
+    ];
+    const sorted = sortQueueBooks(books.filter((book) => book.status !== "finished"));
+    assert.equal(sorted[0]?.id, "b2");
+    assert.equal(getNextQueueOrder(books), 3);
 });
