@@ -3,7 +3,7 @@ import { Book, BookSession, BookStatus, Cycle } from "../types";
 import { uid, toIsoDate } from "../utils";
 import { StorageScope } from "../types";
 import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
-import { normalizeBookRecord, sanitizeBookCategories } from "../utils/books";
+import { getNextQueueOrder, normalizeBookRecord, sanitizeBookCategories } from "../utils/books";
 
 const BOOKS_STORAGE_KEY = "twy_books";
 
@@ -36,7 +36,14 @@ export function useBooksStore({
         // If persisted planner state passed us populated array (like from a json restore) use it
         const source = initialBooks.length > 0 ? initialBooks : stored;
         const todayIso = toIsoDate(new Date());
-        return source.map((book) => normalizeBookRecord(book, todayIso));
+        let queueOrderCursor = 1;
+        return source.map((book) => {
+            const normalized = normalizeBookRecord(book, todayIso);
+            if (normalized.status !== "want_to_read") return normalized;
+            const ensuredOrder = normalized.queueOrder ?? queueOrderCursor;
+            queueOrderCursor = Math.max(queueOrderCursor, ensuredOrder + 1);
+            return { ...normalized, queueOrder: ensuredOrder };
+        });
     });
 
     const setBooks = useCallback((updater: Book[] | ((prev: Book[]) => Book[])) => {
@@ -75,6 +82,7 @@ export function useBooksStore({
                 totalPages: totalPages || 0,
                 readPages: 0,
                 status,
+                queueOrder: status === "want_to_read" ? getNextQueueOrder(prev) : undefined,
                 sessions: []
             };
             const newBook = normalizeBookRecord(baseBook, todayIso);
@@ -85,15 +93,21 @@ export function useBooksStore({
     const updateBook = useCallback((id: string, updates: Partial<Book>) => {
         if (isArchiveView) return;
         const todayIso = toIsoDate(new Date());
-        setBooks((prev) => prev.map((book) => {
-            if (book.id !== id) return book;
-            const merged: Book = {
-                ...book,
-                ...updates,
-                categories: updates.categories ? sanitizeBookCategories(updates.categories) : book.categories
-            };
-            return normalizeBookRecord(merged, todayIso);
-        }));
+        setBooks((prev) => {
+            const nextQueueOrder = getNextQueueOrder(prev, id);
+            return prev.map((book) => {
+                if (book.id !== id) return book;
+                const merged: Book = {
+                    ...book,
+                    ...updates,
+                    categories: updates.categories ? sanitizeBookCategories(updates.categories) : book.categories
+                };
+                if (merged.status === "want_to_read" && typeof merged.queueOrder !== "number") {
+                    merged.queueOrder = nextQueueOrder;
+                }
+                return normalizeBookRecord(merged, todayIso);
+            });
+        });
     }, [isArchiveView, setBooks]);
 
     const deleteBook = useCallback((id: string) => {

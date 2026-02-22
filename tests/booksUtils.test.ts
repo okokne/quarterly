@@ -5,10 +5,12 @@ import {
     getBookCompletionStats,
     getBookProgressPercent,
     getFinishedBooksInYear,
+    getNextQueueOrder,
     getPagesReadThisWeek,
     getReadingStreakDays,
     normalizeBookRecord,
     sanitizeBookCategories,
+    sortQueueBooks,
     sortBookSessionsByDateDesc
 } from "../src/utils/books";
 
@@ -120,4 +122,15 @@ test("getBookCompletionStats returns duration and average pages per day", () => 
     assert.equal(stats.totalPages, 280);
     assert.equal(stats.readingDays, 10);
     assert.equal(stats.pagesPerDay, 28);
+});
+
+test("queue helpers sort and determine next order", () => {
+    const books = [
+        createBook({ id: "a", status: "want_to_read", queueOrder: 3 }),
+        createBook({ id: "b", status: "want_to_read", queueOrder: 1 }),
+        createBook({ id: "c", status: "reading", queueOrder: 2 })
+    ];
+    const sorted = sortQueueBooks(books.filter((book) => book.status === "want_to_read"));
+    assert.equal(sorted[0]?.id, "b");
+    assert.equal(getNextQueueOrder(books), 4);
 });

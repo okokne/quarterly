@@ -80,10 +80,19 @@ export function BookSessionModal({
         setShowFinishPanel(false);
     };
 
+    useEffect(() => {
+        if (!open) return;
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
+    }, [open, onClose]);
+
     return (
-        <div className="modal-backdrop z-max">
-            <div className="modal panel-content glass-panel">
-                <div className="modal-header pb-4 pt-2">
+        <div className="modal-backdrop z-max" onClick={onClose}>
+            <div className="modal panel-content glass-panel books-modal-shell" onClick={(event) => event.stopPropagation()}>
+                <div className="modal-header books-modal-header">
                     <h3 className="m-0 text-xl font-bold">{book.title}</h3>
                     <p className="text-secondary mt-2 mb-0">{tr(language, `books.status.${book.status}`)}</p>
                 </div>
@@ -106,7 +115,7 @@ export function BookSessionModal({
                 </div>
 
                 {showEdit && (
-                    <div className="books-inline-edit glass-panel panel-content mt-3">
+                    <div className="books-inline-edit glass-panel panel-content mt-4">
                         <div className="grid md:grid-cols-2 gap-3">
                             <input
                                 type="text"
@@ -152,7 +161,7 @@ export function BookSessionModal({
                 )}
 
                 {book.status === "want_to_read" && (
-                    <div className="books-detail-cta mt-4">
+                    <div className="books-detail-cta mt-5">
                         <button
                             type="button"
                             className="glass-button primary-action"
@@ -165,7 +174,7 @@ export function BookSessionModal({
 
                 {book.status === "reading" && (
                     <form
-                        className="mt-5"
+                        className="mt-6"
                         onSubmit={(event) => {
                             event.preventDefault();
                             handleSaveProgress();
@@ -200,7 +209,7 @@ export function BookSessionModal({
                             </div>
                         </div>
 
-                        <div className="form-group mt-3">
+                        <div className="form-group mt-4">
                             <label className="text-secondary">{tr(language, "books.sessionNotesOptional")}</label>
                             <textarea
                                 className="glass-input w-full mt-2 resize-none h-20"
@@ -212,7 +221,7 @@ export function BookSessionModal({
                         </div>
 
                         {!showFinishPanel && (
-                            <div className="books-detail-cta mt-4">
+                            <div className="books-detail-cta mt-5">
                                 <button type="button" className="glass-button" onClick={() => setShowFinishPanel(true)}>
                                     {tr(language, "books.markFinished")}
                                 </button>
@@ -222,7 +231,7 @@ export function BookSessionModal({
                 )}
 
                 {showFinishPanel && (
-                    <div className="books-finish-panel glass-panel panel-content mt-4">
+                    <div className="books-finish-panel glass-panel panel-content mt-5">
                         <h4 className="m-0 mb-2">{tr(language, "books.finishSummaryTitle")}</h4>
                         <div className="books-finish-stats">
                             <span>{tr(language, "books.finishTotalPages", { value: completionStats.totalPages })}</span>
@@ -249,7 +258,7 @@ export function BookSessionModal({
                 )}
 
                 {book.status === "finished" && (
-                    <div className="books-finish-panel glass-panel panel-content mt-4">
+                    <div className="books-finish-panel glass-panel panel-content mt-5">
                         <h4 className="m-0 mb-2">{tr(language, "books.finishSummaryTitle")}</h4>
                         <div className="books-finish-stats">
                             <span>{tr(language, "books.finishTotalPages", { value: completionStats.totalPages })}</span>
@@ -269,7 +278,7 @@ export function BookSessionModal({
                     </div>
                 )}
 
-                <div className="mt-8">
+                <div className="mt-9">
                     <h4 className="font-medium mb-2 text-secondary text-sm">{tr(language, "books.sessionsHistory")}</h4>
                     {sortedSessions.length === 0 ? (
                         <p className="text-secondary text-sm">{tr(language, "books.noSessions")}</p>
@@ -288,7 +297,7 @@ export function BookSessionModal({
                     )}
                 </div>
 
-                <div className="books-detail-footer mt-8">
+                <div className="books-detail-footer mt-9">
                     <button type="button" className="glass-button" onClick={onClose}>
                         {tr(language, "common.close")}
                     </button>

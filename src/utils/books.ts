@@ -6,6 +6,12 @@ function toPositiveInt(value: number | undefined): number {
     return Math.max(0, Math.floor(value));
 }
 
+function toOptionalPositiveInt(value: number | undefined): number | undefined {
+    if (typeof value !== "number" || Number.isNaN(value)) return undefined;
+    const normalized = Math.floor(value);
+    return normalized > 0 ? normalized : undefined;
+}
+
 function getSessionDate(session: BookSession): string {
     const isoDate = session.date.slice(0, 10);
     return /^\d{4}-\d{2}-\d{2}$/.test(isoDate) ? isoDate : toIsoDate(new Date(session.date));
@@ -59,6 +65,24 @@ export function getBookActivityTimestamp(book: Book): number {
     const finishTs = book.finishDate ? new Date(book.finishDate).getTime() : 0;
     const startTs = book.startDate ? new Date(book.startDate).getTime() : 0;
     return Math.max(finishTs || 0, startTs || 0);
+}
+
+export function sortQueueBooks(books: Book[]): Book[] {
+    return [...books].sort((left, right) => {
+        const leftOrder = left.queueOrder ?? Number.MAX_SAFE_INTEGER;
+        const rightOrder = right.queueOrder ?? Number.MAX_SAFE_INTEGER;
+        if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+        return left.title.localeCompare(right.title);
+    });
+}
+
+export function getNextQueueOrder(books: Book[], ignoreId?: string): number {
+    const highest = books.reduce((max, book) => {
+        if (ignoreId && book.id === ignoreId) return max;
+        if (book.status !== "want_to_read") return max;
+        return Math.max(max, book.queueOrder ?? 0);
+    }, 0);
+    return highest + 1;
 }
 
 type SessionIncrement = {
@@ -170,6 +194,7 @@ export function normalizeBookRecord(book: Book, todayIso: string): Book {
 
     const sessions = sortBookSessionsByDateDesc(book.sessions ?? []);
     const categories = sanitizeBookCategories(book.categories);
+    const queueOrder = status === "want_to_read" ? toOptionalPositiveInt(book.queueOrder) : undefined;
     const startDate = status === "want_to_read"
         ? undefined
         : (book.startDate ?? todayIso);
@@ -183,6 +208,7 @@ export function normalizeBookRecord(book: Book, todayIso: string): Book {
         totalPages,
         readPages,
         status,
+        queueOrder,
         sessions,
         startDate,
         finishDate

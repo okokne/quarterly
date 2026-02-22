@@ -45,12 +45,21 @@ export function BookEditModal({ open, language, bookToEdit, onClose, onSave }: B
         onClose();
     };
 
+    useEffect(() => {
+        if (!open) return;
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
+    }, [open, onClose]);
+
     if (!open) return null;
 
     return (
-        <div className="modal-backdrop z-max">
-            <div className="modal panel-content glass-panel">
-                <div className="modal-header pb-4 pt-2">
+        <div className="modal-backdrop z-max" onClick={onClose}>
+            <div className="modal panel-content glass-panel books-modal-shell" onClick={(event) => event.stopPropagation()}>
+                <div className="modal-header books-modal-header">
                     <h3 className="m-0 text-xl font-bold">{bookToEdit ? tr(language, "books.edit") : tr(language, "books.add")}</h3>
                     <p className="text-secondary mt-2 mb-0">{tr(language, "books.editHint")}</p>
                 </div>

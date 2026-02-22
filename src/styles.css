@@ -4954,6 +4954,16 @@ button.ghost-danger:hover {
   animation: fadeIn 200ms ease;
 }
 
+.modal {
+  width: min(700px, 100%);
+  max-height: min(88vh, 920px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: var(--radius-card);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -8496,7 +8506,8 @@ body.dark-mode .archive-banner {
 .books-inline-composer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  padding-bottom: 8px;
 }
 
 .books-inline-status {
@@ -8509,6 +8520,11 @@ body.dark-mode .archive-banner {
 .books-inline-actions {
   display: flex;
   justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.books-grid-sections {
+  margin-top: 4px;
 }
 
 .books-section-title {
@@ -8732,6 +8748,7 @@ body.dark-mode .book-cover-placeholder {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .book-quick-input {
@@ -8757,7 +8774,7 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .books-detail-top {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .books-detail-quick-row {
@@ -8773,6 +8790,34 @@ body.dark-mode .book-cover-placeholder {
 .books-detail-cta {
   display: flex;
   justify-content: flex-end;
+}
+
+.book-queue-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 2px;
+}
+
+.book-queue-inline span {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.book-queue-inline-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.book-queue-inline-btn:disabled {
+  opacity: 0.42;
+  cursor: default;
 }
 
 .books-finish-panel {
@@ -8812,6 +8857,16 @@ body.dark-mode .book-cover-placeholder {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.books-modal-shell {
+  padding: 24px 24px 22px;
+  gap: 18px;
+}
+
+.books-modal-header {
+  padding-top: 2px;
+  padding-bottom: 8px;
 }
 
 @media (max-width: 720px) {

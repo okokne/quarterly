@@ -9,6 +9,7 @@ import {
     getBookCompletionStats,
     getBookRemainingPages,
     getFinishedBooksInYear,
+    sortQueueBooks,
     getPagesReadThisWeek,
     getReadingStreakDays
 } from "../../utils/books";
@@ -59,10 +60,8 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
             .sort((left, right) => getBookActivityTimestamp(right) - getBookActivityTimestamp(left)),
         [books]
     );
-    const wantToRead = useMemo(
-        () => [...books]
-            .filter((book) => book.status === "want_to_read")
-            .sort((left, right) => left.title.localeCompare(right.title)),
+    const queueBooks = useMemo(
+        () => sortQueueBooks(books.filter((book) => book.status === "want_to_read")),
         [books]
     );
     const finished = useMemo(
@@ -119,6 +118,21 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         onAddSession(book.id, clamped);
     };
 
+    const moveQueueBook = (bookId: string, direction: -1 | 1) => {
+        const currentIndex = queueBooks.findIndex((book) => book.id === bookId);
+        if (currentIndex < 0) return;
+        const targetIndex = currentIndex + direction;
+        if (targetIndex < 0 || targetIndex >= queueBooks.length) return;
+
+        const currentBook = queueBooks[currentIndex];
+        const targetBook = queueBooks[targetIndex];
+        const currentOrder = currentBook.queueOrder ?? currentIndex + 1;
+        const targetOrder = targetBook.queueOrder ?? targetIndex + 1;
+
+        onUpdateBook(currentBook.id, { queueOrder: targetOrder });
+        onUpdateBook(targetBook.id, { queueOrder: currentOrder });
+    };
+
     const maybeShowCompletionNotice = (book: Book) => {
         const stats = getBookCompletionStats({ ...book, status: "finished", finishDate: todayIso }, todayIso);
         setFinishNotice({
@@ -130,7 +144,7 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         });
     };
 
-    const renderSection = (title: string, sectionBooks: Book[]) => (
+    const renderSection = (title: string, sectionBooks: Book[], sectionType: "reading" | "queue" | "finished") => (
         <section>
             <div className="books-section-title">
                 <h3 className="text-xl font-bold mb-0">{title}</h3>
@@ -140,7 +154,7 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                 <div className="books-section-empty text-secondary">{tr(language, "books.sectionEmpty")}</div>
             ) : (
                 <div className="books-list-compact">
-                    {sectionBooks.map((book) => (
+                    {sectionBooks.map((book, index) => (
                         <BookCard
                             key={book.id}
                             book={book}
@@ -149,6 +163,14 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             onQuickSetPage={book.status === "reading" ? (page) => updateProgress(book, page) : undefined}
                             onQuickAddTen={book.status === "reading" ? () => updateProgress(book, book.readPages + 10) : undefined}
                             onStartReading={book.status === "want_to_read" ? () => onUpdateBook(book.id, { status: "reading" }) : undefined}
+                            queuePosition={sectionType === "queue" ? index + 1 : undefined}
+                            queueTotal={sectionType === "queue" ? sectionBooks.length : undefined}
+                            onMoveQueueUp={sectionType === "queue" && index > 0
+                                ? () => moveQueueBook(book.id, -1)
+                                : undefined}
+                            onMoveQueueDown={sectionType === "queue" && index < sectionBooks.length - 1
+                                ? () => moveQueueBook(book.id, 1)
+                                : undefined}
                         />
                     ))}
                 </div>
@@ -180,7 +202,7 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
             )}
 
             {composerOpen && (
-                <form className="books-inline-composer glass-panel panel-content mb-6" onSubmit={handleAddBook}>
+                <form className="books-inline-composer glass-panel panel-content mb-10" onSubmit={handleAddBook}>
                     <p className="text-secondary mb-4">{tr(language, "books.inlineAddHint")}</p>
                     <div className="grid md:grid-cols-2 gap-3">
                         <input
@@ -267,9 +289,9 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                     </div>
 
                     <div className="books-grid-sections space-y-8">
-                        {renderSection(tr(language, "books.status.reading"), currentlyReading)}
-                        {renderSection(tr(language, "books.status.want_to_read"), wantToRead)}
-                        {renderSection(tr(language, "books.status.finished"), finished)}
+                        {renderSection(tr(language, "books.status.reading"), currentlyReading, "reading")}
+                        {renderSection(tr(language, "books.queue"), queueBooks, "queue")}
+                        {renderSection(tr(language, "books.status.finished"), finished, "finished")}
                     </div>
                 </div>
             )}

@@ -10,6 +10,10 @@ type BookCardProps = {
     onQuickSetPage?: (page: number) => void;
     onQuickAddTen?: () => void;
     onStartReading?: () => void;
+    queuePosition?: number;
+    queueTotal?: number;
+    onMoveQueueUp?: () => void;
+    onMoveQueueDown?: () => void;
 };
 
 export function BookCard({
@@ -18,7 +22,11 @@ export function BookCard({
     onOpenDetails,
     onQuickSetPage,
     onQuickAddTen,
-    onStartReading
+    onStartReading,
+    queuePosition,
+    queueTotal,
+    onMoveQueueUp,
+    onMoveQueueDown
 }: BookCardProps) {
     const progressPercent = getBookProgressPercent(book);
     const [pageInput, setPageInput] = useState(String(book.readPages));
@@ -130,10 +138,36 @@ export function BookCard({
                         <button
                             type="button"
                             className="book-quick-btn"
-                            onClick={onStartReading}
+                            onClick={() => {
+                                onStartReading();
+                                onOpenDetails();
+                            }}
                         >
                             {tr(language, "books.startReading")}
                         </button>
+                        {typeof queuePosition === "number" && typeof queueTotal === "number" && (
+                            <div className="book-queue-inline">
+                                <button
+                                    type="button"
+                                    className="book-queue-inline-btn"
+                                    onClick={onMoveQueueUp}
+                                    disabled={!onMoveQueueUp}
+                                    title={tr(language, "books.queueMoveUp")}
+                                >
+                                    ↑
+                                </button>
+                                <span>{tr(language, "books.queuePosition", { position: queuePosition, total: queueTotal })}</span>
+                                <button
+                                    type="button"
+                                    className="book-queue-inline-btn"
+                                    onClick={onMoveQueueDown}
+                                    disabled={!onMoveQueueDown}
+                                    title={tr(language, "books.queueMoveDown")}
+                                >
+                                    ↓
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
