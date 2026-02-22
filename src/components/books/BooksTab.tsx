@@ -284,10 +284,6 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             <strong>{booksThisYear}</strong>
                         </article>
                         <article className="books-summary-card glass-panel">
-                            <span>{tr(language, "books.yearOverview")}</span>
-                            <strong>{tr(language, "books.yearOverviewValue", { count: booksThisYear })}</strong>
-                        </article>
-                        <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.summary.remainingPages")}</span>
                             <strong>{totalRemainingPages}</strong>
                         </article>
