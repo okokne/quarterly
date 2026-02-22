@@ -83,6 +83,8 @@ export function useBooksStore({
                 readPages: 0,
                 status,
                 queueOrder: status === "want_to_read" ? getNextQueueOrder(prev) : undefined,
+                startDate: status === "want_to_read" ? undefined : todayIso,
+                finishDate: status === "finished" ? todayIso : undefined,
                 sessions: []
             };
             const newBook = normalizeBookRecord(baseBook, todayIso);
@@ -102,6 +104,18 @@ export function useBooksStore({
                     ...updates,
                     categories: updates.categories ? sanitizeBookCategories(updates.categories) : book.categories
                 };
+
+                if (merged.status === "reading") {
+                    merged.startDate = merged.startDate ?? todayIso;
+                    merged.finishDate = undefined;
+                } else if (merged.status === "finished") {
+                    merged.startDate = merged.startDate ?? todayIso;
+                    merged.finishDate = merged.finishDate ?? todayIso;
+                } else {
+                    merged.startDate = undefined;
+                    merged.finishDate = undefined;
+                }
+
                 if (merged.status === "want_to_read" && typeof merged.queueOrder !== "number") {
                     merged.queueOrder = nextQueueOrder;
                 }
