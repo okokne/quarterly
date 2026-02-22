@@ -14,8 +14,11 @@ import {
     STORAGE_KEY,
     Cycle,
     DailyTemplate,
-    Habit
+    Habit,
+    Book
 } from "../types";
+
+export const BOOKS_STORAGE_KEY = "twy_books";
 import { migrateCycle } from "../utils";
 import {
     GUEST_SCOPE,
@@ -152,6 +155,7 @@ export function sanitizePersistedPlannerState(
         history: [],
         habits: [],
         habitLog: {},
+        books: [],
         preferences: normalizePreferences(undefined, fallbackPreferences, scope)
     } satisfies PersistedPlannerState;
 
@@ -167,6 +171,7 @@ export function sanitizePersistedPlannerState(
         : [];
     const habits = Array.isArray(input.habits) ? input.habits : [];
     const habitLog = normalizeHabitLog(input.habitLog);
+    const books = Array.isArray(input.books) ? input.books : [];
     const preferences = normalizePreferences(input.preferences, fallbackPreferences, scope);
 
     return {
@@ -175,6 +180,7 @@ export function sanitizePersistedPlannerState(
         history,
         habits,
         habitLog,
+        books,
         preferences
     };
 }
@@ -194,6 +200,7 @@ export function buildPersistedPlannerState(input: PersistedPlannerState): Persis
         history: input.history,
         habits: input.habits,
         habitLog: input.habitLog,
+        books: input.books,
         preferences: input.preferences
     };
 }
@@ -204,7 +211,8 @@ export function hasMeaningfulPlannerData(state: PersistedPlannerState): boolean 
         state.templates.length > 0 ||
         state.history.length > 0 ||
         state.habits.length > 0 ||
-        Object.keys(state.habitLog).length > 0
+        Object.keys(state.habitLog).length > 0 ||
+        state.books.length > 0
     );
 }
 
@@ -219,6 +227,7 @@ export function readPersistedPlannerStateFromLocalStorage(
             history: [],
             habits: [],
             habitLog: {},
+            books: [],
             preferences: readPreferencesFromStorage(scope, fallbackPreferences)
         };
     }
@@ -228,6 +237,7 @@ export function readPersistedPlannerStateFromLocalStorage(
     const history = readHistory(readScopedStorageValue(HISTORY_STORAGE_KEY, scope));
     const habits = safeJsonParse<Habit[]>(readScopedStorageValue(HABITS_STORAGE_KEY, scope), []);
     const habitLog = normalizeHabitLog(safeJsonParse<unknown>(readScopedStorageValue(HABIT_LOG_STORAGE_KEY, scope), {}));
+    const books = safeJsonParse<Book[]>(readScopedStorageValue(BOOKS_STORAGE_KEY, scope), []);
 
     return sanitizePersistedPlannerState(
         {
@@ -236,6 +246,7 @@ export function readPersistedPlannerStateFromLocalStorage(
             history,
             habits: Array.isArray(habits) ? habits : [],
             habitLog,
+            books: Array.isArray(books) ? books : [],
             preferences: readPreferencesFromStorage(scope, fallbackPreferences)
         },
         fallbackPreferences,
@@ -258,6 +269,7 @@ export function writePersistedPlannerStateToLocalStorage(
         writeScopedStorageValue(HISTORY_STORAGE_KEY, scope, JSON.stringify(state.history));
         writeScopedStorageValue(HABITS_STORAGE_KEY, scope, JSON.stringify(state.habits));
         writeScopedStorageValue(HABIT_LOG_STORAGE_KEY, scope, JSON.stringify(state.habitLog));
+        writeScopedStorageValue(BOOKS_STORAGE_KEY, scope, JSON.stringify(state.books));
         writeScopedStorageValue(APP_DARK_MODE_STORAGE_KEY, scope, String(state.preferences.darkMode));
         writeScopedStorageValue(APP_LANGUAGE_STORAGE_KEY, scope, state.preferences.language);
         writeScopedStorageValue(APP_DATE_FORMAT_STORAGE_KEY, scope, state.preferences.dateFormat);
@@ -276,6 +288,7 @@ export function summarizeImportSections(input: Partial<PersistedPlannerState>): 
     if ("history" in input) sections.push("history");
     if ("habits" in input) sections.push("habits");
     if ("habitLog" in input) sections.push("habitLog");
+    if ("books" in input) sections.push("books");
     if ("preferences" in input) sections.push("preferences");
     return sections;
 }
@@ -294,6 +307,7 @@ export function mergeImportedPlannerState(input: {
             history: incoming.history ?? current.history,
             habits: incoming.habits ?? current.habits,
             habitLog: incoming.habitLog ?? current.habitLog,
+            books: incoming.books ?? current.books,
             preferences: incoming.preferences
                 ? { ...current.preferences, ...incoming.preferences }
                 : current.preferences
@@ -321,6 +335,9 @@ export function mergeImportedPlannerState(input: {
         habitLog: isSectionMissing(current.habitLog, {}) && incoming.habitLog
             ? incoming.habitLog
             : current.habitLog,
+        books: isSectionMissing(current.books, []) && incoming.books
+            ? incoming.books
+            : current.books,
         preferences: mergedPreferences
     };
 }

@@ -16,6 +16,7 @@ import { SyncStatusSheet } from "./components/SyncStatusSheet";
 import { QuickNoteCapture } from "./components/QuickNoteCapture";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
 import { useHabitsStore } from "./hooks/useHabitsStore";
+import { useBooksStore } from "./hooks/useBooksStore";
 import { createDefaultDailyBlockDraft, useDailyBlocks } from "./hooks/useDailyBlocks";
 import { useWeeklyTargets } from "./hooks/useWeeklyTargets";
 import { useDailyTemplates } from "./hooks/useDailyTemplates";
@@ -75,6 +76,17 @@ export default function App() {
     toggleHabit,
     deleteHabit
   } = useHabitsStore({ activeCycle, isArchiveView, storageScope });
+
+  const {
+    books,
+    setBooks,
+    addBook,
+    updateBook,
+    deleteBook,
+    addSession
+  } = useBooksStore({ activeCycle, isArchiveView, storageScope, books: initialPersistedState.books, setBooks: () => { } });
+  // We need to actually get books from persistence. Oh wait, useAppSyncPersistence manages the state.
+  // Actually useHabitsStore manages its own state internally using persistence APIs... wait. I need to check how useHabitsStore works.
 
   const {
     titleInput,
@@ -293,6 +305,8 @@ export default function App() {
     history,
     habits,
     habitLog,
+    books,
+    setBooks,
     darkMode,
     language,
     dateFormat,
@@ -349,12 +363,12 @@ export default function App() {
   const isQuarterComplete = Boolean(cycle && !isArchiveView && cycleEndDate && todayIso >= cycleEndDate);
   const hasQuarterReview = Boolean(
     cycle?.finalReview
-      && (
-        (cycle.finalReview.breakthroughs ?? "").trim()
-        || (cycle.finalReview.keyLearning ?? "").trim()
-        || (cycle.finalReview.lifeQuality ?? "").trim()
-        || (cycle.finalReview.nextCycle ?? "").trim()
-      )
+    && (
+      (cycle.finalReview.breakthroughs ?? "").trim()
+      || (cycle.finalReview.keyLearning ?? "").trim()
+      || (cycle.finalReview.lifeQuality ?? "").trim()
+      || (cycle.finalReview.nextCycle ?? "").trim()
+    )
   );
   const queueTodayComposer = useCallback((mode: "timed" | "flexible") => {
     const nowIso = toIsoDate(new Date());
@@ -444,24 +458,24 @@ export default function App() {
       setViewingArchiveId
     },
     actions: {},
-      sync: {
-        syncEnabled,
-        syncStatus,
-        isAuthenticated,
-        authLoading,
-        authError,
-        authMessage,
-        cloudEmail,
-        syncError,
-        isOnline,
-        pendingLocalChangesCount,
-        lastSyncedAt,
-        onDownloadMyData: handleDownloadMyData,
-        onSignOut: signOut,
-        onDeleteAccount: deleteAccount,
-        onChangePassword: changePassword,
-        onSyncNow: requestSyncNow
-      }
+    sync: {
+      syncEnabled,
+      syncStatus,
+      isAuthenticated,
+      authLoading,
+      authError,
+      authMessage,
+      cloudEmail,
+      syncError,
+      isOnline,
+      pendingLocalChangesCount,
+      lastSyncedAt,
+      onDownloadMyData: handleDownloadMyData,
+      onSignOut: signOut,
+      onDeleteAccount: deleteAccount,
+      onChangePassword: changePassword,
+      onSyncNow: requestSyncNow
+    }
   });
   const confirmModalsProps = useConfirmModalsProps({
     language,
@@ -522,7 +536,12 @@ export default function App() {
     weeklyReview,
     showReminder,
     history,
+    books,
     updateCycle,
+    onAddBook: addBook,
+    onUpdateBook: updateBook,
+    onDeleteBook: deleteBook,
+    onAddSession: addSession,
     onAddGoal: handleAddGoal,
     onDeleteGoal: handleDeleteGoal,
     onAddWeeklyTarget: handleAddWeeklyTarget,

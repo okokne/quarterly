@@ -29,6 +29,7 @@ const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
     { id: "week", labelKey: "sidebar.nav.week", icon: LayoutGrid },
     { id: "plan", labelKey: "sidebar.nav.plan", icon: Target },
     { id: "inbox", labelKey: "sidebar.nav.inbox", icon: BookOpenText },
+    { id: "books", labelKey: "books.title", icon: BookOpenText },
     { id: "stats", labelKey: "sidebar.nav.stats", icon: BarChart3 }
 ];
 

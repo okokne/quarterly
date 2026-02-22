@@ -8,7 +8,8 @@ import {
     Id,
     PersistedPlannerState,
     StorageScope,
-    TimeFormat
+    TimeFormat,
+    Book
 } from "../types";
 import { buildPersistedPlannerState } from "../persistence/stateSerializer";
 import { usePlannerSync } from "./usePlannerSync";
@@ -31,6 +32,8 @@ type UseAppSyncPersistenceParams = {
     setHistory: Dispatch<SetStateAction<Cycle[]>>;
     setHabits: Dispatch<SetStateAction<Habit[]>>;
     setHabitLog: Dispatch<SetStateAction<Record<string, string[]>>>;
+    books: Book[];
+    setBooks: Dispatch<SetStateAction<Book[]>>;
     setDarkMode: (val: boolean) => void;
     setLanguage: (val: AppLanguage) => void;
     setDateFormat: (val: DateFormat) => void;
@@ -58,6 +61,8 @@ export function useAppSyncPersistence({
     setHistory,
     setHabits,
     setHabitLog,
+    books,
+    setBooks,
     setDarkMode,
     setLanguage,
     setDateFormat,
@@ -74,6 +79,7 @@ export function useAppSyncPersistence({
         history,
         habits,
         habitLog,
+        books,
         preferences: {
             darkMode,
             language,
@@ -87,6 +93,7 @@ export function useAppSyncPersistence({
         history,
         habits,
         habitLog,
+        books,
         darkMode,
         language,
         dateFormat,
@@ -100,6 +107,7 @@ export function useAppSyncPersistence({
         setHistory(() => nextState.history);
         setHabits(nextState.habits);
         setHabitLog(nextState.habitLog);
+        setBooks(nextState.books);
         setDarkMode(nextState.preferences.darkMode);
         setLanguage(nextState.preferences.language);
         setDateFormat(nextState.preferences.dateFormat);
@@ -112,6 +120,7 @@ export function useAppSyncPersistence({
         setHistory,
         setHabits,
         setHabitLog,
+        setBooks,
         setDarkMode,
         setLanguage,
         setDateFormat,

@@ -13,7 +13,8 @@ import {
     Id,
     TimeFormat,
     WeeklyReview,
-    WeeklyTarget
+    WeeklyTarget,
+    Book
 } from "../types";
 import { buildCycle } from "../utils";
 import { JournalView } from "./JournalView";
@@ -22,6 +23,7 @@ import { PlanTab } from "./PlanTab";
 import { StatsView } from "./StatsView";
 import { TodayTab } from "./TodayTab";
 import { WeekTab } from "./WeekTab";
+import { BooksTab } from "./books/BooksTab";
 
 type GoalDraft = {
     title: string;
@@ -68,6 +70,11 @@ type AppDashboardContentProps = {
     setDraggingTargetId: Dispatch<SetStateAction<Id | null>>;
     habits: Habit[];
     habitLog: Record<string, string[]>;
+    books: Book[];
+    onAddBook: (title: string, author?: string, coverUrl?: string, categories?: string[], totalPages?: number, status?: "want_to_read" | "reading" | "finished") => void;
+    onUpdateBook: (id: string, updates: Partial<Book>) => void;
+    onDeleteBook: (id: string) => void;
+    onAddSession: (bookId: string, pagesRead: number, notes?: string) => void;
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
     showReminder: boolean;
@@ -134,6 +141,11 @@ export function AppDashboardContent({
     setDraggingTargetId,
     habits,
     habitLog,
+    books,
+    onAddBook,
+    onUpdateBook,
+    onDeleteBook,
+    onAddSession,
     dailyReview,
     weeklyReview,
     showReminder,
@@ -301,6 +313,17 @@ export function AppDashboardContent({
                     setActiveTab={setActiveTab}
                     updateCycle={updateCycle}
                     onOpenLabelSettings={onOpenLabelSettings}
+                />
+            )}
+
+            {onboardingDone && activeTab === "books" && (
+                <BooksTab
+                    language={language}
+                    books={books}
+                    onAddBook={onAddBook}
+                    onUpdateBook={onUpdateBook}
+                    onDeleteBook={onDeleteBook}
+                    onAddSession={onAddSession}
                 />
             )}
 

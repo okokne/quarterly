@@ -93,6 +93,30 @@ export type Habit = {
     goal?: { type: 'open' } | { type: 'target'; target: number; unit: string };
 };
 
+export type BookStatus = "want_to_read" | "reading" | "finished";
+
+export type BookSession = {
+    id: Id;
+    date: string; // ISO datetime
+    pagesRead: number;
+    notes?: string;
+};
+
+export type Book = {
+    id: Id;
+    title: string;
+    author?: string;
+    coverUrl?: string; // Optional cover image URL
+    categories: string[]; // e.g. ["Business", "Self-Help"]
+    totalPages: number;
+    readPages: number;
+    status: BookStatus;
+    rating?: number; // 1-5
+    startDate?: string; // ISO date
+    finishDate?: string; // ISO date
+    sessions: BookSession[];
+};
+
 export type Week = {
     index: number; // 1..12
     startDate: string; // ISO
@@ -175,6 +199,7 @@ export type PersistedPlannerState = {
     history: Cycle[];
     habits: Habit[];
     habitLog: Record<string, string[]>;
+    books: Book[];
     preferences: PersistedPlannerPreferences;
 };
 

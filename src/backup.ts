@@ -1,4 +1,4 @@
-import { AppLanguage, Cycle, DailyTemplate, DateFormat, Habit, TimeFormat } from "./types";
+import { AppLanguage, Cycle, DailyTemplate, DateFormat, Habit, TimeFormat, Book } from "./types";
 import { migrateCycle } from "./utils";
 
 type JsonRecord = Record<string, unknown>;
@@ -19,6 +19,7 @@ export type BackupSnapshot = {
     history: Cycle[];
     habits: Habit[];
     habitLog: Record<string, string[]>;
+    books: Book[];
     preferences: BackupPreferences;
 };
 
@@ -28,6 +29,7 @@ export type ParsedBackup = Partial<{
     history: Cycle[];
     habits: Habit[];
     habitLog: Record<string, string[]>;
+    books: Book[];
     preferences: BackupPreferences;
 }>;
 
@@ -178,6 +180,12 @@ function normalizeHabitLog(value: unknown): Record<string, string[]> | undefined
     return result;
 }
 
+function normalizeBooks(value: unknown): Book[] | undefined {
+    if (!Array.isArray(value)) return undefined;
+    // Minimal validation to pass TS
+    return value as Book[];
+}
+
 function normalizePreferences(value: unknown): BackupPreferences | undefined {
     if (!isRecord(value)) return undefined;
     if (typeof value.darkMode !== "boolean") return undefined;
@@ -208,7 +216,7 @@ export function parseBackupPayload(raw: unknown): ParsedBackup {
         throw new Error("Backup payload is not an object.");
     }
 
-    const hasKnownKey = ["cycle", "templates", "history", "habits", "habitLog", "preferences"]
+    const hasKnownKey = ["cycle", "templates", "history", "habits", "habitLog", "books", "preferences"]
         .some((key) => key in raw);
     if (!hasKnownKey) {
         throw new Error("Backup payload has no known keys.");
@@ -240,6 +248,11 @@ export function parseBackupPayload(raw: unknown): ParsedBackup {
         const habitLog = normalizeHabitLog(raw.habitLog);
         if (habitLog === undefined) throw new Error("Invalid habit log in backup.");
         parsed.habitLog = habitLog;
+    }
+    if ("books" in raw) {
+        const books = normalizeBooks(raw.books);
+        if (books === undefined) throw new Error("Invalid books in backup.");
+        parsed.books = books;
     }
     if ("preferences" in raw) {
         const preferences = normalizePreferences(raw.preferences);

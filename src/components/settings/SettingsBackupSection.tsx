@@ -7,7 +7,8 @@ import {
     Id,
     LocalSnapshotMeta,
     PersistedPlannerState,
-    TimeFormat
+    TimeFormat,
+    Book
 } from "../../types";
 import { Download } from "../ui/icons";
 import { t as tr } from "../../i18n";
@@ -22,6 +23,7 @@ type SettingsBackupSectionProps = {
     history: Cycle[];
     habits: Habit[];
     habitLog: Record<string, string[]>;
+    books: Book[];
     darkMode: boolean;
     language: AppLanguage;
     dateFormat: DateFormat;
@@ -35,6 +37,7 @@ type SettingsBackupSectionProps = {
     setHistory: (updater: (prev: Cycle[]) => Cycle[]) => void;
     setHabits: (habits: Habit[]) => void;
     setHabitLog: (log: Record<string, string[]>) => void;
+    setBooks: (books: Book[]) => void;
     setDarkMode: (val: boolean) => void;
     setLanguage: (val: AppLanguage) => void;
     setDateFormat: (val: DateFormat) => void;
@@ -51,6 +54,7 @@ export function SettingsBackupSection({
     history,
     habits,
     habitLog,
+    books,
     darkMode,
     language,
     dateFormat,
@@ -64,6 +68,7 @@ export function SettingsBackupSection({
     setHistory,
     setHabits,
     setHabitLog,
+    setBooks,
     setDarkMode,
     setLanguage,
     setDateFormat,
@@ -90,6 +95,7 @@ export function SettingsBackupSection({
                             history,
                             habits,
                             habitLog,
+                            books,
                             preferences: {
                                 darkMode,
                                 language,
@@ -144,6 +150,7 @@ export function SettingsBackupSection({
                                         history,
                                         habits,
                                         habitLog,
+                                        books,
                                         preferences: {
                                             darkMode,
                                             language,
@@ -164,6 +171,7 @@ export function SettingsBackupSection({
                                     setHistory(() => nextState.history);
                                     setHabits(nextState.habits);
                                     setHabitLog(nextState.habitLog);
+                                    setBooks(nextState.books);
 
                                     setDarkMode(nextState.preferences.darkMode);
                                     setLanguage(nextState.preferences.language);

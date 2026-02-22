@@ -1,2 +1,2 @@
-export type AppTab = "today" | "week" | "plan" | "inbox" | "stats";
+export type AppTab = "today" | "week" | "plan" | "inbox" | "stats" | "books";
 

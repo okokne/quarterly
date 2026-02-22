@@ -48,6 +48,7 @@ function buildEmptyState(preferences: PersistedPlannerState["preferences"]): Per
         history: [],
         habits: [],
         habitLog: {},
+        books: [],
         preferences
     };
 }

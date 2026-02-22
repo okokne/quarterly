@@ -7,7 +7,8 @@ import {
     Habit,
     Id,
     LocalSnapshotMeta,
-    TimeFormat
+    TimeFormat,
+    Book
 } from "../../types";
 import { t as tr } from "../../i18n";
 import { GoogleCalendar } from "../../googleCalendar";
@@ -21,6 +22,7 @@ type SettingsImportExportSectionProps = {
     history: Cycle[];
     habits: Habit[];
     habitLog: Record<string, string[]>;
+    books: Book[];
     darkMode: boolean;
     language: AppLanguage;
     dateFormat: DateFormat;
@@ -38,6 +40,7 @@ type SettingsImportExportSectionProps = {
     setHistory: (updater: (prev: Cycle[]) => Cycle[]) => void;
     setHabits: (habits: Habit[]) => void;
     setHabitLog: (log: Record<string, string[]>) => void;
+    setBooks: (books: Book[]) => void;
     setDarkMode: (val: boolean) => void;
     setLanguage: (val: AppLanguage) => void;
     setDateFormat: (val: DateFormat) => void;
@@ -53,6 +56,7 @@ export function SettingsImportExportSection({
     history,
     habits,
     habitLog,
+    books,
     darkMode,
     language,
     dateFormat,
@@ -70,6 +74,7 @@ export function SettingsImportExportSection({
     setHistory,
     setHabits,
     setHabitLog,
+    setBooks,
     setDarkMode,
     setLanguage,
     setDateFormat,
@@ -89,6 +94,7 @@ export function SettingsImportExportSection({
                 history={history}
                 habits={habits}
                 habitLog={habitLog}
+                books={books}
                 darkMode={darkMode}
                 language={language}
                 dateFormat={dateFormat}
@@ -102,6 +108,7 @@ export function SettingsImportExportSection({
                 setHistory={setHistory}
                 setHabits={setHabits}
                 setHabitLog={setHabitLog}
+                setBooks={setBooks}
                 setDarkMode={setDarkMode}
                 setLanguage={setLanguage}
                 setDateFormat={setDateFormat}
