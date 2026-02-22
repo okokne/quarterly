@@ -6,6 +6,9 @@ import {
     getBookProgressPercent,
     getFinishedBooksInYear,
     getNextQueueOrder,
+    getReadingMinutesInYear,
+    getReadingMinutesThisWeek,
+    getReadingMinutesTotal,
     getPagesReadThisWeek,
     getReadingStreakDays,
     normalizeBookRecord,
@@ -112,6 +115,32 @@ test("getPagesReadThisWeek supports additive session logs with pageAfter", () =>
         ]
     });
     assert.equal(getPagesReadThisWeek([book], "2026-02-22"), 45);
+});
+
+test("reading minute helpers aggregate total, week, and year minutes", () => {
+    const books = [
+        createBook({
+            status: "reading",
+            sessions: [
+                { id: "s1", date: "2026-02-16T10:00:00.000Z", pagesRead: 10, durationMinutes: 12 },
+                { id: "s2", date: "2026-02-20T10:00:00.000Z", pagesRead: 20, durationMinutes: 25 },
+                { id: "s3", date: "2025-12-28T10:00:00.000Z", pagesRead: 5, durationMinutes: 30 }
+            ]
+        }),
+        createBook({
+            id: "book-2",
+            status: "finished",
+            sessions: [
+                { id: "s4", date: "2026-01-04T10:00:00.000Z", pagesRead: 18, durationMinutes: 40 },
+                { id: "s5", date: "2026-02-22T10:00:00.000Z", pagesRead: 15 }
+            ]
+        })
+    ];
+
+    assert.equal(getReadingMinutesTotal(books), 107);
+    // Week of 2026-02-22 starts on Monday 2026-02-16
+    assert.equal(getReadingMinutesThisWeek(books, "2026-02-22"), 37);
+    assert.equal(getReadingMinutesInYear(books, 2026), 77);
 });
 
 test("getFinishedBooksInYear counts only books completed in target year", () => {

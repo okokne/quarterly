@@ -8,6 +8,9 @@ import {
     getBookActivityTimestamp,
     getBookRemainingPages,
     getFinishedBooksInYear,
+    getReadingMinutesInYear,
+    getReadingMinutesThisWeek,
+    getReadingMinutesTotal,
     sortQueueBooks,
     getPagesReadThisWeek,
     getReadingStreakDays
@@ -44,11 +47,14 @@ type FinishNotice = {
     text: string;
 };
 
+type BooksView = "library" | "insights";
+
 export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBook, onAddSession }: BooksTabProps) {
     const [composerOpen, setComposerOpen] = useState(false);
     const [draft, setDraft] = useState<BookComposerDraft>(EMPTY_DRAFT);
     const [activeBookId, setActiveBookId] = useState<string | null>(null);
     const [finishNotice, setFinishNotice] = useState<FinishNotice | null>(null);
+    const [activeView, setActiveView] = useState<BooksView>("library");
 
     const todayIso = toIsoDate(new Date());
     const currentYear = Number.parseInt(todayIso.slice(0, 4), 10);
@@ -72,7 +78,18 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
 
     const streakDays = useMemo(() => getReadingStreakDays(books, todayIso), [books, todayIso]);
     const pagesThisWeek = useMemo(() => getPagesReadThisWeek(books, todayIso), [books, todayIso]);
+    const minutesThisWeek = useMemo(() => getReadingMinutesThisWeek(books, todayIso), [books, todayIso]);
+    const minutesTotal = useMemo(() => getReadingMinutesTotal(books), [books]);
+    const minutesThisYear = useMemo(() => getReadingMinutesInYear(books, currentYear), [books, currentYear]);
     const booksThisYear = useMemo(() => getFinishedBooksInYear(books, currentYear), [books, currentYear]);
+    const totalSessions = useMemo(
+        () => books.reduce((sum, book) => sum + (book.sessions?.length ?? 0), 0),
+        [books]
+    );
+    const avgMinutesPerSession = useMemo(
+        () => (totalSessions > 0 ? Math.round(minutesTotal / totalSessions) : 0),
+        [minutesTotal, totalSessions]
+    );
     const totalRemainingPages = useMemo(
         () => books.filter((book) => book.status !== "finished").reduce((sum, book) => sum + getBookRemainingPages(book), 0),
         [books]
@@ -92,6 +109,12 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         const timeout = window.setTimeout(() => setFinishNotice(null), 2600);
         return () => window.clearTimeout(timeout);
     }, [finishNotice]);
+
+    useEffect(() => {
+        if (activeView === "insights") {
+            setComposerOpen(false);
+        }
+    }, [activeView]);
 
     const handleAddBook = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -183,20 +206,49 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         </section>
     );
 
+    const formatMinutes = (minutes: number) => {
+        if (minutes < 60) return tr(language, "books.minutesValueMinutes", { value: minutes });
+        const hours = Math.floor(minutes / 60);
+        const restMinutes = minutes % 60;
+        if (restMinutes === 0) {
+            return tr(language, "books.minutesValueHoursOnly", { hours });
+        }
+        return tr(language, "books.minutesValueHoursMinutes", { hours, minutes: restMinutes });
+    };
+
     return (
         <div className="tab-container page-content fade-in p-4 lg:p-8 max-w-[1000px] mx-auto">
             <div className="books-header-row mb-6">
                 <h2 className="section-title mb-0">{tr(language, "books.title")}</h2>
+                {activeView === "library" && (
+                    <button
+                        type="button"
+                        className={`glass-button books-add-toggle ${composerOpen ? "open" : ""}`}
+                        onClick={() => setComposerOpen((prev) => !prev)}
+                        aria-expanded={composerOpen}
+                    >
+                        <span className="books-add-toggle-icon" aria-hidden="true">
+                            <Plus size={15} />
+                        </span>
+                        <span>{composerOpen ? tr(language, "common.close") : tr(language, "books.add")}</span>
+                    </button>
+                )}
+            </div>
+
+            <div className="books-view-toggle mb-6">
                 <button
                     type="button"
-                    className={`glass-button books-add-toggle ${composerOpen ? "open" : ""}`}
-                    onClick={() => setComposerOpen((prev) => !prev)}
-                    aria-expanded={composerOpen}
+                    className={`books-view-chip ${activeView === "library" ? "active" : ""}`}
+                    onClick={() => setActiveView("library")}
                 >
-                    <span className="books-add-toggle-icon" aria-hidden="true">
-                        <Plus size={15} />
-                    </span>
-                    <span>{composerOpen ? tr(language, "common.close") : tr(language, "books.add")}</span>
+                    {tr(language, "books.view.library")}
+                </button>
+                <button
+                    type="button"
+                    className={`books-view-chip ${activeView === "insights" ? "active" : ""}`}
+                    onClick={() => setActiveView("insights")}
+                >
+                    {tr(language, "books.view.insights")}
                 </button>
             </div>
 
@@ -206,7 +258,7 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                 </div>
             )}
 
-            {composerOpen && (
+            {activeView === "library" && composerOpen && (
                 <form className="books-inline-composer glass-panel panel-content mb-10" onSubmit={handleAddBook}>
                     <p className="text-secondary mb-4">{tr(language, "books.inlineAddHint")}</p>
                     <div className="grid md:grid-cols-2 gap-3">
@@ -263,13 +315,13 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                 </form>
             )}
 
-            {books.length === 0 ? (
-                <div className="empty-state glass-panel panel-content text-center py-14">
-                    <h3 className="text-xl font-bold mb-2">{tr(language, "books.noBooks")}</h3>
-                    <p className="text-secondary mb-0">{tr(language, "books.emptyHint")}</p>
-                </div>
-            ) : (
+            {activeView === "insights" ? (
                 <div className="books-layout-stack">
+                    <div className="books-insights-header">
+                        <h3 className="text-xl font-bold mb-1">{tr(language, "books.view.insights")}</h3>
+                        <p className="text-secondary mb-0">{tr(language, "books.insightsHint")}</p>
+                    </div>
+
                     <div className="books-summary-grid">
                         <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.streak")}</span>
@@ -280,14 +332,42 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             <strong>{pagesThisWeek}</strong>
                         </article>
                         <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.minutesThisWeek")}</span>
+                            <strong>{formatMinutes(minutesThisWeek)}</strong>
+                        </article>
+                        <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.minutesTotal")}</span>
+                            <strong>{formatMinutes(minutesTotal)}</strong>
+                        </article>
+                        <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.minutesThisYear")}</span>
+                            <strong>{formatMinutes(minutesThisYear)}</strong>
+                        </article>
+                        <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.booksThisYear")}</span>
                             <strong>{booksThisYear}</strong>
+                        </article>
+                        <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.sessionsLogged")}</span>
+                            <strong>{totalSessions}</strong>
+                        </article>
+                        <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.avgMinutesPerSession")}</span>
+                            <strong>{formatMinutes(avgMinutesPerSession)}</strong>
                         </article>
                         <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.summary.remainingPages")}</span>
                             <strong>{totalRemainingPages}</strong>
                         </article>
                     </div>
+                </div>
+            ) : books.length === 0 ? (
+                <div className="empty-state glass-panel panel-content text-center py-14">
+                    <h3 className="text-xl font-bold mb-2">{tr(language, "books.noBooks")}</h3>
+                    <p className="text-secondary mb-0">{tr(language, "books.emptyHint")}</p>
+                </div>
+            ) : (
+                <div className="books-layout-stack">
 
                     <div className="books-grid-sections space-y-8">
                         {renderSection(tr(language, "books.status.reading"), currentlyReading, "reading")}

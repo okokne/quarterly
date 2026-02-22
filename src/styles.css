@@ -8454,10 +8454,45 @@ body.dark-mode .archive-banner {
   gap: 12px;
 }
 
+.books-view-toggle {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.books-view-chip {
+  min-height: 34px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-1) 90%, var(--bg-card));
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0 12px;
+}
+
+.books-view-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.books-view-chip.active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 76%, var(--surface-1));
+  color: var(--accent-600);
+}
+
 .books-layout-stack {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.books-insights-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .books-summary-grid {

@@ -166,6 +166,44 @@ export function getPagesReadThisWeek(books: Book[], todayIso: string): number {
     return total;
 }
 
+export function getReadingMinutesTotal(books: Book[]): number {
+    let total = 0;
+    books.forEach((book) => {
+        (book.sessions ?? []).forEach((session) => {
+            total += toPositiveInt(session.durationMinutes);
+        });
+    });
+    return total;
+}
+
+export function getReadingMinutesThisWeek(books: Book[], todayIso: string): number {
+    const weekStartIso = getStartOfWeekIso(todayIso);
+    let total = 0;
+    books.forEach((book) => {
+        (book.sessions ?? []).forEach((session) => {
+            const dateIso = getSessionDate(session);
+            if (dateIso >= weekStartIso && dateIso <= todayIso) {
+                total += toPositiveInt(session.durationMinutes);
+            }
+        });
+    });
+    return total;
+}
+
+export function getReadingMinutesInYear(books: Book[], year: number): number {
+    const prefix = `${year}-`;
+    let total = 0;
+    books.forEach((book) => {
+        (book.sessions ?? []).forEach((session) => {
+            const dateIso = getSessionDate(session);
+            if (dateIso.startsWith(prefix)) {
+                total += toPositiveInt(session.durationMinutes);
+            }
+        });
+    });
+    return total;
+}
+
 export function getFinishedBooksInYear(books: Book[], year: number): number {
     const prefix = `${year}-`;
     return books.filter((book) => book.status === "finished" && (book.finishDate ?? "").startsWith(prefix)).length;
