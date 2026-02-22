@@ -185,7 +185,7 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
 
     return (
         <div className="tab-container page-content fade-in p-4 lg:p-8 max-w-[1000px] mx-auto">
-            <div className="books-header-row mb-3">
+            <div className="books-header-row mb-6">
                 <h2 className="section-title mb-0">{tr(language, "books.title")}</h2>
                 <button
                     type="button"

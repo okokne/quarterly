@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { AppLanguage, Book } from "../../types";
+import { AppLanguage, Book, BookStatus } from "../../types";
 import { t as tr } from "../../i18n";
 import { formatDate } from "../../utils";
 import { getBookProgressPercent, sortBookSessionsByDateAsc } from "../../utils/books";
@@ -38,6 +38,7 @@ export function BookSessionModal({
     onUpdateBook,
     onDeleteBook
 }: BookSessionModalProps) {
+    const statusOptions: BookStatus[] = ["want_to_read", "reading", "finished"];
     const [pagesInput, setPagesInput] = useState("");
     const [durationInput, setDurationInput] = useState("");
     const [sessionNote, setSessionNote] = useState("");
@@ -113,10 +114,16 @@ export function BookSessionModal({
         ? Math.min(100, Math.round((previewPages / book.totalPages) * 100))
         : 0;
     const canMarkFinished = isReading && book.totalPages > 0 && book.readPages >= book.totalPages;
+    const canSetFinishedStatus = book.status === "finished" || book.totalPages <= 0 || book.readPages >= book.totalPages;
 
     const setParsedPages = (nextValue: number) => {
         const normalized = Math.max(0, Math.floor(nextValue));
         setPagesInput(normalized > 0 ? String(normalized) : "");
+    };
+
+    const setParsedDuration = (nextValue: number) => {
+        const normalized = Math.max(0, Math.floor(nextValue));
+        setDurationInput(normalized > 0 ? String(normalized) : "");
     };
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -155,6 +162,29 @@ export function BookSessionModal({
                     )}
                 </div>
 
+                <div className="books-status-editor">
+                    <p className="books-status-editor-label">{tr(language, "books.statusLabel")}</p>
+                    <div className="books-status-chip-row">
+                        {statusOptions.map((status) => {
+                            const disabled = status === "finished" && !canSetFinishedStatus;
+                            return (
+                                <button
+                                    key={status}
+                                    type="button"
+                                    className={`books-status-chip ${book.status === status ? "active" : ""}`}
+                                    disabled={disabled}
+                                    onClick={() => onUpdateBook(book.id, { status })}
+                                >
+                                    {tr(language, `books.status.${status}`)}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {!canSetFinishedStatus && (
+                        <p className="books-status-editor-hint">{tr(language, "books.finishLockedHint")}</p>
+                    )}
+                </div>
+
                 {isReading ? (
                     <form className="books-session-form" onSubmit={handleSubmit}>
                         <label className="books-session-label">
@@ -189,15 +219,32 @@ export function BookSessionModal({
 
                         <label className="books-session-label">
                             {tr(language, "books.sessionDurationOptional")}
-                            <input
-                                type="number"
-                                className="glass-input"
-                                value={durationInput}
-                                min="1"
-                                step="1"
-                                onChange={(event) => setDurationInput(event.target.value)}
-                            />
+                            <div className="books-session-pages-row">
+                                <button type="button" className="book-page-step-btn" onClick={() => setParsedDuration(parsedDuration - 1)}>-</button>
+                                <input
+                                    type="number"
+                                    className="glass-input"
+                                    value={durationInput}
+                                    min="1"
+                                    step="1"
+                                    onChange={(event) => setDurationInput(event.target.value)}
+                                />
+                                <button type="button" className="book-page-step-btn" onClick={() => setParsedDuration(parsedDuration + 1)}>+</button>
+                            </div>
                         </label>
+
+                        <div className="books-session-chip-row">
+                            {([-20, -10, -5, 5, 10, 20] as const).map((delta) => (
+                                <button
+                                    key={`duration-${delta}`}
+                                    type="button"
+                                    className="books-session-chip-btn"
+                                    onClick={() => setParsedDuration(parsedDuration + delta)}
+                                >
+                                    {delta > 0 ? `+${delta}` : String(delta)}
+                                </button>
+                            ))}
+                        </div>
 
                         <label className="books-session-label">
                             {tr(language, "books.sessionThoughtsOptional")}
@@ -234,19 +281,7 @@ export function BookSessionModal({
                             )}
                         </div>
                     </form>
-                ) : (
-                    <div className="books-session-actions">
-                        {book.status === "want_to_read" && (
-                            <button
-                                type="button"
-                                className="glass-button primary-action"
-                                onClick={() => onUpdateBook(book.id, { status: "reading" })}
-                            >
-                                {tr(language, "books.startReading")}
-                            </button>
-                        )}
-                    </div>
-                )}
+                ) : null}
 
                 <section className="books-session-section">
                     <button

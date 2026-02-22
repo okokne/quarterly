@@ -212,10 +212,6 @@ export function normalizeBookRecord(book: Book, todayIso: string): Book {
     if (totalPages > 0) {
         readPages = Math.min(readPages, totalPages);
     }
-    if (readPages > 0 && status === "want_to_read") {
-        status = "reading";
-    }
-
     const sessions = sortBookSessionsByDateDesc((book.sessions ?? []).map((session) => ({
         ...session,
         pagesRead: toPositiveInt(session.pagesRead),

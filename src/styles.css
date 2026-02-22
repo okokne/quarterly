@@ -8863,6 +8863,60 @@ body.dark-mode .book-cover-placeholder {
   padding-bottom: 8px;
 }
 
+.books-status-editor {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--surface-1) 80%, transparent);
+}
+
+.books-status-editor-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.books-status-chip-row {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.books-status-chip {
+  min-height: 32px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-1) 88%, var(--bg-card));
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0 12px;
+}
+
+.books-status-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.books-status-chip.active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 75%, var(--surface-1));
+  color: var(--accent-600);
+}
+
+.books-status-chip:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.books-status-editor-hint {
+  margin: 8px 0 0;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
 .books-session-form {
   display: flex;
   flex-direction: column;

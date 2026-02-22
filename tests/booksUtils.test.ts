@@ -28,10 +28,10 @@ function createBook(overrides: Partial<Book> = {}): Book {
     };
 }
 
-test("normalizeBookRecord moves wishlist books with progress to reading", () => {
+test("normalizeBookRecord keeps want_to_read status even when progress exists", () => {
     const normalized = normalizeBookRecord(createBook({ readPages: 24 }), "2026-02-22");
-    assert.equal(normalized.status, "reading");
-    assert.equal(normalized.startDate, "2026-02-22");
+    assert.equal(normalized.status, "want_to_read");
+    assert.equal(normalized.startDate, undefined);
     assert.equal(normalized.finishDate, undefined);
 });
 
