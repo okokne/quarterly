@@ -11,6 +11,7 @@ function emptyState(): PersistedPlannerState {
         history: [],
         habits: [],
         habitLog: {},
+        books: [],
         preferences: {
             darkMode: false,
             language: "de",

@@ -3,6 +3,7 @@ import { Book, BookSession, BookStatus, Cycle } from "../types";
 import { uid, toIsoDate } from "../utils";
 import { StorageScope } from "../types";
 import { readScopedStorageValue, writeScopedStorageValue } from "../persistence/storageScope";
+import { normalizeBookRecord, sanitizeBookCategories } from "../utils/books";
 
 const BOOKS_STORAGE_KEY = "twy_books";
 
@@ -61,55 +62,58 @@ export function useBooksStore({
         status: BookStatus = "want_to_read"
     ) => {
         if (isArchiveView) return;
-        const newBook: Book = {
+        const todayIso = toIsoDate(new Date());
+        const baseBook: Book = {
             id: uid(),
             title,
-            author,
-            coverUrl,
-            categories: categories || [],
+            author: author?.trim() || undefined,
+            coverUrl: coverUrl?.trim() || undefined,
+            categories: sanitizeBookCategories(categories),
             totalPages: totalPages || 0,
             readPages: 0,
             status,
             sessions: []
         };
-        if (status === "reading") {
-            newBook.startDate = toIsoDate(new Date());
-        }
-        if (status === "finished") {
-            newBook.finishDate = toIsoDate(new Date());
-        }
-        setBooks([...books, newBook]);
-    }, [books, isArchiveView, setBooks]);
+        const newBook = normalizeBookRecord(baseBook, todayIso);
+        setBooks((prev) => [...prev, newBook]);
+    }, [isArchiveView, setBooks]);
 
     const updateBook = useCallback((id: string, updates: Partial<Book>) => {
         if (isArchiveView) return;
-        setBooks(books.map(b => b.id === id ? { ...b, ...updates } : b));
-    }, [books, isArchiveView, setBooks]);
+        const todayIso = toIsoDate(new Date());
+        setBooks((prev) => prev.map((book) => {
+            if (book.id !== id) return book;
+            return normalizeBookRecord({
+                ...book,
+                ...updates,
+                categories: updates.categories ? sanitizeBookCategories(updates.categories) : book.categories
+            }, todayIso);
+        }));
+    }, [isArchiveView, setBooks]);
 
     const deleteBook = useCallback((id: string) => {
         if (isArchiveView) return;
-        setBooks(books.filter(b => b.id !== id));
-    }, [books, isArchiveView, setBooks]);
+        setBooks((prev) => prev.filter((book) => book.id !== id));
+    }, [isArchiveView, setBooks]);
 
     const addSession = useCallback((bookId: string, pagesRead: number, notes?: string) => {
         if (isArchiveView) return;
-        setBooks(books.map(b => {
-            if (b.id !== bookId) return b;
+        const todayIso = toIsoDate(new Date());
+        setBooks((prev) => prev.map((book) => {
+            if (book.id !== bookId) return book;
             const newSession: BookSession = {
                 id: uid(),
                 date: new Date().toISOString(),
                 pagesRead,
                 notes
             };
-            const updatedSessions = [...b.sessions, newSession];
-            updatedSessions.sort((s1, s2) => new Date(s2.date).getTime() - new Date(s1.date).getTime());
-            return {
-                ...b,
+            return normalizeBookRecord({
+                ...book,
                 readPages: pagesRead,
-                sessions: updatedSessions,
-            };
+                sessions: [...book.sessions, newSession]
+            }, todayIso);
         }));
-    }, [books, isArchiveView, setBooks]);
+    }, [isArchiveView, setBooks]);
 
     return {
         books,
