@@ -142,7 +142,7 @@ export function BookSessionModal({
 
     return (
         <div className="modal-backdrop z-max" onClick={onClose}>
-            <div className="modal panel-content glass-panel books-modal-shell" onClick={(event) => event.stopPropagation()}>
+            <div className="modal panel-content glass-panel books-modal-shell books-session-modal-shell" onClick={(event) => event.stopPropagation()}>
                 <div className="modal-header books-modal-header">
                     <h3 className="m-0 text-xl font-bold">{book.title}</h3>
                     <p className="text-secondary mt-2 mb-0">{tr(language, `books.status.${book.status}`)}</p>
