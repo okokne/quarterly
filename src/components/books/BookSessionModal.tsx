@@ -302,7 +302,7 @@ export function BookSessionModal({
                                 {sessionRows.map((session) => (
                                     <article key={session.id} className="book-session-item glass-panel">
                                         <div className="book-session-item-head">
-                                            <span>{formatDate(session.date.split("T")[0], "iso", language)}</span>
+                                            <span>{formatDate(session.date.split("T")[0], "eu_long", language)}</span>
                                             <span>{tr(language, "books.sessionPagesCount", { value: session.pages })}</span>
                                         </div>
                                         <p className="text-secondary text-xs mt-1 mb-0">
