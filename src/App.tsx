@@ -614,7 +614,9 @@ export default function App() {
         ? tr(language, "sidebar.nav.plan")
         : activeTab === "inbox"
           ? tr(language, "sidebar.nav.inbox")
-          : tr(language, "sidebar.nav.stats");
+          : activeTab === "books"
+            ? tr(language, "books.title")
+            : tr(language, "sidebar.nav.stats");
   const contentHeaderContext = activeTab === "today"
     ? `${weekdayLabelLong(selectedDate, language)} · ${formatDate(selectedDate, dateFormat, language)}`
     : activeTab === "week"

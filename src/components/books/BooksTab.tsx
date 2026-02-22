@@ -35,19 +35,21 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         <div className="tab-container page-content fade-in p-4 lg:p-8 max-w-[1200px] mx-auto">
             <div className="flex justify-between items-center mb-8">
                 <h2 className="section-title mb-0">{tr(language, "books.title")}</h2>
-                <button
-                    className="glass-button primary-action icon-button rounded-full shadow-glow"
-                    onClick={handleCreateNew}
-                    title={tr(language, "books.add")}
-                >
-                    <Plus size={20} />
-                </button>
+                {books.length > 0 && (
+                    <button
+                        className="glass-button primary-action icon-button rounded-full shadow-glow"
+                        onClick={handleCreateNew}
+                        title={tr(language, "books.add")}
+                    >
+                        <Plus size={20} />
+                    </button>
+                )}
             </div>
 
             {books.length === 0 ? (
                 <div className="empty-state glass-panel panel-content text-center py-16">
-                    <h3 className="text-xl font-bold mb-2">No books yet</h3>
-                    <p className="text-secondary mb-6">Start tracking your reading journey.</p>
+                    <h3 className="text-xl font-bold mb-2">{tr(language, "books.noBooks")}</h3>
+                    <p className="text-secondary mb-6">{tr(language, "books.wishlist")}</p>
                     <button className="glass-button primary-action inline-flex items-center gap-2" onClick={handleCreateNew}>
                         <Plus size={16} />
                         {tr(language, "books.add")}

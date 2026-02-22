@@ -64,7 +64,7 @@ export function BookEditModal({ open, language, bookToEdit, onClose, onSave }: B
                 </div>
 
                 <div className="form-group mt-4">
-                    <label className="text-secondary">{tr(language, "books.author")}</label>
+                    <label className="text-secondary">{tr(language, "books.bookAuthor")}</label>
                     <input
                         type="text"
                         className="glass-input w-full mt-2"
@@ -74,7 +74,7 @@ export function BookEditModal({ open, language, bookToEdit, onClose, onSave }: B
                 </div>
 
                 <div className="form-group mt-4">
-                    <label className="text-secondary">{tr(language, "books.cover_url")}</label>
+                    <label className="text-secondary">{tr(language, "books.coverUrl")}</label>
                     <input
                         type="text"
                         className="glass-input w-full mt-2"
@@ -96,7 +96,7 @@ export function BookEditModal({ open, language, bookToEdit, onClose, onSave }: B
                         />
                     </div>
                     <div className="form-group">
-                        <label className="text-secondary">{tr(language, "books.pages_total")}</label>
+                        <label className="text-secondary">{tr(language, "books.totalPages")}</label>
                         <input
                             type="number"
                             className="glass-input w-full mt-2"
