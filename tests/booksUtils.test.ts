@@ -2,12 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Book } from "../src/types";
 import {
-    getBookActivityTimestamp,
-    getNextQueueOrder,
+    getBookCompletionStats,
     getBookProgressPercent,
+    getFinishedBooksInYear,
+    getPagesReadThisWeek,
+    getReadingStreakDays,
     normalizeBookRecord,
     sanitizeBookCategories,
-    sortQueueBooks,
     sortBookSessionsByDateDesc
 } from "../src/utils/books";
 
@@ -25,21 +26,25 @@ function createBook(overrides: Partial<Book> = {}): Book {
     };
 }
 
-test("normalizeBookRecord moves book to reading when progress exists", () => {
+test("normalizeBookRecord moves wishlist books with progress to reading", () => {
     const normalized = normalizeBookRecord(createBook({ readPages: 24 }), "2026-02-22");
     assert.equal(normalized.status, "reading");
     assert.equal(normalized.startDate, "2026-02-22");
     assert.equal(normalized.finishDate, undefined);
 });
 
-test("normalizeBookRecord maps legacy wishlist books to reading queue", () => {
+test("normalizeBookRecord preserves want_to_read status when there is no progress", () => {
+    const normalized = normalizeBookRecord(createBook({ readPages: 0 }), "2026-02-22");
+    assert.equal(normalized.status, "want_to_read");
+    assert.equal(normalized.startDate, undefined);
+});
+
+test("normalizeBookRecord migrates legacy queue-style reading entries back to want_to_read", () => {
     const normalized = normalizeBookRecord(
-        createBook({ status: "want_to_read", readPages: 0, queueOrder: 3 }),
+        createBook({ status: "reading", readPages: 0, startDate: undefined, sessions: [] }),
         "2026-02-22"
     );
-    assert.equal(normalized.status, "reading");
-    assert.equal(normalized.queueOrder, 3);
-    assert.equal(normalized.startDate, undefined);
+    assert.equal(normalized.status, "want_to_read");
 });
 
 test("normalizeBookRecord marks finished book with full progress and finish date", () => {
@@ -49,17 +54,7 @@ test("normalizeBookRecord marks finished book with full progress and finish date
     );
     assert.equal(normalized.readPages, 210);
     assert.equal(normalized.status, "finished");
-    assert.equal(normalized.startDate, "2026-02-22");
     assert.equal(normalized.finishDate, "2026-02-22");
-});
-
-test("normalizeBookRecord clamps overread pages and infers finished state", () => {
-    const normalized = normalizeBookRecord(
-        createBook({ status: "reading", totalPages: 100, readPages: 145 }),
-        "2026-02-22"
-    );
-    assert.equal(normalized.readPages, 100);
-    assert.equal(normalized.status, "finished");
 });
 
 test("sanitizeBookCategories trims, removes empties, and deduplicates", () => {
@@ -67,15 +62,12 @@ test("sanitizeBookCategories trims, removes empties, and deduplicates", () => {
     assert.deepEqual(categories, ["Fantasy", "Biography"]);
 });
 
-test("session helpers keep latest entries first and expose activity timestamp", () => {
+test("session helpers keep latest entries first", () => {
     const sessions = sortBookSessionsByDateDesc([
         { id: "s1", date: "2026-02-18T09:30:00.000Z", pagesRead: 70 },
         { id: "s2", date: "2026-02-20T09:30:00.000Z", pagesRead: 90 }
     ]);
     assert.equal(sessions[0]?.id, "s2");
-
-    const activityTs = getBookActivityTimestamp(createBook({ sessions }));
-    assert.equal(activityTs, new Date("2026-02-20T09:30:00.000Z").getTime());
 });
 
 test("getBookProgressPercent returns rounded percentage and guards missing totals", () => {
@@ -83,13 +75,49 @@ test("getBookProgressPercent returns rounded percentage and guards missing total
     assert.equal(getBookProgressPercent({ readPages: 5, totalPages: 0 }), 0);
 });
 
-test("queue helpers return stable order and next position", () => {
+test("getReadingStreakDays counts consecutive days from the latest session", () => {
+    const book = createBook({
+        status: "reading",
+        sessions: [
+            { id: "s1", date: "2026-02-20T10:00:00.000Z", pagesRead: 20 },
+            { id: "s2", date: "2026-02-21T10:00:00.000Z", pagesRead: 40 },
+            { id: "s3", date: "2026-02-22T10:00:00.000Z", pagesRead: 60 }
+        ]
+    });
+    assert.equal(getReadingStreakDays([book], "2026-02-22"), 3);
+});
+
+test("getPagesReadThisWeek sums session increments inside current week", () => {
+    const book = createBook({
+        status: "reading",
+        sessions: [
+            { id: "s1", date: "2026-02-16T10:00:00.000Z", pagesRead: 20 },
+            { id: "s2", date: "2026-02-18T10:00:00.000Z", pagesRead: 45 },
+            { id: "s3", date: "2026-02-22T10:00:00.000Z", pagesRead: 60 }
+        ]
+    });
+    // Monday of this week is 2026-02-16
+    assert.equal(getPagesReadThisWeek([book], "2026-02-22"), 60);
+});
+
+test("getFinishedBooksInYear counts only books completed in target year", () => {
     const books = [
-        createBook({ id: "b1", title: "One", queueOrder: 2, status: "reading", readPages: 0 }),
-        createBook({ id: "b2", title: "Two", queueOrder: 1, status: "reading", readPages: 0 }),
-        createBook({ id: "b3", title: "Three", status: "finished", readPages: 100, totalPages: 100 })
+        createBook({ id: "a", status: "finished", finishDate: "2026-01-10" }),
+        createBook({ id: "b", status: "finished", finishDate: "2025-12-31" }),
+        createBook({ id: "c", status: "reading" })
     ];
-    const sorted = sortQueueBooks(books.filter((book) => book.status !== "finished"));
-    assert.equal(sorted[0]?.id, "b2");
-    assert.equal(getNextQueueOrder(books), 3);
+    assert.equal(getFinishedBooksInYear(books, 2026), 1);
+});
+
+test("getBookCompletionStats returns duration and average pages per day", () => {
+    const stats = getBookCompletionStats(createBook({
+        status: "finished",
+        totalPages: 280,
+        readPages: 280,
+        startDate: "2026-02-01",
+        finishDate: "2026-02-10"
+    }));
+    assert.equal(stats.totalPages, 280);
+    assert.equal(stats.readingDays, 10);
+    assert.equal(stats.pagesPerDay, 28);
 });

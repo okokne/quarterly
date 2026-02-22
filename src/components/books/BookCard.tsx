@@ -1,3 +1,4 @@
+import { KeyboardEvent, useEffect, useState } from "react";
 import { AppLanguage, Book } from "../../types";
 import { t as tr } from "../../i18n";
 import { getBookProgressPercent } from "../../utils/books";
@@ -6,39 +7,47 @@ type BookCardProps = {
     book: Book;
     language: AppLanguage;
     onOpenDetails: () => void;
-    queuePosition?: number;
-    queueTotal?: number;
-    onMoveQueueUp?: () => void;
-    onMoveQueueDown?: () => void;
+    onQuickSetPage?: (page: number) => void;
+    onQuickAddTen?: () => void;
+    onStartReading?: () => void;
 };
 
 export function BookCard({
     book,
     language,
     onOpenDetails,
-    queuePosition,
-    queueTotal,
-    onMoveQueueUp,
-    onMoveQueueDown
+    onQuickSetPage,
+    onQuickAddTen,
+    onStartReading
 }: BookCardProps) {
     const progressPercent = getBookProgressPercent(book);
-    const isQueueBook = book.status !== "finished" && book.readPages === 0;
-    const statusLabel = isQueueBook
-        ? tr(language, "books.queue")
-        : tr(language, `books.status.${book.status}`);
+    const [pageInput, setPageInput] = useState(String(book.readPages));
+
+    useEffect(() => {
+        setPageInput(String(book.readPages));
+    }, [book.readPages, book.id]);
+
+    const commitQuickUpdate = () => {
+        if (!onQuickSetPage) return;
+        const parsed = Math.floor(Number(pageInput));
+        if (!Number.isFinite(parsed)) return;
+        onQuickSetPage(parsed);
+    };
+
+    const onCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onOpenDetails();
+        }
+    };
 
     return (
         <article
-            className={`book-card compact ${isQueueBook ? "queue" : ""}`}
+            className={`book-card compact status-${book.status}`}
             role="button"
             tabIndex={0}
             onClick={onOpenDetails}
-            onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    onOpenDetails();
-                }
-            }}
+            onKeyDown={onCardKeyDown}
             aria-label={tr(language, "books.openDetails")}
         >
             <div className="book-card-cover-container compact">
@@ -63,39 +72,68 @@ export function BookCard({
                         </p>
                     </div>
 
-                    <div className="book-card-side">
-                        <div className={`book-status-pill status-${book.status}`}>{statusLabel}</div>
-                        {typeof queuePosition === "number" && typeof queueTotal === "number" && (
-                            <div className="book-queue-controls" onClick={(event) => event.stopPropagation()}>
-                                <button
-                                    type="button"
-                                    className="book-queue-button"
-                                    onClick={onMoveQueueUp}
-                                    disabled={!onMoveQueueUp}
-                                    title={tr(language, "books.queueMoveUp")}
-                                >
-                                    ↑
-                                </button>
-                                <span>{tr(language, "books.queuePosition", { position: queuePosition, total: queueTotal })}</span>
-                                <button
-                                    type="button"
-                                    className="book-queue-button"
-                                    onClick={onMoveQueueDown}
-                                    disabled={!onMoveQueueDown}
-                                    title={tr(language, "books.queueMoveDown")}
-                                >
-                                    ↓
-                                </button>
-                            </div>
-                        )}
+                    <div className={`book-status-pill status-${book.status}`}>
+                        {tr(language, `books.status.${book.status}`)}
                     </div>
                 </div>
 
-                {!isQueueBook && book.totalPages > 0 && (
+                {book.status === "reading" && book.totalPages > 0 && (
                     <div className="book-progress-section compact">
+                        <div className="book-progress-header compact">
+                            <span>{progressPercent}%</span>
+                            <span>{tr(language, "books.quickUpdate")}</span>
+                        </div>
                         <div className="book-progress-bar-container">
                             <div className="book-progress-fill aura-fill" style={{ width: `${progressPercent}%` }} />
                         </div>
+                    </div>
+                )}
+
+                {book.status === "reading" && (
+                    <div className="book-quick-controls" onClick={(event) => event.stopPropagation()}>
+                        <input
+                            type="number"
+                            className="glass-input book-quick-input"
+                            value={pageInput}
+                            min={book.readPages}
+                            max={book.totalPages > 0 ? book.totalPages : undefined}
+                            onChange={(event) => setPageInput(event.target.value)}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    commitQuickUpdate();
+                                }
+                            }}
+                        />
+                        <button
+                            type="button"
+                            className="book-quick-btn"
+                            onClick={commitQuickUpdate}
+                        >
+                            {tr(language, "books.saveProgress")}
+                        </button>
+                        {onQuickAddTen && (
+                            <button
+                                type="button"
+                                className="book-quick-btn"
+                                onClick={onQuickAddTen}
+                            >
+                                +10
+                            </button>
+                        )}
+                    </div>
+                )}
+
+                {book.status === "want_to_read" && onStartReading && (
+                    <div className="book-quick-controls" onClick={(event) => event.stopPropagation()}>
+                        <button
+                            type="button"
+                            className="book-quick-btn"
+                            onClick={onStartReading}
+                        >
+                            {tr(language, "books.startReading")}
+                        </button>
                     </div>
                 )}
             </div>

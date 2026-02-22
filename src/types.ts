@@ -111,8 +111,7 @@ export type Book = {
     totalPages: number;
     readPages: number;
     status: BookStatus;
-    queueOrder?: number; // Manual order for "next up" books (readPages = 0)
-    rating?: number; // 1-5
+    completionNote?: string; // optional short note shown for finished books
     startDate?: string; // ISO date
     finishDate?: string; // ISO date
     sessions: BookSession[];
