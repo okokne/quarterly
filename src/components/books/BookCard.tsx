@@ -7,8 +7,6 @@ type BookCardProps = {
     book: Book;
     language: AppLanguage;
     onOpenDetails: () => void;
-    onLogSession?: () => void;
-    onQuickAddTen?: () => void;
     onStartReading?: () => void;
     queuePosition?: number;
     queueTotal?: number;
@@ -20,8 +18,6 @@ export function BookCard({
     book,
     language,
     onOpenDetails,
-    onLogSession,
-    onQuickAddTen,
     onStartReading,
     queuePosition,
     queueTotal,
@@ -77,38 +73,10 @@ export function BookCard({
                     <div className="book-progress-section compact">
                         <div className="book-progress-header compact">
                             <span>{progressPercent}%</span>
-                            <span>{tr(language, "books.quickUpdate")}</span>
                         </div>
                         <div className="book-progress-bar-container">
                             <div className="book-progress-fill aura-fill" style={{ width: `${progressPercent}%` }} />
                         </div>
-                    </div>
-                )}
-
-                {book.status === "reading" && (
-                    <div className="book-quick-controls" onClick={(event) => event.stopPropagation()}>
-                        <button
-                            type="button"
-                            className="book-session-log-btn"
-                            onClick={() => {
-                                if (onLogSession) {
-                                    onLogSession();
-                                    return;
-                                }
-                                onOpenDetails();
-                            }}
-                        >
-                            {tr(language, "books.addSession")}
-                        </button>
-                        {onQuickAddTen && (
-                            <button
-                                type="button"
-                                className="book-quick-btn"
-                                onClick={onQuickAddTen}
-                            >
-                                +10
-                            </button>
-                        )}
                     </div>
                 )}
 

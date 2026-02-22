@@ -6,7 +6,6 @@ import { BookSessionModal } from "./BookSessionModal";
 import { Plus } from "../ui/icons";
 import {
     getBookActivityTimestamp,
-    getBookCompletionStats,
     getBookRemainingPages,
     getFinishedBooksInYear,
     sortQueueBooks,
@@ -124,18 +123,9 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         onAddSession(book.id, appliedPages, durationMinutes, notes);
 
         if (book.totalPages > 0 && nextRead >= book.totalPages) {
-            const stats = getBookCompletionStats({
-                ...book,
-                readPages: nextRead,
-                status: "finished",
-                finishDate: todayIso
-            }, todayIso);
             setFinishNotice({
                 id: book.id,
-                text: tr(language, "books.finishNotice", {
-                    days: stats.readingDays,
-                    avg: stats.pagesPerDay
-                })
+                text: tr(language, "books.readyToFinishNotice")
             });
             return;
         }
@@ -177,8 +167,6 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             book={book}
                             language={language}
                             onOpenDetails={() => setActiveBookId(book.id)}
-                            onLogSession={book.status === "reading" ? () => setActiveBookId(book.id) : undefined}
-                            onQuickAddTen={book.status === "reading" ? () => saveSession(book, 10) : undefined}
                             onStartReading={book.status === "want_to_read" ? () => onUpdateBook(book.id, { status: "reading" }) : undefined}
                             queuePosition={sectionType === "queue" ? index + 1 : undefined}
                             queueTotal={sectionType === "queue" ? sectionBooks.length : undefined}

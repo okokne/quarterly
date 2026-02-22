@@ -14,6 +14,21 @@ type BookSessionModalProps = {
     onDeleteBook: (id: string) => void;
 };
 
+type SessionRow = {
+    id: string;
+    date: string;
+    pages: number;
+    fromPage: number;
+    toPage: number;
+    durationMinutes?: number;
+    notes?: string;
+};
+
+function toPositiveInt(value: number | undefined): number {
+    if (typeof value !== "number" || Number.isNaN(value)) return 0;
+    return Math.max(0, Math.floor(value));
+}
+
 export function BookSessionModal({
     open,
     language,
@@ -27,7 +42,6 @@ export function BookSessionModal({
     const [durationInput, setDurationInput] = useState("");
     const [sessionNote, setSessionNote] = useState("");
     const [showHistory, setShowHistory] = useState(true);
-    const [showNotes, setShowNotes] = useState(true);
 
     useEffect(() => {
         if (!open || !book) return;
@@ -49,10 +63,42 @@ export function BookSessionModal({
         () => sortBookSessionsByDateAsc(book?.sessions ?? []),
         [book?.sessions]
     );
-    const notedSessions = useMemo(
-        () => sortedSessions.filter((session) => Boolean(session.notes)),
-        [sortedSessions]
-    );
+
+    const sessionRows = useMemo(() => {
+        let previousPage = 0;
+        return sortedSessions
+            .map<SessionRow | null>((session) => {
+                const rawPages = toPositiveInt(session.pagesRead);
+                const pageAfterCandidate = toPositiveInt(session.pageAfter);
+
+                let pageAfter = previousPage;
+                if (pageAfterCandidate > 0) {
+                    pageAfter = Math.max(previousPage, pageAfterCandidate);
+                } else if (rawPages >= previousPage) {
+                    // Legacy cumulative logs.
+                    pageAfter = Math.max(previousPage, rawPages);
+                } else {
+                    // New additive logs.
+                    pageAfter = previousPage + rawPages;
+                }
+
+                const pages = Math.max(0, pageAfter - previousPage);
+                if (pages <= 0) return null;
+
+                const row: SessionRow = {
+                    id: session.id,
+                    date: session.date,
+                    pages,
+                    fromPage: previousPage,
+                    toPage: pageAfter,
+                    durationMinutes: session.durationMinutes,
+                    notes: session.notes
+                };
+                previousPage = pageAfter;
+                return row;
+            })
+            .filter((entry): entry is SessionRow => entry !== null);
+    }, [sortedSessions]);
 
     if (!open || !book) return null;
 
@@ -66,6 +112,12 @@ export function BookSessionModal({
     const previewPercent = book.totalPages > 0
         ? Math.min(100, Math.round((previewPages / book.totalPages) * 100))
         : 0;
+    const canMarkFinished = isReading && book.totalPages > 0 && book.readPages >= book.totalPages;
+
+    const setParsedPages = (nextValue: number) => {
+        const normalized = Math.max(0, Math.floor(nextValue));
+        setPagesInput(normalized > 0 ? String(normalized) : "");
+    };
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -76,7 +128,9 @@ export function BookSessionModal({
             parsedDuration > 0 ? parsedDuration : undefined,
             sessionNote.trim() || undefined
         );
-        onClose();
+        setPagesInput("");
+        setDurationInput("");
+        setSessionNote("");
     };
 
     return (
@@ -103,49 +157,60 @@ export function BookSessionModal({
 
                 {isReading ? (
                     <form className="books-session-form" onSubmit={handleSubmit}>
-                        <div className="books-session-pages-row">
+                        <label className="books-session-label">
+                            {tr(language, "books.sessionPagesLabel")}
+                            <div className="books-session-pages-row">
+                                <button type="button" className="book-page-step-btn" onClick={() => setParsedPages(parsedPages - 1)}>-</button>
+                                <input
+                                    type="number"
+                                    className="glass-input"
+                                    value={pagesInput}
+                                    min="1"
+                                    step="1"
+                                    autoFocus
+                                    onChange={(event) => setPagesInput(event.target.value)}
+                                />
+                                <button type="button" className="book-page-step-btn" onClick={() => setParsedPages(parsedPages + 1)}>+</button>
+                            </div>
+                        </label>
+
+                        <div className="books-session-chip-row">
+                            {([-20, -10, -5, 5, 10, 20] as const).map((delta) => (
+                                <button
+                                    key={delta}
+                                    type="button"
+                                    className="books-session-chip-btn"
+                                    onClick={() => setParsedPages(parsedPages + delta)}
+                                >
+                                    {delta > 0 ? `+${delta}` : String(delta)}
+                                </button>
+                            ))}
+                        </div>
+
+                        <label className="books-session-label">
+                            {tr(language, "books.sessionDurationOptional")}
                             <input
                                 type="number"
                                 className="glass-input"
-                                value={pagesInput}
+                                value={durationInput}
                                 min="1"
                                 step="1"
-                                autoFocus
-                                onChange={(event) => setPagesInput(event.target.value)}
-                                placeholder={tr(language, "books.sessionPagesLabel")}
+                                onChange={(event) => setDurationInput(event.target.value)}
                             />
-                            <button
-                                type="button"
-                                className="book-quick-btn"
-                                onClick={() => {
-                                    const next = parsedPages + 10;
-                                    setPagesInput(String(next));
-                                }}
-                            >
-                                +10
-                            </button>
-                        </div>
+                        </label>
 
-                        <input
-                            type="number"
-                            className="glass-input mt-3"
-                            value={durationInput}
-                            min="1"
-                            step="1"
-                            onChange={(event) => setDurationInput(event.target.value)}
-                            placeholder={tr(language, "books.sessionDurationOptional")}
-                        />
-
-                        <textarea
-                            className="glass-input w-full mt-3 resize-none books-session-note-input"
-                            value={sessionNote}
-                            maxLength={220}
-                            onChange={(event) => setSessionNote(event.target.value)}
-                            placeholder={tr(language, "books.sessionThoughtsOptional")}
-                        />
+                        <label className="books-session-label">
+                            {tr(language, "books.sessionThoughtsOptional")}
+                            <textarea
+                                className="glass-input w-full resize-none books-session-note-input"
+                                value={sessionNote}
+                                maxLength={220}
+                                onChange={(event) => setSessionNote(event.target.value)}
+                            />
+                        </label>
 
                         {parsedPages > 0 && (
-                            <p className="text-secondary text-xs mt-2 mb-0">
+                            <p className="text-secondary text-xs mt-1 mb-0">
                                 {tr(language, "books.sessionPreview", {
                                     pages: previewPages,
                                     total: book.totalPages || "?",
@@ -154,17 +219,23 @@ export function BookSessionModal({
                             </p>
                         )}
 
-                        <div className="books-detail-footer mt-4">
-                            <button type="button" className="glass-button" onClick={onClose}>
-                                {tr(language, "common.close")}
-                            </button>
+                        <div className="books-session-actions">
                             <button type="submit" className="glass-button primary-action" disabled={parsedPages <= 0}>
                                 {tr(language, "books.saveSession")}
                             </button>
+                            {canMarkFinished && (
+                                <button
+                                    type="button"
+                                    className="glass-button"
+                                    onClick={() => onUpdateBook(book.id, { status: "finished" })}
+                                >
+                                    {tr(language, "books.markFinished")}
+                                </button>
+                            )}
                         </div>
                     </form>
                 ) : (
-                    <div className="books-detail-footer mt-2">
+                    <div className="books-session-actions">
                         {book.status === "want_to_read" && (
                             <button
                                 type="button"
@@ -174,9 +245,6 @@ export function BookSessionModal({
                                 {tr(language, "books.startReading")}
                             </button>
                         )}
-                        <button type="button" className="glass-button" onClick={onClose}>
-                            {tr(language, "common.close")}
-                        </button>
                     </div>
                 )}
 
@@ -192,16 +260,22 @@ export function BookSessionModal({
                     </button>
 
                     {showHistory && (
-                        sortedSessions.length === 0 ? (
+                        sessionRows.length === 0 ? (
                             <p className="text-secondary text-sm mt-2 mb-0">{tr(language, "books.noSessions")}</p>
                         ) : (
                             <div className="books-session-list">
-                                {sortedSessions.map((session) => (
+                                {sessionRows.map((session) => (
                                     <article key={session.id} className="book-session-item glass-panel">
                                         <div className="book-session-item-head">
                                             <span>{formatDate(session.date.split("T")[0], "iso", language)}</span>
-                                            <span>{tr(language, "books.sessionPagesCount", { value: session.pagesRead })}</span>
+                                            <span>{tr(language, "books.sessionPagesCount", { value: session.pages })}</span>
                                         </div>
+                                        <p className="text-secondary text-xs mt-1 mb-0">
+                                            {tr(language, "books.sessionRangeLabel", {
+                                                from: session.fromPage,
+                                                to: session.toPage
+                                            })}
+                                        </p>
                                         {session.durationMinutes && (
                                             <p className="text-secondary text-xs mt-1 mb-0">
                                                 {tr(language, "books.sessionDurationShort", { value: session.durationMinutes })}
@@ -215,39 +289,7 @@ export function BookSessionModal({
                     )}
                 </section>
 
-                <section className="books-session-section">
-                    <button
-                        type="button"
-                        className="books-session-toggle"
-                        onClick={() => setShowNotes((prev) => !prev)}
-                        aria-expanded={showNotes}
-                    >
-                        <span>{tr(language, "books.notesArchive")}</span>
-                        <span>{showNotes ? "-" : "+"}</span>
-                    </button>
-
-                    {showNotes && (
-                        notedSessions.length === 0 ? (
-                            <p className="text-secondary text-sm mt-2 mb-0">{tr(language, "books.noSessionNotes")}</p>
-                        ) : (
-                            <div className="books-notes-archive">
-                                {notedSessions.map((session) => (
-                                    <article key={session.id} className="books-note-item">
-                                        <p className="books-note-date">
-                                            {formatDate(session.date.split("T")[0], "iso", language)}
-                                        </p>
-                                        <p className="books-note-text">{session.notes}</p>
-                                    </article>
-                                ))}
-                            </div>
-                        )
-                    )}
-                </section>
-
-                <div className="books-detail-footer">
-                    <button type="button" className="glass-button" onClick={onClose}>
-                        {tr(language, "common.close")}
-                    </button>
+                <div className="books-detail-footer books-detail-footer-delete-only">
                     <button
                         type="button"
                         className="glass-button text-red-500"

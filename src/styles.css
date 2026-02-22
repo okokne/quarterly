@@ -8591,9 +8591,9 @@ body.dark-mode .archive-banner {
 }
 
 .book-card-cover-container.compact {
-  width: 58px;
-  min-width: 58px;
-  aspect-ratio: 3 / 4;
+  width: 74px;
+  min-width: 74px;
+  aspect-ratio: 2 / 3;
   background: var(--surface-2);
   display: flex;
   align-items: center;
@@ -8722,7 +8722,7 @@ body.dark-mode .book-cover-placeholder {
 
 .book-progress-header.compact {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: 0.72rem;
   color: var(--text-secondary);
   margin-bottom: 4px;
@@ -8751,28 +8751,6 @@ body.dark-mode .book-cover-placeholder {
   flex-wrap: wrap;
 }
 
-.book-session-log-btn {
-  min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--accent-bg) 72%, var(--bg-card));
-  color: var(--accent-600);
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 0 12px;
-}
-
-.book-session-log-btn:hover {
-  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-  background: color-mix(in srgb, var(--accent-bg) 90%, var(--bg-card));
-}
-
-.book-quick-input {
-  width: 80px;
-  min-height: 34px;
-  padding: 0 8px;
-}
-
 .book-quick-btn {
   min-height: 34px;
   border: 1px solid var(--border-subtle);
@@ -8790,17 +8768,7 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .books-detail-top {
-  margin-bottom: 10px;
-}
-
-.books-detail-quick-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.books-detail-quick-row .glass-input {
-  flex: 1;
+  margin-bottom: 16px;
 }
 
 .books-detail-cta {
@@ -8886,8 +8854,8 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .books-modal-shell {
-  padding: 24px 24px 22px;
-  gap: 18px;
+  padding: 28px 28px 26px;
+  gap: 20px;
 }
 
 .books-modal-header {
@@ -8898,7 +8866,20 @@ body.dark-mode .book-cover-placeholder {
 .books-session-form {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: color-mix(in srgb, var(--surface-1) 76%, transparent);
+}
+
+.books-session-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .books-session-pages-row {
@@ -8911,8 +8892,58 @@ body.dark-mode .book-cover-placeholder {
   flex: 1;
 }
 
+.book-page-step-btn {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.book-page-step-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.books-session-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.books-session-chip-btn {
+  min-height: 30px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-1) 88%, var(--bg-card));
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0 10px;
+}
+
+.books-session-chip-btn:hover {
+  border-color: var(--accent-300);
+  color: var(--accent-600);
+  background: color-mix(in srgb, var(--accent-bg) 70%, var(--surface-1));
+}
+
 .books-session-note-input {
-  min-height: 84px;
+  min-height: 106px;
+}
+
+.books-session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .books-session-section {
@@ -8946,33 +8977,8 @@ body.dark-mode .book-cover-placeholder {
   padding-right: 4px;
 }
 
-.books-notes-archive {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-  max-height: 220px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.books-note-item {
-  border-left: 2px solid var(--accent-300);
-  padding-left: 10px;
-}
-
-.books-note-date {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-}
-
-.books-note-text {
-  margin: 6px 0 0;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: var(--text-primary);
-  white-space: pre-wrap;
+.books-detail-footer-delete-only {
+  justify-content: flex-end;
 }
 
 @media (max-width: 720px) {

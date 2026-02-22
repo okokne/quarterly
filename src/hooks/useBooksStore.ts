@@ -145,7 +145,6 @@ export function useBooksStore({
 
             const normalizedDuration = Math.max(0, Math.floor(durationMinutes || 0)) || undefined;
             const normalizedNotes = notes?.trim() || undefined;
-            const autoFinished = book.totalPages > 0 && nextRead >= book.totalPages;
             const newSession: BookSession = {
                 id: uid(),
                 date: new Date().toISOString(),
@@ -156,7 +155,7 @@ export function useBooksStore({
             };
             return normalizeBookRecord({
                 ...book,
-                status: autoFinished ? "finished" : book.status,
+                status: book.status,
                 readPages: nextRead,
                 sessions: [...book.sessions, newSession]
             }, todayIso);
