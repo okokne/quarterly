@@ -8751,6 +8751,22 @@ body.dark-mode .book-cover-placeholder {
   flex-wrap: wrap;
 }
 
+.book-session-log-btn {
+  min-height: 34px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent-bg) 72%, var(--bg-card));
+  color: var(--accent-600);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0 12px;
+}
+
+.book-session-log-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  background: color-mix(in srgb, var(--accent-bg) 90%, var(--bg-card));
+}
+
 .book-quick-input {
   width: 80px;
   min-height: 34px;
@@ -8841,6 +8857,16 @@ body.dark-mode .book-cover-placeholder {
 .book-session-item {
   border-left: 2px solid var(--accent-400);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 10px 12px;
+}
+
+.book-session-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
 .books-detail-actions-row {
@@ -8867,6 +8893,86 @@ body.dark-mode .book-cover-placeholder {
 .books-modal-header {
   padding-top: 2px;
   padding-bottom: 8px;
+}
+
+.books-session-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.books-session-pages-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.books-session-pages-row .glass-input {
+  flex: 1;
+}
+
+.books-session-note-input {
+  min-height: 84px;
+}
+
+.books-session-section {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.books-session-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  min-height: 28px;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.books-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.books-notes-archive {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.books-note-item {
+  border-left: 2px solid var(--accent-300);
+  padding-left: 10px;
+}
+
+.books-note-date {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.books-note-text {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  white-space: pre-wrap;
 }
 
 @media (max-width: 720px) {

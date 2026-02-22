@@ -98,7 +98,9 @@ export type BookStatus = "want_to_read" | "reading" | "finished";
 export type BookSession = {
     id: Id;
     date: string; // ISO datetime
-    pagesRead: number;
+    pagesRead: number; // pages read in this session
+    pageAfter?: number; // absolute page after this session
+    durationMinutes?: number;
     notes?: string;
 };
 

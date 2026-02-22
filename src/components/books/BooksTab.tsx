@@ -21,7 +21,7 @@ type BooksTabProps = {
     onAddBook: (title: string, author?: string, coverUrl?: string, categories?: string[], totalPages?: number, status?: "want_to_read" | "reading" | "finished") => void;
     onUpdateBook: (id: string, updates: Partial<Book>) => void;
     onDeleteBook: (id: string) => void;
-    onAddSession: (bookId: string, pagesRead: number, notes?: string) => void;
+    onAddSession: (bookId: string, pagesRead: number, durationMinutes?: number, notes?: string) => void;
 };
 
 type BookComposerDraft = {
@@ -110,12 +110,40 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
         setComposerOpen(false);
     };
 
-    const updateProgress = (book: Book, nextPage: number) => {
+    const saveSession = (book: Book, pagesRead: number, durationMinutes?: number, notes?: string) => {
         if (book.status !== "reading") return;
-        const normalized = Math.max(book.readPages, Math.floor(nextPage));
-        const clamped = book.totalPages > 0 ? Math.min(normalized, book.totalPages) : normalized;
-        if (clamped <= book.readPages) return;
-        onAddSession(book.id, clamped);
+        const normalizedPages = Math.max(0, Math.floor(pagesRead));
+        if (normalizedPages <= 0) return;
+
+        const nextRead = book.totalPages > 0
+            ? Math.min(book.readPages + normalizedPages, book.totalPages)
+            : (book.readPages + normalizedPages);
+        const appliedPages = Math.max(0, nextRead - book.readPages);
+        if (appliedPages <= 0) return;
+
+        onAddSession(book.id, appliedPages, durationMinutes, notes);
+
+        if (book.totalPages > 0 && nextRead >= book.totalPages) {
+            const stats = getBookCompletionStats({
+                ...book,
+                readPages: nextRead,
+                status: "finished",
+                finishDate: todayIso
+            }, todayIso);
+            setFinishNotice({
+                id: book.id,
+                text: tr(language, "books.finishNotice", {
+                    days: stats.readingDays,
+                    avg: stats.pagesPerDay
+                })
+            });
+            return;
+        }
+
+        setFinishNotice({
+            id: book.id,
+            text: tr(language, "books.sessionSaved")
+        });
     };
 
     const moveQueueBook = (bookId: string, direction: -1 | 1) => {
@@ -131,17 +159,6 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
 
         onUpdateBook(currentBook.id, { queueOrder: targetOrder });
         onUpdateBook(targetBook.id, { queueOrder: currentOrder });
-    };
-
-    const maybeShowCompletionNotice = (book: Book) => {
-        const stats = getBookCompletionStats({ ...book, status: "finished", finishDate: todayIso }, todayIso);
-        setFinishNotice({
-            id: book.id,
-            text: tr(language, "books.finishNotice", {
-                days: stats.readingDays,
-                avg: stats.pagesPerDay
-            })
-        });
     };
 
     const renderSection = (title: string, sectionBooks: Book[], sectionType: "reading" | "queue" | "finished") => (
@@ -160,8 +177,8 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             book={book}
                             language={language}
                             onOpenDetails={() => setActiveBookId(book.id)}
-                            onQuickSetPage={book.status === "reading" ? (page) => updateProgress(book, page) : undefined}
-                            onQuickAddTen={book.status === "reading" ? () => updateProgress(book, book.readPages + 10) : undefined}
+                            onLogSession={book.status === "reading" ? () => setActiveBookId(book.id) : undefined}
+                            onQuickAddTen={book.status === "reading" ? () => saveSession(book, 10) : undefined}
                             onStartReading={book.status === "want_to_read" ? () => onUpdateBook(book.id, { status: "reading" }) : undefined}
                             queuePosition={sectionType === "queue" ? index + 1 : undefined}
                             queueTotal={sectionType === "queue" ? sectionBooks.length : undefined}
@@ -302,17 +319,12 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                     language={language}
                     book={activeBook}
                     onClose={() => setActiveBookId(null)}
-                    onSave={onAddSession}
-                    onUpdateBook={(id, updates) => {
-                        const wasReading = books.find((book) => book.id === id)?.status === "reading";
-                        onUpdateBook(id, updates);
-                        if (wasReading && updates.status === "finished") {
-                            const source = books.find((book) => book.id === id);
-                            if (source) {
-                                maybeShowCompletionNotice({ ...source, ...updates, status: "finished" });
-                            }
-                        }
+                    onSave={(id, pagesRead, durationMinutes, notes) => {
+                        const source = books.find((book) => book.id === id);
+                        if (!source) return;
+                        saveSession(source, pagesRead, durationMinutes, notes);
                     }}
+                    onUpdateBook={onUpdateBook}
                     onDeleteBook={onDeleteBook}
                 />
             )}

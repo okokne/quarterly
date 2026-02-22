@@ -65,7 +65,7 @@ type UseAppDashboardContentPropsParams = {
     onAddBook: (title: string, author?: string, coverUrl?: string, categories?: string[], totalPages?: number, status?: "want_to_read" | "reading" | "finished") => void;
     onUpdateBook: (id: string, updates: Partial<Book>) => void;
     onDeleteBook: (id: string) => void;
-    onAddSession: (bookId: string, pagesRead: number, notes?: string) => void;
+    onAddSession: (bookId: string, pagesRead: number, durationMinutes?: number, notes?: string) => void;
     dailyReview: DailyReview;
     weeklyReview: WeeklyReview;
     showReminder: boolean;

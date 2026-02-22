@@ -115,20 +115,35 @@ export function useBooksStore({
         setBooks((prev) => prev.filter((book) => book.id !== id));
     }, [isArchiveView, setBooks]);
 
-    const addSession = useCallback((bookId: string, pagesRead: number, notes?: string) => {
+    const addSession = useCallback((bookId: string, pagesRead: number, durationMinutes?: number, notes?: string) => {
         if (isArchiveView) return;
         const todayIso = toIsoDate(new Date());
         setBooks((prev) => prev.map((book) => {
             if (book.id !== bookId) return book;
+            const sessionPages = Math.max(0, Math.floor(pagesRead));
+            if (sessionPages <= 0) return book;
+
+            const currentRead = Math.max(0, Math.floor(book.readPages));
+            const rawNextRead = currentRead + sessionPages;
+            const nextRead = book.totalPages > 0 ? Math.min(rawNextRead, book.totalPages) : rawNextRead;
+            const appliedPages = Math.max(0, nextRead - currentRead);
+            if (appliedPages <= 0) return book;
+
+            const normalizedDuration = Math.max(0, Math.floor(durationMinutes || 0)) || undefined;
+            const normalizedNotes = notes?.trim() || undefined;
+            const autoFinished = book.totalPages > 0 && nextRead >= book.totalPages;
             const newSession: BookSession = {
                 id: uid(),
                 date: new Date().toISOString(),
-                pagesRead,
-                notes
+                pagesRead: appliedPages,
+                pageAfter: nextRead,
+                durationMinutes: normalizedDuration,
+                notes: normalizedNotes
             };
             return normalizeBookRecord({
                 ...book,
-                readPages: pagesRead,
+                status: autoFinished ? "finished" : book.status,
+                readPages: nextRead,
                 sessions: [...book.sessions, newSession]
             }, todayIso);
         }));

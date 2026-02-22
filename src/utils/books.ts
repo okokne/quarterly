@@ -12,6 +12,11 @@ function toOptionalPositiveInt(value: number | undefined): number | undefined {
     return normalized > 0 ? normalized : undefined;
 }
 
+function toOptionalText(value: string | undefined): string | undefined {
+    const next = value?.trim();
+    return next ? next : undefined;
+}
+
 function getSessionDate(session: BookSession): string {
     const isoDate = session.date.slice(0, 10);
     return /^\d{4}-\d{2}-\d{2}$/.test(isoDate) ? isoDate : toIsoDate(new Date(session.date));
@@ -56,6 +61,10 @@ export function sortBookSessionsByDateDesc(sessions: BookSession[]): BookSession
     return [...sessions].sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
 }
 
+export function sortBookSessionsByDateAsc(sessions: BookSession[]): BookSession[] {
+    return [...sessions].sort((left, right) => new Date(left.date).getTime() - new Date(right.date).getTime());
+}
+
 export function getBookActivityTimestamp(book: Book): number {
     const latestSessionTs = book.sessions.reduce<number>((latest, session) => {
         const ts = new Date(session.date).getTime();
@@ -91,12 +100,27 @@ type SessionIncrement = {
 };
 
 export function getBookSessionIncrements(book: Book): SessionIncrement[] {
-    const sortedAsc = [...book.sessions].sort((left, right) => new Date(left.date).getTime() - new Date(right.date).getTime());
+    const sortedAsc = sortBookSessionsByDateAsc(book.sessions);
     let previousTotal = 0;
     return sortedAsc.map((session) => {
-        const currentTotal = toPositiveInt(session.pagesRead);
-        const pages = Math.max(0, currentTotal - previousTotal);
-        previousTotal = Math.max(previousTotal, currentTotal);
+        const rawPages = toPositiveInt(session.pagesRead);
+        const hasPageAfter = typeof session.pageAfter === "number" && Number.isFinite(session.pageAfter);
+        let pages = 0;
+
+        if (hasPageAfter) {
+            const nextTotal = Math.max(previousTotal, toPositiveInt(session.pageAfter));
+            pages = Math.max(0, nextTotal - previousTotal);
+            previousTotal = nextTotal;
+        } else if (rawPages >= previousTotal) {
+            // Backward compatibility for legacy cumulative session logs.
+            pages = Math.max(0, rawPages - previousTotal);
+            previousTotal = Math.max(previousTotal, rawPages);
+        } else {
+            // New logs store per-session pages directly.
+            pages = rawPages;
+            previousTotal += rawPages;
+        }
+
         return {
             date: getSessionDate(session),
             pages
@@ -192,7 +216,13 @@ export function normalizeBookRecord(book: Book, todayIso: string): Book {
         status = "reading";
     }
 
-    const sessions = sortBookSessionsByDateDesc(book.sessions ?? []);
+    const sessions = sortBookSessionsByDateDesc((book.sessions ?? []).map((session) => ({
+        ...session,
+        pagesRead: toPositiveInt(session.pagesRead),
+        pageAfter: toOptionalPositiveInt(session.pageAfter),
+        durationMinutes: toOptionalPositiveInt(session.durationMinutes),
+        notes: toOptionalText(session.notes)
+    })));
     const categories = sanitizeBookCategories(book.categories);
     const queueOrder = status === "want_to_read" ? toOptionalPositiveInt(book.queueOrder) : undefined;
     const startDate = status === "want_to_read"

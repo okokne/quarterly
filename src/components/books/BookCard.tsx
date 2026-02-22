@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect, useState } from "react";
+import { KeyboardEvent } from "react";
 import { AppLanguage, Book } from "../../types";
 import { t as tr } from "../../i18n";
 import { getBookProgressPercent } from "../../utils/books";
@@ -7,7 +7,7 @@ type BookCardProps = {
     book: Book;
     language: AppLanguage;
     onOpenDetails: () => void;
-    onQuickSetPage?: (page: number) => void;
+    onLogSession?: () => void;
     onQuickAddTen?: () => void;
     onStartReading?: () => void;
     queuePosition?: number;
@@ -20,7 +20,7 @@ export function BookCard({
     book,
     language,
     onOpenDetails,
-    onQuickSetPage,
+    onLogSession,
     onQuickAddTen,
     onStartReading,
     queuePosition,
@@ -29,18 +29,6 @@ export function BookCard({
     onMoveQueueDown
 }: BookCardProps) {
     const progressPercent = getBookProgressPercent(book);
-    const [pageInput, setPageInput] = useState(String(book.readPages));
-
-    useEffect(() => {
-        setPageInput(String(book.readPages));
-    }, [book.readPages, book.id]);
-
-    const commitQuickUpdate = () => {
-        if (!onQuickSetPage) return;
-        const parsed = Math.floor(Number(pageInput));
-        if (!Number.isFinite(parsed)) return;
-        onQuickSetPage(parsed);
-    };
 
     const onCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -99,27 +87,18 @@ export function BookCard({
 
                 {book.status === "reading" && (
                     <div className="book-quick-controls" onClick={(event) => event.stopPropagation()}>
-                        <input
-                            type="number"
-                            className="glass-input book-quick-input"
-                            value={pageInput}
-                            min={book.readPages}
-                            max={book.totalPages > 0 ? book.totalPages : undefined}
-                            onChange={(event) => setPageInput(event.target.value)}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    commitQuickUpdate();
-                                }
-                            }}
-                        />
                         <button
                             type="button"
-                            className="book-quick-btn"
-                            onClick={commitQuickUpdate}
+                            className="book-session-log-btn"
+                            onClick={() => {
+                                if (onLogSession) {
+                                    onLogSession();
+                                    return;
+                                }
+                                onOpenDetails();
+                            }}
                         >
-                            {tr(language, "books.saveProgress")}
+                            {tr(language, "books.addSession")}
                         </button>
                         {onQuickAddTen && (
                             <button

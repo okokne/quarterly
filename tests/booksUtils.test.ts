@@ -102,6 +102,18 @@ test("getPagesReadThisWeek sums session increments inside current week", () => {
     assert.equal(getPagesReadThisWeek([book], "2026-02-22"), 60);
 });
 
+test("getPagesReadThisWeek supports additive session logs with pageAfter", () => {
+    const book = createBook({
+        status: "reading",
+        sessions: [
+            { id: "s1", date: "2026-02-17T10:00:00.000Z", pagesRead: 12, pageAfter: 12 },
+            { id: "s2", date: "2026-02-19T10:00:00.000Z", pagesRead: 18, pageAfter: 30, durationMinutes: 24 },
+            { id: "s3", date: "2026-02-22T10:00:00.000Z", pagesRead: 15, pageAfter: 45, notes: "Good chapter" }
+        ]
+    });
+    assert.equal(getPagesReadThisWeek([book], "2026-02-22"), 45);
+});
+
 test("getFinishedBooksInYear counts only books completed in target year", () => {
     const books = [
         createBook({ id: "a", status: "finished", finishDate: "2026-01-10" }),

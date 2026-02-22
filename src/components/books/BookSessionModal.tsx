@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { Book, AppLanguage } from "../../types";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { AppLanguage, Book } from "../../types";
 import { t as tr } from "../../i18n";
-import { formatDate, toIsoDate } from "../../utils";
-import { getBookCompletionStats, getBookProgressPercent, sortBookSessionsByDateDesc } from "../../utils/books";
+import { formatDate } from "../../utils";
+import { getBookProgressPercent, sortBookSessionsByDateAsc } from "../../utils/books";
 
 type BookSessionModalProps = {
     open: boolean;
     language: AppLanguage;
     book: Book | null;
     onClose: () => void;
-    onSave: (bookId: string, pagesRead: number, notes?: string) => void;
+    onSave: (bookId: string, pagesRead: number, durationMinutes?: number, notes?: string) => void;
     onUpdateBook: (id: string, updates: Partial<Book>) => void;
     onDeleteBook: (id: string) => void;
 };
@@ -23,62 +23,18 @@ export function BookSessionModal({
     onUpdateBook,
     onDeleteBook
 }: BookSessionModalProps) {
-    const [progressInput, setProgressInput] = useState("");
+    const [pagesInput, setPagesInput] = useState("");
+    const [durationInput, setDurationInput] = useState("");
     const [sessionNote, setSessionNote] = useState("");
-    const [showEdit, setShowEdit] = useState(false);
-    const [showFinishPanel, setShowFinishPanel] = useState(false);
-    const [completionNote, setCompletionNote] = useState("");
-    const [editTitle, setEditTitle] = useState("");
-    const [editAuthor, setEditAuthor] = useState("");
-    const [editTotalPages, setEditTotalPages] = useState("");
-    const [editCoverUrl, setEditCoverUrl] = useState("");
+    const [showHistory, setShowHistory] = useState(true);
+    const [showNotes, setShowNotes] = useState(true);
 
     useEffect(() => {
         if (!open || !book) return;
-        setProgressInput(String(book.readPages));
+        setPagesInput("");
+        setDurationInput("");
         setSessionNote("");
-        setShowEdit(false);
-        setShowFinishPanel(false);
-        setCompletionNote(book.completionNote ?? "");
-        setEditTitle(book.title);
-        setEditAuthor(book.author ?? "");
-        setEditTotalPages(book.totalPages > 0 ? String(book.totalPages) : "");
-        setEditCoverUrl(book.coverUrl ?? "");
     }, [open, book?.id]);
-
-    if (!open || !book) return null;
-
-    const sortedSessions = sortBookSessionsByDateDesc(book.sessions ?? []);
-    const parsedProgress = Math.max(0, Math.floor(Number(progressInput) || 0));
-    const nextProgress = book.totalPages > 0 ? Math.min(parsedProgress, book.totalPages) : parsedProgress;
-    const percent = getBookProgressPercent(book);
-    const completionStats = getBookCompletionStats({ ...book, finishDate: toIsoDate(new Date()) });
-
-    const handleSaveProgress = () => {
-        if (book.status !== "reading") return;
-        if (nextProgress <= book.readPages) return;
-        onSave(book.id, nextProgress, sessionNote.trim() || undefined);
-        setSessionNote("");
-    };
-
-    const handleSaveMeta = () => {
-        if (!editTitle.trim()) return;
-        onUpdateBook(book.id, {
-            title: editTitle.trim(),
-            author: editAuthor.trim() || undefined,
-            totalPages: Math.max(0, parseInt(editTotalPages, 10) || 0),
-            coverUrl: editCoverUrl.trim() || undefined
-        });
-        setShowEdit(false);
-    };
-
-    const handleFinishBook = () => {
-        onUpdateBook(book.id, {
-            status: "finished",
-            completionNote: completionNote.trim() || undefined
-        });
-        setShowFinishPanel(false);
-    };
 
     useEffect(() => {
         if (!open) return;
@@ -89,6 +45,40 @@ export function BookSessionModal({
         return () => window.removeEventListener("keydown", handleEscape);
     }, [open, onClose]);
 
+    const sortedSessions = useMemo(
+        () => sortBookSessionsByDateAsc(book?.sessions ?? []),
+        [book?.sessions]
+    );
+    const notedSessions = useMemo(
+        () => sortedSessions.filter((session) => Boolean(session.notes)),
+        [sortedSessions]
+    );
+
+    if (!open || !book) return null;
+
+    const isReading = book.status === "reading";
+    const progressPercent = getBookProgressPercent(book);
+    const parsedPages = Math.max(0, Math.floor(Number(pagesInput) || 0));
+    const parsedDuration = Math.max(0, Math.floor(Number(durationInput) || 0));
+    const previewPages = book.totalPages > 0
+        ? Math.min(book.readPages + parsedPages, book.totalPages)
+        : (book.readPages + parsedPages);
+    const previewPercent = book.totalPages > 0
+        ? Math.min(100, Math.round((previewPages / book.totalPages) * 100))
+        : 0;
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!isReading || parsedPages <= 0) return;
+        onSave(
+            book.id,
+            parsedPages,
+            parsedDuration > 0 ? parsedDuration : undefined,
+            sessionNote.trim() || undefined
+        );
+        onClose();
+    };
+
     return (
         <div className="modal-backdrop z-max" onClick={onClose}>
             <div className="modal panel-content glass-panel books-modal-shell" onClick={(event) => event.stopPropagation()}>
@@ -98,206 +88,163 @@ export function BookSessionModal({
                 </div>
 
                 <div className="books-detail-top">
-                    <p className="text-secondary text-sm mb-1">
+                    <p className="text-secondary text-sm mb-2">
                         {book.readPages}/{book.totalPages || "?"} {tr(language, "books.readPages")}
                     </p>
-                    {book.status === "reading" && book.totalPages > 0 && (
-                        <div className="book-progress-bar-container">
-                            <div className="book-progress-fill aura-fill" style={{ width: `${percent}%` }} />
-                        </div>
+                    {book.totalPages > 0 && (
+                        <>
+                            <div className="book-progress-bar-container">
+                                <div className="book-progress-fill aura-fill" style={{ width: `${progressPercent}%` }} />
+                            </div>
+                            <p className="text-secondary text-xs mt-2 mb-0">{progressPercent}%</p>
+                        </>
                     )}
                 </div>
 
-                <div className="books-detail-actions-row">
-                    <button type="button" className="glass-button" onClick={() => setShowEdit((prev) => !prev)}>
-                        {showEdit ? tr(language, "common.close") : tr(language, "books.editInline")}
-                    </button>
-                </div>
-
-                {showEdit && (
-                    <div className="books-inline-edit glass-panel panel-content mt-4">
-                        <div className="grid md:grid-cols-2 gap-3">
-                            <input
-                                type="text"
-                                className="glass-input"
-                                value={editTitle}
-                                onChange={(event) => setEditTitle(event.target.value)}
-                                placeholder={tr(language, "books.bookTitle")}
-                            />
-                            <input
-                                type="text"
-                                className="glass-input"
-                                value={editAuthor}
-                                onChange={(event) => setEditAuthor(event.target.value)}
-                                placeholder={tr(language, "books.bookAuthor")}
-                            />
+                {isReading ? (
+                    <form className="books-session-form" onSubmit={handleSubmit}>
+                        <div className="books-session-pages-row">
                             <input
                                 type="number"
                                 className="glass-input"
-                                value={editTotalPages}
-                                min="0"
-                                onChange={(event) => setEditTotalPages(event.target.value)}
-                                placeholder={tr(language, "books.totalPages")}
+                                value={pagesInput}
+                                min="1"
+                                step="1"
+                                autoFocus
+                                onChange={(event) => setPagesInput(event.target.value)}
+                                placeholder={tr(language, "books.sessionPagesLabel")}
                             />
-                            <input
-                                type="url"
-                                className="glass-input"
-                                value={editCoverUrl}
-                                onChange={(event) => setEditCoverUrl(event.target.value)}
-                                placeholder={tr(language, "books.coverUrl")}
-                            />
+                            <button
+                                type="button"
+                                className="book-quick-btn"
+                                onClick={() => {
+                                    const next = parsedPages + 10;
+                                    setPagesInput(String(next));
+                                }}
+                            >
+                                +10
+                            </button>
                         </div>
-                        <div className="mt-3">
+
+                        <input
+                            type="number"
+                            className="glass-input mt-3"
+                            value={durationInput}
+                            min="1"
+                            step="1"
+                            onChange={(event) => setDurationInput(event.target.value)}
+                            placeholder={tr(language, "books.sessionDurationOptional")}
+                        />
+
+                        <textarea
+                            className="glass-input w-full mt-3 resize-none books-session-note-input"
+                            value={sessionNote}
+                            maxLength={220}
+                            onChange={(event) => setSessionNote(event.target.value)}
+                            placeholder={tr(language, "books.sessionThoughtsOptional")}
+                        />
+
+                        {parsedPages > 0 && (
+                            <p className="text-secondary text-xs mt-2 mb-0">
+                                {tr(language, "books.sessionPreview", {
+                                    pages: previewPages,
+                                    total: book.totalPages || "?",
+                                    percent: previewPercent
+                                })}
+                            </p>
+                        )}
+
+                        <div className="books-detail-footer mt-4">
+                            <button type="button" className="glass-button" onClick={onClose}>
+                                {tr(language, "common.close")}
+                            </button>
+                            <button type="submit" className="glass-button primary-action" disabled={parsedPages <= 0}>
+                                {tr(language, "books.saveSession")}
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <div className="books-detail-footer mt-2">
+                        {book.status === "want_to_read" && (
                             <button
                                 type="button"
                                 className="glass-button primary-action"
-                                onClick={handleSaveMeta}
-                                disabled={!editTitle.trim()}
+                                onClick={() => onUpdateBook(book.id, { status: "reading" })}
                             >
-                                {tr(language, "books.saveDetails")}
+                                {tr(language, "books.startReading")}
                             </button>
-                        </div>
-                    </div>
-                )}
-
-                {book.status === "want_to_read" && (
-                    <div className="books-detail-cta mt-5">
-                        <button
-                            type="button"
-                            className="glass-button primary-action"
-                            onClick={() => onUpdateBook(book.id, { status: "reading" })}
-                        >
-                            {tr(language, "books.startReading")}
+                        )}
+                        <button type="button" className="glass-button" onClick={onClose}>
+                            {tr(language, "common.close")}
                         </button>
                     </div>
                 )}
 
-                {book.status === "reading" && (
-                    <form
-                        className="mt-6"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            handleSaveProgress();
-                        }}
+                <section className="books-session-section">
+                    <button
+                        type="button"
+                        className="books-session-toggle"
+                        onClick={() => setShowHistory((prev) => !prev)}
+                        aria-expanded={showHistory}
                     >
-                        <div className="form-group">
-                            <label className="text-secondary">{tr(language, "books.quickUpdate")}</label>
-                            <div className="books-detail-quick-row">
-                                <input
-                                    type="number"
-                                    className="glass-input"
-                                    value={progressInput}
-                                    onChange={(event) => setProgressInput(event.target.value)}
-                                    min={book.readPages}
-                                    max={book.totalPages > 0 ? book.totalPages : undefined}
-                                />
-                                <button
-                                    type="button"
-                                    className="glass-button"
-                                    onClick={() => {
-                                        const tenAhead = book.readPages + 10;
-                                        const clamped = book.totalPages > 0 ? Math.min(tenAhead, book.totalPages) : tenAhead;
-                                        setProgressInput(String(clamped));
-                                        onSave(book.id, clamped);
-                                    }}
-                                >
-                                    +10
-                                </button>
-                                <button type="submit" className="glass-button primary-action" disabled={nextProgress <= book.readPages}>
-                                    {tr(language, "books.saveProgress")}
-                                </button>
+                        <span>{tr(language, "books.sessionsHistory")}</span>
+                        <span>{showHistory ? "-" : "+"}</span>
+                    </button>
+
+                    {showHistory && (
+                        sortedSessions.length === 0 ? (
+                            <p className="text-secondary text-sm mt-2 mb-0">{tr(language, "books.noSessions")}</p>
+                        ) : (
+                            <div className="books-session-list">
+                                {sortedSessions.map((session) => (
+                                    <article key={session.id} className="book-session-item glass-panel">
+                                        <div className="book-session-item-head">
+                                            <span>{formatDate(session.date.split("T")[0], "iso", language)}</span>
+                                            <span>{tr(language, "books.sessionPagesCount", { value: session.pagesRead })}</span>
+                                        </div>
+                                        {session.durationMinutes && (
+                                            <p className="text-secondary text-xs mt-1 mb-0">
+                                                {tr(language, "books.sessionDurationShort", { value: session.durationMinutes })}
+                                            </p>
+                                        )}
+                                        {session.notes && <p className="mt-2 mb-0">{session.notes}</p>}
+                                    </article>
+                                ))}
                             </div>
-                        </div>
-
-                        <div className="form-group mt-4">
-                            <label className="text-secondary">{tr(language, "books.sessionNotesOptional")}</label>
-                            <textarea
-                                className="glass-input w-full mt-2 resize-none h-20"
-                                value={sessionNote}
-                                maxLength={180}
-                                onChange={(event) => setSessionNote(event.target.value)}
-                                placeholder={tr(language, "books.notesShortPlaceholder")}
-                            />
-                        </div>
-
-                        {!showFinishPanel && (
-                            <div className="books-detail-cta mt-5">
-                                <button type="button" className="glass-button" onClick={() => setShowFinishPanel(true)}>
-                                    {tr(language, "books.markFinished")}
-                                </button>
-                            </div>
-                        )}
-                    </form>
-                )}
-
-                {showFinishPanel && (
-                    <div className="books-finish-panel glass-panel panel-content mt-5">
-                        <h4 className="m-0 mb-2">{tr(language, "books.finishSummaryTitle")}</h4>
-                        <div className="books-finish-stats">
-                            <span>{tr(language, "books.finishTotalPages", { value: completionStats.totalPages })}</span>
-                            <span>{tr(language, "books.finishDuration", { value: completionStats.readingDays })}</span>
-                            <span>{tr(language, "books.finishAvgPages", { value: completionStats.pagesPerDay })}</span>
-                        </div>
-                        <label className="text-secondary mt-3 block">{tr(language, "books.completionNoteLabel")}</label>
-                        <textarea
-                            className="glass-input w-full mt-2 resize-none h-20"
-                            value={completionNote}
-                            maxLength={180}
-                            onChange={(event) => setCompletionNote(event.target.value)}
-                            placeholder={tr(language, "books.completionNotePlaceholder")}
-                        />
-                        <div className="books-finish-actions mt-3">
-                            <button type="button" className="glass-button" onClick={() => setShowFinishPanel(false)}>
-                                {tr(language, "common.back")}
-                            </button>
-                            <button type="button" className="glass-button primary-action" onClick={handleFinishBook}>
-                                {tr(language, "books.confirmFinish")}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {book.status === "finished" && (
-                    <div className="books-finish-panel glass-panel panel-content mt-5">
-                        <h4 className="m-0 mb-2">{tr(language, "books.finishSummaryTitle")}</h4>
-                        <div className="books-finish-stats">
-                            <span>{tr(language, "books.finishTotalPages", { value: completionStats.totalPages })}</span>
-                            <span>{tr(language, "books.finishDuration", { value: completionStats.readingDays })}</span>
-                            <span>{tr(language, "books.finishAvgPages", { value: completionStats.pagesPerDay })}</span>
-                        </div>
-                        {book.completionNote && <p className="text-secondary mt-3 mb-0">{book.completionNote}</p>}
-                        <div className="books-detail-cta mt-3">
-                            <button
-                                type="button"
-                                className="glass-button"
-                                onClick={() => onUpdateBook(book.id, { status: "reading" })}
-                            >
-                                {tr(language, "books.reopenBook")}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                <div className="mt-9">
-                    <h4 className="font-medium mb-2 text-secondary text-sm">{tr(language, "books.sessionsHistory")}</h4>
-                    {sortedSessions.length === 0 ? (
-                        <p className="text-secondary text-sm">{tr(language, "books.noSessions")}</p>
-                    ) : (
-                        <div className="space-y-3 max-h-44 overflow-y-auto pr-2 custom-scrollbar">
-                            {sortedSessions.map((session) => (
-                                <div key={session.id} className="book-session-item glass-panel p-3 text-sm">
-                                    <div className="flex justify-between text-secondary mb-1">
-                                        <span>{formatDate(session.date.split("T")[0], "iso", language)}</span>
-                                        <span>{tr(language, "books.sessionPageLabel", { page: session.pagesRead })}</span>
-                                    </div>
-                                    {session.notes && <p className="mt-1">{session.notes}</p>}
-                                </div>
-                            ))}
-                        </div>
+                        )
                     )}
-                </div>
+                </section>
 
-                <div className="books-detail-footer mt-9">
+                <section className="books-session-section">
+                    <button
+                        type="button"
+                        className="books-session-toggle"
+                        onClick={() => setShowNotes((prev) => !prev)}
+                        aria-expanded={showNotes}
+                    >
+                        <span>{tr(language, "books.notesArchive")}</span>
+                        <span>{showNotes ? "-" : "+"}</span>
+                    </button>
+
+                    {showNotes && (
+                        notedSessions.length === 0 ? (
+                            <p className="text-secondary text-sm mt-2 mb-0">{tr(language, "books.noSessionNotes")}</p>
+                        ) : (
+                            <div className="books-notes-archive">
+                                {notedSessions.map((session) => (
+                                    <article key={session.id} className="books-note-item">
+                                        <p className="books-note-date">
+                                            {formatDate(session.date.split("T")[0], "iso", language)}
+                                        </p>
+                                        <p className="books-note-text">{session.notes}</p>
+                                    </article>
+                                ))}
+                            </div>
+                        )
+                    )}
+                </section>
+
+                <div className="books-detail-footer">
                     <button type="button" className="glass-button" onClick={onClose}>
                         {tr(language, "common.close")}
                     </button>
