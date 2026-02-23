@@ -8497,7 +8497,7 @@ body.dark-mode .archive-banner {
 
 .books-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -8508,6 +8508,21 @@ body.dark-mode .archive-banner {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.books-summary-card-dual {
+  gap: 10px;
+}
+
+.books-summary-card-dual > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.books-summary-card-dual > div + div {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
 }
 
 .books-summary-card span {

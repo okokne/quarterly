@@ -331,17 +331,19 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             <span>{tr(language, "books.pagesThisWeek")}</span>
                             <strong>{pagesThisWeek}</strong>
                         </article>
-                        <article className="books-summary-card glass-panel">
-                            <span>{tr(language, "books.minutesThisWeek")}</span>
-                            <strong>{formatMinutes(minutesThisWeek)}</strong>
+                        <article className="books-summary-card books-summary-card-dual glass-panel">
+                            <div>
+                                <span>{tr(language, "books.minutesThisWeek")}</span>
+                                <strong>{formatMinutes(minutesThisWeek)}</strong>
+                            </div>
+                            <div>
+                                <span>{tr(language, "books.minutesThisYear")}</span>
+                                <strong>{formatMinutes(minutesThisYear)}</strong>
+                            </div>
                         </article>
                         <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.minutesTotal")}</span>
                             <strong>{formatMinutes(minutesTotal)}</strong>
-                        </article>
-                        <article className="books-summary-card glass-panel">
-                            <span>{tr(language, "books.minutesThisYear")}</span>
-                            <strong>{formatMinutes(minutesThisYear)}</strong>
                         </article>
                         <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.booksThisYear")}</span>
