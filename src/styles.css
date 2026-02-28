@@ -9506,8 +9506,8 @@ body.dark-mode {
 
 .today-geist-container {
   width: 100%;
-  max-width: 880px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: var(--space-12) var(--space-6);
   display: flex;
   flex-direction: column;
