@@ -129,7 +129,7 @@ body.dark-mode {
 
 :root {
   /* ─── Typography (Energetic & Bouncy) ─── */
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-headline: "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
@@ -748,8 +748,10 @@ body {
 }
 
 .app-content-header-main h1 {
-  margin-bottom: 4px;
-  font-size: var(--type-h1);
+  margin-bottom: 2px;
+  font-size: clamp(1.9rem, 2.5vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
 .app-content-header-actions {
@@ -773,10 +775,8 @@ body {
 h1,
 h2 {
   font-family: var(--font-headline);
-  font-weight: 800;
-  /* Punched up from 600 */
+  font-weight: 600;
   letter-spacing: -0.03em;
-  /* Tighter tracking for tension */
 }
 
 h3,
@@ -3896,8 +3896,11 @@ button.ghost-danger:hover {
 }
 
 .week-name-label {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-family: var(--font-headline);
+  font-size: 0.96rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
@@ -8566,6 +8569,19 @@ body.dark-mode .archive-banner {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 2px;
+}
+
+.books-tab-card {
+  width: 100%;
+  gap: var(--space-grid);
+}
+
+.books-tab-title {
+  margin: 0;
+  font-size: clamp(1.05rem, 1.2vw, 1.2rem);
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .books-view-toggle {
@@ -8573,6 +8589,7 @@ body.dark-mode .archive-banner {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  margin-bottom: 2px;
 }
 
 .books-view-chip {
@@ -8600,28 +8617,34 @@ body.dark-mode .archive-banner {
 .books-layout-stack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .books-insights-header {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
+}
+
+.books-insights-header h3 {
+  margin: 0;
 }
 
 .books-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
 }
 
 .books-summary-card {
-  padding: 12px 14px;
+  background: var(--bg-card);
+  padding: 14px 16px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-height: 84px;
 }
 
 .books-summary-card-dual {
@@ -8670,8 +8693,17 @@ body.dark-mode .archive-banner {
 .books-inline-composer {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-bottom: 8px;
+  gap: 14px;
+}
+
+.books-inline-hint {
+  margin: 0;
+}
+
+.books-inline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .books-inline-status {
@@ -8684,11 +8716,17 @@ body.dark-mode .archive-banner {
 .books-inline-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .books-grid-sections {
-  margin-top: 4px;
+  margin-top: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.books-section-card {
+  gap: 12px;
 }
 
 .books-section-title {
@@ -8696,7 +8734,16 @@ body.dark-mode .archive-banner {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+}
+
+.books-section-heading {
+  font-family: var(--font-headline);
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .books-section-title span {
@@ -8714,14 +8761,26 @@ body.dark-mode .archive-banner {
 .books-list-compact {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .books-section-empty {
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.books-empty-state {
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 24px 18px;
+}
+
+.books-empty-state h3 {
+  margin: 0;
 }
 
 .books-finish-toast {
@@ -8738,12 +8797,12 @@ body.dark-mode .archive-banner {
 .book-card.compact {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 10px;
+  border-radius: 14px;
+  padding: 12px;
   cursor: pointer;
   transition: border-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
 }
@@ -8755,8 +8814,8 @@ body.dark-mode .archive-banner {
 }
 
 .book-card-cover-container.compact {
-  width: 74px;
-  min-width: 74px;
+  width: 84px;
+  min-width: 84px;
   aspect-ratio: 2 / 3;
   background: var(--surface-2);
   display: flex;
@@ -8798,14 +8857,15 @@ body.dark-mode .book-cover-placeholder {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .book-card-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
 }
 
 .book-card-main {
@@ -8821,12 +8881,12 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .book-card-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.25;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
   color: var(--text-primary);
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -8834,7 +8894,7 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .book-card-author {
-  font-size: 0.8rem;
+  font-size: 0.83rem;
   color: var(--text-secondary);
   margin: 0;
   display: -webkit-box;
@@ -8846,15 +8906,15 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .book-card-meta {
-  margin: 2px 0 0;
-  font-size: 0.76rem;
+  margin: 1px 0 0;
+  font-size: 0.78rem;
   color: var(--text-secondary);
 }
 
 .book-status-pill {
   align-self: flex-end;
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 600;
   letter-spacing: 0.01em;
   border-radius: 999px;
   padding: 4px 8px;
@@ -8881,7 +8941,8 @@ body.dark-mode .book-cover-placeholder {
 }
 
 .book-progress-section.compact {
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 .book-progress-header.compact {
@@ -8913,6 +8974,9 @@ body.dark-mode .book-cover-placeholder {
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px dashed color-mix(in srgb, var(--border-subtle) 85%, transparent);
 }
 
 .book-quick-btn {
@@ -9212,6 +9276,10 @@ body.dark-mode .book-cover-placeholder {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .books-inline-grid {
+    grid-template-columns: 1fr;
+  }
+
   .books-detail-footer button {
     flex: 1;
   }
@@ -9301,10 +9369,10 @@ body.dark-mode {
 }
 
 .today-geist-title {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-headline);
   font-size: 24px;
   line-height: 32px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--g-text-primary);
   letter-spacing: -0.01em;
   margin-bottom: 4px;
@@ -9378,10 +9446,12 @@ body.dark-mode {
 }
 
 .spo-today-label {
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  color: var(--g-text-secondary);
+  font-family: var(--font-headline);
+  font-size: 0.96rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 

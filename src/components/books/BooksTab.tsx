@@ -175,13 +175,13 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
     };
 
     const renderSection = (title: string, sectionBooks: Book[], sectionType: "reading" | "queue" | "finished") => (
-        <section>
+        <section className="subcard books-section-card">
             <div className="books-section-title">
-                <h3 className="text-xl font-bold mb-0">{title}</h3>
+                <h3 className="books-section-heading">{title}</h3>
                 <span>{sectionBooks.length}</span>
             </div>
             {sectionBooks.length === 0 ? (
-                <div className="books-section-empty text-secondary">{tr(language, "books.sectionEmpty")}</div>
+                <div className="books-section-empty">{tr(language, "books.sectionEmpty")}</div>
             ) : (
                 <div className="books-list-compact">
                     {sectionBooks.map((book, index) => (
@@ -217,9 +217,9 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
     };
 
     return (
-        <div className="tab-container page-content fade-in p-4 lg:p-8 max-w-[1200px] mx-auto">
-            <div className="books-header-row mb-6">
-                <h2 className="section-title mb-0">{tr(language, "books.title")}</h2>
+        <section className="card books-tab-card">
+            <div className="books-header-row">
+                <h2 className="books-tab-title">{tr(language, "books.title")}</h2>
                 {activeView === "library" && (
                     <button
                         type="button"
@@ -235,7 +235,7 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                 )}
             </div>
 
-            <div className="books-view-toggle mb-6">
+            <div className="books-view-toggle">
                 <button
                     type="button"
                     className={`books-view-chip ${activeView === "library" ? "active" : ""}`}
@@ -259,12 +259,11 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
             )}
 
             {activeView === "library" && composerOpen && (
-                <form className="books-inline-composer glass-panel panel-content mb-10" onSubmit={handleAddBook}>
-                    <p className="text-secondary mb-4">{tr(language, "books.inlineAddHint")}</p>
-                    <div className="grid md:grid-cols-2 gap-3">
+                <form className="subcard books-inline-composer" onSubmit={handleAddBook}>
+                    <p className="books-inline-hint">{tr(language, "books.inlineAddHint")}</p>
+                    <div className="books-inline-grid">
                         <input
                             type="text"
-                            className="glass-input"
                             value={draft.title}
                             onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
                             placeholder={tr(language, "books.bookTitle")}
@@ -272,14 +271,12 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                         />
                         <input
                             type="text"
-                            className="glass-input"
                             value={draft.author}
                             onChange={(event) => setDraft((prev) => ({ ...prev, author: event.target.value }))}
                             placeholder={tr(language, "books.bookAuthor")}
                         />
                         <input
                             type="number"
-                            className="glass-input"
                             value={draft.totalPages}
                             min="0"
                             onChange={(event) => setDraft((prev) => ({ ...prev, totalPages: event.target.value }))}
@@ -287,14 +284,13 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                         />
                         <input
                             type="url"
-                            className="glass-input"
                             value={draft.coverUrl}
                             onChange={(event) => setDraft((prev) => ({ ...prev, coverUrl: event.target.value }))}
                             placeholder={tr(language, "books.coverUrl")}
                         />
                     </div>
 
-                    <div className="books-inline-status mt-4">
+                    <div className="books-inline-status">
                         {(["want_to_read", "reading", "finished"] as BookStatus[]).map((status) => (
                             <button
                                 key={status}
@@ -307,8 +303,8 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                         ))}
                     </div>
 
-                    <div className="books-inline-actions mt-4">
-                        <button type="submit" className="glass-button primary-action" disabled={!draft.title.trim()}>
+                    <div className="books-inline-actions">
+                        <button type="submit" className="primary" disabled={!draft.title.trim()}>
                             {tr(language, "books.add")}
                         </button>
                     </div>
@@ -318,28 +314,28 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
             {activeView === "insights" ? (
                 <div className="books-layout-stack">
                     <div className="books-insights-header">
-                        <h3 className="text-xl font-bold mb-1">{tr(language, "books.view.insights")}</h3>
-                        <p className="text-secondary mb-0">{tr(language, "books.insightsHint")}</p>
+                        <h3>{tr(language, "books.view.insights")}</h3>
+                        <p className="muted">{tr(language, "books.insightsHint")}</p>
                     </div>
 
                     <div className="books-summary-grid">
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.streak")}</span>
                             <strong>{streakDays}</strong>
                         </article>
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.pagesThisWeek")}</span>
                             <strong>{pagesThisWeek}</strong>
                         </article>
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.booksThisYear")}</span>
                             <strong>{booksThisYear}</strong>
                         </article>
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.summary.remainingPages")}</span>
                             <strong>{totalRemainingPages}</strong>
                         </article>
-                        <article className="books-summary-card books-summary-card-dual glass-panel">
+                        <article className="books-summary-card books-summary-card-dual">
                             <div>
                                 <span>{tr(language, "books.minutesThisWeek")}</span>
                                 <strong>{formatMinutes(minutesThisWeek)}</strong>
@@ -349,33 +345,30 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                                 <strong>{formatMinutes(minutesThisYear)}</strong>
                             </div>
                         </article>
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.minutesTotal")}</span>
                             <strong>{formatMinutes(minutesTotal)}</strong>
                         </article>
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.avgMinutesPerSession")}</span>
                             <strong>{formatMinutes(avgMinutesPerSession)}</strong>
                         </article>
-                        <article className="books-summary-card glass-panel">
+                        <article className="books-summary-card">
                             <span>{tr(language, "books.sessionsLogged")}</span>
                             <strong>{totalSessions}</strong>
                         </article>
                     </div>
                 </div>
             ) : books.length === 0 ? (
-                <div className="empty-state glass-panel panel-content text-center py-14">
-                    <h3 className="text-xl font-bold mb-2">{tr(language, "books.noBooks")}</h3>
-                    <p className="text-secondary mb-0">{tr(language, "books.emptyHint")}</p>
+                <div className="subcard books-empty-state">
+                    <h3>{tr(language, "books.noBooks")}</h3>
+                    <p className="muted">{tr(language, "books.emptyHint")}</p>
                 </div>
             ) : (
-                <div className="books-layout-stack">
-
-                    <div className="books-grid-sections space-y-8">
-                        {renderSection(tr(language, "books.status.reading"), currentlyReading, "reading")}
-                        {renderSection(tr(language, "books.queue"), queueBooks, "queue")}
-                        {renderSection(tr(language, "books.status.finished"), finished, "finished")}
-                    </div>
+                <div className="books-layout-stack books-grid-sections">
+                    {renderSection(tr(language, "books.status.reading"), currentlyReading, "reading")}
+                    {renderSection(tr(language, "books.queue"), queueBooks, "queue")}
+                    {renderSection(tr(language, "books.status.finished"), finished, "finished")}
                 </div>
             )}
 
@@ -394,6 +387,6 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                     onDeleteBook={onDeleteBook}
                 />
             )}
-        </div>
+        </section>
     );
 }
