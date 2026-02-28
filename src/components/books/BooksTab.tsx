@@ -331,6 +331,14 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             <span>{tr(language, "books.pagesThisWeek")}</span>
                             <strong>{pagesThisWeek}</strong>
                         </article>
+                        <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.booksThisYear")}</span>
+                            <strong>{booksThisYear}</strong>
+                        </article>
+                        <article className="books-summary-card glass-panel">
+                            <span>{tr(language, "books.summary.remainingPages")}</span>
+                            <strong>{totalRemainingPages}</strong>
+                        </article>
                         <article className="books-summary-card books-summary-card-dual glass-panel">
                             <div>
                                 <span>{tr(language, "books.minutesThisWeek")}</span>
@@ -346,20 +354,12 @@ export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBoo
                             <strong>{formatMinutes(minutesTotal)}</strong>
                         </article>
                         <article className="books-summary-card glass-panel">
-                            <span>{tr(language, "books.booksThisYear")}</span>
-                            <strong>{booksThisYear}</strong>
-                        </article>
-                        <article className="books-summary-card glass-panel">
-                            <span>{tr(language, "books.sessionsLogged")}</span>
-                            <strong>{totalSessions}</strong>
-                        </article>
-                        <article className="books-summary-card glass-panel">
                             <span>{tr(language, "books.avgMinutesPerSession")}</span>
                             <strong>{formatMinutes(avgMinutesPerSession)}</strong>
                         </article>
                         <article className="books-summary-card glass-panel">
-                            <span>{tr(language, "books.summary.remainingPages")}</span>
-                            <strong>{totalRemainingPages}</strong>
+                            <span>{tr(language, "books.sessionsLogged")}</span>
+                            <strong>{totalSessions}</strong>
                         </article>
                     </div>
                 </div>

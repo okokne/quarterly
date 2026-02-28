@@ -246,6 +246,7 @@ export function AppDashboardContent({
                     onUpdateBlock={onUpdateBlock}
                     onDeleteBlock={onDeleteBlock}
                     getWeeklyRemaining={getWeeklyRemaining}
+                    habits={habits}
                     getActiveHabitsForDate={getActiveHabitsForDate}
                     habitLog={habitLog}
                     onToggleHabit={onToggleHabit}
