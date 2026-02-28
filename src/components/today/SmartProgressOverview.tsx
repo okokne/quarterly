@@ -3,7 +3,6 @@ import {
     ArrowUp,
     ArrowDown,
     Minus,
-    Check,
 } from "@phosphor-icons/react";
 import { Cycle } from "../../types";
 import { addDays, getWeekIndexForDate, parseIso, toIsoDate, weekdayLabel } from "../../utils";
@@ -219,25 +218,7 @@ export function SmartProgressOverview({
                                 aria-label={`${day.label} ${day.dayNumber}: ${day.tooltip}`}
                                 aria-pressed={day.date === selectedDate}
                             >
-                                {day.state === "done" && <Check size={14} weight="bold" />}
-                                {day.state === "today" && (
-                                    <span className="spo-dot-today-num">{day.dayNumber}</span>
-                                )}
-                                {day.state === "partial" && (
-                                    <svg className="spo-partial-ring" viewBox="0 0 24 24" fill="none">
-                                        <circle cx="12" cy="12" r="9" strokeWidth="2" stroke="rgba(217,119,6,0.25)" />
-                                        <circle
-                                            cx="12"
-                                            cy="12"
-                                            r="9"
-                                            strokeWidth="2"
-                                            stroke="#D97706"
-                                            strokeLinecap="round"
-                                            strokeDasharray={`${(day.progressPercent / 100) * 56.55} 56.55`}
-                                            transform="rotate(-90 12 12)"
-                                        />
-                                    </svg>
-                                )}
+                                <span className="spo-dot-num">{day.dayNumber}</span>
                             </button>
                             {hoveredDot === i && (
                                 <div className="spo-tooltip">

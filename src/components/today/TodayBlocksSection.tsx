@@ -986,7 +986,7 @@ export function TodayBlocksSection({
     ]);
 
     return (
-        <div className="subcard">
+        <div className="subcard today-dayplan-section">
             <div className="today-dayplan-header">
                 <div className="today-section-header-left">
                     <CalendarDays size={18} weight="duotone" className="today-section-icon" aria-hidden="true" />

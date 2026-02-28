@@ -5950,7 +5950,7 @@ body.dark-mode .today-hero-watermark {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .today-dayplan-header h3 {
@@ -5964,9 +5964,9 @@ body.dark-mode .today-hero-watermark {
 }
 
 .today-dayplan-add-btn {
-  min-width: 42px;
-  min-height: 34px;
-  padding: 0 12px;
+  min-width: 38px;
+  min-height: 32px;
+  padding: 0 10px;
   border-radius: 9px;
 }
 
@@ -8315,6 +8315,10 @@ body.dark-mode .archive-banner {
   margin-top: 0;
 }
 
+.today-review-section .today-daily-review-card {
+  padding: 0;
+}
+
 .today-daily-review-card.is-open {
   border-color: var(--accent);
   box-shadow: 0 4px 20px color-mix(in srgb, var(--accent) 15%, transparent);
@@ -8351,7 +8355,7 @@ body.dark-mode .archive-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 10px 14px 12px;
   cursor: pointer;
   background: transparent;
   transition: background var(--transition-fast);
@@ -8424,10 +8428,10 @@ body.dark-mode .archive-banner {
 }
 
 .today-daily-review-card .grid {
-  padding: 0 20px 20px 20px;
+  padding: 0 14px 14px;
   border-top: 1px solid var(--border-light);
   margin-top: 0;
-  padding-top: 20px;
+  padding-top: 14px;
 }
 
 .today-daily-review-card textarea {
@@ -9842,15 +9846,6 @@ body.dark-mode {
   box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.3);
 }
 
-.spo-partial-ring {
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
 /* State: done (80-100%) */
 .spo-dot-done {
   background: var(--g-success-bg);
@@ -9869,11 +9864,28 @@ body.dark-mode {
   transform: scale(1.2);
 }
 
-.spo-dot-today-num {
-  font-size: 12px;
+.spo-dot-num {
+  font-size: 11px;
   font-weight: 600;
-  color: #FFFFFF;
   line-height: 1;
+  color: var(--g-text-secondary);
+}
+
+.spo-dot-today .spo-dot-num {
+  color: #FFFFFF;
+}
+
+.spo-dot-done .spo-dot-num {
+  color: var(--g-success-text);
+}
+
+.spo-dot-partial .spo-dot-num {
+  color: var(--g-warning-text);
+}
+
+.spo-dot-failed .spo-dot-num,
+.spo-dot-future .spo-dot-num {
+  color: var(--g-text-tertiary);
 }
 
 .spo-dot-selected {
@@ -10042,7 +10054,7 @@ body.dark-mode .spo-dot-future {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   gap: 10px;
 }
 
@@ -10064,6 +10076,11 @@ body.dark-mode .spo-dot-future {
   line-height: 24px;
   font-weight: 600;
   color: var(--g-text-primary);
+}
+
+.subcard.today-dayplan-section,
+.subcard.today-open-targets-section {
+  padding: 12px 14px 14px;
 }
 
 .today-section-link {
@@ -10431,13 +10448,8 @@ body.dark-mode .hsc-streak-zero {
     height: 22px;
   }
 
-  .spo-dot-today-num {
+  .spo-dot-num {
     font-size: 11px;
-  }
-
-  .spo-partial-ring {
-    width: 15px;
-    height: 15px;
   }
 
   .twc-toggle-btn span {
@@ -10507,12 +10519,17 @@ button, a, input, select, textarea {
   max-width: none !important;
   width: 100% !important;
   margin: 0 !important;
-  padding: var(--space-10) clamp(16px, 2.1vw, 30px) !important;
+  padding: var(--space-2) clamp(16px, 2.1vw, 30px) var(--space-10) !important;
+  gap: 12px !important;
+}
+
+.app-content-header {
+  padding: 0 2px 8px !important;
 }
 
 .dashboard-tab-panel {
   width: 100%;
-  margin-top: -80px;
+  margin-top: 0;
 }
 
 .dashboard-tab-panel > * {
@@ -10528,7 +10545,7 @@ button, a, input, select, textarea {
   }
 
   .dashboard-tab-panel {
-    margin-top: -24px;
+    margin-top: 0;
   }
 }
 
