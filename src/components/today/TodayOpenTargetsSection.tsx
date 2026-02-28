@@ -25,6 +25,12 @@ export function TodayOpenTargetsSection({
         [goals, selectedWeekTargets]
     );
 
+    const goalNameById = useMemo(() => {
+        const map = new Map<string, string>();
+        goals.forEach((g) => map.set(String(g.id), g.title));
+        return map;
+    }, [goals]);
+
     return (
         <section className="subcard today-open-targets-section">
             <div className="today-section-header">
@@ -39,6 +45,7 @@ export function TodayOpenTargetsSection({
                     const done = Math.max(0, target.target - target.remaining);
                     const remaining = Math.max(0, target.target - done);
                     const accent = targetAccentById.get(String(target.id));
+                    const goalName = target.goalId ? goalNameById.get(String(target.goalId)) : null;
                     return (
                         <div
                             key={target.id}
@@ -48,17 +55,17 @@ export function TodayOpenTargetsSection({
                                 "--open-target-accent": accent
                             } as CSSProperties) : undefined}
                         >
-                            <div className="planner-block-header">
+                            <div className="planner-block-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
                                 <strong className="planner-block-heading">{target.title}</strong>
+                                {goalName && (
+                                    <span className="planner-meta-chip planner-target-chip today-open-target-chip" style={{ marginLeft: "auto", flexShrink: 0 }}>
+                                        <span className="planner-target-dot" aria-hidden="true" />
+                                        <span className="planner-target-label">{goalName}</span>
+                                    </span>
+                                )}
                             </div>
-                            <div className="planner-meta-row">
-                                <span className="planner-meta-chip planner-target-chip today-open-target-chip">
-                                    <span className="planner-target-dot" aria-hidden="true" />
-                                    <span className="planner-target-label">{tr(language, "week.weeklyTarget")}</span>
-                                </span>
-                                <div className="muted today-open-target-meta">
-                                    {tr(language, "today.remaining", { done, target: target.target, unit: target.unit ?? "", remaining })}
-                                </div>
+                            <div className="muted today-open-target-meta" style={{ textAlign: "left" }}>
+                                {tr(language, "today.remaining", { done, target: target.target, unit: target.unit ?? "", remaining })}
                             </div>
                             <ProgressBar value={done} max={target.target} showLabel={false} />
                         </div>

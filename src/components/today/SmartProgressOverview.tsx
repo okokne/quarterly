@@ -148,7 +148,7 @@ export function SmartProgressOverview({
                     </div>
                     <div className="spo-today-percent-row">
                         <span className="spo-today-percent">{dayProgressPercent}%</span>
-                        {trend !== null && (
+                        {trend !== null && dayProgressPercent > 0 && Math.abs(trend) > 5 && (
                             <span
                                 className={`spo-trend-badge ${trendPositive ? "spo-trend-positive" : trendNegative ? "spo-trend-negative" : "spo-trend-neutral"}`}
                             >
@@ -159,12 +159,6 @@ export function SmartProgressOverview({
                                     {trendPositive ? "+" : ""}
                                     {trend}% {language === "de" ? "vs. gestern" : "vs. yesterday"}
                                 </span>
-                            </span>
-                        )}
-                        {trend === null && (
-                            <span className="spo-trend-badge spo-trend-positive">
-                                <ArrowUp size={12} weight="bold" />
-                                <span>+12% {language === "de" ? "vs. gestern" : "vs. yesterday"}</span>
                             </span>
                         )}
                     </div>
