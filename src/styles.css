@@ -1,15 +1,15 @@
 
 :root {
   /* NEW GEIST DESIGN TOKENS */
-  --color-background-base: #FAFAF9;
+  --color-background-base: #F6FAFF;
   --color-background-elevated: #FFFFFF;
-  --color-background-subtle: #F5F4F3;
+  --color-background-subtle: #EDF4FF;
   --color-text-primary: #18181B;
   --color-text-secondary: #52525B;
   --color-text-tertiary: #A1A1AA;
-  --color-border-base: rgba(0, 0, 0, 0.06);
-  --color-border-strong: rgba(0, 0, 0, 0.12);
-  --color-border-accent: rgba(0, 0, 0, 0.08);
+  --color-border-base: rgba(15, 23, 42, 0.08);
+  --color-border-strong: rgba(15, 23, 42, 0.14);
+  --color-border-accent: rgba(37, 99, 235, 0.10);
   --color-accent-base: #0070F3;
   --color-accent-hover: #0761D1;
   --color-accent-subtle: rgba(0, 112, 243, 0.10);
@@ -149,22 +149,21 @@ body.dark-mode {
   --line-badge: 1;
 
   /* ─── Aura & Glass Base System (Light Mode) ─── */
-  --bg: #FFFBF9;
-  /* Warm, creamy canvas */
+  --bg: #F6FAFF;
+  /* Cool, airy canvas */
   --bg-elevated: #FFFFFF;
-  --bg-soft: #FFF2EB;
-  /* Soft peach backing */
+  --bg-soft: #EAF2FF;
+  /* Soft blue backing */
 
   --surface-1: #FFFFFF;
-  --surface-2: #FFFBF9;
-  --surface-3: #FFF2EB;
+  --surface-2: #F7FAFF;
+  --surface-3: #EAF2FF;
 
   /* ─── Text (Light Mode) ─── */
-  --text-primary: #1F191A;
-  /* Very warm deep brown/black */
-  --text-secondary: #574B4E;
-  --text-muted: #8A7E81;
-  --text-subtle: #B3A8AA;
+  --text-primary: #111827;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-subtle: #94A3B8;
   --text-invert: #FFFFFF;
   --text: var(--text-primary);
 
@@ -174,22 +173,21 @@ body.dark-mode {
   --glass-modal: rgba(255, 255, 255, 0.85);
 
   /* ─── Borders (Light Mode - highly translucent) ─── */
-  --border-subtle: rgba(235, 219, 217, 0.6);
-  --border-strong: rgba(235, 219, 217, 1);
-  --border-outline: rgba(189, 172, 170, 0.4);
+  --border-subtle: rgba(30, 64, 175, 0.10);
+  --border-strong: rgba(30, 64, 175, 0.18);
+  --border-outline: rgba(37, 99, 235, 0.30);
   --border: var(--border-subtle);
 
-  /* ─── Accent Scale (Sunset Aura: Coral & Violet) ─── */
-  --accent-100: #FFE1DE;
-  --accent-200: #FFC4BE;
+  /* ─── Accent Scale (Cool Blue) ─── */
+  --accent-100: #E0EDFF;
+  --accent-200: #C7DDFF;
   --accent-300: var(--color-accent-subtle);
   --accent-400: var(--color-accent-hover);
   --accent-500: var(--color-accent-base);
-  /* Vibrant Coral */
   --accent-600: var(--color-accent-hover);
 
-  --accent-violet: #C026D3;
-  /* Secondary aura stop */
+  --accent-violet: #4EA2FF;
+  /* Secondary cool stop */
   --accent-gradient: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-violet) 100%);
 
   --accent: var(--accent-500);
@@ -347,29 +345,25 @@ body.dark-mode {
 
 /* ─── Dark Mode (Deep Plum Aura) ─── */
 body.dark-mode {
-  --bg: #130F1A;
-  /* Deep plum/blackberry root */
-  --bg-elevated: #1F1924;
-  --bg-soft: #1E1725;
+  --bg: #0A1220;
+  --bg-elevated: #111C30;
+  --bg-soft: #17263F;
 
-  --surface-1: #1F1924;
-  --surface-2: #1E1725;
-  --surface-3: #2D2236;
+  --surface-1: #111C30;
+  --surface-2: #17263F;
+  --surface-3: #1F3556;
 
-  --text-primary: #FCF9FA;
-  --text-secondary: #D4C9CE;
-  --text-muted: #A3969C;
-  --text-subtle: #75676E;
-  --text-invert: #130F1A;
+  --text-primary: #E2E8F0;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --text-invert: #0A1220;
   --text: var(--text-primary);
 
   /* ─── Glass Surfaces (Dark Mode) ─── */
-  --glass-card: rgba(31, 25, 36, 0.75);
-  /* Over #1F1924 */
-  --glass-subcard: rgba(30, 23, 37, 0.5);
-  /* Over #1E1725 */
-  --glass-modal: rgba(45, 34, 54, 0.85);
-  /* Over #2D2236 */
+  --glass-card: rgba(17, 28, 48, 0.75);
+  --glass-subcard: rgba(23, 38, 63, 0.5);
+  --glass-modal: rgba(31, 53, 86, 0.85);
 
   --border-subtle: rgba(255, 255, 255, 0.08);
   /* Frosted borders */
@@ -377,16 +371,14 @@ body.dark-mode {
   --border-outline: rgba(255, 255, 255, 0.24);
   --border: var(--border-subtle);
 
-  /* Sunset Aura optimized for dark */
-  --accent-100: #4A1A17;
-  --accent-200: #8A2B23;
-  --accent-300: #D84234;
-  --accent-400: #FF5A4A;
-  --accent-500: #FF5A4A;
-  /* Vibrant Coral */
-  --accent-600: #FF8578;
+  --accent-100: #132A4A;
+  --accent-200: #1A3B66;
+  --accent-300: #2F6FE0;
+  --accent-400: #4B8BFF;
+  --accent-500: #3291FF;
+  --accent-600: #6AAEFF;
 
-  --accent-violet: #D946EF;
+  --accent-violet: #60A5FA;
   --accent-gradient: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-violet) 100%);
 
   --accent: var(--accent-500);
@@ -403,7 +395,7 @@ body.dark-mode {
   --warning-border: #D97706;
   --warning-text: #FBBF24;
 
-  --danger-bg: rgba(225, 29, 72, 0.15);
+  --danger-bg: rgba(225, 29, 72, 0.18);
   --danger-border: #E11D48;
   --danger-text: #FDA4AF;
 
@@ -424,9 +416,9 @@ body.dark-mode {
   --tone-purple-100: rgba(109, 40, 217, 0.15);
   --tone-purple-200: #9333EA;
   --tone-purple-700: #D8B4FE;
-  --tone-red-100: rgba(154, 52, 18, 0.15);
-  --tone-red-200: #EA580C;
-  --tone-red-700: #FDBA74;
+  --tone-red-100: rgba(244, 63, 94, 0.16);
+  --tone-red-200: #FB7185;
+  --tone-red-700: #FDA4AF;
   --tone-orange-100: rgba(134, 25, 143, 0.15);
   --tone-orange-200: #C026D3;
   --tone-orange-700: #F0ABFC;
@@ -533,7 +525,7 @@ body {
 
 /* ─── Page Layout ─── */
 .page {
-  max-width: 1240px;
+  max-width: 1460px;
   margin: 0 auto;
   padding: var(--space-section) 32px 100px;
   display: flex;
@@ -732,7 +724,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-section);
-  padding: var(--space-section) var(--space-section);
+  padding: var(--space-section) clamp(20px, 2.8vw, 36px);
 }
 
 .app-main-scroll {
@@ -2865,10 +2857,10 @@ button.ghost-danger:hover {
 .tabs {
   display: inline-flex;
   gap: 4px;
-  background: var(--surface-3);
+  background: color-mix(in srgb, var(--accent-100) 46%, var(--bg-subtle));
   padding: 4px;
   border-radius: var(--radius-chip);
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--accent-300) 32%, var(--border));
   width: auto;
 }
 
@@ -4772,12 +4764,12 @@ button.ghost-danger:hover {
 
 .empty {
   font-style: normal;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-align: center;
   padding: 24px;
-  background: var(--bg-subtle);
+  background: color-mix(in srgb, var(--accent-100) 30%, var(--bg-card));
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border);
+  border: 1px dashed color-mix(in srgb, var(--accent-300) 36%, var(--border));
 }
 
 .hint {
@@ -9232,9 +9224,9 @@ body.dark-mode .book-cover-placeholder {
 
 /* ─── Geist Design Tokens ────────────────────────────────────────────────── */
 :root {
-  --g-bg-base: #FAFAF9;
+  --g-bg-base: #F6FAFF;
   --g-bg-elevated: #FFFFFF;
-  --g-bg-subtle: #F5F4F3;
+  --g-bg-subtle: #EDF4FF;
 
   --g-text-primary: #18181B;
   --g-text-secondary: #52525B;
@@ -9265,9 +9257,9 @@ body.dark-mode .book-cover-placeholder {
 }
 
 body.dark-mode {
-  --g-bg-base: #111110;
-  --g-bg-elevated: #1A1A19;
-  --g-bg-subtle: #222221;
+  --g-bg-base: #0A1220;
+  --g-bg-elevated: #111C30;
+  --g-bg-subtle: #17263F;
 
   --g-text-primary: #EDEDEC;
   --g-text-secondary: #A9A9A6;
@@ -9291,7 +9283,7 @@ body.dark-mode {
 }
 
 .today-geist-container {
-  max-width: 720px;
+  width: min(100%, 1100px);
   margin: 0 auto;
   padding: 48px 24px;
   display: flex;
@@ -9922,8 +9914,8 @@ body.dark-mode .spo-dot-future {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(234, 88, 12, 0.10);
-  color: #EA580C;
+  background: rgba(0, 112, 243, 0.10);
+  color: #0070F3;
   font-size: 13px;
   line-height: 18px;
   font-weight: 600;
@@ -10139,9 +10131,23 @@ button, a, input, select, textarea {
 .page,
 .main-content,
 [class*="content-wrapper"] {
-  max-width: 1200px !important;
+  max-width: 1460px !important;
   margin: 0 auto;
   padding: var(--space-12) var(--space-6) !important;
+}
+
+.app-shell-page {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.app-main {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: var(--space-10) clamp(20px, 2.8vw, 40px) !important;
 }
 @media (max-width: 768px) {
   .app-main,
