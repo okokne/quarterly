@@ -83,7 +83,7 @@ export function TodayDatePickerSection({
                     aria-label={tr(language, "today.prevWeek")}
                     title={tr(language, "today.prevWeek")}
                 >
-                    <CaretLeft size={16} />
+                    <CaretLeft size={18} weight="bold" />
                 </button>
 
                 {/* Days strip */}
@@ -131,7 +131,7 @@ export function TodayDatePickerSection({
                     aria-label={tr(language, "today.nextWeek")}
                     title={tr(language, "today.nextWeek")}
                 >
-                    <CaretRight size={16} />
+                    <CaretRight size={18} weight="bold" />
                 </button>
 
                 {/* Date picker trigger */}
@@ -142,7 +142,7 @@ export function TodayDatePickerSection({
                     aria-label={tr(language, "today.pickDate")}
                     title={tr(language, "today.pickDate")}
                 >
-                    <CalendarBlank size={16} />
+                    <CalendarBlank size={18} weight="bold" />
                 </button>
             </div>
 

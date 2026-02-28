@@ -5,7 +5,6 @@ import {
     useMemo,
     useState
 } from "react";
-import { MagnifyingGlass, ArrowsClockwise } from "@phosphor-icons/react";
 import { DailyBlockDraft } from "../hooks/useDailyBlocks";
 import { t as tr } from "../i18n";
 import { getBlockCompletionState } from "../regressionLogic";
@@ -149,31 +148,6 @@ export function TodayTab({
     return (
         <section className="today-geist-root">
             <div className="today-geist-container">
-                {/* ── Page Header ─────────────────────────────── */}
-                <div className="today-geist-header">
-                    <div>
-                        <h2 className="today-geist-title">{tr(language, "today.title")}</h2>
-                    </div>
-                    <div className="today-geist-header-actions">
-                        <button
-                            type="button"
-                            className="today-geist-ghost-btn"
-                            aria-label="Search"
-                            title="Search"
-                        >
-                            <MagnifyingGlass size={20} />
-                        </button>
-                        <button
-                            type="button"
-                            className="today-geist-ghost-btn"
-                            aria-label="Sync"
-                            title="Sync"
-                        >
-                            <ArrowsClockwise size={20} />
-                        </button>
-                    </div>
-                </div>
-
                 {isArchiveView && (
                     <p className="today-geist-readonly-note">
                         {tr(language, "app.archiveReadOnlyMode")}

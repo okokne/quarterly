@@ -9517,6 +9517,9 @@ body.dark-mode {
 .spo-dot {
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -9637,24 +9640,26 @@ body.dark-mode .spo-dot-future {
 .twc-nav-btn,
 .twc-calendar-btn {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--g-bg-subtle);
-  border: 1px solid var(--g-border-base);
-  border-radius: var(--g-radius-sm);
-  color: var(--g-text-primary);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--g-accent);
   cursor: pointer;
   transition: var(--g-transition);
+  padding: 0;
+  opacity: 0.95;
 }
 
 .twc-nav-btn:hover,
 .twc-calendar-btn:hover {
-  background: var(--g-accent-subtle);
-  border-color: rgba(0, 112, 243, 0.22);
-  color: var(--g-accent);
+  background: transparent;
+  color: var(--g-accent-hover);
+  opacity: 1;
 }
 
 .twc-nav-btn svg,
@@ -9672,15 +9677,15 @@ body.dark-mode .spo-dot-future {
 }
 
 .twc-day {
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: 1px solid var(--g-border-base);
-  border-radius: 999px;
+  border-radius: var(--g-radius-md);
   cursor: pointer;
   transition: var(--g-transition);
   gap: 2px;
@@ -10102,8 +10107,8 @@ body.dark-mode .hsc-streak-zero {
   }
 
   .twc-day {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 52px;
   }
 
   .twc-day-num {
