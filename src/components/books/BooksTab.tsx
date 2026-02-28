@@ -1,392 +1,188 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { t as tr } from "../../i18n";
-import { AppLanguage, Book, BookStatus } from "../../types";
-import { BookCard } from "./BookCard";
+import { AppLanguage, Book } from "../../types";
 import { BookSessionModal } from "./BookSessionModal";
-import { Plus } from "../ui/icons";
-import {
-    getBookActivityTimestamp,
-    getBookRemainingPages,
-    getFinishedBooksInYear,
-    getReadingMinutesInYear,
-    getReadingMinutesThisWeek,
-    getReadingMinutesTotal,
-    sortQueueBooks,
-    getPagesReadThisWeek,
-    getReadingStreakDays
-} from "../../utils/books";
 import { toIsoDate } from "../../utils";
+import { BooksComposer, EMPTY_BOOK_DRAFT, BookComposerDraft } from "./BooksComposer";
+import { BooksHeader, BooksView } from "./BooksHeader";
+import { BooksInsightsView } from "./BooksInsightsView";
+import { BooksLibraryView } from "./BooksLibraryView";
+import { useBooksDashboard } from "../../hooks/useBooksDashboard";
 
 type BooksTabProps = {
-    language: AppLanguage;
-    books: Book[];
-    onAddBook: (title: string, author?: string, coverUrl?: string, categories?: string[], totalPages?: number, status?: "want_to_read" | "reading" | "finished") => void;
-    onUpdateBook: (id: string, updates: Partial<Book>) => void;
-    onDeleteBook: (id: string) => void;
-    onAddSession: (bookId: string, pagesRead: number, durationMinutes?: number, notes?: string) => void;
-};
-
-type BookComposerDraft = {
-    title: string;
-    author: string;
-    totalPages: string;
-    coverUrl: string;
-    status: BookStatus;
-};
-
-const EMPTY_DRAFT: BookComposerDraft = {
-    title: "",
-    author: "",
-    totalPages: "",
-    coverUrl: "",
-    status: "want_to_read"
+  language: AppLanguage;
+  books: Book[];
+  onAddBook: (
+    title: string,
+    author?: string,
+    coverUrl?: string,
+    categories?: string[],
+    totalPages?: number,
+    status?: "want_to_read" | "reading" | "finished"
+  ) => void;
+  onUpdateBook: (id: string, updates: Partial<Book>) => void;
+  onDeleteBook: (id: string) => void;
+  onAddSession: (bookId: string, pagesRead: number, durationMinutes?: number, notes?: string) => void;
 };
 
 type FinishNotice = {
-    id: string;
-    text: string;
+  id: string;
+  text: string;
 };
 
-type BooksView = "library" | "insights";
-
 export function BooksTab({ language, books, onAddBook, onUpdateBook, onDeleteBook, onAddSession }: BooksTabProps) {
-    const [composerOpen, setComposerOpen] = useState(false);
-    const [draft, setDraft] = useState<BookComposerDraft>(EMPTY_DRAFT);
-    const [activeBookId, setActiveBookId] = useState<string | null>(null);
-    const [finishNotice, setFinishNotice] = useState<FinishNotice | null>(null);
-    const [activeView, setActiveView] = useState<BooksView>("library");
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [draft, setDraft] = useState<BookComposerDraft>(EMPTY_BOOK_DRAFT);
+  const [activeBookId, setActiveBookId] = useState<string | null>(null);
+  const [finishNotice, setFinishNotice] = useState<FinishNotice | null>(null);
+  const [activeView, setActiveView] = useState<BooksView>("library");
 
-    const todayIso = toIsoDate(new Date());
-    const currentYear = Number.parseInt(todayIso.slice(0, 4), 10);
+  const todayIso = toIsoDate(new Date());
+  const { currentlyReading, queueBooks, finished, metrics } = useBooksDashboard(books, todayIso);
 
-    const currentlyReading = useMemo(
-        () => [...books]
-            .filter((book) => book.status === "reading")
-            .sort((left, right) => getBookActivityTimestamp(right) - getBookActivityTimestamp(left)),
-        [books]
-    );
-    const queueBooks = useMemo(
-        () => sortQueueBooks(books.filter((book) => book.status === "want_to_read")),
-        [books]
-    );
-    const finished = useMemo(
-        () => [...books]
-            .filter((book) => book.status === "finished")
-            .sort((left, right) => getBookActivityTimestamp(right) - getBookActivityTimestamp(left)),
-        [books]
-    );
+  const activeBook = activeBookId ? books.find((book) => book.id === activeBookId) ?? null : null;
 
-    const streakDays = useMemo(() => getReadingStreakDays(books, todayIso), [books, todayIso]);
-    const pagesThisWeek = useMemo(() => getPagesReadThisWeek(books, todayIso), [books, todayIso]);
-    const minutesThisWeek = useMemo(() => getReadingMinutesThisWeek(books, todayIso), [books, todayIso]);
-    const minutesTotal = useMemo(() => getReadingMinutesTotal(books), [books]);
-    const minutesThisYear = useMemo(() => getReadingMinutesInYear(books, currentYear), [books, currentYear]);
-    const booksThisYear = useMemo(() => getFinishedBooksInYear(books, currentYear), [books, currentYear]);
-    const totalSessions = useMemo(
-        () => books.reduce((sum, book) => sum + (book.sessions?.length ?? 0), 0),
-        [books]
-    );
-    const avgMinutesPerSession = useMemo(
-        () => (totalSessions > 0 ? Math.round(minutesTotal / totalSessions) : 0),
-        [minutesTotal, totalSessions]
-    );
-    const totalRemainingPages = useMemo(
-        () => books.filter((book) => book.status !== "finished").reduce((sum, book) => sum + getBookRemainingPages(book), 0),
-        [books]
-    );
+  useEffect(() => {
+    if (!activeBookId) return;
+    if (!books.some((book) => book.id === activeBookId)) {
+      setActiveBookId(null);
+    }
+  }, [activeBookId, books]);
 
-    const activeBook = activeBookId ? books.find((book) => book.id === activeBookId) ?? null : null;
+  useEffect(() => {
+    if (!finishNotice) return;
+    const timeout = window.setTimeout(() => setFinishNotice(null), 2600);
+    return () => window.clearTimeout(timeout);
+  }, [finishNotice]);
 
-    useEffect(() => {
-        if (!activeBookId) return;
-        if (!books.some((book) => book.id === activeBookId)) {
-            setActiveBookId(null);
-        }
-    }, [activeBookId, books]);
+  useEffect(() => {
+    if (activeView === "insights") {
+      setComposerOpen(false);
+    }
+  }, [activeView]);
 
-    useEffect(() => {
-        if (!finishNotice) return;
-        const timeout = window.setTimeout(() => setFinishNotice(null), 2600);
-        return () => window.clearTimeout(timeout);
-    }, [finishNotice]);
+  const handleAddBook = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!draft.title.trim()) return;
 
-    useEffect(() => {
-        if (activeView === "insights") {
-            setComposerOpen(false);
-        }
-    }, [activeView]);
-
-    const handleAddBook = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!draft.title.trim()) return;
-        const totalPages = Math.max(0, parseInt(draft.totalPages, 10) || 0);
-        onAddBook(
-            draft.title.trim(),
-            draft.author.trim() || undefined,
-            draft.coverUrl.trim() || undefined,
-            [],
-            totalPages,
-            draft.status
-        );
-        setDraft(EMPTY_DRAFT);
-        setComposerOpen(false);
-    };
-
-    const saveSession = (book: Book, pagesRead: number, durationMinutes?: number, notes?: string) => {
-        if (book.status !== "reading") return;
-        const normalizedPages = Math.max(0, Math.floor(pagesRead));
-        if (normalizedPages <= 0) return;
-
-        const nextRead = book.totalPages > 0
-            ? Math.min(book.readPages + normalizedPages, book.totalPages)
-            : (book.readPages + normalizedPages);
-        const appliedPages = Math.max(0, nextRead - book.readPages);
-        if (appliedPages <= 0) return;
-
-        onAddSession(book.id, appliedPages, durationMinutes, notes);
-
-        if (book.totalPages > 0 && nextRead >= book.totalPages) {
-            setFinishNotice({
-                id: book.id,
-                text: tr(language, "books.readyToFinishNotice")
-            });
-            return;
-        }
-
-        setFinishNotice({
-            id: book.id,
-            text: tr(language, "books.sessionSaved")
-        });
-    };
-
-    const moveQueueBook = (bookId: string, direction: -1 | 1) => {
-        const currentIndex = queueBooks.findIndex((book) => book.id === bookId);
-        if (currentIndex < 0) return;
-        const targetIndex = currentIndex + direction;
-        if (targetIndex < 0 || targetIndex >= queueBooks.length) return;
-
-        const currentBook = queueBooks[currentIndex];
-        const targetBook = queueBooks[targetIndex];
-        const currentOrder = currentBook.queueOrder ?? currentIndex + 1;
-        const targetOrder = targetBook.queueOrder ?? targetIndex + 1;
-
-        onUpdateBook(currentBook.id, { queueOrder: targetOrder });
-        onUpdateBook(targetBook.id, { queueOrder: currentOrder });
-    };
-
-    const renderSection = (title: string, sectionBooks: Book[], sectionType: "reading" | "queue" | "finished") => (
-        <section className="subcard books-section-card">
-            <div className="books-section-title">
-                <h3 className="books-section-heading">{title}</h3>
-                <span>{sectionBooks.length}</span>
-            </div>
-            {sectionBooks.length === 0 ? (
-                <div className="books-section-empty">{tr(language, "books.sectionEmpty")}</div>
-            ) : (
-                <div className="books-list-compact">
-                    {sectionBooks.map((book, index) => (
-                        <BookCard
-                            key={book.id}
-                            book={book}
-                            language={language}
-                            onOpenDetails={() => setActiveBookId(book.id)}
-                            onStartReading={book.status === "want_to_read" ? () => onUpdateBook(book.id, { status: "reading" }) : undefined}
-                            queuePosition={sectionType === "queue" ? index + 1 : undefined}
-                            queueTotal={sectionType === "queue" ? sectionBooks.length : undefined}
-                            onMoveQueueUp={sectionType === "queue" && index > 0
-                                ? () => moveQueueBook(book.id, -1)
-                                : undefined}
-                            onMoveQueueDown={sectionType === "queue" && index < sectionBooks.length - 1
-                                ? () => moveQueueBook(book.id, 1)
-                                : undefined}
-                        />
-                    ))}
-                </div>
-            )}
-        </section>
+    const totalPages = Math.max(0, parseInt(draft.totalPages, 10) || 0);
+    onAddBook(
+      draft.title.trim(),
+      draft.author.trim() || undefined,
+      draft.coverUrl.trim() || undefined,
+      [],
+      totalPages,
+      draft.status
     );
 
-    const formatMinutes = (minutes: number) => {
-        if (minutes < 60) return tr(language, "books.minutesValueMinutes", { value: minutes });
-        const hours = Math.floor(minutes / 60);
-        const restMinutes = minutes % 60;
-        if (restMinutes === 0) {
-            return tr(language, "books.minutesValueHoursOnly", { hours });
-        }
-        return tr(language, "books.minutesValueHoursMinutes", { hours, minutes: restMinutes });
-    };
+    setDraft(EMPTY_BOOK_DRAFT);
+    setComposerOpen(false);
+  };
 
-    return (
-        <section className="card books-tab-card">
-            <div className="books-header-row">
-                <h2 className="books-tab-title">{tr(language, "books.title")}</h2>
-                {activeView === "library" && (
-                    <button
-                        type="button"
-                        className={`glass-button books-add-toggle ${composerOpen ? "open" : ""}`}
-                        onClick={() => setComposerOpen((prev) => !prev)}
-                        aria-expanded={composerOpen}
-                    >
-                        <span className="books-add-toggle-icon" aria-hidden="true">
-                            <Plus size={15} />
-                        </span>
-                        <span>{composerOpen ? tr(language, "common.close") : tr(language, "books.add")}</span>
-                    </button>
-                )}
-            </div>
+  const saveSession = (book: Book, pagesRead: number, durationMinutes?: number, notes?: string) => {
+    if (book.status !== "reading") return;
 
-            <div className="books-view-toggle">
-                <button
-                    type="button"
-                    className={`books-view-chip ${activeView === "library" ? "active" : ""}`}
-                    onClick={() => setActiveView("library")}
-                >
-                    {tr(language, "books.view.library")}
-                </button>
-                <button
-                    type="button"
-                    className={`books-view-chip ${activeView === "insights" ? "active" : ""}`}
-                    onClick={() => setActiveView("insights")}
-                >
-                    {tr(language, "books.view.insights")}
-                </button>
-            </div>
+    const normalizedPages = Math.max(0, Math.floor(pagesRead));
+    if (normalizedPages <= 0) return;
 
-            {finishNotice && (
-                <div className="books-finish-toast" role="status">
-                    {finishNotice.text}
-                </div>
-            )}
+    const nextRead =
+      book.totalPages > 0
+        ? Math.min(book.readPages + normalizedPages, book.totalPages)
+        : book.readPages + normalizedPages;
+    const appliedPages = Math.max(0, nextRead - book.readPages);
+    if (appliedPages <= 0) return;
 
-            {activeView === "library" && composerOpen && (
-                <form className="subcard books-inline-composer" onSubmit={handleAddBook}>
-                    <p className="books-inline-hint">{tr(language, "books.inlineAddHint")}</p>
-                    <div className="books-inline-grid">
-                        <input
-                            type="text"
-                            value={draft.title}
-                            onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
-                            placeholder={tr(language, "books.bookTitle")}
-                            autoFocus
-                        />
-                        <input
-                            type="text"
-                            value={draft.author}
-                            onChange={(event) => setDraft((prev) => ({ ...prev, author: event.target.value }))}
-                            placeholder={tr(language, "books.bookAuthor")}
-                        />
-                        <input
-                            type="number"
-                            value={draft.totalPages}
-                            min="0"
-                            onChange={(event) => setDraft((prev) => ({ ...prev, totalPages: event.target.value }))}
-                            placeholder={tr(language, "books.totalPages")}
-                        />
-                        <input
-                            type="url"
-                            value={draft.coverUrl}
-                            onChange={(event) => setDraft((prev) => ({ ...prev, coverUrl: event.target.value }))}
-                            placeholder={tr(language, "books.coverUrl")}
-                        />
-                    </div>
+    onAddSession(book.id, appliedPages, durationMinutes, notes);
 
-                    <div className="books-inline-status">
-                        {(["want_to_read", "reading", "finished"] as BookStatus[]).map((status) => (
-                            <button
-                                key={status}
-                                type="button"
-                                className={`chip chip-outline ${draft.status === status ? "active" : ""}`}
-                                onClick={() => setDraft((prev) => ({ ...prev, status }))}
-                            >
-                                {tr(language, `books.status.${status}`)}
-                            </button>
-                        ))}
-                    </div>
+    if (book.totalPages > 0 && nextRead >= book.totalPages) {
+      setFinishNotice({
+        id: book.id,
+        text: tr(language, "books.readyToFinishNotice"),
+      });
+      return;
+    }
 
-                    <div className="books-inline-actions">
-                        <button type="submit" className="primary" disabled={!draft.title.trim()}>
-                            {tr(language, "books.add")}
-                        </button>
-                    </div>
-                </form>
-            )}
+    setFinishNotice({
+      id: book.id,
+      text: tr(language, "books.sessionSaved"),
+    });
+  };
 
-            {activeView === "insights" ? (
-                <div className="books-layout-stack">
-                    <div className="books-insights-header">
-                        <h3>{tr(language, "books.view.insights")}</h3>
-                        <p className="muted">{tr(language, "books.insightsHint")}</p>
-                    </div>
+  const moveQueueBook = (bookId: string, direction: -1 | 1) => {
+    const currentIndex = queueBooks.findIndex((book) => book.id === bookId);
+    if (currentIndex < 0) return;
 
-                    <div className="books-summary-grid">
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.streak")}</span>
-                            <strong>{streakDays}</strong>
-                        </article>
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.pagesThisWeek")}</span>
-                            <strong>{pagesThisWeek}</strong>
-                        </article>
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.booksThisYear")}</span>
-                            <strong>{booksThisYear}</strong>
-                        </article>
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.summary.remainingPages")}</span>
-                            <strong>{totalRemainingPages}</strong>
-                        </article>
-                        <article className="books-summary-card books-summary-card-dual">
-                            <div>
-                                <span>{tr(language, "books.minutesThisWeek")}</span>
-                                <strong>{formatMinutes(minutesThisWeek)}</strong>
-                            </div>
-                            <div>
-                                <span>{tr(language, "books.minutesThisYear")}</span>
-                                <strong>{formatMinutes(minutesThisYear)}</strong>
-                            </div>
-                        </article>
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.minutesTotal")}</span>
-                            <strong>{formatMinutes(minutesTotal)}</strong>
-                        </article>
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.avgMinutesPerSession")}</span>
-                            <strong>{formatMinutes(avgMinutesPerSession)}</strong>
-                        </article>
-                        <article className="books-summary-card">
-                            <span>{tr(language, "books.sessionsLogged")}</span>
-                            <strong>{totalSessions}</strong>
-                        </article>
-                    </div>
-                </div>
-            ) : books.length === 0 ? (
-                <div className="subcard books-empty-state">
-                    <h3>{tr(language, "books.noBooks")}</h3>
-                    <p className="muted">{tr(language, "books.emptyHint")}</p>
-                </div>
-            ) : (
-                <div className="books-layout-stack books-grid-sections">
-                    {renderSection(tr(language, "books.status.reading"), currentlyReading, "reading")}
-                    {renderSection(tr(language, "books.queue"), queueBooks, "queue")}
-                    {renderSection(tr(language, "books.status.finished"), finished, "finished")}
-                </div>
-            )}
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= queueBooks.length) return;
 
-            {activeBook && (
-                <BookSessionModal
-                    open={Boolean(activeBook)}
-                    language={language}
-                    book={activeBook}
-                    onClose={() => setActiveBookId(null)}
-                    onSave={(id, pagesRead, durationMinutes, notes) => {
-                        const source = books.find((book) => book.id === id);
-                        if (!source) return;
-                        saveSession(source, pagesRead, durationMinutes, notes);
-                    }}
-                    onUpdateBook={onUpdateBook}
-                    onDeleteBook={onDeleteBook}
-                />
-            )}
-        </section>
-    );
+    const currentBook = queueBooks[currentIndex];
+    const targetBook = queueBooks[targetIndex];
+    const currentOrder = currentBook.queueOrder ?? currentIndex + 1;
+    const targetOrder = targetBook.queueOrder ?? targetIndex + 1;
+
+    onUpdateBook(currentBook.id, { queueOrder: targetOrder });
+    onUpdateBook(targetBook.id, { queueOrder: currentOrder });
+  };
+
+  return (
+    <section className="card books-tab-card">
+      <BooksHeader
+        language={language}
+        activeView={activeView}
+        composerOpen={composerOpen}
+        onToggleComposer={() => setComposerOpen((prev) => !prev)}
+        onChangeView={setActiveView}
+      />
+
+      {finishNotice && (
+        <div className="books-finish-toast" role="status">
+          {finishNotice.text}
+        </div>
+      )}
+
+      {activeView === "library" && composerOpen && (
+        <BooksComposer
+          language={language}
+          draft={draft}
+          setDraft={setDraft}
+          onSubmit={handleAddBook}
+        />
+      )}
+
+      {activeView === "insights" ? (
+        <BooksInsightsView language={language} metrics={metrics} />
+      ) : books.length === 0 ? (
+        <div className="subcard books-empty-state">
+          <h3>{tr(language, "books.noBooks")}</h3>
+          <p className="muted">{tr(language, "books.emptyHint")}</p>
+        </div>
+      ) : (
+        <BooksLibraryView
+          language={language}
+          currentlyReading={currentlyReading}
+          queueBooks={queueBooks}
+          finished={finished}
+          onOpenDetails={setActiveBookId}
+          onStartReading={(bookId) => onUpdateBook(bookId, { status: "reading" })}
+          onMoveQueueBook={moveQueueBook}
+        />
+      )}
+
+      {activeBook && (
+        <BookSessionModal
+          open={Boolean(activeBook)}
+          language={language}
+          book={activeBook}
+          onClose={() => setActiveBookId(null)}
+          onSave={(id, pagesRead, durationMinutes, notes) => {
+            const source = books.find((book) => book.id === id);
+            if (!source) return;
+            saveSession(source, pagesRead, durationMinutes, notes);
+          }}
+          onUpdateBook={onUpdateBook}
+          onDeleteBook={onDeleteBook}
+        />
+      )}
+    </section>
+  );
 }

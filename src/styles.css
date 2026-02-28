@@ -8620,6 +8620,18 @@ body.dark-mode .archive-banner {
   gap: 18px;
 }
 
+.books-library-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.books-library-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .books-insights-header {
   display: flex;
   flex-direction: column;
@@ -8727,6 +8739,11 @@ body.dark-mode .archive-banner {
 
 .books-section-card {
   gap: 12px;
+}
+
+.books-section-priority {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border-light));
+  background: color-mix(in srgb, var(--bg-card) 85%, var(--accent-bg));
 }
 
 .books-section-title {
@@ -9274,6 +9291,10 @@ body.dark-mode .book-cover-placeholder {
 @media (max-width: 720px) {
   .books-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .books-library-secondary-grid {
+    grid-template-columns: 1fr;
   }
 
   .books-inline-grid {
