@@ -37,7 +37,7 @@ function formatActualTargetLabel(done: number, target: number, unit: string) {
 const CustomStatsIcon = ({ className = "" }: { className?: string }) => (
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
         {/* Glow Effects */}
-        <path d="M4 14L4 20" stroke="#F43F5E" strokeWidth="6" strokeLinecap="round" filter="blur(6px)" opacity="0.4" />
+        <path d="M4 14L4 20" stroke="var(--color-accent-base)" strokeWidth="6" strokeLinecap="round" filter="blur(6px)" opacity="0.4" />
         <path d="M12 8L12 20" stroke="#F59E0B" strokeWidth="6" strokeLinecap="round" filter="blur(6px)" opacity="0.4" />
         <path d="M20 3L20 20" stroke="#A855F7" strokeWidth="6" strokeLinecap="round" filter="blur(6px)" opacity="0.4" />
 
@@ -48,14 +48,14 @@ const CustomStatsIcon = ({ className = "" }: { className?: string }) => (
 
         {/* Dynamic Connected Trendline */}
         <path d="M4 14L12 8L20 3" stroke="url(#stats-line-grad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="4" cy="14" r="2.5" fill="#FFFBF9" stroke="#F43F5E" strokeWidth="1.5" />
+        <circle cx="4" cy="14" r="2.5" fill="#FFFBF9" stroke="var(--color-accent-base)" strokeWidth="1.5" />
         <circle cx="12" cy="8" r="2.5" fill="#FFFBF9" stroke="#F59E0B" strokeWidth="1.5" />
         <circle cx="20" cy="3" r="2.5" fill="#FFFBF9" stroke="#A855F7" strokeWidth="1.5" />
 
         <defs>
             <linearGradient id="stats-grad-1" x1="4" y1="14" x2="4" y2="20" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#F43F5E" />
-                <stop offset="1" stopColor="#BE123C" />
+                <stop stopColor="var(--color-accent-base)" />
+                <stop offset="1" stopColor="var(--color-accent-hover)" />
             </linearGradient>
             <linearGradient id="stats-grad-2" x1="12" y1="8" x2="12" y2="20" gradientUnits="userSpaceOnUse">
                 <stop stopColor="#F59E0B" />
@@ -66,7 +66,7 @@ const CustomStatsIcon = ({ className = "" }: { className?: string }) => (
                 <stop offset="1" stopColor="#7E22CE" />
             </linearGradient>
             <linearGradient id="stats-line-grad" x1="4" y1="14" x2="20" y2="3" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#F43F5E" />
+                <stop stopColor="var(--color-accent-base)" />
                 <stop offset="0.5" stopColor="#F59E0B" />
                 <stop offset="1" stopColor="#A855F7" />
             </linearGradient>

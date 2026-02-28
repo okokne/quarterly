@@ -1,7 +1,7 @@
 import type { Goal, WeeklyTarget } from "../types";
 
 export const WEEKLY_TARGET_ACCENT_PALETTE = [
-    "#F43F5E", // Ruby
+    "#0070F3", // Vercel Blue
     "#0EA5E9", // Sapphire
     "#F59E0B", // Topaz
     "#10B981", // Emerald
