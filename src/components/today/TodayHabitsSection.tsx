@@ -233,7 +233,10 @@ export function TodayHabitsSection({
     return (
         <div className="today-section">
             <div className="today-section-header">
-                <h3 className="today-section-title">{tr(language, "today.habits")}</h3>
+                <div className="today-section-header-left">
+                    <Fire size={18} weight="duotone" className="today-section-icon" aria-hidden="true" />
+                    <h3 className="today-section-title">{tr(language, "today.habits")}</h3>
+                </div>
                 <button
                     type="button"
                     className="today-section-link"

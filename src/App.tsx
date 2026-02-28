@@ -17,7 +17,7 @@ import { QuickNoteCapture } from "./components/QuickNoteCapture";
 import { useGoogleCalendarSetup } from "./hooks/useGoogleCalendarSetup";
 import { useHabitsStore } from "./hooks/useHabitsStore";
 import { useBooksStore } from "./hooks/useBooksStore";
-import { createDefaultDailyBlockDraft, useDailyBlocks } from "./hooks/useDailyBlocks";
+import { createDefaultDailyBlockDraft, type DailyBlockDraft, useDailyBlocks } from "./hooks/useDailyBlocks";
 import { useWeeklyTargets } from "./hooks/useWeeklyTargets";
 import { useDailyTemplates } from "./hooks/useDailyTemplates";
 import { useWeekMetrics } from "./hooks/useWeekMetrics";
@@ -239,8 +239,8 @@ export default function App() {
     updateCycle
   });
 
-  const handleAddBlock = async (date: string) => {
-    const didAdd = await addBlock(date, blockDraft);
+  const handleAddBlock = async (date: string, draftOverride?: DailyBlockDraft) => {
+    const didAdd = await addBlock(date, draftOverride ?? blockDraft);
     if (didAdd) {
       setBlockDraft(createDefaultDailyBlockDraft());
     }

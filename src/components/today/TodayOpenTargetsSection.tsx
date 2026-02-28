@@ -1,6 +1,7 @@
 import { CSSProperties, useMemo } from "react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Goal, WeeklyTarget } from "../../types";
+import { Target } from "../ui/icons";
 import { buildWeeklyTargetAccentMap } from "../../utils/weeklyTargetAccents";
 import { ProgressBar } from "../ProgressBar";
 
@@ -25,8 +26,13 @@ export function TodayOpenTargetsSection({
     );
 
     return (
-        <div className="subcard">
-            <h3>{tr(language, "today.openThisWeek")}</h3>
+        <section className="subcard today-open-targets-section">
+            <div className="today-section-header">
+                <div className="today-section-header-left">
+                    <Target size={18} weight="duotone" className="today-section-icon" aria-hidden="true" />
+                    <h3 className="today-section-title">{tr(language, "today.openThisWeek")}</h3>
+                </div>
+            </div>
             <div className="list">
                 {selectedWeekTargets.length === 0 && <p className="empty">{tr(language, "today.noWeekTargets")}</p>}
                 {getWeeklyRemaining(selectedWeek).map((target) => {
@@ -59,6 +65,6 @@ export function TodayOpenTargetsSection({
                     );
                 })}
             </div>
-        </div>
+        </section>
     );
 }

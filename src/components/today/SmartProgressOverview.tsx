@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     ArrowUp,
     ArrowDown,
@@ -6,7 +6,7 @@ import {
     Check,
 } from "@phosphor-icons/react";
 import { Cycle } from "../../types";
-import { addDays, parseIso, toIsoDate, weekdayLabel } from "../../utils";
+import { addDays, getWeekIndexForDate, parseIso, toIsoDate, weekdayLabel } from "../../utils";
 
 type WeekDotState = "failed" | "partial" | "done" | "today" | "future";
 
@@ -26,6 +26,8 @@ type SmartProgressOverviewProps = {
     selectedDate: string;
     cycle: Cycle;
     selectedWeek: number;
+    setSelectedDate: Dispatch<SetStateAction<string>>;
+    setSelectedWeek: Dispatch<SetStateAction<number>>;
     language: "de" | "en";
     /** Yesterday's day-progress (for trend). Pass null if not available. */
     yesterdayProgressPercent?: number | null;
@@ -110,10 +112,12 @@ export function SmartProgressOverview({
     selectedDate,
     cycle,
     selectedWeek,
+    setSelectedDate,
+    setSelectedWeek,
     language,
     yesterdayProgressPercent = null,
 }: SmartProgressOverviewProps) {
-    void selectedWeek; // used via cycle internally
+    void selectedWeek;
 
     const [hoveredDot, setHoveredDot] = useState<number | null>(null);
 
@@ -130,6 +134,10 @@ export function SmartProgressOverview({
     const trendPositive = trend !== null && trend > 0;
     const trendNegative = trend !== null && trend < 0;
     const trendNeutral = trend !== null && trend === 0;
+    const selectDate = (date: string) => {
+        setSelectedDate(date);
+        setSelectedWeek(getWeekIndexForDate(cycle, date));
+    };
 
     return (
         <div className="spo-card">
@@ -205,8 +213,11 @@ export function SmartProgressOverview({
                             </span>
                             <button
                                 type="button"
-                                className={`spo-dot spo-dot-${day.state}`}
+                                className={`spo-dot spo-dot-${day.state} ${day.date === selectedDate ? "spo-dot-selected" : ""}`}
+                                onClick={() => selectDate(day.date)}
+                                title={`${day.label} ${day.dayNumber}`}
                                 aria-label={`${day.label} ${day.dayNumber}: ${day.tooltip}`}
+                                aria-pressed={day.date === selectedDate}
                             >
                                 {day.state === "done" && <Check size={14} weight="bold" />}
                                 {day.state === "today" && (

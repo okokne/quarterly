@@ -1,6 +1,6 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { Check, PencilLine, Plus, Trash2, X } from "../ui/icons";
+import { CalendarDays, Check, PencilLine, Plus, Trash2, X } from "../ui/icons";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -19,6 +19,7 @@ type TodayBlocksSectionProps = {
     timeFormat: TimeFormat;
     isArchiveView: boolean;
     selectedDate: string;
+    selectedWeek: number;
     goals: Goal[];
     selectedWeekTargets: WeeklyTarget[];
     blockDraft: DailyBlockDraft;
@@ -28,12 +29,13 @@ type TodayBlocksSectionProps = {
     draggingBlockId: Id | null;
     setDraggingBlockId: Dispatch<SetStateAction<Id | null>>;
     onReorderBlocks: (date: string, fromIndex: number, toIndex: number) => void;
-    onAddBlock: (date: string) => boolean | Promise<boolean>;
+    onAddBlock: (date: string, draftOverride?: DailyBlockDraft) => boolean | Promise<boolean>;
     onOpenTemplateModal: () => void;
     onLoadTemplate: (template: DailyTemplate) => void;
     onDeleteTemplate: (templateId: Id) => void;
     onUpdateBlock: (date: string, blockId: Id, changes: Partial<DailyBlock>) => void | Promise<void>;
     onDeleteBlock: (date: string, blockId: Id) => void | Promise<void>;
+    getWeeklyRemaining: (weekIndex: number) => Array<WeeklyTarget & { remaining: number }>;
     dayPlanViewMode: DayPlanViewMode;
     setDayPlanViewMode: Dispatch<SetStateAction<DayPlanViewMode>>;
     composerRequest: { id: number; mode: "timed" | "flexible" } | null;
@@ -132,6 +134,7 @@ export function TodayBlocksSection({
     timeFormat,
     isArchiveView,
     selectedDate,
+    selectedWeek,
     goals,
     selectedWeekTargets,
     blockDraft,
@@ -147,6 +150,7 @@ export function TodayBlocksSection({
     onDeleteTemplate,
     onUpdateBlock,
     onDeleteBlock,
+    getWeeklyRemaining,
     dayPlanViewMode,
     setDayPlanViewMode,
     composerRequest
@@ -294,6 +298,10 @@ export function TodayBlocksSection({
     const flexibleBlocks = useMemo<BlockWithIndex[]>(
         () => allBlocksWithIndex.filter(({ block }) => isFlexibleBlock(block)),
         [allBlocksWithIndex]
+    );
+    const openWeeklyTargetSuggestions = useMemo(
+        () => getWeeklyRemaining(selectedWeek).filter((target) => target.remaining > 0).slice(0, 3),
+        [getWeeklyRemaining, selectedWeek]
     );
 
     useEffect(() => {
@@ -508,6 +516,23 @@ export function TodayBlocksSection({
             setIsTemplatePickerOpen(false);
         }
     }, [onAddBlock, selectedDate]);
+    const handleQuickAddFromTarget = useCallback(async (target: WeeklyTarget & { remaining: number }) => {
+        const quickDraft: DailyBlockDraft = {
+            ...blockDraft,
+            title: target.title,
+            linkedTargetId: String(target.id),
+            amount: Math.max(1, Math.floor(target.remaining || 1)),
+            actual: 0,
+            isFlexible: true,
+            startTime: "",
+            endTime: ""
+        };
+        const didAdd = await onAddBlock(selectedDate, quickDraft);
+        if (didAdd) {
+            setIsComposerOpen(false);
+            setIsTemplatePickerOpen(false);
+        }
+    }, [blockDraft, onAddBlock, selectedDate]);
 
     const applyDraftTimedDefaults = useCallback(() => {
         setBlockDraft((prev) => {
@@ -963,7 +988,10 @@ export function TodayBlocksSection({
     return (
         <div className="subcard">
             <div className="today-dayplan-header">
-                <h3>{tr(language, "today.dayPlan")}</h3>
+                <div className="today-section-header-left">
+                    <CalendarDays size={18} weight="duotone" className="today-section-icon" aria-hidden="true" />
+                    <h3 className="today-section-title">{tr(language, "today.dayPlan")}</h3>
+                </div>
                 <div className="today-dayplan-header-actions">
                     {dayPlanViewMode === "timeline" && (
                         <div className="today-timeline-zoom-controls" role="group" aria-label={tr(language, "today.timelineZoom")}>
@@ -1118,16 +1146,41 @@ export function TodayBlocksSection({
             {dayPlanViewMode === "list" && (
                 <div className="today-list-sections">
                     {dayBlocks.length === 0 && (
-                        <div className="today-empty-state">
-                            <p className="empty">{tr(language, "today.noBlocks")}</p>
-                            <button
-                                type="button"
-                                className="today-empty-add-btn"
-                                onClick={() => setIsComposerOpen(true)}
-                            >
-                                <Icon icon={Plus} size={14} />
-                                {tr(language, "today.blockAdd")}
-                            </button>
+                        <div className="today-empty-state today-empty-state-smart">
+                            <p className="today-empty-message">
+                                <span className="today-empty-icon" aria-hidden="true">📋</span>
+                                <span>{tr(language, "today.noBlocks")}</span>
+                            </p>
+                            {openWeeklyTargetSuggestions.length > 0 ? (
+                                <div className="today-smart-suggestions">
+                                    <p className="today-suggestion-label">
+                                        💡 {language === "de" ? "Offene Weekly Targets" : "Open weekly targets"}
+                                    </p>
+                                    <div className="today-suggestion-items">
+                                        {openWeeklyTargetSuggestions.map((target) => (
+                                            <button
+                                                key={target.id}
+                                                type="button"
+                                                className="today-suggestion-item"
+                                                onClick={() => void handleQuickAddFromTarget(target)}
+                                                disabled={isArchiveView}
+                                            >
+                                                <span>{target.title}</span>
+                                                <Icon icon={Plus} size={14} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="today-empty-add-btn"
+                                    onClick={() => setIsComposerOpen(true)}
+                                >
+                                    <Icon icon={Plus} size={14} />
+                                    {tr(language, "today.blockAdd")}
+                                </button>
+                            )}
                         </div>
                     )}
 

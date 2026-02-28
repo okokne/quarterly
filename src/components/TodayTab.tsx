@@ -49,7 +49,7 @@ type TodayTabProps = {
     setBlockDraft: Dispatch<SetStateAction<DailyBlockDraft>>;
     dayBlocks: DailyBlock[];
     templates: DailyTemplate[];
-    onAddBlock: (date: string) => boolean | Promise<boolean>;
+    onAddBlock: (date: string, draftOverride?: DailyBlockDraft) => boolean | Promise<boolean>;
     onOpenTemplateModal: () => void;
     onLoadTemplate: (template: DailyTemplate) => void;
     onDeleteTemplate: (templateId: Id) => void;
@@ -154,87 +154,97 @@ export function TodayTab({
                     </p>
                 )}
 
-                {/* ── Smart Progress Overview ─────────────────── */}
-                <SmartProgressOverview
-                    dayProgressPercent={dayProgressPercent}
-                    weekProgressPercent={weekProgressPercent}
-                    weekDayNumber={weekDayNumber}
-                    selectedDate={selectedDate}
-                    cycle={cycle}
-                    selectedWeek={selectedWeek}
-                    language={language}
-                />
-
-                {/* ── Week Calendar ───────────────────────────── */}
-                <TodayDatePickerSection
-                    language={language}
-                    dateFormat={dateFormat}
-                    cycle={cycle}
-                    setSelectedWeek={setSelectedWeek}
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    dayPlanViewMode={dayPlanViewMode}
-                    setDayPlanViewMode={setDayPlanViewMode}
-                />
-
-                <fieldset className="readonly-fieldset today-geist-fieldset" disabled={isArchiveView}>
-                    {/* ── Tagesplan ──────────────────────────────── */}
-                    <TodayBlocksSection
-                        language={language}
-                        timeFormat={timeFormat}
-                        isArchiveView={isArchiveView}
+                <div className="today-progress-overview-wrap">
+                    <SmartProgressOverview
+                        dayProgressPercent={dayProgressPercent}
+                        weekProgressPercent={weekProgressPercent}
+                        weekDayNumber={weekDayNumber}
                         selectedDate={selectedDate}
-                        goals={cycle.goals}
-                        selectedWeekTargets={activeWeekTargets}
-                        blockDraft={blockDraft}
-                        setBlockDraft={setBlockDraft}
-                        dayBlocks={dayBlocks}
-                        templates={templates}
-                        draggingBlockId={draggingBlockId}
-                        setDraggingBlockId={setDraggingBlockId}
-                        onReorderBlocks={onReorderBlocks}
-                        onAddBlock={onAddBlock}
-                        onOpenTemplateModal={onOpenTemplateModal}
-                        onLoadTemplate={onLoadTemplate}
-                        onDeleteTemplate={onDeleteTemplate}
-                        onUpdateBlock={onUpdateBlock}
-                        onDeleteBlock={onDeleteBlock}
-                        dayPlanViewMode={dayPlanViewMode}
-                        setDayPlanViewMode={setDayPlanViewMode}
-                        composerRequest={composerRequest}
-                    />
-
-                    {/* ── Diese Woche noch offen ─────────────────── */}
-                    <TodayOpenTargetsSection
-                        language={language}
+                        cycle={cycle}
                         selectedWeek={selectedWeek}
-                        goals={cycle.goals}
-                        selectedWeekTargets={activeWeekTargets}
-                        getWeeklyRemaining={getWeeklyRemaining}
-                    />
-
-                    {/* ── Habits ─────────────────────────────────── */}
-                    <TodayHabitsSection
+                        setSelectedWeek={setSelectedWeek}
+                        setSelectedDate={setSelectedDate}
                         language={language}
-                        isArchiveView={isArchiveView}
-                        selectedDate={selectedDate}
-                        habits={habits}
-                        habitLog={habitLog}
-                        getActiveHabitsForDate={getActiveHabitsForDate}
-                        onToggleHabit={onToggleHabit}
-                        onDeleteHabit={onDeleteHabit}
-                        onOpenHabitsManager={onOpenHabitsManager}
                     />
+                </div>
 
-                    {/* ── Daily Review ────────────────────────────── */}
-                    <TodayDailyReviewSection
+                <div className="today-week-navigation-wrap">
+                    <TodayDatePickerSection
                         language={language}
                         dateFormat={dateFormat}
+                        cycle={cycle}
+                        setSelectedWeek={setSelectedWeek}
                         selectedDate={selectedDate}
-                        dayBlocks={dayBlocks}
-                        dailyReview={dailyReview}
-                        updateCycle={updateCycle}
+                        setSelectedDate={setSelectedDate}
+                        dayPlanViewMode={dayPlanViewMode}
+                        setDayPlanViewMode={setDayPlanViewMode}
                     />
+                </div>
+
+                <fieldset className="readonly-fieldset today-geist-fieldset" disabled={isArchiveView}>
+                    <div className="today-content-section today-content-section-dayplan">
+                        <TodayBlocksSection
+                            language={language}
+                            timeFormat={timeFormat}
+                            isArchiveView={isArchiveView}
+                            selectedDate={selectedDate}
+                            selectedWeek={selectedWeek}
+                            goals={cycle.goals}
+                            selectedWeekTargets={activeWeekTargets}
+                            blockDraft={blockDraft}
+                            setBlockDraft={setBlockDraft}
+                            dayBlocks={dayBlocks}
+                            templates={templates}
+                            draggingBlockId={draggingBlockId}
+                            setDraggingBlockId={setDraggingBlockId}
+                            onReorderBlocks={onReorderBlocks}
+                            onAddBlock={onAddBlock}
+                            onOpenTemplateModal={onOpenTemplateModal}
+                            onLoadTemplate={onLoadTemplate}
+                            onDeleteTemplate={onDeleteTemplate}
+                            onUpdateBlock={onUpdateBlock}
+                            onDeleteBlock={onDeleteBlock}
+                            getWeeklyRemaining={getWeeklyRemaining}
+                            dayPlanViewMode={dayPlanViewMode}
+                            setDayPlanViewMode={setDayPlanViewMode}
+                            composerRequest={composerRequest}
+                        />
+                    </div>
+
+                    <div className="today-content-section today-content-section-week-open">
+                        <TodayOpenTargetsSection
+                            language={language}
+                            selectedWeek={selectedWeek}
+                            goals={cycle.goals}
+                            selectedWeekTargets={activeWeekTargets}
+                            getWeeklyRemaining={getWeeklyRemaining}
+                        />
+                    </div>
+
+                    <div className="today-habits-section">
+                        <TodayHabitsSection
+                            language={language}
+                            isArchiveView={isArchiveView}
+                            selectedDate={selectedDate}
+                            habits={habits}
+                            habitLog={habitLog}
+                            getActiveHabitsForDate={getActiveHabitsForDate}
+                            onToggleHabit={onToggleHabit}
+                            onDeleteHabit={onDeleteHabit}
+                            onOpenHabitsManager={onOpenHabitsManager}
+                        />
+                    </div>
+
+                    <div className="today-review-section">
+                        <TodayDailyReviewSection
+                            language={language}
+                            dateFormat={dateFormat}
+                            selectedDate={selectedDate}
+                            dayBlocks={dayBlocks}
+                            dailyReview={dailyReview}
+                            updateCycle={updateCycle}
+                        />
+                    </div>
                 </fieldset>
             </div>
         </section>

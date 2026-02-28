@@ -2,15 +2,7 @@ import { Dispatch, SetStateAction, useMemo, useRef } from "react";
 import { CalendarBlank, CaretLeft, CaretRight, List, Clock } from "@phosphor-icons/react";
 import { t as tr } from "../../i18n";
 import { AppLanguage, Cycle, DateFormat } from "../../types";
-import {
-    addDays,
-    formatDate,
-    getWeekIndexForDate,
-    parseIso,
-    toIsoDate,
-    weekdayLabel,
-    weekdayLabelLong,
-} from "../../utils";
+import { addDays, getWeekIndexForDate } from "../../utils";
 
 type DayPlanViewMode = "list" | "timeline";
 
@@ -25,6 +17,14 @@ type TodayDatePickerSectionProps = {
     setDayPlanViewMode: Dispatch<SetStateAction<DayPlanViewMode>>;
 };
 
+function formatWeekDateLabel(dateIso: string, language: AppLanguage): string {
+    const locale = language === "de" ? "de-DE" : "en-US";
+    return new Date(`${dateIso}T00:00:00`).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short"
+    });
+}
+
 export function TodayDatePickerSection({
     language,
     dateFormat,
@@ -35,19 +35,36 @@ export function TodayDatePickerSection({
     dayPlanViewMode,
     setDayPlanViewMode,
 }: TodayDatePickerSectionProps) {
-    const touchStartX = useRef<number | null>(null);
     const dateInputRef = useRef<HTMLInputElement | null>(null);
+    void dateFormat;
 
-    const weekDates = useMemo(() => {
-        const date = parseIso(selectedDate);
-        const weekday = (date.getDay() + 6) % 7; // Monday=0 … Sunday=6
-        const mondayDate = new Date(date);
-        mondayDate.setDate(date.getDate() - weekday);
-        const monday = toIsoDate(mondayDate);
-        return Array.from({ length: 7 }, (_, index) => addDays(monday, index));
-    }, [selectedDate]);
+    const selectedWeek = getWeekIndexForDate(cycle, selectedDate);
+    const selectedWeekData = cycle.weeks.find((week) => week.index === selectedWeek);
 
-    const todayIso = toIsoDate(new Date());
+    const weekRange = useMemo(() => {
+        if (selectedWeekData) {
+            return {
+                start: selectedWeekData.startDate,
+                end: selectedWeekData.endDate,
+            };
+        }
+
+        const baseDate = new Date(`${selectedDate}T00:00:00`);
+        const weekday = (baseDate.getDay() + 6) % 7;
+        const monday = new Date(baseDate);
+        monday.setDate(baseDate.getDate() - weekday);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+
+        const toIso = (date: Date) => date.toISOString().slice(0, 10);
+        return {
+            start: toIso(monday),
+            end: toIso(sunday),
+        };
+    }, [selectedDate, selectedWeekData]);
+
+    const weekLabel = `${tr(language, "common.week")} ${selectedWeek}`;
+    const weekDatesLabel = `${formatWeekDateLabel(weekRange.start, language)} - ${formatWeekDateLabel(weekRange.end, language)}`;
 
     const selectDate = (date: string) => {
         setSelectedDate(date);
@@ -73,81 +90,23 @@ export function TodayDatePickerSection({
     };
 
     return (
-        <div className="twc-card">
-            <div className="twc-nav-strip">
-                {/* Left nav arrow */}
-                <button
-                    type="button"
-                    className="twc-nav-btn"
-                    onClick={() => selectDate(addDays(selectedDate, -7))}
-                    aria-label={tr(language, "today.prevWeek")}
-                    title={tr(language, "today.prevWeek")}
-                >
-                    <CaretLeft size={18} weight="bold" />
-                </button>
+        <div className="twc-card week-navigation-bar">
+            <button
+                type="button"
+                className="twc-nav-btn"
+                onClick={() => selectDate(addDays(selectedDate, -7))}
+                aria-label={tr(language, "today.prevWeek")}
+                title={tr(language, "today.prevWeek")}
+            >
+                <CaretLeft size={18} weight="bold" />
+            </button>
 
-                {/* Days strip */}
-                <div
-                    className="twc-days"
-                    onTouchStart={(e) => {
-                        touchStartX.current = e.touches[0]?.clientX ?? null;
-                    }}
-                    onTouchEnd={(e) => {
-                        if (touchStartX.current === null) return;
-                        const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
-                        const delta = endX - touchStartX.current;
-                        touchStartX.current = null;
-                        if (Math.abs(delta) < 40) return;
-                        selectDate(addDays(selectedDate, delta < 0 ? 7 : -7));
-                    }}
-                >
-                    {weekDates.map((date) => {
-                        const isSelected = date === selectedDate;
-                        const isToday = date === todayIso;
-                        const dayNum = parseIso(date).getDate();
-                        const dayLbl = weekdayLabel(date, language).slice(0, 2).toUpperCase();
-
-                        return (
-                            <button
-                                key={date}
-                                type="button"
-                                className={`twc-day${isSelected ? " twc-day-active" : ""}${isToday && !isSelected ? " twc-day-today" : ""}`}
-                                onClick={() => selectDate(date)}
-                                aria-label={`${weekdayLabelLong(date, language)} ${formatDate(date, dateFormat, language)}`}
-                                aria-pressed={isSelected}
-                            >
-                                <span className="twc-day-label">{dayLbl}</span>
-                                <span className="twc-day-num">{dayNum}</span>
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {/* Right nav arrow */}
-                <button
-                    type="button"
-                    className="twc-nav-btn"
-                    onClick={() => selectDate(addDays(selectedDate, 7))}
-                    aria-label={tr(language, "today.nextWeek")}
-                    title={tr(language, "today.nextWeek")}
-                >
-                    <CaretRight size={18} weight="bold" />
-                </button>
-
-                {/* Date picker trigger */}
-                <button
-                    type="button"
-                    className="twc-calendar-btn"
-                    onClick={openDatePicker}
-                    aria-label={tr(language, "today.pickDate")}
-                    title={tr(language, "today.pickDate")}
-                >
-                    <CalendarBlank size={18} weight="bold" />
-                </button>
+            <div className="twc-week-info">
+                <span className="twc-week-label">{weekLabel}</span>
+                <span className="twc-week-dates">{weekDatesLabel}</span>
             </div>
 
-            {/* View toggle */}
-            <div className="twc-toggle">
+            <div className="twc-toggle" role="group" aria-label={tr(language, "today.dayPlan")}>
                 <button
                     type="button"
                     className={`twc-toggle-btn${dayPlanViewMode === "list" ? " twc-toggle-active" : ""}`}
@@ -170,7 +129,26 @@ export function TodayDatePickerSection({
                 </button>
             </div>
 
-            {/* Hidden date input for native date picker (still accessible) */}
+            <button
+                type="button"
+                className="twc-calendar-btn"
+                onClick={openDatePicker}
+                aria-label={tr(language, "today.pickDate")}
+                title={tr(language, "today.pickDate")}
+            >
+                <CalendarBlank size={18} weight="bold" />
+            </button>
+
+            <button
+                type="button"
+                className="twc-nav-btn"
+                onClick={() => selectDate(addDays(selectedDate, 7))}
+                aria-label={tr(language, "today.nextWeek")}
+                title={tr(language, "today.nextWeek")}
+            >
+                <CaretRight size={18} weight="bold" />
+            </button>
+
             <input
                 ref={dateInputRef}
                 type="date"
