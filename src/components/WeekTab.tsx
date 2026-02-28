@@ -116,10 +116,6 @@ export function WeekTab({
 
     return (
         <section className="card week-tab-card">
-            <div className="section-title">
-                <h2>{tr(language, "week.title")}</h2>
-                <span className="muted">{tr(language, "week.targets")}</span>
-            </div>
             <div className="week-name-row">
                 {!showWeekNameEditor && (
                     <>

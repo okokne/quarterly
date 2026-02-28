@@ -539,7 +539,7 @@ body {
   padding: 0;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: 0;
   overflow: hidden;
   background: var(--bg);
@@ -724,7 +724,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-section);
-  padding: var(--space-section) clamp(20px, 2.8vw, 36px);
+  padding: var(--space-section) clamp(16px, 2.1vw, 28px);
 }
 
 .app-main-scroll {
@@ -8317,7 +8317,7 @@ body.dark-mode .archive-banner {
 
 @media (max-width: 1024px) {
   .app-shell-page {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 
   .plan-goals-grid {
@@ -9283,7 +9283,7 @@ body.dark-mode {
 }
 
 .today-geist-container {
-  width: min(100%, 1100px);
+  width: min(100%, 1160px);
   margin: 0 auto;
   padding: 48px 24px;
   display: flex;
@@ -9620,48 +9620,67 @@ body.dark-mode .spo-dot-future {
   border-radius: var(--g-radius-lg);
   padding: 16px 20px;
   box-shadow: var(--g-shadow-sm);
-  display: flex;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
 }
 
-.twc-nav-btn {
+.twc-nav-strip {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.twc-nav-btn,
+.twc-calendar-btn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border: none;
+  background: var(--g-bg-subtle);
+  border: 1px solid var(--g-border-base);
   border-radius: var(--g-radius-sm);
-  color: var(--g-text-secondary);
+  color: var(--g-text-primary);
   cursor: pointer;
   transition: var(--g-transition);
 }
 
-.twc-nav-btn:hover {
-  background: var(--g-bg-subtle);
+.twc-nav-btn:hover,
+.twc-calendar-btn:hover {
+  background: var(--g-accent-subtle);
+  border-color: rgba(0, 112, 243, 0.22);
+  color: var(--g-accent);
+}
+
+.twc-nav-btn svg,
+.twc-calendar-btn svg {
+  display: block;
 }
 
 .twc-days {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex: 1;
-  justify-content: center;
-  margin: 0 12px;
+  justify-content: space-between;
+  margin: 0 6px;
+  min-width: 0;
 }
 
 .twc-day {
-  width: 64px;
-  height: 64px;
+  width: 58px;
+  height: 58px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: 1px solid var(--g-border-base);
-  border-radius: var(--g-radius-md);
+  border-radius: 999px;
   cursor: pointer;
   transition: var(--g-transition);
   gap: 2px;
@@ -9722,7 +9741,8 @@ body.dark-mode .spo-dot-future {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  margin-left: 8px;
+  margin-left: 0;
+  justify-self: end;
 }
 
 .twc-toggle-btn {
@@ -10053,6 +10073,16 @@ body.dark-mode .hsc-streak-zero {
     gap: 24px;
   }
 
+  .twc-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .twc-toggle {
+    justify-self: stretch;
+    justify-content: flex-end;
+  }
+
   .spo-card {
     padding: 20px 24px;
   }
@@ -10072,8 +10102,8 @@ body.dark-mode .hsc-streak-zero {
   }
 
   .twc-day {
-    width: 48px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
   }
 
   .twc-day-num {
@@ -10147,7 +10177,7 @@ button, a, input, select, textarea {
   max-width: none !important;
   width: 100% !important;
   margin: 0 !important;
-  padding: var(--space-10) clamp(20px, 2.8vw, 40px) !important;
+  padding: var(--space-10) clamp(16px, 2.1vw, 30px) !important;
 }
 @media (max-width: 768px) {
   .app-main,

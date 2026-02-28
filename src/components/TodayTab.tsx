@@ -22,10 +22,8 @@ import {
     WeeklyTarget
 } from "../types";
 import {
-    formatDate,
     getWeekProgressPercent,
-    parseIso,
-    weekdayLabelLong
+    parseIso
 } from "../utils";
 import { TodayOpenTargetsSection } from "./today/TodayOpenTargetsSection";
 import { TodayHabitsSection } from "./today/TodayHabitsSection";
@@ -155,9 +153,6 @@ export function TodayTab({
                 <div className="today-geist-header">
                     <div>
                         <h2 className="today-geist-title">{tr(language, "today.title")}</h2>
-                        <p className="today-geist-date">
-                            {weekdayLabelLong(selectedDate, language)} · {formatDate(selectedDate, dateFormat, language)}
-                        </p>
                     </div>
                     <div className="today-geist-header-actions">
                         <button
