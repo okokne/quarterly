@@ -220,130 +220,142 @@ export function AppDashboardContent({
             )}
 
             {onboardingDone && activeTab === "today" && (
-                <TodayTab
-                    cycle={cycle}
-                    language={language}
-                    dateFormat={dateFormat}
-                    timeFormat={timeFormat}
-                    isArchiveView={isArchiveView}
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    selectedWeek={selectedWeek}
-                    setSelectedWeek={setSelectedWeek}
-                    onOpenWeekTarget={handleOpenWeekFromToday}
-                    selectedWeekTargets={selectedWeekTargets}
-                    blockDraft={blockDraft}
-                    setBlockDraft={setBlockDraft}
-                    dayBlocks={dayBlocks}
-                    templates={templates}
-                    onAddBlock={onAddBlock}
-                    onOpenTemplateModal={onOpenTemplateModal}
-                    onLoadTemplate={onLoadTemplate}
-                    onDeleteTemplate={onDeleteTemplate}
-                    draggingBlockId={draggingBlockId}
-                    setDraggingBlockId={setDraggingBlockId}
-                    onReorderBlocks={onReorderBlocks}
-                    onUpdateBlock={onUpdateBlock}
-                    onDeleteBlock={onDeleteBlock}
-                    getWeeklyRemaining={getWeeklyRemaining}
-                    habits={habits}
-                    getActiveHabitsForDate={getActiveHabitsForDate}
-                    habitLog={habitLog}
-                    onToggleHabit={onToggleHabit}
-                    onDeleteHabit={onDeleteHabit}
-                    onOpenHabitsManager={onOpenHabitsManager}
-                    dailyReview={dailyReview}
-                    updateCycle={updateCycle}
-                    composerRequest={todayComposerRequest}
-                />
+                <div className="dashboard-tab-panel">
+                    <TodayTab
+                        cycle={cycle}
+                        language={language}
+                        dateFormat={dateFormat}
+                        timeFormat={timeFormat}
+                        isArchiveView={isArchiveView}
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        selectedWeek={selectedWeek}
+                        setSelectedWeek={setSelectedWeek}
+                        onOpenWeekTarget={handleOpenWeekFromToday}
+                        selectedWeekTargets={selectedWeekTargets}
+                        blockDraft={blockDraft}
+                        setBlockDraft={setBlockDraft}
+                        dayBlocks={dayBlocks}
+                        templates={templates}
+                        onAddBlock={onAddBlock}
+                        onOpenTemplateModal={onOpenTemplateModal}
+                        onLoadTemplate={onLoadTemplate}
+                        onDeleteTemplate={onDeleteTemplate}
+                        draggingBlockId={draggingBlockId}
+                        setDraggingBlockId={setDraggingBlockId}
+                        onReorderBlocks={onReorderBlocks}
+                        onUpdateBlock={onUpdateBlock}
+                        onDeleteBlock={onDeleteBlock}
+                        getWeeklyRemaining={getWeeklyRemaining}
+                        habits={habits}
+                        getActiveHabitsForDate={getActiveHabitsForDate}
+                        habitLog={habitLog}
+                        onToggleHabit={onToggleHabit}
+                        onDeleteHabit={onDeleteHabit}
+                        onOpenHabitsManager={onOpenHabitsManager}
+                        dailyReview={dailyReview}
+                        updateCycle={updateCycle}
+                        composerRequest={todayComposerRequest}
+                    />
+                </div>
             )}
 
             {onboardingDone && activeTab === "week" && (
-                <WeekTab
-                    cycle={cycle}
-                    language={language}
-                    dateFormat={dateFormat}
-                    isArchiveView={isArchiveView}
-                    currentWeekIndex={currentWeekIndex}
-                    selectedWeek={selectedWeek}
-                    setSelectedWeek={setSelectedWeek}
-                    updateCycle={updateCycle}
-                    targetDraft={targetDraft}
-                    setTargetDraft={setTargetDraft}
-                    onAddWeeklyTarget={onAddWeeklyTarget}
-                    onCopyFromPreviousWeek={onCopyFromPreviousWeek}
-                    totalWeeklyTargets={totalWeeklyTargets}
-                    draggingTargetId={draggingTargetId}
-                    setDraggingTargetId={setDraggingTargetId}
-                    onReorderTargets={onReorderTargets}
-                    onUpdateWeeklyTarget={onUpdateWeeklyTarget}
-                    onAdjustWeeklyTarget={onAdjustWeeklyTarget}
-                    onDeleteWeeklyTarget={onDeleteWeeklyTarget}
-                    totalWeeklyDone={totalWeeklyDone}
-                    weeklyReview={weeklyReview}
-                    focusTargetId={activeTab === "week" ? weekFocusTargetId : null}
-                    onFocusTargetHandled={handleWeekFocusHandled}
-                    onOpenCycleDrawer={onOpenCycleDrawer}
-                />
+                <div className="dashboard-tab-panel">
+                    <WeekTab
+                        cycle={cycle}
+                        language={language}
+                        dateFormat={dateFormat}
+                        isArchiveView={isArchiveView}
+                        currentWeekIndex={currentWeekIndex}
+                        selectedWeek={selectedWeek}
+                        setSelectedWeek={setSelectedWeek}
+                        updateCycle={updateCycle}
+                        targetDraft={targetDraft}
+                        setTargetDraft={setTargetDraft}
+                        onAddWeeklyTarget={onAddWeeklyTarget}
+                        onCopyFromPreviousWeek={onCopyFromPreviousWeek}
+                        totalWeeklyTargets={totalWeeklyTargets}
+                        draggingTargetId={draggingTargetId}
+                        setDraggingTargetId={setDraggingTargetId}
+                        onReorderTargets={onReorderTargets}
+                        onUpdateWeeklyTarget={onUpdateWeeklyTarget}
+                        onAdjustWeeklyTarget={onAdjustWeeklyTarget}
+                        onDeleteWeeklyTarget={onDeleteWeeklyTarget}
+                        totalWeeklyDone={totalWeeklyDone}
+                        weeklyReview={weeklyReview}
+                        focusTargetId={activeTab === "week" ? weekFocusTargetId : null}
+                        onFocusTargetHandled={handleWeekFocusHandled}
+                        onOpenCycleDrawer={onOpenCycleDrawer}
+                    />
+                </div>
             )}
 
             {onboardingDone && activeTab === "stats" && (
-                <StatsView
-                    cycle={cycle}
-                    habits={habits}
-                    habitLog={habitLog}
-                    onToggleHabitForDate={onToggleHabit}
-                    onDeleteHabit={onDeleteHabit}
-                    readOnly={isArchiveView}
-                    language={language}
-                    setSelectedWeek={setSelectedWeek}
-                    setActiveTab={setActiveTab}
-                    onOpenHabitsManager={onOpenHabitsManager}
-                    onOpenCycleDrawer={onOpenCycleDrawer}
-                />
+                <div className="dashboard-tab-panel">
+                    <StatsView
+                        cycle={cycle}
+                        habits={habits}
+                        habitLog={habitLog}
+                        onToggleHabitForDate={onToggleHabit}
+                        onDeleteHabit={onDeleteHabit}
+                        readOnly={isArchiveView}
+                        language={language}
+                        setSelectedWeek={setSelectedWeek}
+                        setActiveTab={setActiveTab}
+                        onOpenHabitsManager={onOpenHabitsManager}
+                        onOpenCycleDrawer={onOpenCycleDrawer}
+                    />
+                </div>
             )}
 
             {onboardingDone && activeTab === "inbox" && (
-                <JournalView
-                    cycle={cycle}
-                    language={language}
-                    dateFormat={dateFormat}
-                    readOnly={isArchiveView}
-                    setSelectedWeek={setSelectedWeek}
-                    setSelectedDate={setSelectedDate}
-                    setActiveTab={setActiveTab}
-                    updateCycle={updateCycle}
-                    onOpenLabelSettings={onOpenLabelSettings}
-                />
+                <div className="dashboard-tab-panel">
+                    <JournalView
+                        cycle={cycle}
+                        language={language}
+                        dateFormat={dateFormat}
+                        readOnly={isArchiveView}
+                        setSelectedWeek={setSelectedWeek}
+                        setSelectedDate={setSelectedDate}
+                        setActiveTab={setActiveTab}
+                        updateCycle={updateCycle}
+                        onOpenLabelSettings={onOpenLabelSettings}
+                    />
+                </div>
             )}
 
             {onboardingDone && activeTab === "books" && (
-                <BooksTab
-                    language={language}
-                    books={books}
-                    onAddBook={onAddBook}
-                    onUpdateBook={onUpdateBook}
-                    onDeleteBook={onDeleteBook}
-                    onAddSession={onAddSession}
-                />
+                <div className="dashboard-tab-panel">
+                    <BooksTab
+                        language={language}
+                        books={books}
+                        onAddBook={onAddBook}
+                        onUpdateBook={onUpdateBook}
+                        onDeleteBook={onDeleteBook}
+                        onAddSession={onAddSession}
+                    />
+                </div>
             )}
 
             {onboardingDone && activeTab === "plan" && (
-                <PlanTab
-                    cycle={cycle}
-                    language={language}
-                    dateFormat={dateFormat}
-                    isArchiveView={isArchiveView}
-                    history={history}
-                    habits={habits}
-                    setSelectedWeek={setSelectedWeek}
-                    setActiveTab={setActiveTab}
-                    updateCycle={updateCycle}
-                    onOpenHabitsManager={onOpenHabitsManager}
-                    onViewArchivedCycle={onViewArchivedCycle}
-                    onDeleteArchivedCycle={onDeleteArchivedCycle}
-                    onArchiveRestart={onArchiveRestart}
-                />
+                <div className="dashboard-tab-panel">
+                    <PlanTab
+                        cycle={cycle}
+                        language={language}
+                        dateFormat={dateFormat}
+                        isArchiveView={isArchiveView}
+                        history={history}
+                        habits={habits}
+                        setSelectedWeek={setSelectedWeek}
+                        setActiveTab={setActiveTab}
+                        updateCycle={updateCycle}
+                        onOpenHabitsManager={onOpenHabitsManager}
+                        onViewArchivedCycle={onViewArchivedCycle}
+                        onDeleteArchivedCycle={onDeleteArchivedCycle}
+                        onArchiveRestart={onArchiveRestart}
+                    />
+                </div>
             )}
         </>
     );

@@ -9508,7 +9508,7 @@ body.dark-mode {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: var(--space-12) var(--space-6);
+  padding: 0 0 var(--space-12);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -10376,7 +10376,7 @@ body.dark-mode .hsc-streak-zero {
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .today-geist-container {
-    padding: var(--space-6) var(--space-4);
+    padding: 0 0 var(--space-8);
     gap: 0;
   }
 
@@ -10509,12 +10509,26 @@ button, a, input, select, textarea {
   margin: 0 !important;
   padding: var(--space-10) clamp(16px, 2.1vw, 30px) !important;
 }
+
+.dashboard-tab-panel {
+  width: 100%;
+  margin-top: -80px;
+}
+
+.dashboard-tab-panel > * {
+  width: 100%;
+}
+
 @media (max-width: 768px) {
   .app-main,
   .page,
   .main-content,
   [class*="content-wrapper"] {
     padding: var(--space-6) var(--space-4) !important;
+  }
+
+  .dashboard-tab-panel {
+    margin-top: -24px;
   }
 }
 
