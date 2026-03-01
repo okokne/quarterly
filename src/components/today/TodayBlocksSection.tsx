@@ -731,6 +731,7 @@ export function TodayBlocksSection({
                 className={`list-item planner-block-card ${targetAccent ? "has-target-accent" : ""} ${isDone ? "done" : ""} ${isCompleting ? "is-completing" : ""} ${draggingBlockId === block.id ? "dragging" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
                 data-block-id={String(block.id)}
                 data-block-index={allowReorder ? originalIndex : undefined}
+                data-block-type={hasFixedTime ? "geplant" : linkedTargetTitle ? "flex-task" : "flex-notask"}
                 style={targetAccent ? ({ "--planner-target-accent": targetAccent } as CSSProperties) : undefined}
                 onDragOver={(e) => {
                     if (isArchiveView || !allowReorder) return;
@@ -774,12 +775,16 @@ export function TodayBlocksSection({
                 </div>
                 <div className="block-content">
                     <div className="planner-block-header">
-                        <strong className="planner-block-heading">
-                            {hasFixedTime && block.startTime && block.endTime
-                                ? `${formatTime(block.startTime, timeFormat)}–${formatTime(block.endTime, timeFormat)} · `
-                                : `${tr(language, "today.flexibleBlocks")} · `}
-                            {block.title}
-                        </strong>
+                        <div className="planner-block-heading-container">
+                            <span className="planner-block-time-or-type">
+                                {hasFixedTime && block.startTime && block.endTime
+                                    ? `${formatTime(block.startTime, timeFormat)}–${formatTime(block.endTime, timeFormat)}`
+                                    : <><span className="muted">{tr(language, "today.flexibleBlocks")} ·</span></>}
+                            </span>
+                            <strong className="planner-block-heading">
+                                {block.title}
+                            </strong>
+                        </div>
                         <div className="planner-block-actions">
                             <div
                                 className={`planner-completion-track ${completionSlideEnabled ? "is-slide-enabled" : ""} ${completionClickEnabled ? "is-click-enabled" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
@@ -857,7 +862,6 @@ export function TodayBlocksSection({
                     <div className="planner-meta-row">
                         {linkedTargetTitle ? (
                             <span className="planner-meta-chip planner-target-chip" title={linkedTargetTitle}>
-                                <span className="planner-target-dot" aria-hidden="true" />
                                 <span className="planner-target-label">{linkedTargetTitle}</span>
                             </span>
                         ) : (
@@ -926,31 +930,35 @@ export function TodayBlocksSection({
                                         onChange={(e) => applyCounterActual(Number(e.target.value))}
                                     />
                                     <div className="block-counter-side">
-                                        <span className="block-counter-value">{actualValue} / {plannedAmount}</span>
-                                        <button
-                                            type="button"
-                                            className="block-counter-adjust-btn"
-                                            title={tr(language, "today.decreaseActual")}
-                                            aria-label={tr(language, "today.decreaseActual")}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                applyCounterActual(actualValue - 1);
-                                            }}
-                                        >
-                                            -
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="block-counter-adjust-btn"
-                                            title={tr(language, "today.increaseActual")}
-                                            aria-label={tr(language, "today.increaseActual")}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                applyCounterActual(actualValue + 1);
-                                            }}
-                                        >
-                                            +
-                                        </button>
+                                        <span className="block-counter-value">
+                                            🎯 {actualValue}/{plannedAmount} {block.amount ? "" : ""} · {Math.max(0, plannedAmount - actualValue)} {tr(language, "today.open")}
+                                        </span>
+                                        <div className="block-counter-buttons-wrap">
+                                            <button
+                                                type="button"
+                                                className="block-counter-adjust-btn"
+                                                title={tr(language, "today.decreaseActual")}
+                                                aria-label={tr(language, "today.decreaseActual")}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    applyCounterActual(actualValue - 1);
+                                                }}
+                                            >
+                                                -
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="block-counter-adjust-btn"
+                                                title={tr(language, "today.increaseActual")}
+                                                aria-label={tr(language, "today.increaseActual")}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    applyCounterActual(actualValue + 1);
+                                                }}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

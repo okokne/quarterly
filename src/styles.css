@@ -3345,27 +3345,23 @@ button.ghost-danger:hover {
 
 .planner-completion-track {
   --completion-progress: 0;
-  width: 50px;
-  min-width: 50px;
-  height: 24px;
-  border-radius: 999px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 6px;
   position: relative;
-  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
-  background: color-mix(in srgb, var(--bg-subtle) 82%, var(--bg-card));
+  border: 2px solid var(--border);
+  background: transparent;
   overflow: hidden;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .planner-completion-track::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: calc(var(--completion-progress) * 100%);
-  background: color-mix(in srgb, var(--success-bg) 88%, var(--bg-card));
-  transition: width 180ms ease;
+  display: none;
 }
 
 .planner-completion-track.is-slide-enabled {
-  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-color: color-mix(in srgb, var(--border) 84%, transparent);
 }
 
 .planner-completion-track.is-dragging::before {
@@ -3373,54 +3369,56 @@ button.ghost-danger:hover {
 }
 
 .planner-completion-track.is-done {
-  border-color: color-mix(in srgb, var(--success) 36%, var(--border));
+  border-color: var(--g-success-text);
+  background: var(--g-success-text);
 }
 
 .planner-completion-handle {
   position: absolute;
-  top: 1px;
-  left: 1px;
-  width: 20px;
-  min-width: 20px;
-  height: 20px;
-  min-height: 20px;
+  inset: 0;
+  width: 100%;
+  min-width: 100%;
+  height: 100%;
+  min-height: 100%;
   margin: 0;
   border: 0;
-  border-radius: 999px;
-  background: var(--bg-card);
-  color: var(--text-muted);
-  display: inline-flex;
+  border-radius: 0;
+  background: transparent;
+  color: var(--g-bg-base);
+  display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
   font-size: 0;
-  transform: translateX(calc(var(--completion-progress) * 26px));
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-  box-shadow: var(--shadow-sm);
+  transform: none !important;
+  transition: opacity var(--transition-fast);
+  box-shadow: none;
   padding: 0;
+  opacity: 0;
   z-index: 1;
 }
 
 .planner-completion-handle svg {
-  width: 11px;
-  height: 11px;
+  width: 16px;
+  height: 16px;
 }
 
 .planner-completion-track.is-slide-enabled .planner-completion-handle {
-  cursor: ew-resize;
+  cursor: pointer;
 }
 
 .planner-completion-track.is-click-enabled .planner-completion-handle {
   cursor: pointer;
 }
 
-.planner-completion-track.is-click-enabled:hover .planner-completion-handle {
-  color: var(--accent);
+.planner-completion-track.is-click-enabled:hover {
+  border-color: var(--g-text-secondary);
 }
 
 .planner-completion-track.is-done .planner-completion-handle {
-  background: var(--success);
-  color: var(--text-on-accent);
+  background: transparent;
+  color: var(--g-bg-base);
+  opacity: 1;
 }
 
 .planner-completion-track.is-dragging .planner-completion-handle {
@@ -11004,4 +11002,259 @@ input[type="radio"]:checked {
 
 .text-accent {
   color: var(--color-accent-text) !important;
+}
+
+/* ─── NEW 12-WEEK-YEAR ALIGNED BLOCK GRID LAYOUTS ─── */
+
+/* 1. GEPLANT: height 56px */
+.planner-block-card[data-block-type="geplant"] {
+  height: 56px;
+  padding: 0 12px !important;
+}
+
+.planner-block-card[data-block-type="geplant"] .block-content {
+  display: grid;
+  grid-template-areas:
+    "time badge actions"
+    "title title title";
+  grid-template-columns: auto 1fr auto;
+  gap: 4px 12px;
+  align-content: center;
+}
+
+/* Flatten wrappers */
+.planner-block-card[data-block-type="geplant"] .planner-block-header,
+.planner-block-card[data-block-type="geplant"] .planner-meta-row {
+  display: contents;
+}
+
+/* Hide unneeded elements */
+.planner-block-card[data-block-type="geplant"] .planner-block-progress,
+.planner-block-card[data-block-type="geplant"] .planner-target-chip,
+.planner-block-card[data-block-type="geplant"] .planner-meta-spacer {
+  display: none;
+}
+
+/* Place grid items */
+.planner-block-card[data-block-type="geplant"] .planner-block-heading-container {
+  display: contents;
+}
+
+.planner-block-card[data-block-type="geplant"] .planner-block-time-or-type {
+  grid-area: time;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--g-text-secondary);
+  line-height: 20px;
+}
+
+.planner-block-card[data-block-type="geplant"] .planner-block-heading {
+  grid-area: title;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--g-text-primary);
+  line-height: 22px;
+  margin: 0;
+}
+
+.planner-block-card[data-block-type="geplant"] .planner-status-chip {
+  grid-area: badge;
+  justify-self: end;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.planner-block-card[data-block-type="geplant"] .planner-block-actions {
+  grid-area: actions;
+  justify-self: end;
+  display: flex !important;
+  gap: 4px;
+}
+
+/* 2. FLEX TASK: height 88px */
+.planner-block-card[data-block-type="flex-task"] {
+  height: 88px;
+  padding: 0 16px !important;
+  border-left: 2px solid var(--planner-target-accent, transparent);
+}
+
+.planner-block-card[data-block-type="flex-task"]::before {
+  display: none;
+  /* Disable original line */
+}
+
+.planner-block-card[data-block-type="flex-task"] .block-content {
+  display: grid;
+  grid-template-areas:
+    "title goalbadge"
+    "progress status"
+    ". actions";
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  align-content: center;
+}
+
+/* Flatten wrappers */
+.planner-block-card[data-block-type="flex-task"] .planner-block-header,
+.planner-block-card[data-block-type="flex-task"] .planner-meta-row,
+.planner-block-card[data-block-type="flex-task"] .planner-block-progress,
+.planner-block-card[data-block-type="flex-task"] .block-progress-row,
+.planner-block-card[data-block-type="flex-task"] .block-counter-shell,
+.planner-block-card[data-block-type="flex-task"] .block-counter-side,
+.planner-block-card[data-block-type="flex-task"] .block-counter-buttons-wrap {
+  display: contents;
+}
+
+/* Hide */
+.planner-block-card[data-block-type="flex-task"] .planner-meta-spacer,
+.planner-block-card[data-block-type="flex-task"] .block-counter-range {
+  display: none;
+}
+
+/* Place grid items */
+.planner-block-card[data-block-type="flex-task"] .planner-block-heading-container {
+  grid-area: title;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.planner-block-card[data-block-type="flex-task"] .planner-block-time-or-type {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--g-text-secondary);
+}
+
+.planner-block-card[data-block-type="flex-task"] .planner-block-heading {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--g-text-primary);
+  margin: 0;
+}
+
+.planner-block-card[data-block-type="flex-task"] .planner-target-chip {
+  grid-area: goalbadge;
+  justify-self: end;
+  background: color-mix(in srgb, var(--planner-target-accent, var(--g-accent)) 10%, transparent);
+  color: var(--planner-target-accent, var(--g-accent));
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.planner-block-card[data-block-type="flex-task"] .planner-target-dot {
+  display: none;
+}
+
+.planner-block-card[data-block-type="flex-task"] .planner-status-chip {
+  grid-area: status;
+  justify-self: end;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.planner-block-card[data-block-type="flex-task"] .block-counter-value {
+  grid-area: progress;
+  justify-self: start;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--g-text-secondary);
+}
+
+.planner-block-card[data-block-type="flex-task"] .planner-block-actions {
+  grid-area: actions;
+  justify-self: end;
+  display: flex !important;
+  gap: 4px;
+}
+
+.planner-block-card[data-block-type="flex-task"] .block-counter-adjust-btn {
+  display: flex !important;
+  /* Force display if user needs them */
+}
+
+/* 3. FLEX WITHOUT TASK: height 64px */
+.planner-block-card[data-block-type="flex-notask"] {
+  height: 64px;
+  padding: 0 14px !important;
+  border-left: 2px solid var(--planner-target-accent, var(--g-accent));
+}
+
+.planner-block-card[data-block-type="flex-notask"]::before {
+  display: none;
+  /* Disable original line */
+}
+
+.planner-block-card[data-block-type="flex-notask"] .block-content {
+  display: grid;
+  grid-template-areas:
+    "title status"
+    ". actions";
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  align-content: center;
+}
+
+/* Flatten wrappers */
+.planner-block-card[data-block-type="flex-notask"] .planner-block-header,
+.planner-block-card[data-block-type="flex-notask"] .planner-meta-row {
+  display: contents;
+}
+
+/* Hide */
+.planner-block-card[data-block-type="flex-notask"] .planner-target-chip,
+.planner-block-card[data-block-type="flex-notask"] .planner-meta-spacer,
+.planner-block-card[data-block-type="flex-notask"] .planner-block-progress {
+  display: none;
+}
+
+/* Place grid items */
+.planner-block-card[data-block-type="flex-notask"] .planner-block-heading-container {
+  grid-area: title;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.planner-block-card[data-block-type="flex-notask"] .planner-block-time-or-type {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--g-text-secondary);
+}
+
+.planner-block-card[data-block-type="flex-notask"] .planner-block-heading {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--g-text-primary);
+  margin: 0;
+}
+
+.planner-block-card[data-block-type="flex-notask"] .planner-status-chip {
+  grid-area: status;
+  justify-self: end;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.planner-block-card[data-block-type="flex-notask"] .planner-block-actions {
+  grid-area: actions;
+  justify-self: end;
+  display: flex !important;
+  gap: 4px;
 }
