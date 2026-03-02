@@ -11066,21 +11066,135 @@ input[type="radio"]:checked {
   color: var(--color-accent-text) !important;
 }
 
-/* Keep Today add buttons in theme blue with white plus glyph */
-.today-dayplan-add-btn,
-.today-empty-add-btn {
-  background: var(--color-accent-base) !important;
-  border-color: var(--color-accent-base) !important;
+/* Today day-plan controls (high-priority visual overrides) */
+button.today-dayplan-add-btn,
+.today-dayplan-header .today-dayplan-add-btn,
+.today-dayplan-header-actions .today-dayplan-add-btn,
+button.today-empty-add-btn {
+  background-color: var(--color-accent-base) !important;
+  border: 1px solid var(--color-accent-base) !important;
   color: #FFFFFF !important;
 }
 
-.today-dayplan-add-btn:hover,
-.today-empty-add-btn:hover {
-  background: var(--color-accent-hover) !important;
+button.today-dayplan-add-btn:hover,
+.today-dayplan-header .today-dayplan-add-btn:hover,
+.today-dayplan-header-actions .today-dayplan-add-btn:hover,
+button.today-empty-add-btn:hover {
+  background-color: var(--color-accent-hover) !important;
   border-color: var(--color-accent-hover) !important;
   color: #FFFFFF !important;
 }
 
-.today-dayplan-add-icon {
+button.today-dayplan-add-btn .today-dayplan-add-icon {
   color: #FFFFFF !important;
+}
+
+/* Completion toggle: render as a real visible slider track */
+.planner-completion-track {
+  --completion-progress: 0;
+  --completion-track-width: 44px;
+  --completion-track-height: 24px;
+  --completion-knob-size: 18px;
+  --completion-knob-gap: 3px;
+  --completion-knob-travel: calc(var(--completion-track-width) - var(--completion-knob-size) - (var(--completion-knob-gap) * 2));
+  width: var(--completion-track-width);
+  min-width: var(--completion-track-width);
+  height: var(--completion-track-height);
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong, var(--border)) 70%, transparent);
+  background: color-mix(in srgb, var(--color-background-subtle, var(--bg-subtle)) 90%, var(--color-background-elevated, var(--bg-card)));
+  overflow: hidden;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.planner-completion-track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-accent-base, var(--accent)) 20%, transparent);
+  transform-origin: left center;
+  transform: scaleX(var(--completion-progress));
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.planner-completion-handle {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  opacity: 1;
+  color: color-mix(in srgb, var(--color-accent-base, var(--accent)) 80%, var(--color-text-primary, var(--text-primary)));
+  transition: none;
+}
+
+.planner-completion-handle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: var(--completion-knob-gap);
+  width: var(--completion-knob-size);
+  height: var(--completion-knob-size);
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong, var(--border)) 75%, transparent);
+  background: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.22);
+  transform: translateY(-50%) translateX(calc(var(--completion-progress) * var(--completion-knob-travel)));
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.planner-completion-handle svg {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--completion-knob-gap) + (var(--completion-knob-size) / 2));
+  width: 11px;
+  height: 11px;
+  transform: translate(-50%, -50%) translateX(calc(var(--completion-progress) * var(--completion-knob-travel)));
+  opacity: 0.76;
+  transition: transform var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.planner-completion-track.is-slide-enabled .planner-completion-handle {
+  cursor: pointer;
+}
+
+.planner-completion-track.is-click-enabled:hover {
+  border-color: color-mix(in srgb, var(--color-accent-base, var(--accent)) 60%, var(--color-border-strong, var(--border)));
+}
+
+.planner-completion-track.is-done {
+  border-color: color-mix(in srgb, var(--success) 70%, var(--color-border-strong, var(--border)));
+  background: color-mix(in srgb, var(--success) 14%, var(--color-background-elevated, var(--bg-card)));
+}
+
+.planner-completion-track.is-done::before {
+  background: color-mix(in srgb, var(--success) 28%, transparent);
+}
+
+.planner-completion-track.is-done .planner-completion-handle {
+  color: var(--success);
+}
+
+.planner-completion-track.is-done .planner-completion-handle svg {
+  opacity: 1;
+}
+
+.planner-completion-track.is-dragging::before,
+.planner-completion-track.is-dragging .planner-completion-handle::before,
+.planner-completion-track.is-dragging .planner-completion-handle svg {
+  transition: none;
+}
+
+/* Linked target badge: outlined with parent target accent */
+.planner-target-chip {
+  border: 1px solid color-mix(in srgb, var(--planner-target-accent, var(--color-accent-base, var(--accent-500))) 72%, var(--color-border-base, var(--border)));
+  background: transparent;
+  color: color-mix(in srgb, var(--planner-target-accent, var(--color-accent-base, var(--accent-500))) 78%, var(--color-text-primary, var(--text-primary)));
+}
+
+.planner-target-dot {
+  background: var(--planner-target-accent, var(--color-accent-base, var(--accent-500)));
 }
