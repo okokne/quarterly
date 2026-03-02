@@ -81,6 +81,72 @@ export function SettingsBackupSection({
     const latestSnapshot = snapshotMetas.length > 0
         ? snapshotMetas[snapshotMetas.length - 1]
         : null;
+    const applyImportData = (incoming: Partial<PersistedPlannerState>, mode: ImportMode = importMode): boolean => {
+        const sections = summarizeImportSections(incoming);
+        const modeLabel = mode === "replace"
+            ? tr(language, "settings.importModeReplace")
+            : tr(language, "settings.importModeMissing");
+        const confirmMessage = `${tr(language, "settings.importContains", { sections: sections.join(", ") || "-" })}\n${tr(language, "settings.importMode", { mode: modeLabel })}`;
+        if (!window.confirm(confirmMessage)) {
+            return false;
+        }
+
+        const currentState: PersistedPlannerState = {
+            cycle: activeCycle,
+            templates,
+            history,
+            habits,
+            habitLog,
+            books,
+            preferences: {
+                darkMode,
+                language,
+                dateFormat,
+                timeFormat,
+                selectedCalendarId
+            }
+        };
+
+        const nextState = mergeImportedPlannerState({
+            current: currentState,
+            incoming,
+            mode
+        });
+
+        dispatch({ type: "SET", payload: nextState.cycle });
+        setTemplates(nextState.templates);
+        setHistory(() => nextState.history);
+        setHabits(nextState.habits);
+        setHabitLog(nextState.habitLog);
+        setBooks(nextState.books);
+        setDarkMode(nextState.preferences.darkMode);
+        setLanguage(nextState.preferences.language);
+        setDateFormat(nextState.preferences.dateFormat);
+        setTimeFormat(nextState.preferences.timeFormat);
+        if (nextState.preferences.selectedCalendarId.trim()) {
+            setSelectedCalendarId(nextState.preferences.selectedCalendarId);
+        }
+        setViewingArchiveId(null);
+        setShowSettings(false);
+        alert(tr(language, "settings.importSuccess"));
+        return true;
+    };
+
+    const loadDemoData = async () => {
+        try {
+            const response = await fetch("/demo/demo-seed-3-weeks.json", {
+                cache: "no-store"
+            });
+            if (!response.ok) {
+                throw new Error("Demo seed missing");
+            }
+            const payload = await response.json();
+            const data = parseBackupPayload(payload) as Partial<PersistedPlannerState>;
+            applyImportData(data, "replace");
+        } catch {
+            alert(tr(language, "settings.importError"));
+        }
+    };
 
     return (
         <>
@@ -134,55 +200,8 @@ export function SettingsBackupSection({
                             reader.onload = (loadEvent) => {
                                 try {
                                     const payload = JSON.parse(loadEvent.target?.result as string);
-                                    const data = parseBackupPayload(payload);
-                                    const sections = summarizeImportSections(data as Partial<PersistedPlannerState>);
-                                    const modeLabel = importMode === "replace"
-                                        ? tr(language, "settings.importModeReplace")
-                                        : tr(language, "settings.importModeMissing");
-                                    const confirmMessage = `${tr(language, "settings.importContains", { sections: sections.join(", ") || "-" })}\n${tr(language, "settings.importMode", { mode: modeLabel })}`;
-                                    if (!window.confirm(confirmMessage)) {
-                                        return;
-                                    }
-
-                                    const currentState: PersistedPlannerState = {
-                                        cycle: activeCycle,
-                                        templates,
-                                        history,
-                                        habits,
-                                        habitLog,
-                                        books,
-                                        preferences: {
-                                            darkMode,
-                                            language,
-                                            dateFormat,
-                                            timeFormat,
-                                            selectedCalendarId
-                                        }
-                                    };
-
-                                    const nextState = mergeImportedPlannerState({
-                                        current: currentState,
-                                        incoming: data as Partial<PersistedPlannerState>,
-                                        mode: importMode
-                                    });
-
-                                    dispatch({ type: "SET", payload: nextState.cycle });
-                                    setTemplates(nextState.templates);
-                                    setHistory(() => nextState.history);
-                                    setHabits(nextState.habits);
-                                    setHabitLog(nextState.habitLog);
-                                    setBooks(nextState.books);
-
-                                    setDarkMode(nextState.preferences.darkMode);
-                                    setLanguage(nextState.preferences.language);
-                                    setDateFormat(nextState.preferences.dateFormat);
-                                    setTimeFormat(nextState.preferences.timeFormat);
-                                    if (nextState.preferences.selectedCalendarId.trim()) {
-                                        setSelectedCalendarId(nextState.preferences.selectedCalendarId);
-                                    }
-                                    setViewingArchiveId(null);
-                                    setShowSettings(false);
-                                    alert(tr(language, "settings.importSuccess"));
+                                    const data = parseBackupPayload(payload) as Partial<PersistedPlannerState>;
+                                    applyImportData(data);
                                 } catch {
                                     alert(tr(language, "settings.importError"));
                                 }
@@ -192,6 +211,18 @@ export function SettingsBackupSection({
                         }}
                     />
                 </label>
+            </div>
+            <div className="settings-row">
+                <label>{tr(language, "settings.demoData")}</label>
+                <button
+                    className="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                        void loadDemoData();
+                    }}
+                >
+                    {tr(language, "settings.loadDemoData")}
+                </button>
             </div>
             <div className="settings-row">
                 <label>{tr(language, "settings.importBehavior")}</label>

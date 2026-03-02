@@ -1,0 +1,696 @@
+{
+  "schemaVersion": 2,
+  "exportedAt": "2026-03-02T09:00:00.000Z",
+  "cycle": {
+    "id": "cycle-demo-q1-2026",
+    "title": "Demo Zyklus - Fokus & Routine",
+    "startDate": "2026-02-16",
+    "weeks": [
+      { "index": 1, "startDate": "2026-02-16", "endDate": "2026-02-22", "weekName": "Kickoff" },
+      { "index": 2, "startDate": "2026-02-23", "endDate": "2026-03-01", "weekName": "Momentum" },
+      { "index": 3, "startDate": "2026-03-02", "endDate": "2026-03-08", "weekName": "Stabilisieren" },
+      { "index": 4, "startDate": "2026-03-09", "endDate": "2026-03-15" },
+      { "index": 5, "startDate": "2026-03-16", "endDate": "2026-03-22" },
+      { "index": 6, "startDate": "2026-03-23", "endDate": "2026-03-29" },
+      { "index": 7, "startDate": "2026-03-30", "endDate": "2026-04-05" },
+      { "index": 8, "startDate": "2026-04-06", "endDate": "2026-04-12" },
+      { "index": 9, "startDate": "2026-04-13", "endDate": "2026-04-19" },
+      { "index": 10, "startDate": "2026-04-20", "endDate": "2026-04-26" },
+      { "index": 11, "startDate": "2026-04-27", "endDate": "2026-05-03" },
+      { "index": 12, "startDate": "2026-05-04", "endDate": "2026-05-10" }
+    ],
+    "vision": "Gesunde Routinen plus konsistente Fokusarbeit mit klaren Tagesblöcken.",
+    "goals": [
+      {
+        "id": "goal-health",
+        "title": "Körperliche Fitness",
+        "metric": "3 Trainings/Woche",
+        "color": "#3B82F6"
+      },
+      {
+        "id": "goal-work",
+        "title": "Fokusarbeit",
+        "metric": "10h Deep Work/Woche",
+        "color": "#F59E0B"
+      },
+      {
+        "id": "goal-learning",
+        "title": "Lesen",
+        "metric": "150 Seiten/Woche",
+        "color": "#10B981"
+      }
+    ],
+    "weeklyTargets": {
+      "1": [
+        {
+          "id": "wt1-train",
+          "title": "Trainingseinheiten",
+          "target": 3,
+          "unit": "Sessions",
+          "manualAdjust": 0,
+          "color": "#3B82F6",
+          "goalId": "goal-health"
+        },
+        {
+          "id": "wt1-focus",
+          "title": "Deep Work",
+          "target": 10,
+          "unit": "h",
+          "manualAdjust": 0,
+          "color": "#F59E0B",
+          "goalId": "goal-work"
+        },
+        {
+          "id": "wt1-read",
+          "title": "Lesen",
+          "target": 150,
+          "unit": "Seiten",
+          "manualAdjust": 0,
+          "color": "#10B981",
+          "goalId": "goal-learning"
+        }
+      ],
+      "2": [
+        {
+          "id": "wt2-train",
+          "title": "Trainingseinheiten",
+          "target": 3,
+          "unit": "Sessions",
+          "manualAdjust": 0,
+          "color": "#3B82F6",
+          "goalId": "goal-health"
+        },
+        {
+          "id": "wt2-focus",
+          "title": "Deep Work",
+          "target": 10,
+          "unit": "h",
+          "manualAdjust": 0,
+          "color": "#F59E0B",
+          "goalId": "goal-work"
+        },
+        {
+          "id": "wt2-read",
+          "title": "Lesen",
+          "target": 150,
+          "unit": "Seiten",
+          "manualAdjust": 0,
+          "color": "#10B981",
+          "goalId": "goal-learning"
+        }
+      ],
+      "3": [
+        {
+          "id": "wt3-train",
+          "title": "Trainingseinheiten",
+          "target": 3,
+          "unit": "Sessions",
+          "manualAdjust": 0,
+          "color": "#3B82F6",
+          "goalId": "goal-health"
+        },
+        {
+          "id": "wt3-focus",
+          "title": "Deep Work",
+          "target": 10,
+          "unit": "h",
+          "manualAdjust": 0,
+          "color": "#F59E0B",
+          "goalId": "goal-work"
+        },
+        {
+          "id": "wt3-read",
+          "title": "Lesen",
+          "target": 150,
+          "unit": "Seiten",
+          "manualAdjust": 0,
+          "color": "#10B981",
+          "goalId": "goal-learning"
+        }
+      ]
+    },
+    "dailyPlans": {
+      "2026-02-17": [
+        {
+          "id": "b-0217-1",
+          "startTime": "07:00",
+          "endTime": "07:45",
+          "title": "Mobility + Kraft",
+          "linkedTargetId": "wt1-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0217-2",
+          "startTime": "09:00",
+          "endTime": "11:00",
+          "title": "Deep Work: Produkt-Planung",
+          "linkedTargetId": "wt1-focus",
+          "done": true,
+          "amount": 2,
+          "actual": 2
+        },
+        {
+          "id": "b-0217-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "30 Seiten lesen",
+          "linkedTargetId": "wt1-read",
+          "done": true,
+          "amount": 30,
+          "actual": 30
+        }
+      ],
+      "2026-02-19": [
+        {
+          "id": "b-0219-1",
+          "startTime": "07:10",
+          "endTime": "07:50",
+          "title": "Laufen",
+          "linkedTargetId": "wt1-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0219-2",
+          "startTime": "10:00",
+          "endTime": "12:00",
+          "title": "Deep Work: Konzept",
+          "linkedTargetId": "wt1-focus",
+          "done": true,
+          "amount": 2,
+          "actual": 2
+        },
+        {
+          "id": "b-0219-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "40 Seiten lesen",
+          "linkedTargetId": "wt1-read",
+          "done": true,
+          "amount": 40,
+          "actual": 40
+        }
+      ],
+      "2026-02-21": [
+        {
+          "id": "b-0221-1",
+          "startTime": "09:00",
+          "endTime": "09:45",
+          "title": "Workout",
+          "linkedTargetId": "wt1-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0221-2",
+          "startTime": "11:00",
+          "endTime": "14:00",
+          "title": "Deep Work: Architektur",
+          "linkedTargetId": "wt1-focus",
+          "done": true,
+          "amount": 3,
+          "actual": 3
+        },
+        {
+          "id": "b-0221-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "55 Seiten lesen",
+          "linkedTargetId": "wt1-read",
+          "done": true,
+          "amount": 55,
+          "actual": 55
+        }
+      ],
+      "2026-02-24": [
+        {
+          "id": "b-0224-1",
+          "startTime": "07:15",
+          "endTime": "08:00",
+          "title": "Training",
+          "linkedTargetId": "wt2-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0224-2",
+          "startTime": "09:00",
+          "endTime": "11:30",
+          "title": "Deep Work: Sprint-Tasks",
+          "linkedTargetId": "wt2-focus",
+          "done": true,
+          "amount": 3,
+          "actual": 3
+        },
+        {
+          "id": "b-0224-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "35 Seiten lesen",
+          "linkedTargetId": "wt2-read",
+          "done": true,
+          "amount": 35,
+          "actual": 35
+        }
+      ],
+      "2026-02-26": [
+        {
+          "id": "b-0226-1",
+          "startTime": "07:20",
+          "endTime": "08:00",
+          "title": "Kraftzirkel",
+          "linkedTargetId": "wt2-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0226-2",
+          "startTime": "10:30",
+          "endTime": "12:30",
+          "title": "Deep Work: Roadmap",
+          "linkedTargetId": "wt2-focus",
+          "done": true,
+          "amount": 2,
+          "actual": 2
+        },
+        {
+          "id": "b-0226-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "45 Seiten lesen",
+          "linkedTargetId": "wt2-read",
+          "done": true,
+          "amount": 45,
+          "actual": 45
+        }
+      ],
+      "2026-02-28": [
+        {
+          "id": "b-0228-1",
+          "startTime": "09:00",
+          "endTime": "09:45",
+          "title": "Intervalltraining",
+          "linkedTargetId": "wt2-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0228-2",
+          "startTime": "11:00",
+          "endTime": "14:00",
+          "title": "Deep Work: Auswertung",
+          "linkedTargetId": "wt2-focus",
+          "done": true,
+          "amount": 3,
+          "actual": 3
+        },
+        {
+          "id": "b-0228-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "40 Seiten lesen",
+          "linkedTargetId": "wt2-read",
+          "done": true,
+          "amount": 40,
+          "actual": 40
+        }
+      ],
+      "2026-03-03": [
+        {
+          "id": "b-0303-1",
+          "startTime": "07:00",
+          "endTime": "07:50",
+          "title": "Workout",
+          "linkedTargetId": "wt3-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0303-2",
+          "startTime": "09:00",
+          "endTime": "11:00",
+          "title": "Deep Work: Strategie-Doc",
+          "linkedTargetId": "wt3-focus",
+          "done": false,
+          "amount": 2,
+          "actual": 1
+        },
+        {
+          "id": "b-0303-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "30 Seiten lesen",
+          "linkedTargetId": "wt3-read",
+          "done": true,
+          "amount": 30,
+          "actual": 30
+        }
+      ],
+      "2026-03-05": [
+        {
+          "id": "b-0305-1",
+          "startTime": "07:15",
+          "endTime": "08:00",
+          "title": "Laufen",
+          "linkedTargetId": "wt3-train",
+          "done": false,
+          "amount": 1,
+          "actual": 0
+        },
+        {
+          "id": "b-0305-2",
+          "startTime": "10:00",
+          "endTime": "12:30",
+          "title": "Deep Work: Interview-Notizen",
+          "linkedTargetId": "wt3-focus",
+          "done": true,
+          "amount": 3,
+          "actual": 3
+        },
+        {
+          "id": "b-0305-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "35 Seiten lesen",
+          "linkedTargetId": "wt3-read",
+          "done": true,
+          "amount": 35,
+          "actual": 35
+        }
+      ],
+      "2026-03-06": [
+        {
+          "id": "b-0306-1",
+          "startTime": "08:30",
+          "endTime": "09:15",
+          "title": "Krafttraining",
+          "linkedTargetId": "wt3-train",
+          "done": true,
+          "amount": 1,
+          "actual": 1
+        },
+        {
+          "id": "b-0306-2",
+          "startTime": "11:00",
+          "endTime": "13:00",
+          "title": "Deep Work: Wochenausblick",
+          "linkedTargetId": "wt3-focus",
+          "done": true,
+          "amount": 2,
+          "actual": 2
+        },
+        {
+          "id": "b-0306-3",
+          "startTime": null,
+          "endTime": null,
+          "isFlexible": true,
+          "title": "25 Seiten lesen",
+          "linkedTargetId": "wt3-read",
+          "done": true,
+          "amount": 25,
+          "actual": 25
+        }
+      ]
+    },
+    "dailyReviews": {
+      "2026-02-21": { "good": "3/3 Targets erreicht", "bad": "Zu spät gestartet" },
+      "2026-02-28": { "good": "Guter Fokusblock am Vormittag", "bad": "Pausen zu kurz" },
+      "2026-03-06": { "good": "Konstant bei Routinen", "bad": "Donnerstag Training ausgelassen" }
+    },
+    "weeklyReviews": {
+      "1": {
+        "good": "Sauberer Start mit klaren Blöcken",
+        "bad": "Abends oft zu viel Restarbeit",
+        "change": "Pufferblock um 17:00 einplanen"
+      },
+      "2": {
+        "good": "Fokuszeit deutlich höher",
+        "bad": "Mittwochs Energieeinbruch",
+        "change": "Mittwoch weniger Meetings"
+      },
+      "3": {
+        "good": "Routinen halten",
+        "bad": "Noch nicht abgeschlossen",
+        "change": "Wochenende sauber planen"
+      }
+    },
+    "reviewEntries": [],
+    "journalEntries": [
+      {
+        "id": "journal-1",
+        "title": "Woche 1 Rückblick",
+        "content": "Die festen Morgenblöcke haben gut funktioniert.",
+        "date": "2026-02-22",
+        "createdAt": "2026-02-22T20:30:00.000Z"
+      },
+      {
+        "id": "journal-2",
+        "title": "Woche 2 Learnings",
+        "content": "Deep Work klappt besser mit Handy aus dem Raum.",
+        "date": "2026-03-01",
+        "createdAt": "2026-03-01T19:45:00.000Z"
+      },
+      {
+        "id": "journal-3",
+        "title": "Woche 3 Zwischenstand",
+        "content": "Leseroutine stabil, Training braucht Backup-Slot.",
+        "date": "2026-03-06",
+        "createdAt": "2026-03-06T18:10:00.000Z"
+      }
+    ],
+    "journalContexts": [
+      { "id": "ctx-work", "label": "Arbeit", "color": "#3B82F6" },
+      { "id": "ctx-health", "label": "Gesundheit", "color": "#10B981" },
+      { "id": "ctx-personal", "label": "Persönlich", "color": "#F59E0B" }
+    ],
+    "defaultJournalContextId": "ctx-work",
+    "reminder": { "enabled": true, "dayOffset": 6, "time": "08:00" },
+    "habits": [
+      {
+        "id": "habit-train",
+        "title": "Tägliche Bewegung",
+        "emoji": "dumbbell",
+        "frequency": "daily",
+        "activeFrom": 1,
+        "activeTo": 12,
+        "startedAt": "2026-02-16",
+        "createdAt": "2026-02-16",
+        "goal": { "type": "target", "target": 1, "unit": "x" }
+      },
+      {
+        "id": "habit-read",
+        "title": "Lesen 30 Min",
+        "emoji": "book",
+        "frequency": "weekdays",
+        "activeFrom": 1,
+        "activeTo": 12,
+        "startedAt": "2026-02-16",
+        "createdAt": "2026-02-16",
+        "goal": { "type": "target", "target": 30, "unit": "min" }
+      },
+      {
+        "id": "habit-nosugar",
+        "title": "Kein Süßkram unter der Woche",
+        "emoji": "ban",
+        "frequency": [1, 2, 3, 4, 5],
+        "activeFrom": 1,
+        "activeTo": 12,
+        "startedAt": "2026-02-16",
+        "createdAt": "2026-02-16",
+        "goal": { "type": "open" }
+      }
+    ],
+    "habitLog": {
+      "2026-02-16": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-17": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-18": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-19": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-20": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-23": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-24": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-25": ["habit-train", "habit-read"],
+      "2026-02-26": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-02-27": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-03-02": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-03-03": ["habit-train", "habit-read", "habit-nosugar"],
+      "2026-03-04": ["habit-read", "habit-nosugar"],
+      "2026-03-05": ["habit-read", "habit-nosugar"],
+      "2026-03-06": ["habit-train", "habit-read", "habit-nosugar"]
+    }
+  },
+  "templates": [
+    {
+      "id": "tpl-deep-work",
+      "name": "Deep Work Tag",
+      "blocks": [
+        { "startTime": "07:00", "endTime": "07:45", "title": "Training" },
+        { "startTime": "09:00", "endTime": "11:00", "title": "Deep Work", "amount": 2 },
+        { "startTime": null, "endTime": null, "isFlexible": true, "title": "30 Seiten lesen", "amount": 30 }
+      ]
+    },
+    {
+      "id": "tpl-light-day",
+      "name": "Leichter Tag",
+      "blocks": [
+        { "startTime": "08:00", "endTime": "08:30", "title": "Walk" },
+        { "startTime": "10:00", "endTime": "11:30", "title": "Fokusblock", "amount": 2 }
+      ]
+    }
+  ],
+  "history": [],
+  "habits": [
+    {
+      "id": "habit-train",
+      "title": "Tägliche Bewegung",
+      "emoji": "dumbbell",
+      "frequency": "daily",
+      "activeFrom": 1,
+      "activeTo": 12,
+      "startedAt": "2026-02-16",
+      "createdAt": "2026-02-16",
+      "goal": { "type": "target", "target": 1, "unit": "x" }
+    },
+    {
+      "id": "habit-read",
+      "title": "Lesen 30 Min",
+      "emoji": "book",
+      "frequency": "weekdays",
+      "activeFrom": 1,
+      "activeTo": 12,
+      "startedAt": "2026-02-16",
+      "createdAt": "2026-02-16",
+      "goal": { "type": "target", "target": 30, "unit": "min" }
+    },
+    {
+      "id": "habit-nosugar",
+      "title": "Kein Süßkram unter der Woche",
+      "emoji": "ban",
+      "frequency": [1, 2, 3, 4, 5],
+      "activeFrom": 1,
+      "activeTo": 12,
+      "startedAt": "2026-02-16",
+      "createdAt": "2026-02-16",
+      "goal": { "type": "open" }
+    }
+  ],
+  "habitLog": {
+    "2026-02-16": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-17": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-18": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-19": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-20": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-23": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-24": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-25": ["habit-train", "habit-read"],
+    "2026-02-26": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-02-27": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-03-02": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-03-03": ["habit-train", "habit-read", "habit-nosugar"],
+    "2026-03-04": ["habit-read", "habit-nosugar"],
+    "2026-03-05": ["habit-read", "habit-nosugar"],
+    "2026-03-06": ["habit-train", "habit-read", "habit-nosugar"]
+  },
+  "books": [
+    {
+      "id": "book-atomic",
+      "title": "Atomic Habits",
+      "author": "James Clear",
+      "coverUrl": "",
+      "categories": ["Productivity", "Habits"],
+      "totalPages": 320,
+      "readPages": 126,
+      "status": "reading",
+      "queueOrder": 1,
+      "startDate": "2026-02-16",
+      "sessions": [
+        {
+          "id": "session-1",
+          "date": "2026-02-17T20:30:00.000Z",
+          "pagesRead": 22,
+          "pageAfter": 22,
+          "durationMinutes": 28,
+          "notes": "Intro + Identity Habits"
+        },
+        {
+          "id": "session-2",
+          "date": "2026-02-21T19:40:00.000Z",
+          "pagesRead": 34,
+          "pageAfter": 56,
+          "durationMinutes": 35
+        },
+        {
+          "id": "session-3",
+          "date": "2026-02-28T21:00:00.000Z",
+          "pagesRead": 40,
+          "pageAfter": 96,
+          "durationMinutes": 42
+        },
+        {
+          "id": "session-4",
+          "date": "2026-03-06T20:20:00.000Z",
+          "pagesRead": 30,
+          "pageAfter": 126,
+          "durationMinutes": 32
+        }
+      ]
+    },
+    {
+      "id": "book-deep-work",
+      "title": "Deep Work",
+      "author": "Cal Newport",
+      "coverUrl": "",
+      "categories": ["Focus", "Work"],
+      "totalPages": 296,
+      "readPages": 0,
+      "status": "want_to_read",
+      "queueOrder": 2,
+      "sessions": []
+    },
+    {
+      "id": "book-essentialism",
+      "title": "Essentialism",
+      "author": "Greg McKeown",
+      "coverUrl": "",
+      "categories": ["Productivity"],
+      "totalPages": 260,
+      "readPages": 260,
+      "status": "finished",
+      "queueOrder": 3,
+      "completionNote": "Kernidee: weniger, aber besser.",
+      "startDate": "2026-01-10",
+      "finishDate": "2026-02-14",
+      "sessions": [
+        {
+          "id": "session-e1",
+          "date": "2026-02-14T18:00:00.000Z",
+          "pagesRead": 20,
+          "pageAfter": 260,
+          "durationMinutes": 25
+        }
+      ]
+    }
+  ],
+  "preferences": {
+    "darkMode": false,
+    "language": "de",
+    "dateFormat": "eu_short",
+    "timeFormat": "24h",
+    "selectedCalendarId": "primary"
+  }
+}
