@@ -40,6 +40,7 @@ export interface SettingsModalProps {
     setViewingArchiveId: (id: Id | null) => void;
     // Handlers
     handleRequestNotifications: () => void;
+    onLoadDemoData: () => Promise<void> | void;
     syncEnabled: boolean;
     syncStatus: SyncStatus;
     isAuthenticated: boolean;
@@ -81,6 +82,7 @@ export function SettingsModal({
     setShowSettings,
     setViewingArchiveId,
     handleRequestNotifications,
+    onLoadDemoData,
     syncEnabled,
     syncStatus,
     isAuthenticated,
@@ -120,6 +122,23 @@ export function SettingsModal({
                     setDateFormat={setDateFormat}
                     setTimeFormat={setTimeFormat}
                 />
+
+                <div className="settings-section">
+                    <h3>{tr(language, "common.importExport")}</h3>
+                    <div className="settings-row">
+                        <label>{tr(language, "settings.demoData")}</label>
+                        <button
+                            type="button"
+                            className="button accent"
+                            disabled={readOnly}
+                            onClick={() => {
+                                void onLoadDemoData();
+                            }}
+                        >
+                            {tr(language, "settings.loadDemoData")}
+                        </button>
+                    </div>
+                </div>
 
                 <div className="settings-section">
                     <h3>{tr(language, "settings.integrationsTitle")}</h3>

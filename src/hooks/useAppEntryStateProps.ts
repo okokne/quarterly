@@ -24,6 +24,9 @@ type UseAppEntryStatePropsParams = {
     onSignUp: (email: string, password: string) => Promise<boolean>;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
+    recoveryCandidateDate: string | null;
+    onRestoreLatestSnapshot: () => void;
+    onDismissRecovery: () => void;
 };
 
 export function useAppEntryStateProps(params: UseAppEntryStatePropsParams) {

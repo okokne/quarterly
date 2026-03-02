@@ -94,6 +94,42 @@ test("bootstrap pushes local scoped data when cloud is empty", async () => {
     assert.equal(result.state?.cycle?.title, "ScopedLocal");
 });
 
+test("bootstrap pushes local scoped data when only books exist locally", async () => {
+    const localScoped = {
+        ...emptyState(),
+        books: [{
+            id: "b1",
+            title: "Atomic Habits",
+            categories: [],
+            totalPages: 320,
+            readPages: 25,
+            status: "reading" as const,
+            startDate: "2026-02-01",
+            sessions: []
+        }]
+    };
+
+    const result = await bootstrapAfterLogin({
+        session: fakeSession,
+        localScopedState: localScoped,
+        fetchCloudState: async () => ({ error: null, record: null }),
+        pushCloudState: async () => ({
+            error: null,
+            record: {
+                userId: "user-1",
+                state: localScoped,
+                version: 1,
+                updatedAt: "2026-02-11T10:00:00.000Z",
+                schemaVersion: 1
+            }
+        })
+    });
+
+    assert.equal(result.ok, true);
+    assert.equal(result.source, "local_scoped");
+    assert.equal(result.state?.books.length, 1);
+});
+
 test("bootstrap leaves state empty when cloud and user-scoped local are empty", async () => {
     const result = await bootstrapAfterLogin({
         session: fakeSession,

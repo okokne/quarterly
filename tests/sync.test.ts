@@ -31,6 +31,23 @@ test("resolveInitialSyncAction chooses push_local when cloud empty", () => {
     assert.equal(action, "push_local");
 });
 
+test("resolveInitialSyncAction chooses push_local when only books exist locally", () => {
+    const local = {
+        ...emptyState(),
+        books: [{
+            id: "b1",
+            title: "Deep Work",
+            categories: [],
+            totalPages: 300,
+            readPages: 0,
+            status: "want_to_read" as const,
+            sessions: []
+        }]
+    };
+    const action = resolveInitialSyncAction({ local, cloud: null });
+    assert.equal(action, "push_local");
+});
+
 test("resolveInitialSyncAction chooses pull_cloud when local empty", () => {
     const cloudState = {
         ...emptyState(),

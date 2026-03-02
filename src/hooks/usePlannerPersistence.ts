@@ -87,6 +87,14 @@ export function usePlannerPersistence({
             return;
         }
 
+        // Keep scoped primary storage in sync with in-memory state so bootstrap,
+        // scope switches, and storage event listeners always read current data.
+        const writeError = writePersistedPlannerStateToLocalStorage(state, storageScope);
+        if (writeError) {
+            setPersistenceWarning(formatStorageError(writeError));
+            return;
+        }
+
         // Bootstrapped state should not be treated as a fresh local edit.
         // Otherwise each app start "wins" against newer cloud data by timestamp.
         if (!didRunInitialPersistRef.current) {

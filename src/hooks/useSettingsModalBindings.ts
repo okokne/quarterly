@@ -33,7 +33,8 @@ type SettingsModalBindingInput = {
     >;
     actions: Pick<
         SettingsModalProps,
-        "handleRequestNotifications"
+        "handleRequestNotifications" |
+        "onLoadDemoData"
     >;
     sync: Pick<
         SettingsModalProps,

@@ -80,7 +80,8 @@ export function hasStateData(state: PersistedPlannerState): boolean {
         state.templates.length > 0 ||
         state.history.length > 0 ||
         state.habits.length > 0 ||
-        Object.keys(state.habitLog).length > 0
+        Object.keys(state.habitLog).length > 0 ||
+        state.books.length > 0
     );
 }
 

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useReducer, useState } from "react";
-import { Cycle } from "./types";
+import { Cycle, PersistedPlannerState } from "./types";
 import { t as tr } from "./i18n";
 import { addDays, formatRange, getWeekLabel, migrateCycle, cycleReducer, formatDate, toIsoDate, weekdayLabelLong } from "./utils";
 import { ConfirmModals } from "./components/ConfirmModals";
@@ -40,6 +40,8 @@ import { useAppStorageScope } from "./hooks/useAppStorageScope";
 import { useAppDashboardDerived } from "./hooks/useAppDashboardDerived";
 import { readPersistedPlannerStateFromLocalStorage } from "./persistence/stateSerializer";
 import { useAppSyncPersistence } from "./hooks/useAppSyncPersistence";
+import { parseBackupPayload } from "./backup";
+import { mergeImportedPlannerState } from "./persistence/stateSerializer";
 
 export default function App() {
   const { initialStorageScope, storageScope, handleStorageScopeChange } = useAppStorageScope();
@@ -338,6 +340,83 @@ export default function App() {
     anchor.click();
     URL.revokeObjectURL(url);
   }, [persistedPlannerState]);
+
+  const handleLoadDemoData = useCallback(async () => {
+    try {
+      const response = await fetch("/demo/demo-seed-3-weeks.json", { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error("Demo data unavailable");
+      }
+
+      const payload = await response.json();
+      const incoming = parseBackupPayload(payload) as Partial<PersistedPlannerState>;
+      const currentState: PersistedPlannerState = {
+        cycle: activeCycle,
+        templates,
+        history,
+        habits,
+        habitLog,
+        books,
+        preferences: {
+          darkMode,
+          language,
+          dateFormat,
+          timeFormat,
+          selectedCalendarId
+        }
+      };
+
+      const nextState = mergeImportedPlannerState({
+        current: currentState,
+        incoming,
+        mode: "replace"
+      });
+
+      dispatch({ type: "SET", payload: nextState.cycle });
+      setTemplates(nextState.templates);
+      setHistory(() => nextState.history);
+      setHabits(nextState.habits);
+      setHabitLog(nextState.habitLog);
+      setBooks(nextState.books);
+      setDarkMode(nextState.preferences.darkMode);
+      setLanguage(nextState.preferences.language);
+      setDateFormat(nextState.preferences.dateFormat);
+      setTimeFormat(nextState.preferences.timeFormat);
+      if (nextState.preferences.selectedCalendarId.trim()) {
+        setSelectedCalendarId(nextState.preferences.selectedCalendarId);
+      }
+      setViewingArchiveId(null);
+      setShowSettings(false);
+      alert(tr(language, "settings.importSuccess"));
+    } catch {
+      alert(tr(language, "settings.importError"));
+    }
+  }, [
+    activeCycle,
+    templates,
+    history,
+    habits,
+    habitLog,
+    books,
+    darkMode,
+    language,
+    dateFormat,
+    timeFormat,
+    selectedCalendarId,
+    dispatch,
+    setTemplates,
+    setHistory,
+    setHabits,
+    setHabitLog,
+    setBooks,
+    setDarkMode,
+    setLanguage,
+    setDateFormat,
+    setTimeFormat,
+    setSelectedCalendarId,
+    setViewingArchiveId,
+    setShowSettings
+  ]);
   const {
     dashboardCycle,
     dailyReview,
@@ -457,7 +536,9 @@ export default function App() {
       setShowSettings,
       setViewingArchiveId
     },
-    actions: {},
+    actions: {
+      onLoadDemoData: handleLoadDemoData
+    },
     sync: {
       syncEnabled,
       syncStatus,
@@ -596,7 +677,10 @@ export default function App() {
     onSignIn: signIn,
     onSignUp: signUp,
     onCreateCycle: handleCreateCycle,
-    onRequestMagicLink: requestMagicLink
+    onRequestMagicLink: requestMagicLink,
+    recoveryCandidateDate: recoveryCandidate?.createdAt ?? null,
+    onRestoreLatestSnapshot: restoreLatestSnapshot,
+    onDismissRecovery: dismissRecovery
   });
 
   if (!isAuthenticated || bootstrapStatus !== "ready" || !cycle) {

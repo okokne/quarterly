@@ -3175,20 +3175,19 @@ button.ghost-danger:hover {
 .today-empty-add-btn {
   min-height: 36px;
   padding: 8px 14px;
-  border: 1px dashed var(--g-border-base);
+  border: 1px solid var(--color-accent-base);
   border-radius: var(--g-radius-md);
-  background: transparent;
-  color: var(--g-text-secondary);
+  background: var(--color-accent-base);
+  color: #FFFFFF;
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
 .today-empty-add-btn:hover {
-  border-style: solid;
-  border-color: var(--g-border-strong);
-  background: var(--g-bg-subtle);
-  color: var(--g-text-primary);
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+  color: #FFFFFF;
 }
 
 .today-blocks-group {
@@ -5976,15 +5975,15 @@ body.dark-mode .today-hero-watermark {
   min-height: 32px;
   padding: 0 10px;
   border-radius: 9px;
-  border: 1px solid var(--button-primary-border) !important;
-  background: var(--button-primary-bg) !important;
-  color: var(--button-primary-text) !important;
+  border: 1px solid var(--color-accent-base) !important;
+  background: var(--color-accent-base) !important;
+  color: #FFFFFF !important;
   box-shadow: var(--shadow-sm);
 }
 
 .today-dayplan-add-btn:hover {
-  background: var(--button-primary-bg-hover) !important;
-  border-color: var(--button-primary-border) !important;
+  background: var(--color-accent-hover) !important;
+  border-color: var(--color-accent-hover) !important;
   box-shadow: var(--shadow-md);
 }
 
@@ -10930,6 +10929,22 @@ input[type="radio"]:checked {
 .header button:hover:not(.today-geist-ghost-btn) {
   background-color: var(--color-background-subtle) !important;
   color: var(--color-text-primary) !important;
+}
+
+/* Keep the Today dayplan add button in accent blue */
+.today-dayplan-header button.today-dayplan-add-btn {
+  padding: 0 10px !important;
+  border: 1px solid var(--color-accent-base) !important;
+  background: var(--color-accent-base) !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.today-dayplan-header button.today-dayplan-add-btn:hover {
+  background: var(--color-accent-hover) !important;
+  border-color: var(--color-accent-hover) !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--shadow-md);
 }
 
 

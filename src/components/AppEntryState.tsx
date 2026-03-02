@@ -28,6 +28,9 @@ type AppEntryStateProps = {
     onSignUp: (email: string, password: string) => Promise<boolean>;
     onRequestMagicLink: (email: string) => Promise<boolean>;
     onCreateCycle: () => void;
+    recoveryCandidateDate: string | null;
+    onRestoreLatestSnapshot: () => void;
+    onDismissRecovery: () => void;
 };
 
 export function AppEntryState({
@@ -53,7 +56,10 @@ export function AppEntryState({
     onSignIn,
     onSignUp,
     onRequestMagicLink,
-    onCreateCycle
+    onCreateCycle,
+    recoveryCandidateDate,
+    onRestoreLatestSnapshot,
+    onDismissRecovery
 }: AppEntryStateProps) {
     const [authMode, setAuthMode] = useState<AuthMode>("email");
     const [registerConfirm, setRegisterConfirm] = useState("");
@@ -165,6 +171,18 @@ export function AppEntryState({
                     <p>{tr(language, "empty.heroSubtitle")}</p>
                 </div>
             </header>
+
+            {recoveryCandidateDate && (
+                <section className="banner safety-banner">
+                    <span>
+                        {tr(language, "app.recoveryBanner", { date: recoveryCandidateDate.slice(0, 10) })}
+                    </span>
+                    <div className="banner-actions">
+                        <button onClick={onRestoreLatestSnapshot}>{tr(language, "app.recoveryRestore")}</button>
+                        <button onClick={onDismissRecovery}>{tr(language, "common.cancel")}</button>
+                    </div>
+                </section>
+            )}
 
             {awaitingCloudDashboard && (
                 <section className="card">
