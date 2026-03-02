@@ -11258,17 +11258,17 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 .today-dayplan-header,
 .today-open-targets-section>.today-section-header,
 .today-habits-section .today-section-header {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .today-content-section-dayplan,
 .today-content-section-week-open,
 .today-habits-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .today-review-section .today-daily-review-card {
-  margin-top: 24px;
+  margin-top: 32px;
 }
 
 .today-dayplan-section,
@@ -11282,11 +11282,11 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 
 .today-dayplan-section .today-list-sections {
   display: grid;
-  gap: 14px;
+  gap: 18px;
 }
 
 .today-dayplan-section .today-blocks-group {
-  gap: 10px;
+  gap: 12px;
 }
 
 .today-dayplan-section .today-blocks-group-header h4,
@@ -11300,15 +11300,16 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
   justify-content: space-between;
   gap: 8px;
   padding: 0 2px;
+  margin-bottom: 2px;
 }
 
 .today-blocks-group-label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
   text-transform: none;
-  color: var(--g-text-secondary);
+  color: var(--g-text-primary);
   padding: 0;
 }
 
@@ -11329,15 +11330,31 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .planner-block-card {
-  min-height: 72px;
-  padding: 12px 16px;
+  min-height: 86px;
+  padding: 14px 16px !important;
   display: flex;
   flex-direction: row;
   align-items: stretch;
   gap: 12px;
-  background: var(--g-bg-elevated);
-  border-color: color-mix(in srgb, var(--g-border-base) 92%, transparent);
-  box-shadow: var(--g-shadow-sm);
+  background: var(--g-bg-elevated) !important;
+  border-color: color-mix(in srgb, var(--g-border-base) 92%, transparent) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+  border-radius: 12px !important;
+  align-items: center;
+}
+
+.today-dayplan-section .planner-block-card::before {
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 999px 999px 0;
+  opacity: 0.62;
+}
+
+.today-dayplan-section .planner-block-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.09) !important;
 }
 
 .today-dayplan-section .planner-block-card .drag-handle {
@@ -11345,10 +11362,10 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .planner-block-card .block-content {
-  min-height: 48px;
+  min-height: 56px;
   min-width: 0;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .today-dayplan-section .planner-block-header {
@@ -11359,7 +11376,7 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 .today-dayplan-section .planner-block-heading-container {
   min-width: 0;
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 
 .today-dayplan-section .planner-block-time-or-type {
@@ -11372,6 +11389,12 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 
 .today-dayplan-section .planner-block-heading {
   line-height: 1.35;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .today-dayplan-section .planner-block-header-target {
@@ -11406,6 +11429,7 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
   justify-content: space-between;
   min-height: 28px;
   gap: 10px;
+  margin-top: 1px;
 }
 
 .today-dayplan-section .planner-meta-actions {
@@ -11421,19 +11445,73 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 
 .today-dayplan-section .planner-status-chip {
   margin-left: 0;
+  flex: 0 0 auto;
+}
+
+.today-dayplan-section .planner-block-actions .block-edit-btn,
+.today-dayplan-section .planner-block-actions .block-delete-x {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--g-bg-subtle) 56%, transparent);
+  border-color: color-mix(in srgb, var(--g-border-base) 75%, transparent);
+}
+
+.today-dayplan-section .planner-completion-track {
+  width: 42px;
+  min-width: 42px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.today-dayplan-section .planner-completion-track .planner-completion-handle::before {
+  width: 16px;
+  height: 16px;
 }
 
 .today-dayplan-section .planner-block-progress {
   margin-top: 2px;
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--g-border-base) 85%, transparent);
 }
 
 .today-dayplan-section .block-counter-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.today-dayplan-section .block-counter-range {
+  height: 14px;
+  background-size: 100% 6px !important;
+}
+
+.today-dayplan-section .block-counter-range::-webkit-slider-runnable-track {
+  height: 6px;
+}
+
+.today-dayplan-section .block-counter-range::-moz-range-track {
+  height: 6px;
+}
+
+.today-dayplan-section .block-counter-range::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  opacity: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  background: #FFFFFF;
+  margin-top: -4px;
+}
+
+.today-dayplan-section .block-counter-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  opacity: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  background: #FFFFFF;
 }
 
 .today-dayplan-section .block-counter-value {
@@ -11449,6 +11527,14 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.today-dayplan-section .block-counter-side {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 .today-dayplan-section .block-counter-adjust-btn {
@@ -11689,7 +11775,7 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 @media (max-width: 880px) {
   .today-dayplan-section .planner-block-card {
     min-height: 68px;
-    padding: 10px 12px;
+    padding: 10px 12px !important;
     gap: 10px;
   }
 
