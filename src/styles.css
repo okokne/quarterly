@@ -11258,17 +11258,17 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 .today-dayplan-header,
 .today-open-targets-section>.today-section-header,
 .today-habits-section .today-section-header {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .today-content-section-dayplan,
 .today-content-section-week-open,
 .today-habits-section {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .today-review-section .today-daily-review-card {
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .today-dayplan-section,
@@ -11282,11 +11282,11 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 
 .today-dayplan-section .today-list-sections {
   display: grid;
-  gap: 8px;
+  gap: 14px;
 }
 
 .today-dayplan-section .today-blocks-group {
-  gap: 6px;
+  gap: 10px;
 }
 
 .today-dayplan-section .today-blocks-group-header h4,
@@ -11294,24 +11294,50 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
   margin: 0;
 }
 
+.today-dayplan-section .today-blocks-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+
 .today-blocks-group-label {
   display: block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--g-text-secondary);
+  padding: 0;
+}
+
+.today-blocks-group-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--g-border-base) 85%, transparent);
+  background: color-mix(in srgb, var(--g-bg-subtle) 70%, var(--g-bg-elevated));
   color: var(--g-text-tertiary);
-  padding: 2px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .today-dayplan-section .planner-block-card {
-  min-height: 60px;
-  padding: 0 14px;
+  min-height: 72px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 10px;
+  gap: 12px;
   background: var(--g-bg-elevated);
+  border-color: color-mix(in srgb, var(--g-border-base) 92%, transparent);
+  box-shadow: var(--g-shadow-sm);
 }
 
 .today-dayplan-section .planner-block-card .drag-handle {
@@ -11319,14 +11345,33 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .planner-block-card .block-content {
-  min-height: 60px;
+  min-height: 48px;
+  min-width: 0;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .today-dayplan-section .planner-block-header {
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.today-dayplan-section .planner-block-heading-container {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.today-dayplan-section .planner-block-time-or-type {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--g-text-tertiary);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.today-dayplan-section .planner-block-heading {
+  line-height: 1.35;
 }
 
 .today-dayplan-section .planner-block-header-target {
@@ -11358,19 +11403,59 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .planner-meta-row {
-  justify-content: flex-end;
-  min-height: 24px;
+  justify-content: space-between;
+  min-height: 28px;
+  gap: 10px;
 }
 
 .today-dayplan-section .planner-meta-actions {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  margin-left: auto;
 }
 
 .today-dayplan-section .planner-block-actions {
+  gap: 4px;
+}
+
+.today-dayplan-section .planner-status-chip {
+  margin-left: 0;
+}
+
+.today-dayplan-section .planner-block-progress {
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--g-border-base) 85%, transparent);
+}
+
+.today-dayplan-section .block-counter-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.today-dayplan-section .block-counter-value {
+  min-width: 0;
+  text-align: left;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--g-text-secondary);
+}
+
+.today-dayplan-section .block-counter-buttons-wrap {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+}
+
+.today-dayplan-section .block-counter-adjust-btn {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 7px;
 }
 
 .today-open-targets-section .today-open-target-item {
@@ -11409,15 +11494,15 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .block+.block {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .today-open-targets-section .weekly-target+.weekly-target {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .today-habits-section .habit-card+.habit-card {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .today-geist-root .today-geist-title {
@@ -11599,4 +11684,31 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 .today-geist-root .today-add-block-plus-btn .today-dayplan-add-icon,
 .today-geist-root .today-empty-add-btn.today-add-block-cta-btn svg {
   color: #FFFFFF !important;
+}
+
+@media (max-width: 880px) {
+  .today-dayplan-section .planner-block-card {
+    min-height: 68px;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .today-dayplan-section .block-content {
+    gap: 7px;
+  }
+
+  .today-dayplan-section .planner-meta-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .today-dayplan-section .planner-meta-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .today-dayplan-section .block-counter-shell {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 }

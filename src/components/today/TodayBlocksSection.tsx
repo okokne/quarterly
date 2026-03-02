@@ -710,7 +710,6 @@ export function TodayBlocksSection({
         const completionProgress = completionDragState?.blockId === block.id
             ? completionDragProgress
             : (isDone ? 1 : 0);
-        const canUndoFromBadge = isDone;
         const completionSlideEnabled = !isArchiveView && !usesCounter;
         const completionClickEnabled = !isArchiveView;
         const applyCounterActual = (nextActualRaw: number) => {
@@ -795,13 +794,35 @@ export function TodayBlocksSection({
 
 
                     <div className="planner-meta-row">
-                        <div className="planner-meta-actions">
-                            {usesCounter && (
-                                <span className={`planner-meta-chip planner-status-chip ${isDone ? "done" : "pending"}`}>
-                                    {statusLabel}
-                                </span>
-                            )}
+                        {usesCounter ? (
+                            <span className={`planner-meta-chip planner-status-chip ${isDone ? "done" : "pending"}`}>
+                                {statusLabel}
+                            </span>
+                        ) : (
+                            <button
+                                type="button"
+                                className={`planner-meta-chip planner-status-chip is-interactive ${isDone ? "done" : "pending"}`}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isDone) {
+                                        handleToggleCompletion(block, false);
+                                        return;
+                                    }
 
+                                    handleToggleCompletion(block, true);
+                                    triggerCompletionFx(block.id);
+                                }}
+                                title={tr(language, "today.markLabel")}
+                                aria-label={tr(language, "today.markLabel")}
+                            >
+                                {statusLabel}
+                            </button>
+                        )}
+
+                        <div className="planner-meta-actions">
                             <div className="planner-block-actions">
                                 <div
                                     className={`planner-completion-track ${completionSlideEnabled ? "is-slide-enabled" : ""} ${completionClickEnabled ? "is-click-enabled" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
@@ -1168,6 +1189,7 @@ export function TodayBlocksSection({
                         <section className="today-blocks-group">
                             <div className="today-blocks-group-header">
                                 <span className="today-blocks-group-label">{tr(language, "today.plannedBlocks")}</span>
+                                <span className="today-blocks-group-count">{plannedBlocks.length}</span>
                             </div>
                             <div className="list sortable">
                                 {plannedBlocks.map((entry) => renderListBlockItem(entry, false))}
@@ -1179,6 +1201,7 @@ export function TodayBlocksSection({
                         <section className="today-blocks-group today-blocks-group-flexible">
                             <div className="today-blocks-group-header">
                                 <span className="today-blocks-group-label">{tr(language, "today.flexibleBlocks")}</span>
+                                <span className="today-blocks-group-count">{flexibleBlocks.length}</span>
                             </div>
                             <div className="list sortable">
                                 {flexibleBlocks.map((entry) => renderListBlockItem(entry, true))}
