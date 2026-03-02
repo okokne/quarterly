@@ -1036,7 +1036,7 @@ export function TodayBlocksSection({
             </div>
 
             {isComposerOpen && (
-                <>
+                <div className="today-dayplan-composer-card">
                     <div className="grid today-dayplan-composer-grid">
                         <label>
                             {tr(language, "common.title")}
@@ -1148,7 +1148,7 @@ export function TodayBlocksSection({
                             </div>
                         </div>
                     )}
-                </>
+                </div>
             )}
 
             {dayPlanViewMode === "list" && (

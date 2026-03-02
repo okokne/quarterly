@@ -6006,12 +6006,23 @@ body.dark-mode .today-hero-watermark {
   gap: 12px;
 }
 
+.today-dayplan-composer-card {
+  margin-bottom: 12px;
+  padding: 14px;
+  border-radius: var(--g-radius-lg);
+  border: 1px solid var(--g-border-base);
+  background: var(--g-bg-elevated);
+  box-shadow: var(--g-shadow-sm);
+  display: grid;
+  gap: 12px;
+}
+
 .today-dayplan-timing-panel {
-  margin-top: -2px;
+  margin-top: 0;
 }
 
 .today-dayplan-template-panel {
-  margin-top: 2px;
+  margin-top: 0;
   padding: 12px;
   border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--border) 86%, var(--accent-200));
@@ -10521,6 +10532,10 @@ body.dark-mode .hsc-streak-zero {
   .today-dayplan-section,
   .today-open-targets-section {
     padding: 0;
+  }
+
+  .today-dayplan-composer-card {
+    padding: 12px;
   }
 
   .today-habits-section .hsc-grid {
