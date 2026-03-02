@@ -1017,7 +1017,7 @@ export function TodayBlocksSection({
                     )}
                     <button
                         type="button"
-                        className={`primary today-dayplan-add-btn ${isComposerOpen ? "open" : ""}`}
+                        className={`primary today-dayplan-add-btn today-add-block-plus-btn ${isComposerOpen ? "open" : ""}`}
                         onClick={() => {
                             setIsComposerOpen((prev) => {
                                 const next = !prev;
@@ -1182,7 +1182,7 @@ export function TodayBlocksSection({
                             ) : (
                                 <button
                                     type="button"
-                                    className="today-empty-add-btn"
+                                    className="today-empty-add-btn today-add-block-cta-btn"
                                     onClick={() => setIsComposerOpen(true)}
                                 >
                                     <Icon icon={Plus} size={14} />

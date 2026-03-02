@@ -11198,3 +11198,32 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 .planner-target-dot {
   background: var(--planner-target-accent, var(--color-accent-base, var(--accent-500)));
 }
+
+/* Force specific Today add-block buttons (beats generic header/button overrides) */
+.today-geist-root .today-dayplan-header.today-dayplan-header .today-dayplan-header-actions .today-add-block-plus-btn.today-add-block-plus-btn:not(.today-geist-ghost-btn) {
+  background-color: var(--color-accent-base) !important;
+  border: 1px solid var(--color-accent-base) !important;
+  color: #FFFFFF !important;
+}
+
+.today-geist-root .today-dayplan-header.today-dayplan-header .today-dayplan-header-actions .today-add-block-plus-btn.today-add-block-plus-btn:not(.today-geist-ghost-btn):hover {
+  background-color: var(--color-accent-hover) !important;
+  border-color: var(--color-accent-hover) !important;
+  color: #FFFFFF !important;
+}
+
+.today-geist-root .today-add-block-plus-btn .today-dayplan-add-icon {
+  color: #FFFFFF !important;
+}
+
+.today-geist-root .today-add-block-cta-btn.today-add-block-cta-btn {
+  background-color: var(--color-accent-base) !important;
+  border: 1px solid var(--color-accent-base) !important;
+  color: #FFFFFF !important;
+}
+
+.today-geist-root .today-add-block-cta-btn.today-add-block-cta-btn:hover {
+  background-color: var(--color-accent-hover) !important;
+  border-color: var(--color-accent-hover) !important;
+  color: #FFFFFF !important;
+}
