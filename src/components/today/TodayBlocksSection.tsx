@@ -1,6 +1,6 @@
 import { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { CalendarDays, Check, PencilLine, Plus, Trash2, X } from "../ui/icons";
+import { CalendarDays, Check, Plus, Trash2, X } from "../ui/icons";
 import { DailyBlockDraft } from "../../hooks/useDailyBlocks";
 import { useTouchBlockReorder } from "../../hooks/useTouchBlockReorder";
 import { t as tr } from "../../i18n";
@@ -732,6 +732,12 @@ export function TodayBlocksSection({
                 data-block-index={allowReorder ? originalIndex : undefined}
                 data-block-type={hasFixedTime ? "geplant" : linkedTargetTitle ? "flex-task" : "flex-notask"}
                 style={targetAccent ? ({ "--planner-target-accent": targetAccent } as CSSProperties) : undefined}
+                onClick={(event) => {
+                    if (isArchiveView) return;
+                    const target = event.target as HTMLElement;
+                    if (target.closest("[data-block-control='true']")) return;
+                    openBlockEditor(block);
+                }}
                 onDragOver={(e) => {
                     if (isArchiveView || !allowReorder) return;
                     e.preventDefault();
@@ -750,6 +756,7 @@ export function TodayBlocksSection({
             >
                 <div
                     className={`drag-handle ${allowReorder ? "" : "disabled"}`}
+                    data-block-control="true"
                     draggable={allowReorder && !isArchiveView}
                     onPointerDown={(e) => {
                         if (!allowReorder) return;
@@ -801,6 +808,7 @@ export function TodayBlocksSection({
                         ) : (
                             <button
                                 type="button"
+                                data-block-control="true"
                                 className={`planner-meta-chip planner-status-chip is-interactive ${isDone ? "done" : "pending"}`}
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}
@@ -822,14 +830,16 @@ export function TodayBlocksSection({
                             </button>
                         )}
 
-                        <div className="planner-meta-actions">
+                        <div className="planner-meta-actions" data-block-control="true">
                             <div className="planner-block-actions">
                                 <div
+                                    data-block-control="true"
                                     className={`planner-completion-track ${completionSlideEnabled ? "is-slide-enabled" : ""} ${completionClickEnabled ? "is-click-enabled" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
                                     style={{ "--completion-progress": `${completionProgress}` } as CSSProperties}
                                 >
                                     <button
                                         type="button"
+                                        data-block-control="true"
                                         className="planner-completion-handle"
                                         title={tr(language, "today.markLabel")}
                                         aria-label={tr(language, "today.markLabel")}
@@ -874,17 +884,7 @@ export function TodayBlocksSection({
                                 </div>
                                 <button
                                     data-no-drag="true"
-                                    className="block-edit-btn"
-                                    title={tr(language, "common.edit")}
-                                    aria-label={tr(language, "common.edit")}
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    onClick={() => openBlockEditor(block)}
-                                >
-                                    <Icon icon={PencilLine} size={14} />
-                                </button>
-                                <button
-                                    data-no-drag="true"
+                                    data-block-control="true"
                                     className="block-delete-x"
                                     title={tr(language, "common.delete")}
                                     aria-label={tr(language, "common.delete")}
@@ -899,7 +899,7 @@ export function TodayBlocksSection({
                     </div>
 
                     {usesCounter && (
-                        <div className="planner-block-progress">
+                        <div className="planner-block-progress" data-block-control="true">
                             <div
                                 className="block-progress-row"
                                 data-no-drag="true"
@@ -910,6 +910,7 @@ export function TodayBlocksSection({
                                 <div className="block-counter block-counter-shell">
                                     <input
                                         className="block-counter-range"
+                                        data-block-control="true"
                                         type="range"
                                         min={0}
                                         max={plannedAmount}
@@ -929,6 +930,7 @@ export function TodayBlocksSection({
                                         <div className="block-counter-buttons-wrap">
                                             <button
                                                 type="button"
+                                                data-block-control="true"
                                                 className="block-counter-adjust-btn"
                                                 title={tr(language, "today.decreaseActual")}
                                                 aria-label={tr(language, "today.decreaseActual")}
@@ -941,6 +943,7 @@ export function TodayBlocksSection({
                                             </button>
                                             <button
                                                 type="button"
+                                                data-block-control="true"
                                                 className="block-counter-adjust-btn"
                                                 title={tr(language, "today.increaseActual")}
                                                 aria-label={tr(language, "today.increaseActual")}
