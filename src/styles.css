@@ -11821,3 +11821,157 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
     gap: 8px;
   }
 }
+
+/* Final compact overrides for dayplan spacing and block density */
+.today-geist-root .today-dayplan-section .today-dayplan-header,
+.today-geist-root .today-open-targets-section>.today-section-header,
+.today-geist-root .today-habits-section .today-section-header,
+.today-geist-root .today-dayplan-section .today-blocks-group-header {
+  padding: 0 !important;
+  background: transparent !important;
+  margin-top: 0 !important;
+}
+
+.today-geist-root .today-dayplan-section .today-dayplan-header,
+.today-geist-root .today-open-targets-section>.today-section-header {
+  margin-bottom: 6px !important;
+}
+
+.today-geist-root .today-dayplan-section .today-list-sections {
+  gap: 8px !important;
+}
+
+.today-geist-root .today-dayplan-section .today-blocks-group {
+  gap: 4px !important;
+}
+
+.today-geist-root .today-dayplan-section .today-blocks-group-header {
+  margin-bottom: 0 !important;
+}
+
+.today-geist-root .today-open-targets-section .list {
+  gap: 6px !important;
+}
+
+.today-geist-root .today-open-targets-section .weekly-target + .weekly-target {
+  margin-top: 6px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-card {
+  min-height: 60px !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+  cursor: pointer;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-card .drag-handle,
+.today-geist-root .today-dayplan-section .planner-block-card [data-block-control='true'] {
+  cursor: default;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-card .block-content {
+  min-height: 32px !important;
+  gap: 4px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-header {
+  gap: 8px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-time-or-type {
+  font-size: 11px !important;
+  line-height: 14px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-heading {
+  font-size: 14px !important;
+  line-height: 19px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-header-target {
+  max-width: min(50%, 230px) !important;
+  min-height: 18px !important;
+  padding: 1px 6px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  line-height: 12px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-meta-row {
+  min-height: 20px !important;
+  gap: 6px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-meta-chip,
+.today-geist-root .today-dayplan-section .planner-status-chip {
+  padding: 2px 7px !important;
+  min-height: 18px !important;
+  font-size: 10px !important;
+  line-height: 12px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-actions {
+  gap: 3px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-actions .block-delete-x {
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 24px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-completion-track {
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 22px !important;
+}
+
+.today-geist-root .today-dayplan-section .planner-block-progress {
+  margin-top: 0 !important;
+  padding-top: 6px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-shell {
+  gap: 5px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-range {
+  height: 12px !important;
+  background-size: 100% 5px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-range::-webkit-slider-runnable-track {
+  height: 5px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-range::-moz-range-track {
+  height: 5px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-range::-webkit-slider-thumb {
+  width: 12px !important;
+  height: 12px !important;
+  margin-top: -3.5px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-range::-moz-range-thumb {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.today-geist-root .today-dayplan-section .block-counter-value {
+  font-size: 11px !important;
+  line-height: 14px !important;
+}
+
+@media (max-width: 880px) {
+  .today-geist-root .today-dayplan-section .planner-block-card {
+    min-height: 56px !important;
+    padding: 7px 10px !important;
+    gap: 7px !important;
+  }
+}
