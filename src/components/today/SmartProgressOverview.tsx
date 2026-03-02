@@ -138,6 +138,19 @@ export function SmartProgressOverview({
         setSelectedWeek(getWeekIndexForDate(cycle, date));
     };
 
+    const renderWeekDotContent = (day: WeekDayInfo) => {
+        if (day.state === "today") {
+            return <span className="spo-dot-num">{day.dayNumber}</span>;
+        }
+        if (day.state === "done") {
+            return <span className="spo-dot-state-icon" aria-hidden="true">✓</span>;
+        }
+        if (day.state === "partial") {
+            return <span className="spo-dot-state-icon spo-dot-partial-icon" aria-hidden="true">◐</span>;
+        }
+        return null;
+    };
+
     return (
         <div className="spo-card">
             {/* ── Top: Heute + Trend ─────────────────────────── */}
@@ -201,7 +214,7 @@ export function SmartProgressOverview({
                             onMouseEnter={() => setHoveredDot(i)}
                             onMouseLeave={() => setHoveredDot(null)}
                         >
-                            <span className={`spo-dot-label ${day.state === "today" ? "spo-dot-label-today" : ""}`}>
+                            <span className={`spo-dot-label spo-dot-label-${day.state} ${day.state === "today" ? "spo-dot-label-today" : ""}`}>
                                 {day.label.slice(0, 2)}
                             </span>
                             <button
@@ -212,7 +225,7 @@ export function SmartProgressOverview({
                                 aria-label={`${day.label} ${day.dayNumber}: ${day.tooltip}`}
                                 aria-pressed={day.date === selectedDate}
                             >
-                                <span className="spo-dot-num">{day.dayNumber}</span>
+                                {renderWeekDotContent(day)}
                             </button>
                             {hoveredDot === i && (
                                 <div className="spo-tooltip">

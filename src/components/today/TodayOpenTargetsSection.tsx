@@ -55,19 +55,21 @@ export function TodayOpenTargetsSection({
                                 "--open-target-accent": accent
                             } as CSSProperties) : undefined}
                         >
-                            <div className="planner-block-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+                            <div className="today-open-target-head">
                                 <strong className="planner-block-heading">{target.title}</strong>
                                 {goalName && (
-                                    <span className="planner-meta-chip planner-target-chip today-open-target-chip" style={{ marginLeft: "auto", flexShrink: 0 }}>
+                                    <span className="planner-meta-chip planner-target-chip today-open-target-chip">
                                         <span className="planner-target-dot" aria-hidden="true" />
                                         <span className="planner-target-label">{goalName}</span>
                                     </span>
                                 )}
                             </div>
-                            <div className="muted today-open-target-meta" style={{ textAlign: "left" }}>
+                            <div className="muted today-open-target-meta">
                                 {tr(language, "today.remaining", { done, target: target.target, unit: target.unit ?? "", remaining })}
                             </div>
-                            <ProgressBar value={done} max={target.target} showLabel={false} />
+                            <div className="today-open-target-progress">
+                                <ProgressBar value={done} max={target.target} showLabel={false} />
+                            </div>
                         </div>
                     );
                 })}

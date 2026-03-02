@@ -785,33 +785,34 @@ export function TodayBlocksSection({
                                 {block.title}
                             </strong>
                         </div>
-                        <div className="planner-block-actions">
-                            <div
-                                className={`planner-completion-track ${completionSlideEnabled ? "is-slide-enabled" : ""} ${completionClickEnabled ? "is-click-enabled" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
-                                style={{ "--completion-progress": `${completionProgress}` } as CSSProperties}
-                            >
+                        {linkedTargetTitle && (
+                            <span className="planner-meta-chip planner-target-chip planner-block-header-target" title={linkedTargetTitle}>
+                                <span className="planner-target-dot" aria-hidden="true" />
+                                <span className="planner-target-label">{linkedTargetTitle}</span>
+                            </span>
+                        )}
+                    </div>
+
+                    {linkedTargetTitle && (
+                        <div className="planner-linked-target-row">
+                            <span className="planner-linked-target-info" title={linkedTargetTitle}>
+                                <span aria-hidden="true">🎯</span>
+                                <span>{linkedTargetTitle}</span>
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="planner-meta-row">
+                        <div className="planner-meta-actions">
+                            {(!usesCounter || canUndoFromBadge) ? (
                                 <button
                                     type="button"
-                                    className="planner-completion-handle"
-                                    title={tr(language, "today.markLabel")}
-                                    aria-label={tr(language, "today.markLabel")}
-                                    onPointerDown={(event) => startCompletionInteraction(event, block, { usesCounter, isDone })}
-                                    onPointerMove={(event) => moveCompletionInteraction(event, block, { usesCounter, isDone })}
-                                    onPointerUp={(event) => endCompletionInteraction(event, block, { usesCounter, isDone })}
-                                    onPointerCancel={(event) => {
-                                        cancelCompletionInteraction(event, block, { usesCounter, isDone });
-                                    }}
-                                    onClick={(event) => {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-
-                                        if (isArchiveView) return;
-
-                                        if (!usesCounter) {
-                                            // Non-counter blocks are handled via pointer tap/slide interaction.
-                                            return;
-                                        }
-
+                                    className={`planner-meta-chip planner-status-chip is-interactive ${isDone ? "done" : "pending"}`}
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         if (isDone) {
                                             if (usesCounter) {
                                                 const nextActual = Math.max(0, plannedAmount - 1);
@@ -825,84 +826,93 @@ export function TodayBlocksSection({
                                             return;
                                         }
 
-                                        if (usesCounter) {
-                                            handleToggleCompletion(block, true);
-                                            triggerCompletionFx(block.id);
-                                        }
+                                        handleToggleCompletion(block, true);
+                                        triggerCompletionFx(block.id);
                                     }}
+                                    title={tr(language, "today.markLabel")}
+                                    aria-label={tr(language, "today.markLabel")}
                                 >
-                                    <Icon icon={Check} size={12} />
+                                    {statusLabel}
+                                </button>
+                            ) : (
+                                <span className={`planner-meta-chip planner-status-chip ${isDone ? "done" : "pending"}`}>
+                                    {statusLabel}
+                                </span>
+                            )}
+
+                            <div className="planner-block-actions">
+                                <div
+                                    className={`planner-completion-track ${completionSlideEnabled ? "is-slide-enabled" : ""} ${completionClickEnabled ? "is-click-enabled" : ""} ${isDone ? "is-done" : ""} ${completionDragState?.blockId === block.id ? "is-dragging" : ""} ${isCompleting ? "is-animating" : ""}`}
+                                    style={{ "--completion-progress": `${completionProgress}` } as CSSProperties}
+                                >
+                                    <button
+                                        type="button"
+                                        className="planner-completion-handle"
+                                        title={tr(language, "today.markLabel")}
+                                        aria-label={tr(language, "today.markLabel")}
+                                        onPointerDown={(event) => startCompletionInteraction(event, block, { usesCounter, isDone })}
+                                        onPointerMove={(event) => moveCompletionInteraction(event, block, { usesCounter, isDone })}
+                                        onPointerUp={(event) => endCompletionInteraction(event, block, { usesCounter, isDone })}
+                                        onPointerCancel={(event) => {
+                                            cancelCompletionInteraction(event, block, { usesCounter, isDone });
+                                        }}
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+
+                                            if (isArchiveView) return;
+
+                                            if (!usesCounter) {
+                                                // Non-counter blocks are handled via pointer tap/slide interaction.
+                                                return;
+                                            }
+
+                                            if (isDone) {
+                                                if (usesCounter) {
+                                                    const nextActual = Math.max(0, plannedAmount - 1);
+                                                    onUpdateBlock(selectedDate, block.id, {
+                                                        done: false,
+                                                        actual: nextActual
+                                                    });
+                                                    return;
+                                                }
+                                                handleToggleCompletion(block, false);
+                                                return;
+                                            }
+
+                                            if (usesCounter) {
+                                                handleToggleCompletion(block, true);
+                                                triggerCompletionFx(block.id);
+                                            }
+                                        }}
+                                    >
+                                        <Icon icon={Check} size={12} />
+                                    </button>
+                                </div>
+                                <button
+                                    data-no-drag="true"
+                                    className="block-edit-btn"
+                                    title={tr(language, "common.edit")}
+                                    aria-label={tr(language, "common.edit")}
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={() => openBlockEditor(block)}
+                                >
+                                    <Icon icon={PencilLine} size={14} />
+                                </button>
+                                <button
+                                    data-no-drag="true"
+                                    className="block-delete-x"
+                                    title={tr(language, "common.delete")}
+                                    aria-label={tr(language, "common.delete")}
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={() => onDeleteBlock(selectedDate, block.id)}
+                                >
+                                    <Icon icon={Trash2} size={14} />
                                 </button>
                             </div>
-                            <button
-                                data-no-drag="true"
-                                className="block-edit-btn"
-                                title={tr(language, "common.edit")}
-                                aria-label={tr(language, "common.edit")}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onClick={() => openBlockEditor(block)}
-                            >
-                                <Icon icon={PencilLine} size={14} />
-                            </button>
-                            <button
-                                data-no-drag="true"
-                                className="block-delete-x"
-                                title={tr(language, "common.delete")}
-                                aria-label={tr(language, "common.delete")}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onClick={() => onDeleteBlock(selectedDate, block.id)}
-                            >
-                                <Icon icon={Trash2} size={14} />
-                            </button>
                         </div>
-                    </div>
-
-                    <div className="planner-meta-row">
-                        {linkedTargetTitle ? (
-                            <span className="planner-meta-chip planner-target-chip" title={linkedTargetTitle}>
-                                <span className="planner-target-label">{linkedTargetTitle}</span>
-                            </span>
-                        ) : (
-                            <span className="planner-meta-spacer" aria-hidden="true" />
-                        )}
-
-                        {(!usesCounter || canUndoFromBadge) ? (
-                            <button
-                                type="button"
-                                className={`planner-meta-chip planner-status-chip is-interactive ${isDone ? "done" : "pending"}`}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onTouchStart={(e) => e.stopPropagation()}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (isDone) {
-                                        if (usesCounter) {
-                                            const nextActual = Math.max(0, plannedAmount - 1);
-                                            onUpdateBlock(selectedDate, block.id, {
-                                                done: false,
-                                                actual: nextActual
-                                            });
-                                            return;
-                                        }
-                                        handleToggleCompletion(block, false);
-                                        return;
-                                    }
-
-                                    handleToggleCompletion(block, true);
-                                    triggerCompletionFx(block.id);
-                                }}
-                                title={tr(language, "today.markLabel")}
-                                aria-label={tr(language, "today.markLabel")}
-                            >
-                                {statusLabel}
-                            </button>
-                        ) : (
-                            <span className={`planner-meta-chip planner-status-chip ${isDone ? "done" : "pending"}`}>
-                                {statusLabel}
-                            </span>
-                        )}
                     </div>
 
                     {usesCounter && (

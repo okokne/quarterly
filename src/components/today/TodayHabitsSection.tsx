@@ -186,10 +186,10 @@ function HabitStreakCard({
                                     style={{
                                         height: `${h}px`,
                                         background: isFuture
-                                            ? "rgba(0,0,0,0.06)"
+                                            ? "rgba(0,0,0,0.04)"
                                             : done7
-                                                ? "#0070F3"
-                                                : "rgba(0,0,0,0.06)",
+                                                ? "rgba(59,130,246,0.85)"
+                                                : "rgba(0,0,0,0.04)",
                                         opacity: isHovered ? 0.7 : 1,
                                     }}
                                 />

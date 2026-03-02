@@ -11237,3 +11237,343 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
   padding: 0 18px 18px !important;
   padding-top: 14px !important;
 }
+
+/* Today tab polish: consistent spacing, layout hierarchy and state styling */
+.today-geist-root {
+  font-family: var(--font-sans);
+}
+
+.today-dayplan-header,
+.today-open-targets-section>.today-section-header,
+.today-habits-section .today-section-header {
+  margin-bottom: 12px;
+}
+
+.today-content-section-dayplan,
+.today-content-section-week-open,
+.today-habits-section {
+  margin-bottom: 32px;
+}
+
+.today-review-section .today-daily-review-card {
+  margin-top: 32px;
+}
+
+.today-dayplan-section,
+.today-open-targets-section,
+.today-habits-section .today-section {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.today-dayplan-section .today-list-sections {
+  display: grid;
+  gap: 12px;
+}
+
+.today-dayplan-section .today-blocks-group {
+  gap: 8px;
+}
+
+.today-dayplan-section .today-blocks-group-header h4 {
+  margin: 0;
+}
+
+.today-dayplan-section .planner-block-card {
+  min-height: 72px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+  background: var(--g-bg-elevated);
+}
+
+.today-dayplan-section .planner-block-card .drag-handle {
+  align-self: center;
+}
+
+.today-dayplan-section .planner-block-card .block-content {
+  min-height: 72px;
+  justify-content: center;
+  gap: 6px;
+}
+
+.today-dayplan-section .planner-block-header {
+  align-items: center;
+  gap: 10px;
+}
+
+.today-dayplan-section .planner-block-header-target {
+  margin-left: auto;
+  flex: 0 0 auto;
+  max-width: min(58%, 260px);
+}
+
+.today-dayplan-section .planner-linked-target-row {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.today-dayplan-section .planner-linked-target-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--g-text-secondary);
+}
+
+.today-dayplan-section .planner-linked-target-info span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-dayplan-section .planner-meta-row {
+  justify-content: flex-end;
+  min-height: 24px;
+}
+
+.today-dayplan-section .planner-meta-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.today-dayplan-section .planner-block-actions {
+  gap: 6px;
+}
+
+.today-open-targets-section .today-open-target-item {
+  min-height: 72px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  background: var(--g-bg-elevated);
+}
+
+.today-open-targets-section .today-open-target-head {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.today-open-targets-section .today-open-target-chip {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.today-open-targets-section .today-open-target-meta {
+  margin-top: 6px;
+  margin-left: 0;
+  text-align: left;
+  color: var(--g-text-secondary);
+}
+
+.today-open-targets-section .today-open-target-progress {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.today-dayplan-section .block+.block {
+  margin-top: 12px;
+}
+
+.today-open-targets-section .weekly-target+.weekly-target {
+  margin-top: 12px;
+}
+
+.today-habits-section .habit-card+.habit-card {
+  margin-top: 12px;
+}
+
+.today-geist-root .today-geist-title {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--g-text-primary);
+}
+
+.today-geist-root .today-section-title,
+.today-geist-root .today-dayplan-header h3 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--g-text-primary);
+}
+
+.today-geist-root .planner-block-heading,
+.today-geist-root .today-open-target-item .planner-block-heading,
+.today-geist-root .hsc-name {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--g-text-primary);
+}
+
+.today-geist-root .planner-block-time-or-type,
+.today-geist-root .today-open-target-meta,
+.today-geist-root .planner-linked-target-info,
+.today-geist-root .hsc-success-rate,
+.today-geist-root .hsc-bar-label,
+.today-geist-root .spo-today-meta {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--g-text-secondary);
+}
+
+.today-geist-root .planner-meta-chip,
+.today-geist-root .today-open-target-chip,
+.today-geist-root .planner-status-chip {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.today-geist-root .spo-dot {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: none;
+  transform: none;
+}
+
+.today-geist-root .spo-dot:hover {
+  transform: none;
+}
+
+.today-geist-root .spo-dot-failed {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.today-geist-root .spo-dot-partial {
+  background: rgba(217, 119, 6, 0.10);
+  border-color: #D97706;
+  color: #D97706;
+}
+
+.today-geist-root .spo-dot-done {
+  background: rgba(5, 150, 105, 0.10);
+  border-color: #059669;
+  color: #059669;
+}
+
+.today-geist-root .spo-dot-today {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  border: none;
+  background: #0070F3;
+  box-shadow: 0 2px 8px rgba(0, 112, 243, 0.24), 0 0 0 3px rgba(0, 112, 243, 0.12);
+}
+
+.today-geist-root .spo-dot-future {
+  background: transparent;
+  border: 1px dashed rgba(0, 0, 0, 0.08);
+  box-shadow: none;
+}
+
+.today-geist-root .spo-dot-state-icon {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.today-geist-root .spo-dot-partial-icon {
+  color: #D97706;
+}
+
+.today-geist-root .spo-dot-done .spo-dot-state-icon {
+  color: #059669;
+}
+
+.today-geist-root .spo-dot-num {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.today-geist-root .spo-dot-today .spo-dot-num {
+  color: #FFFFFF;
+}
+
+.today-geist-root .spo-dot-label-done,
+.today-geist-root .spo-dot-label-partial {
+  color: var(--g-text-secondary);
+}
+
+.today-geist-root .spo-dot-label-failed,
+.today-geist-root .spo-dot-label-future {
+  color: var(--g-text-tertiary);
+}
+
+.today-geist-root .spo-dot-label-today {
+  color: #0070F3;
+}
+
+.today-geist-root .spo-dot-selected:not(.spo-dot-today) {
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.18);
+}
+
+.today-geist-root .spo-dot-today.spo-dot-selected {
+  box-shadow: 0 2px 8px rgba(0, 112, 243, 0.24), 0 0 0 3px rgba(0, 112, 243, 0.12), 0 0 0 2px rgba(0, 112, 243, 0.2);
+}
+
+.today-habits-section .progress-ring-container,
+.today-habits-section .progress-ring {
+  width: 40px;
+  height: 40px;
+}
+
+.today-habits-section .progress-ring-bg,
+.today-habits-section .progress-ring-fill {
+  stroke-width: 3;
+}
+
+.today-habits-section .progress-ring-text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.today-geist-root .today-add-block-plus-btn,
+.today-geist-root .today-dayplan-header .today-add-block-plus-btn,
+.today-geist-root .today-dayplan-header-actions .today-add-block-plus-btn {
+  background: #0070F3 !important;
+  border: 1px solid #0070F3 !important;
+  color: #FFFFFF !important;
+}
+
+.today-geist-root .today-add-block-plus-btn:hover,
+.today-geist-root .today-dayplan-header .today-add-block-plus-btn:hover,
+.today-geist-root .today-dayplan-header-actions .today-add-block-plus-btn:hover {
+  background: #0059C9 !important;
+  border-color: #0059C9 !important;
+  color: #FFFFFF !important;
+}
+
+.today-geist-root .today-add-block-plus-btn .today-dayplan-add-icon,
+.today-geist-root .today-empty-add-btn.today-add-block-cta-btn svg {
+  color: #FFFFFF !important;
+}
