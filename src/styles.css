@@ -3357,9 +3357,9 @@ button.ghost-danger:hover {
 
 .planner-completion-track {
   --completion-progress: 0;
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
   border-radius: 6px;
   position: relative;
   border: 2px solid var(--border);
@@ -8187,7 +8187,6 @@ body.dark-mode .archive-banner {
 .planner-block-card:hover {
   border-color: var(--planner-target-accent, var(--accent-300));
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
 }
 
 .planner-block-heading {
@@ -9565,27 +9564,27 @@ body.dark-mode {
 }
 
 .today-progress-overview-wrap {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 }
 
 .today-week-navigation-wrap {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .today-content-section {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .today-content-section-week-open {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .today-habits-section {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .today-review-section {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 /* ─── Page Header ────────────────────────────────────────────────────────── */
@@ -10154,15 +10153,15 @@ body.dark-mode .spo-dot-future {
   margin-bottom: 0;
 }
 
-.today-dayplan-section .block + .block {
+.today-dayplan-section .block+.block {
   margin-top: 12px;
 }
 
-.today-open-targets-section .weekly-target + .weekly-target {
+.today-open-targets-section .weekly-target+.weekly-target {
   margin-top: 12px;
 }
 
-.today-habits-section .habit-card + .habit-card {
+.today-habits-section .habit-card+.habit-card {
   margin-top: 12px;
 }
 
@@ -10489,16 +10488,16 @@ body.dark-mode .hsc-streak-zero {
   }
 
   .today-content-section {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
   }
 
   .today-content-section-week-open,
   .today-habits-section {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
   }
 
   .today-review-section {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .twc-card {
@@ -11259,17 +11258,17 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 .today-dayplan-header,
 .today-open-targets-section>.today-section-header,
 .today-habits-section .today-section-header {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .today-content-section-dayplan,
 .today-content-section-week-open,
 .today-habits-section {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .today-review-section .today-daily-review-card {
-  margin-top: 32px;
+  margin-top: 20px;
 }
 
 .today-dayplan-section,
@@ -11283,24 +11282,35 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 
 .today-dayplan-section .today-list-sections {
   display: grid;
-  gap: 12px;
-}
-
-.today-dayplan-section .today-blocks-group {
   gap: 8px;
 }
 
-.today-dayplan-section .today-blocks-group-header h4 {
+.today-dayplan-section .today-blocks-group {
+  gap: 6px;
+}
+
+.today-dayplan-section .today-blocks-group-header h4,
+.today-dayplan-section .today-blocks-group-header .today-blocks-group-label {
   margin: 0;
 }
 
+.today-blocks-group-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--g-text-tertiary);
+  padding: 2px 0;
+}
+
 .today-dayplan-section .planner-block-card {
-  min-height: 72px;
-  padding: 0 16px;
+  min-height: 60px;
+  padding: 0 14px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 12px;
+  gap: 10px;
   background: var(--g-bg-elevated);
 }
 
@@ -11309,9 +11319,9 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .planner-block-card .block-content {
-  min-height: 72px;
+  min-height: 60px;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .today-dayplan-section .planner-block-header {
@@ -11364,8 +11374,8 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-open-targets-section .today-open-target-item {
-  min-height: 72px;
-  padding: 0 16px;
+  min-height: 60px;
+  padding: 0 14px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -11399,15 +11409,15 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
 }
 
 .today-dayplan-section .block+.block {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .today-open-targets-section .weekly-target+.weekly-target {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .today-habits-section .habit-card+.habit-card {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .today-geist-root .today-geist-title {

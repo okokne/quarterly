@@ -779,7 +779,7 @@ export function TodayBlocksSection({
                             <span className="planner-block-time-or-type">
                                 {hasFixedTime && block.startTime && block.endTime
                                     ? `${formatTime(block.startTime, timeFormat)}–${formatTime(block.endTime, timeFormat)}`
-                                    : <><span className="muted">{tr(language, "today.flexibleBlocks")} ·</span></>}
+                                    : <span className="muted">{tr(language, "today.flexibleBlocks")}</span>}
                             </span>
                             <strong className="planner-block-heading">
                                 {block.title}
@@ -793,48 +793,10 @@ export function TodayBlocksSection({
                         )}
                     </div>
 
-                    {linkedTargetTitle && (
-                        <div className="planner-linked-target-row">
-                            <span className="planner-linked-target-info" title={linkedTargetTitle}>
-                                <span aria-hidden="true">🎯</span>
-                                <span>{linkedTargetTitle}</span>
-                            </span>
-                        </div>
-                    )}
 
                     <div className="planner-meta-row">
                         <div className="planner-meta-actions">
-                            {(!usesCounter || canUndoFromBadge) ? (
-                                <button
-                                    type="button"
-                                    className={`planner-meta-chip planner-status-chip is-interactive ${isDone ? "done" : "pending"}`}
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    onTouchStart={(e) => e.stopPropagation()}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (isDone) {
-                                            if (usesCounter) {
-                                                const nextActual = Math.max(0, plannedAmount - 1);
-                                                onUpdateBlock(selectedDate, block.id, {
-                                                    done: false,
-                                                    actual: nextActual
-                                                });
-                                                return;
-                                            }
-                                            handleToggleCompletion(block, false);
-                                            return;
-                                        }
-
-                                        handleToggleCompletion(block, true);
-                                        triggerCompletionFx(block.id);
-                                    }}
-                                    title={tr(language, "today.markLabel")}
-                                    aria-label={tr(language, "today.markLabel")}
-                                >
-                                    {statusLabel}
-                                </button>
-                            ) : (
+                            {usesCounter && (
                                 <span className={`planner-meta-chip planner-status-chip ${isDone ? "done" : "pending"}`}>
                                     {statusLabel}
                                 </span>
@@ -1205,7 +1167,7 @@ export function TodayBlocksSection({
                     {plannedBlocks.length > 0 && (
                         <section className="today-blocks-group">
                             <div className="today-blocks-group-header">
-                                <h4>{tr(language, "today.plannedBlocks")}</h4>
+                                <span className="today-blocks-group-label">{tr(language, "today.plannedBlocks")}</span>
                             </div>
                             <div className="list sortable">
                                 {plannedBlocks.map((entry) => renderListBlockItem(entry, false))}
@@ -1216,8 +1178,7 @@ export function TodayBlocksSection({
                     {flexibleBlocks.length > 0 && (
                         <section className="today-blocks-group today-blocks-group-flexible">
                             <div className="today-blocks-group-header">
-                                <h4>{tr(language, "today.flexibleBlocks")}</h4>
-                                <p className="muted">{tr(language, "today.flexibleHint")}</p>
+                                <span className="today-blocks-group-label">{tr(language, "today.flexibleBlocks")}</span>
                             </div>
                             <div className="list sortable">
                                 {flexibleBlocks.map((entry) => renderListBlockItem(entry, true))}
