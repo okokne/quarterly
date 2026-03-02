@@ -5976,6 +5976,16 @@ body.dark-mode .today-hero-watermark {
   min-height: 32px;
   padding: 0 10px;
   border-radius: 9px;
+  border: 1px solid var(--button-primary-border) !important;
+  background: var(--button-primary-bg) !important;
+  color: var(--button-primary-text) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.today-dayplan-add-btn:hover {
+  background: var(--button-primary-bg-hover) !important;
+  border-color: var(--button-primary-border) !important;
+  box-shadow: var(--shadow-md);
 }
 
 .today-dayplan-add-icon {
@@ -10736,7 +10746,7 @@ button:disabled {
 }
 
 /* Cards */
-[class*="card"]:not(.spo-card):not(.twc-card):not(.hsc-card):not(.today-geist-container):not(.today-dayplan-section):not(.today-open-targets-section):not(.today-daily-review-card),
+[class*="card"]:not(.spo-card):not(.twc-card):not(.hsc-card):not(.today-geist-container):not(.today-dayplan-section):not(.today-open-targets-section):not(.today-daily-review-card):not([class*="book-card"]):not([class*="books-"]),
 .card {
   background-color: var(--color-background-elevated) !important;
   border: 1px solid var(--color-border-base) !important;
@@ -10745,17 +10755,17 @@ button:disabled {
   box-shadow: var(--shadow-sm) !important;
 }
 
-[class*="card"][class*="interactive"]:not(.spo-card):not(.twc-card):not(.hsc-card),
+[class*="card"][class*="interactive"]:not(.spo-card):not(.twc-card):not(.hsc-card):not([class*="book-card"]):not([class*="books-"]),
 .card-interactive,
-[class*="card"]:has(a):not(.spo-card):not(.twc-card):not(.hsc-card),
-[class*="card"][role="button"]:not(.spo-card):not(.twc-card):not(.hsc-card) {
+[class*="card"]:has(a):not(.spo-card):not(.twc-card):not(.hsc-card):not([class*="book-card"]):not([class*="books-"]),
+[class*="card"][role="button"]:not(.spo-card):not(.twc-card):not(.hsc-card):not([class*="book-card"]):not([class*="books-"]) {
   cursor: pointer;
 }
 
-[class*="card"][class*="interactive"]:not(.spo-card):not(.twc-card):not(.hsc-card):hover,
+[class*="card"][class*="interactive"]:not(.spo-card):not(.twc-card):not(.hsc-card):not([class*="book-card"]):not([class*="books-"]):hover,
 .card-interactive:hover,
-[class*="card"]:has(a):not(.spo-card):not(.twc-card):not(.hsc-card):hover,
-[class*="card"][role="button"]:not(.spo-card):not(.twc-card):not(.hsc-card):hover {
+[class*="card"]:has(a):not(.spo-card):not(.twc-card):not(.hsc-card):not([class*="book-card"]):not([class*="books-"]):hover,
+[class*="card"][role="button"]:not(.spo-card):not(.twc-card):not(.hsc-card):not([class*="book-card"]):not([class*="books-"]):hover {
   border-color: var(--color-border-strong) !important;
   box-shadow: var(--shadow-md) !important;
   transform: translateY(-2px);
@@ -10899,7 +10909,7 @@ input[type="radio"]:checked {
 
 /* Header Container */
 .app-content-header,
-[class*="header"],
+[class*="header"]:not([class*="books-"]):not([class*="book-"]),
 .header,
 .top-bar {
   background-color: transparent !important;
@@ -10907,7 +10917,7 @@ input[type="radio"]:checked {
 }
 
 .app-content-header-actions button:not(.today-geist-ghost-btn),
-[class*="header"] button:not(.today-geist-ghost-btn),
+[class*="header"]:not([class*="books-"]):not([class*="book-"]) button:not(.today-geist-ghost-btn),
 .header button:not(.today-geist-ghost-btn) {
   background-color: transparent !important;
   color: var(--color-text-secondary) !important;
@@ -10916,7 +10926,7 @@ input[type="radio"]:checked {
 }
 
 .app-content-header-actions button:hover:not(.today-geist-ghost-btn),
-[class*="header"] button:hover:not(.today-geist-ghost-btn),
+[class*="header"]:not([class*="books-"]):not([class*="book-"]) button:hover:not(.today-geist-ghost-btn),
 .header button:hover:not(.today-geist-ghost-btn) {
   background-color: var(--color-background-subtle) !important;
   color: var(--color-text-primary) !important;
@@ -10959,14 +10969,14 @@ input[type="radio"]:checked {
 }
 
 /* Timeline/Liste Toggle Buttons */
-[class*="view-toggle"],
+[class*="view-toggle"]:not(.books-view-toggle),
 .view-switcher {
   background-color: var(--color-background-subtle) !important;
   border-radius: var(--radius-md) !important;
   padding: 2px !important;
 }
 
-[class*="view-toggle"] button {
+[class*="view-toggle"]:not(.books-view-toggle) button {
   background-color: transparent !important;
   border: none !important;
   padding: 6px 12px !important;
@@ -10976,8 +10986,8 @@ input[type="radio"]:checked {
   color: var(--color-text-tertiary) !important;
 }
 
-[class*="view-toggle"] button[class*="active"],
-[class*="view-toggle"] button[aria-selected="true"] {
+[class*="view-toggle"]:not(.books-view-toggle) button[class*="active"],
+[class*="view-toggle"]:not(.books-view-toggle) button[aria-selected="true"] {
   background-color: var(--color-background-elevated) !important;
   color: var(--color-text-primary) !important;
   font-weight: var(--font-weight-medium) !important;
