@@ -8391,7 +8391,7 @@ body.dark-mode .archive-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px 12px;
+  padding: 12px 18px 14px;
   cursor: pointer;
   background: transparent;
   transition: background 150ms ease;
@@ -8461,7 +8461,7 @@ body.dark-mode .archive-banner {
 }
 
 .today-daily-review-card .grid {
-  padding: 0 14px 14px;
+  padding: 0 18px 18px;
   border-top: 1px solid var(--g-border-base);
   margin-top: 0;
   padding-top: 14px;
