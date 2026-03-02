@@ -5957,7 +5957,7 @@ body.dark-mode .today-hero-watermark {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .today-dayplan-header h3 {
