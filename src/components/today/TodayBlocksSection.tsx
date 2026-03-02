@@ -728,7 +728,7 @@ export function TodayBlocksSection({
         return (
             <div
                 key={block.id}
-                className={`list-item planner-block-card ${targetAccent ? "has-target-accent" : ""} ${isDone ? "done" : ""} ${isCompleting ? "is-completing" : ""} ${draggingBlockId === block.id ? "dragging" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
+                className={`list-item block planner-block-card ${targetAccent ? "has-target-accent" : ""} ${isDone ? "done" : ""} ${isCompleting ? "is-completing" : ""} ${draggingBlockId === block.id ? "dragging" : ""} ${isTouchDragActive ? "touch-drag-active" : ""} ${isTouchDragOver ? "touch-drag-over" : ""}`}
                 data-block-id={String(block.id)}
                 data-block-index={allowReorder ? originalIndex : undefined}
                 data-block-type={hasFixedTime ? "geplant" : linkedTargetTitle ? "flex-task" : "flex-notask"}

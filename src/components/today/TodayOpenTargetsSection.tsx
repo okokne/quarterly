@@ -49,7 +49,7 @@ export function TodayOpenTargetsSection({
                     return (
                         <div
                             key={target.id}
-                            className="list-item column planner-block-card has-target-accent today-open-target-item"
+                            className="list-item column planner-block-card has-target-accent today-open-target-item weekly-target"
                             style={accent ? ({
                                 "--planner-target-accent": accent,
                                 "--open-target-accent": accent

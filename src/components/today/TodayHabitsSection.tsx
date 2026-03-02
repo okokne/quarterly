@@ -117,7 +117,7 @@ function HabitStreakCard({
     const DAY_INITIALS = language === "de" ? DAY_INITIALS_DE : DAY_INITIALS_EN;
 
     return (
-        <article className={`hsc-card ${isDone ? "hsc-card-done" : ""}`}>
+        <article className={`hsc-card habit-card ${isDone ? "hsc-card-done" : ""}`}>
             {/* ── Header Row ─────────────────────────── */}
             <div className="hsc-header">
                 <div className="hsc-info">
