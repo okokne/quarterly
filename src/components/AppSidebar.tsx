@@ -4,6 +4,7 @@ import { t as tr } from "../i18n";
 import { AppTab } from "../navigation";
 import { AppLanguage, SyncStatus } from "../types";
 import { Icon } from "./ui/Icon";
+import { QuarterlyLogo } from "./QuarterlyLogo";
 
 type QuickCaptureAction = "block" | "note";
 
@@ -11,6 +12,7 @@ type AppSidebarProps = {
     language: AppLanguage;
     activeTab: AppTab;
     setActiveTab: (tab: AppTab) => void;
+    currentWeek?: number;
     syncEnabled: boolean;
     syncStatus?: SyncStatus;
     onOpenSettings: () => void;
@@ -37,6 +39,7 @@ export function AppSidebar({
     language,
     activeTab,
     setActiveTab,
+    currentWeek,
     syncEnabled,
     syncStatus,
     onOpenSettings,
@@ -77,7 +80,9 @@ export function AppSidebar({
         <aside className="app-sidebar">
             <div className="app-sidebar-top">
                 <div className="app-sidebar-brand">
-                    <span className="app-sidebar-logo" aria-hidden="true">Q</span>
+                    <div className="app-sidebar-logo-grid" aria-hidden="true">
+                        <QuarterlyLogo size={32} currentWeek={currentWeek ?? 1} />
+                    </div>
                     <div>
                         <strong>Quarterly</strong>
                         <span>{tr(language, "sidebar.subtitle")}</span>

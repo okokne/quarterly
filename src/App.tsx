@@ -717,6 +717,7 @@ export default function App() {
         language={language}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        currentWeek={currentWeek?.index ?? 1}
         syncEnabled={syncEnabled}
         syncStatus={syncEnabled ? syncStatus : undefined}
         onOpenSettings={() => {

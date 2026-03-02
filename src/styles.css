@@ -595,6 +595,19 @@ body {
   box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-500) 32%, transparent);
 }
 
+.app-sidebar-logo-grid {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-sidebar-logo-grid svg {
+  display: block;
+}
+
 .app-sidebar-quick-shell {
   position: relative;
 }
