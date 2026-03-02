@@ -11227,3 +11227,13 @@ button.today-dayplan-add-btn .today-dayplan-add-icon {
   border-color: var(--color-accent-hover) !important;
   color: #FFFFFF !important;
 }
+
+/* Daily review spacing must override broad generic [class*="header"] rules */
+.today-review-section .today-daily-review-card .daily-review-header {
+  padding: 12px 18px 14px !important;
+}
+
+.today-review-section .today-daily-review-card .grid {
+  padding: 0 18px 18px !important;
+  padding-top: 14px !important;
+}
